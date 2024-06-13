@@ -1,3 +1,6 @@
+CREATE TABLE mddInfo (
+    version: TEXT
+);
 
 CREATE TABLE taxonomy (
     id INT NOT NULL PRIMARY KEY,
