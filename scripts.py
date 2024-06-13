@@ -19,6 +19,9 @@ OUTPUT_DMG = "installer/nahpu.dmg"
 
 FRB_INSTALL_NAME = "flutter_rust_bridge_codegen@^2.0.0-dev.0"
 
+IOS_PODS_FILES = "ios/Podfile ios/Podfile.lock ios/Pods/"
+MACOS_PODS_FILES = "macos/Podfile macos/Podfile.lock macos/Pods/"
+
 
 class Build:
     def __init__(self):
@@ -193,7 +196,6 @@ class BuildRust:
             print("Error updating rust dependencies:", str(e))
             return
 
-
 class FlutterUtils:
     def __init__(self):
         pass
@@ -223,6 +225,17 @@ class FlutterUtils:
             print("Flutter dependencies updated successfully\n")
         except Exception as e:
             print("Error updating flutter dependencies:", str(e))
+            return
+    
+    def clean_pods(self) -> None:
+        print("Cleaning pods...")
+        try:
+            subprocess.run(["rm", "-rf", IOS_PODS_FILES])
+            subprocess.run(["rm", "-rf", MACOS_PODS_FILES])
+            subprocess.run(["flutter", "clean"])
+            print("Pods cleaned successfully\n")
+        except Exception as e:
+            print("Error cleaning pods:", str(e))
             return
 
 
@@ -314,6 +327,7 @@ class Args:
         parser.add_argument(
             "--update", action="store_true", help="Update flutter dependencies"
         )
+        parser.add_argument("--clean-pods", action="store_true", help="Clean pods")
 
     def get_rust_build_args(self, args: argparse.Namespace) -> None:
         parser = args.add_parser("frb", help="Build options for Rust project")
@@ -372,6 +386,8 @@ class Parser:
             utils.fix_dart_code()
         elif self.args.update:
             utils.update_flutter_dependencies()
+        elif self.args.clean_pods:
+            utils.clean_pods()
         else:
             print("No utility option selected")
             return
