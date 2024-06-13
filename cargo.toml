@@ -1,0 +1,3 @@
+[workspace]
+members = ["mdd_api", "rust"]
+resolver = "2"
