@@ -1,4 +1,4 @@
-import 'package:test_mdd/services/database/database.dart';
+import 'package:mdd/services/database/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'database.g.dart';

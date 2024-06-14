@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:test_mdd/services/database/database.dart';
+import 'package:mdd/services/database/database.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:test_mdd/src/rust/api/parser.dart';
+import 'package:mdd/src/rust/api/parser.dart';
 
 part 'mdd_query.g.dart';
 

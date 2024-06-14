@@ -3,10 +3,10 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 class MddTheme {
   static final _defaultLightColorScheme =
-      FlexThemeData.light(scheme: FlexScheme.greenM3).colorScheme;
+      FlexThemeData.light(scheme: FlexScheme.greyLaw).colorScheme;
 
   static final _defaultDarkColorScheme =
-      FlexThemeData.dark(scheme: FlexScheme.greenM3).colorScheme;
+      FlexThemeData.dark(scheme: FlexScheme.greyLaw).colorScheme;
 
   static ThemeData lightTheme(ColorScheme? lightColorScheme) {
     return ThemeData(

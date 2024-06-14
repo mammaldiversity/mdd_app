@@ -7,7 +7,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:test_mdd/services/app_services.dart';
+import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
 

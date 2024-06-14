@@ -1,5 +1,5 @@
 [package]
-name = "rust_lib_test_mdd"
+name = "rust_lib_mdd"
 version = "0.1.0"
 edition = "2021"
 

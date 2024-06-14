@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test_mdd/main.dart';
-import 'package:test_mdd/src/rust/frb_generated.dart';
+import 'package:mdd/main.dart';
+import 'package:mdd/src/rust/frb_generated.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
