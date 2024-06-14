@@ -1,3 +1,5 @@
-# test_mdd
+# mdd_app
 
-A project to test mammal diversity mobile app.
+An app for viewing mammal diversity database.
+
+Work in progress.
