@@ -50,7 +50,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  rust_lib_mdd: 2e096790b6af36b549386cbe6cf041b1ff739c83
+  rust_lib_mdd: a30d7e27a9997aa58910840c1c64179ca085a9a0
   sqlite3: 292c3e1bfe89f64e51ea7fc7dab9182a017c8630
   sqlite3_flutter_libs: 0d611efdf6d1c9297d5ab03dab21b75aeebdae31
 
