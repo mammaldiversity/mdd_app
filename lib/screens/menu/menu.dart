@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/menu/settings.dart';
+import 'package:mdd/screens/menu/version.dart';
 
 class MoreMenu extends StatefulWidget {
   const MoreMenu({super.key});
@@ -14,6 +15,8 @@ class _MoreMenuState extends State<MoreMenu> {
     return ListView(
       children: const <Widget>[
         AppearanceSetting(),
+        SizedBox(height: 32),
+        AppVersionView(),
       ],
     );
   }

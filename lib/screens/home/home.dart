@@ -16,7 +16,7 @@ const List<String> _pageTitles = <String>[
   'Home',
   'Explore Species',
   // 'Favorites',
-  'More Menu',
+  'Menu',
 ];
 
 class MddPages extends StatefulWidget {

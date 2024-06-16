@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Returns the screen type based on the device width.
 /// Following the Material Design guidelines, the screen types are:
@@ -22,5 +23,32 @@ ScreenType getScreenType(BuildContext context) {
     return ScreenType.large;
   } else {
     return ScreenType.extraLarge;
+  }
+}
+
+class AppVersion {
+  AppVersion({
+    required this.name,
+    required this.version,
+    required this.buildNumber,
+  });
+
+  String name;
+  String version;
+  String buildNumber;
+
+  factory AppVersion.empty() {
+    return AppVersion(
+      name: '',
+      version: '',
+      buildNumber: '',
+    );
+  }
+
+  Future<void> getVersions() async {
+    PackageInfo appInfo = await PackageInfo.fromPlatform();
+    name = appInfo.appName;
+    version = appInfo.version;
+    buildNumber = appInfo.buildNumber;
   }
 }
