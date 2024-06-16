@@ -3,6 +3,162 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
+class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  MddInfo(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
+  late final GeneratedColumn<String> version = GeneratedColumn<String>(
+      'version', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  @override
+  List<GeneratedColumn> get $columns => [version];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'mddInfo';
+  @override
+  VerificationContext validateIntegrity(Insertable<MddInfoData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => const {};
+  @override
+  MddInfoData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MddInfoData(
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}version']),
+    );
+  }
+
+  @override
+  MddInfo createAlias(String alias) {
+    return MddInfo(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class MddInfoData extends DataClass implements Insertable<MddInfoData> {
+  final String? version;
+  const MddInfoData({this.version});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || version != null) {
+      map['version'] = Variable<String>(version);
+    }
+    return map;
+  }
+
+  MddInfoCompanion toCompanion(bool nullToAbsent) {
+    return MddInfoCompanion(
+      version: version == null && nullToAbsent
+          ? const Value.absent()
+          : Value(version),
+    );
+  }
+
+  factory MddInfoData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MddInfoData(
+      version: serializer.fromJson<String?>(json['version']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'version': serializer.toJson<String?>(version),
+    };
+  }
+
+  MddInfoData copyWith({Value<String?> version = const Value.absent()}) =>
+      MddInfoData(
+        version: version.present ? version.value : this.version,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('MddInfoData(')
+          ..write('version: $version')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => version.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MddInfoData && other.version == this.version);
+}
+
+class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
+  final Value<String?> version;
+  final Value<int> rowid;
+  const MddInfoCompanion({
+    this.version = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MddInfoCompanion.insert({
+    this.version = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  static Insertable<MddInfoData> custom({
+    Expression<String>? version,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (version != null) 'version': version,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MddInfoCompanion copyWith({Value<String?>? version, Value<int>? rowid}) {
+    return MddInfoCompanion(
+      version: version ?? this.version,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (version.present) {
+      map['version'] = Variable<String>(version.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MddInfoCompanion(')
+          ..write('version: $version, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2249,12 +2405,101 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
+  late final MddInfo mddInfo = MddInfo(this);
   late final Taxonomy taxonomy = Taxonomy(this);
+  Selectable<MddSpeciesListResult> mddSpeciesList() {
+    return customSelect(
+        'SELECT id, taxonOrder, genus, specificEpithet, mainCommonName FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => MddSpeciesListResult(
+          id: row.read<int>('id'),
+          taxonOrder: row.readNullable<String>('taxonOrder'),
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          mainCommonName: row.readNullable<String>('mainCommonName'),
+        ));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [taxonomy];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [mddInfo, taxonomy];
+}
+
+typedef $MddInfoInsertCompanionBuilder = MddInfoCompanion Function({
+  Value<String?> version,
+  Value<int> rowid,
+});
+typedef $MddInfoUpdateCompanionBuilder = MddInfoCompanion Function({
+  Value<String?> version,
+  Value<int> rowid,
+});
+
+class $MddInfoTableManager extends RootTableManager<
+    _$AppDatabase,
+    MddInfo,
+    MddInfoData,
+    $MddInfoFilterComposer,
+    $MddInfoOrderingComposer,
+    $MddInfoProcessedTableManager,
+    $MddInfoInsertCompanionBuilder,
+    $MddInfoUpdateCompanionBuilder> {
+  $MddInfoTableManager(_$AppDatabase db, MddInfo table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $MddInfoFilterComposer(ComposerState(db, table)),
+          orderingComposer: $MddInfoOrderingComposer(ComposerState(db, table)),
+          getChildManagerBuilder: (p) => $MddInfoProcessedTableManager(p),
+          getUpdateCompanionBuilder: ({
+            Value<String?> version = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MddInfoCompanion(
+            version: version,
+            rowid: rowid,
+          ),
+          getInsertCompanionBuilder: ({
+            Value<String?> version = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MddInfoCompanion.insert(
+            version: version,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $MddInfoProcessedTableManager extends ProcessedTableManager<
+    _$AppDatabase,
+    MddInfo,
+    MddInfoData,
+    $MddInfoFilterComposer,
+    $MddInfoOrderingComposer,
+    $MddInfoProcessedTableManager,
+    $MddInfoInsertCompanionBuilder,
+    $MddInfoUpdateCompanionBuilder> {
+  $MddInfoProcessedTableManager(super.$state);
+}
+
+class $MddInfoFilterComposer extends FilterComposer<_$AppDatabase, MddInfo> {
+  $MddInfoFilterComposer(super.$state);
+  ColumnFilters<String> get version => $state.composableBuilder(
+      column: $state.table.version,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $MddInfoOrderingComposer
+    extends OrderingComposer<_$AppDatabase, MddInfo> {
+  $MddInfoOrderingComposer(super.$state);
+  ColumnOrderings<String> get version => $state.composableBuilder(
+      column: $state.table.version,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
 typedef $TaxonomyInsertCompanionBuilder = TaxonomyCompanion Function({
@@ -3101,6 +3346,22 @@ class $TaxonomyOrderingComposer
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
+  $MddInfoTableManager get mddInfo => $MddInfoTableManager(_db, _db.mddInfo);
   $TaxonomyTableManager get taxonomy =>
       $TaxonomyTableManager(_db, _db.taxonomy);
+}
+
+class MddSpeciesListResult {
+  final int id;
+  final String? taxonOrder;
+  final String? genus;
+  final String? specificEpithet;
+  final String? mainCommonName;
+  MddSpeciesListResult({
+    required this.id,
+    this.taxonOrder,
+    this.genus,
+    this.specificEpithet,
+    this.mainCommonName,
+  });
 }

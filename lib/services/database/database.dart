@@ -1,7 +1,10 @@
 //! Main database module
 
 import 'dart:io';
+import 'dart:convert';
 
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:mdd/src/rust/api/parser.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
@@ -21,6 +24,34 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => _kDatabaseVersion;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (Migrator m) async {
+          await m.createAll();
+          await createMddDefault('1.2.1');
+        },
+      );
+
+  Future<void> createMddDefault(String version) async {
+    final String mddData =
+        await rootBundle.loadString('assets/mdd_data/data.csv');
+    final MddInfoCompanion dbData = MddInfoCompanion.insert(
+      version: Value(version),
+    );
+    final List<String> dataString = await parseCsvToJson(csvData: mddData);
+    for (var jason in dataString) {
+      final Map<String, dynamic> dataJson = json.decode(jason);
+      if (kDebugMode) print('Data JSON: $dataJson');
+      TaxonomyData data = TaxonomyData.fromJson(dataJson);
+      await into(mddInfo).insert(dbData);
+      await into(taxonomy).insert(data);
+    }
+  }
+
+  Future<List<MddSpeciesListResult>> retrieveSpeciesList() async {
+    return mddSpeciesList().get();
+  }
 }
 
 LazyDatabase _openConnection() {

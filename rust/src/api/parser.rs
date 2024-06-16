@@ -6,7 +6,7 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
-pub fn parse_csv_to_json(csv_data: &str) -> String {
+pub fn parse_csv_to_json(csv_data: &str) -> Vec<String> {
     let parser = CsvToJSONParser::new();
     parser.parse_to_json(csv_data)
 }

@@ -6,5 +6,5 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<String> parseCsvToJson({required String csvData}) =>
+Future<List<String>> parseCsvToJson({required String csvData}) =>
     RustLib.instance.api.crateApiParserParseCsvToJson(csvData: csvData);

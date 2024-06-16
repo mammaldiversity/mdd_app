@@ -1,5 +1,5 @@
 CREATE TABLE mddInfo (
-    version: TEXT
+    version TEXT
 );
 
 CREATE TABLE taxonomy (
@@ -53,3 +53,5 @@ CREATE TABLE taxonomy (
     MSW3_sciName TEXT,
     diffSinceMSW3 TEXT
 );
+
+mddSpeciesList: SELECT id,taxonOrder,genus,specificEpithet,mainCommonName FROM taxonomy;

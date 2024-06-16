@@ -11,7 +11,9 @@ pub struct CsvToJSONParser {
     infraclass: String,
     magnorder: String,
     superorder: String,
-    #[serde(rename = "order")]
+    // taxonOrder is a reserved keyword in Rust.
+    // So, we need to rename it to order.
+    #[serde(rename(serialize = "taxonOrder", deserialize = "order"))]
     taxon_order: String,
     suborder: String,
     infraorder: String,
@@ -120,13 +122,30 @@ impl CsvToJSONParser {
 
     /// Parse csv data to json.
     /// Return in String json format.
-    pub fn parse_to_json(&self, csv_data: &str) -> String {
+    pub fn parse_to_json(&self, csv_data: &str) -> Vec<String> {
         let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
         let mut records = Vec::new();
         for result in rdr.deserialize() {
             let record: CsvToJSONParser = result.unwrap();
-            records.push(record);
+            let json_record = serde_json::to_string(&record).expect("Failed to serialize");
+            records.push(json_record);
         }
-        serde_json::to_string(&records).unwrap()
+        records
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::*;
+
+    #[test]
+    fn test_parse_to_json() {
+        let csv_data = Path::new("../assets/mdd_data/data.csv");
+        let csv_data = std::fs::read_to_string(csv_data).unwrap();
+        let parser = CsvToJSONParser::new();
+        let json_data = parser.parse_to_json(&csv_data);
+        assert_eq!(json_data.len(), 6718);
     }
 }
