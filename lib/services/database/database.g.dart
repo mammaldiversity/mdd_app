@@ -338,18 +338,18 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
           $customConstraints: '');
   static const VerificationMeta _authoritySpeciesYearMeta =
       const VerificationMeta('authoritySpeciesYear');
-  late final GeneratedColumn<String> authoritySpeciesYear =
-      GeneratedColumn<String>('authoritySpeciesYear', aliasedName, true,
-          type: DriftSqlType.string,
-          requiredDuringInsert: false,
-          $customConstraints: '');
+  late final GeneratedColumn<int> authoritySpeciesYear = GeneratedColumn<int>(
+      'authoritySpeciesYear', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _authorityParenthesesMeta =
       const VerificationMeta('authorityParentheses');
-  late final GeneratedColumn<String> authorityParentheses =
-      GeneratedColumn<String>('authorityParentheses', aliasedName, true,
-          type: DriftSqlType.string,
-          requiredDuringInsert: false,
-          $customConstraints: '');
+  late final GeneratedColumn<int> authorityParentheses = GeneratedColumn<int>(
+      'authorityParentheses', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _mainCommonNameMeta =
       const VerificationMeta('mainCommonName');
   late final GeneratedColumn<String> mainCommonName = GeneratedColumn<String>(
@@ -922,9 +922,9 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
           DriftSqlType.string,
           data['${effectivePrefix}authoritySpeciesAuthor']),
       authoritySpeciesYear: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}authoritySpeciesYear']),
+          DriftSqlType.int, data['${effectivePrefix}authoritySpeciesYear']),
       authorityParentheses: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}authorityParentheses']),
+          DriftSqlType.int, data['${effectivePrefix}authorityParentheses']),
       mainCommonName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}mainCommonName']),
       otherCommonNames: attachedDatabase.typeMapping.read(
@@ -1016,8 +1016,8 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
   final String? specificEpithet;
   final String? sciName;
   final String? authoritySpeciesAuthor;
-  final String? authoritySpeciesYear;
-  final String? authorityParentheses;
+  final int? authoritySpeciesYear;
+  final int? authorityParentheses;
   final String? mainCommonName;
   final String? otherCommonNames;
   final String? originalNameCombination;
@@ -1155,10 +1155,10 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       map['authoritySpeciesAuthor'] = Variable<String>(authoritySpeciesAuthor);
     }
     if (!nullToAbsent || authoritySpeciesYear != null) {
-      map['authoritySpeciesYear'] = Variable<String>(authoritySpeciesYear);
+      map['authoritySpeciesYear'] = Variable<int>(authoritySpeciesYear);
     }
     if (!nullToAbsent || authorityParentheses != null) {
-      map['authorityParentheses'] = Variable<String>(authorityParentheses);
+      map['authorityParentheses'] = Variable<int>(authorityParentheses);
     }
     if (!nullToAbsent || mainCommonName != null) {
       map['mainCommonName'] = Variable<String>(mainCommonName);
@@ -1423,9 +1423,9 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       authoritySpeciesAuthor:
           serializer.fromJson<String?>(json['authoritySpeciesAuthor']),
       authoritySpeciesYear:
-          serializer.fromJson<String?>(json['authoritySpeciesYear']),
+          serializer.fromJson<int?>(json['authoritySpeciesYear']),
       authorityParentheses:
-          serializer.fromJson<String?>(json['authorityParentheses']),
+          serializer.fromJson<int?>(json['authorityParentheses']),
       mainCommonName: serializer.fromJson<String?>(json['mainCommonName']),
       otherCommonNames: serializer.fromJson<String?>(json['otherCommonNames']),
       originalNameCombination:
@@ -1493,8 +1493,8 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       'sciName': serializer.toJson<String?>(sciName),
       'authoritySpeciesAuthor':
           serializer.toJson<String?>(authoritySpeciesAuthor),
-      'authoritySpeciesYear': serializer.toJson<String?>(authoritySpeciesYear),
-      'authorityParentheses': serializer.toJson<String?>(authorityParentheses),
+      'authoritySpeciesYear': serializer.toJson<int?>(authoritySpeciesYear),
+      'authorityParentheses': serializer.toJson<int?>(authorityParentheses),
       'mainCommonName': serializer.toJson<String?>(mainCommonName),
       'otherCommonNames': serializer.toJson<String?>(otherCommonNames),
       'originalNameCombination':
@@ -1553,8 +1553,8 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
           Value<String?> specificEpithet = const Value.absent(),
           Value<String?> sciName = const Value.absent(),
           Value<String?> authoritySpeciesAuthor = const Value.absent(),
-          Value<String?> authoritySpeciesYear = const Value.absent(),
-          Value<String?> authorityParentheses = const Value.absent(),
+          Value<int?> authoritySpeciesYear = const Value.absent(),
+          Value<int?> authorityParentheses = const Value.absent(),
           Value<String?> mainCommonName = const Value.absent(),
           Value<String?> otherCommonNames = const Value.absent(),
           Value<String?> originalNameCombination = const Value.absent(),
@@ -1862,8 +1862,8 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
   final Value<String?> specificEpithet;
   final Value<String?> sciName;
   final Value<String?> authoritySpeciesAuthor;
-  final Value<String?> authoritySpeciesYear;
-  final Value<String?> authorityParentheses;
+  final Value<int?> authoritySpeciesYear;
+  final Value<int?> authorityParentheses;
   final Value<String?> mainCommonName;
   final Value<String?> otherCommonNames;
   final Value<String?> originalNameCombination;
@@ -2014,8 +2014,8 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
     Expression<String>? specificEpithet,
     Expression<String>? sciName,
     Expression<String>? authoritySpeciesAuthor,
-    Expression<String>? authoritySpeciesYear,
-    Expression<String>? authorityParentheses,
+    Expression<int>? authoritySpeciesYear,
+    Expression<int>? authorityParentheses,
     Expression<String>? mainCommonName,
     Expression<String>? otherCommonNames,
     Expression<String>? originalNameCombination,
@@ -2132,8 +2132,8 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       Value<String?>? specificEpithet,
       Value<String?>? sciName,
       Value<String?>? authoritySpeciesAuthor,
-      Value<String?>? authoritySpeciesYear,
-      Value<String?>? authorityParentheses,
+      Value<int?>? authoritySpeciesYear,
+      Value<int?>? authorityParentheses,
       Value<String?>? mainCommonName,
       Value<String?>? otherCommonNames,
       Value<String?>? originalNameCombination,
@@ -2285,12 +2285,10 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
           Variable<String>(authoritySpeciesAuthor.value);
     }
     if (authoritySpeciesYear.present) {
-      map['authoritySpeciesYear'] =
-          Variable<String>(authoritySpeciesYear.value);
+      map['authoritySpeciesYear'] = Variable<int>(authoritySpeciesYear.value);
     }
     if (authorityParentheses.present) {
-      map['authorityParentheses'] =
-          Variable<String>(authorityParentheses.value);
+      map['authorityParentheses'] = Variable<int>(authorityParentheses.value);
     }
     if (mainCommonName.present) {
       map['mainCommonName'] = Variable<String>(mainCommonName.value);
@@ -2578,8 +2576,8 @@ typedef $TaxonomyInsertCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> specificEpithet,
   Value<String?> sciName,
   Value<String?> authoritySpeciesAuthor,
-  Value<String?> authoritySpeciesYear,
-  Value<String?> authorityParentheses,
+  Value<int?> authoritySpeciesYear,
+  Value<int?> authorityParentheses,
   Value<String?> mainCommonName,
   Value<String?> otherCommonNames,
   Value<String?> originalNameCombination,
@@ -2629,8 +2627,8 @@ typedef $TaxonomyUpdateCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> specificEpithet,
   Value<String?> sciName,
   Value<String?> authoritySpeciesAuthor,
-  Value<String?> authoritySpeciesYear,
-  Value<String?> authorityParentheses,
+  Value<int?> authoritySpeciesYear,
+  Value<int?> authorityParentheses,
   Value<String?> mainCommonName,
   Value<String?> otherCommonNames,
   Value<String?> originalNameCombination,
@@ -2697,8 +2695,8 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> specificEpithet = const Value.absent(),
             Value<String?> sciName = const Value.absent(),
             Value<String?> authoritySpeciesAuthor = const Value.absent(),
-            Value<String?> authoritySpeciesYear = const Value.absent(),
-            Value<String?> authorityParentheses = const Value.absent(),
+            Value<int?> authoritySpeciesYear = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
             Value<String?> mainCommonName = const Value.absent(),
             Value<String?> otherCommonNames = const Value.absent(),
             Value<String?> originalNameCombination = const Value.absent(),
@@ -2799,8 +2797,8 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> specificEpithet = const Value.absent(),
             Value<String?> sciName = const Value.absent(),
             Value<String?> authoritySpeciesAuthor = const Value.absent(),
-            Value<String?> authoritySpeciesYear = const Value.absent(),
-            Value<String?> authorityParentheses = const Value.absent(),
+            Value<int?> authoritySpeciesYear = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
             Value<String?> mainCommonName = const Value.absent(),
             Value<String?> otherCommonNames = const Value.absent(),
             Value<String?> originalNameCombination = const Value.absent(),
@@ -2993,12 +2991,12 @@ class $TaxonomyFilterComposer extends FilterComposer<_$AppDatabase, Taxonomy> {
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get authoritySpeciesYear => $state.composableBuilder(
+  ColumnFilters<int> get authoritySpeciesYear => $state.composableBuilder(
       column: $state.table.authoritySpeciesYear,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<String> get authorityParentheses => $state.composableBuilder(
+  ColumnFilters<int> get authorityParentheses => $state.composableBuilder(
       column: $state.table.authorityParentheses,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
@@ -3245,12 +3243,12 @@ class $TaxonomyOrderingComposer
           builder: (column, joinBuilders) =>
               ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get authoritySpeciesYear => $state.composableBuilder(
+  ColumnOrderings<int> get authoritySpeciesYear => $state.composableBuilder(
       column: $state.table.authoritySpeciesYear,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<String> get authorityParentheses => $state.composableBuilder(
+  ColumnOrderings<int> get authorityParentheses => $state.composableBuilder(
       column: $state.table.authorityParentheses,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
