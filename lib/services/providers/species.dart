@@ -6,6 +6,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'species.g.dart';
 
 @Riverpod(keepAlive: true)
+Future<int> totalRecords(TotalRecordsRef ref) async {
+  return await MddQuery(ref.read(databaseProvider)).totalRecords();
+}
+
+@Riverpod(keepAlive: true)
 class SpeciesList extends _$SpeciesList {
   Future<List<MddGroupListResult>> _fetchSpeciesList() async {
     return MddQuery(ref.read(databaseProvider)).retrieveGroupList();

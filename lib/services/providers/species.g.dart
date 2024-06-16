@@ -6,6 +6,20 @@ part of 'species.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$totalRecordsHash() => r'25a005c8ac6ce03332b88af496a6fe7a8dcadd0b';
+
+/// See also [totalRecords].
+@ProviderFor(totalRecords)
+final totalRecordsProvider = FutureProvider<int>.internal(
+  totalRecords,
+  name: r'totalRecordsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$totalRecordsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef TotalRecordsRef = FutureProviderRef<int>;
 String _$mainTaxonomyDataHash() => r'2cd6ec80cb1408a07b31befe326d392ef54ce92f';
 
 /// Copied from Dart SDK
@@ -160,7 +174,7 @@ class _MainTaxonomyDataProviderElement
   List<int> get mddIDList => (origin as MainTaxonomyDataProvider).mddIDList;
 }
 
-String _$speciesListHash() => r'6040668c491ec2771bf27597c3aca2d8f369678b';
+String _$speciesListHash() => r'ce930c474fa7059255b12acc5755a224dc99ee6c';
 
 /// See also [SpeciesList].
 @ProviderFor(SpeciesList)

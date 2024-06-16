@@ -18,8 +18,9 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         .getSingle();
   }
 
-  Future<void> insertMdd(TaxonomyCompanion content) {
-    return into(taxonomy).insert(content);
+  Future<int> totalRecords() async {
+    final groupList = await retrieveGroupList();
+    return groupList.length;
   }
 
   Future<List<MainTaxonomyData>> retrieveSpeciesList(List<int> mddID) async {

@@ -4,7 +4,7 @@ import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
-import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/screens/home/search.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 
@@ -78,11 +78,14 @@ class MddPagesState extends ConsumerState<MddPages> {
         selectedIndex: _selectedPage,
         screenType: screenType,
         onNavigationSelected: (int index) {
+          ref.invalidate(speciesListProvider);
           setState(() {
             _selectedPage = index;
+            _isSearching = false;
           });
         },
       ),
+      bottomSheet: _isSearching ? const SearchInfo() : null,
     );
   }
 }
