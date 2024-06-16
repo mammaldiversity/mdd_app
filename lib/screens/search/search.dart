@@ -110,7 +110,9 @@ class SpeciesTile extends StatelessWidget {
     return ListTile(
       title: Text(
         '$genus $specificEpithet',
-        style: Theme.of(context).textTheme.titleMedium,
+        style: Theme.of(context).textTheme.titleMedium?.apply(
+              fontStyle: FontStyle.italic,
+            ),
       ),
       subtitle: Text(
         mainCommonName,
