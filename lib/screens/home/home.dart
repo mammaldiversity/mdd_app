@@ -33,6 +33,20 @@ class MddPagesState extends ConsumerState<MddPages> {
   int _selectedPage = 0;
   bool _isSearching = false;
 
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
@@ -42,10 +56,12 @@ class MddPagesState extends ConsumerState<MddPages> {
         actions: _selectedPage == 1
             ? [
                 if (_isSearching)
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4),
-                      child: SearchField(),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: SearchField(
+                        focusNode: _focusNode,
+                      ),
                     ),
                   ),
                 _isSearching
@@ -56,6 +72,7 @@ class MddPagesState extends ConsumerState<MddPages> {
                           setState(() {
                             _isSearching = false;
                           });
+                          _focusNode.unfocus();
                         },
                       )
                     : IconButton(
@@ -64,6 +81,7 @@ class MddPagesState extends ConsumerState<MddPages> {
                           setState(() {
                             _isSearching = true;
                           });
+                          _focusNode.requestFocus();
                         },
                       )
               ]

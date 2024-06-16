@@ -4,13 +4,16 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 
 class SearchField extends ConsumerWidget {
-  const SearchField({super.key});
+  const SearchField({super.key, required this.focusNode});
+
+  final FocusNode focusNode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: SearchBar(
+        focusNode: focusNode,
         leading: const Icon(Icons.search),
         backgroundColor: WidgetStatePropertyAll(
           Theme.of(context).colorScheme.secondaryContainer,
