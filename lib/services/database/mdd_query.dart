@@ -13,6 +13,11 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return version;
   }
 
+  Future<TaxonomyData> retrieveTaxonData(int mddID) async {
+    return await (select(taxonomy)..where((tbl) => tbl.id.equals(mddID)))
+        .getSingle();
+  }
+
   Future<void> insertMdd(TaxonomyCompanion content) {
     return into(taxonomy).insert(content);
   }

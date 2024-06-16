@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/more/more.dart';
-import 'package:mdd/screens/search/search.dart';
+import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/services/system.dart';
 
 const List<Widget> _pages = <Widget>[
   HomeScreen(),
-  SearchSpecies(),
+  ExploreSpecies(),
+  FavoriteSpecies(),
   MoreMenu(),
 ];
 
 const List<String> _pageTitles = <String>[
   'Home',
   'Explore Species',
+  'Favorites',
   'More Menu',
 ];
 
@@ -34,8 +37,10 @@ class _HomeScreenState extends State<MddPages> {
         title: Text(_pageTitles.elementAt(_selectedPage)),
       ),
       body: SafeArea(
+          child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
         child: _pages.elementAt(_selectedPage),
-      ),
+      )),
       bottomNavigationBar: NavBar(
         selectedIndex: _selectedPage,
         screenType: screenType,
@@ -68,7 +73,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Text(
-            "Welcome to ASM's Mammal Diversity Database",
+            "ASM's Mammal Diversity Database",
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),

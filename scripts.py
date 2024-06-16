@@ -14,8 +14,8 @@ RUST_FRB_WEB = "rust/src/frb_generated.web.rs"
 
 FRB_FILES = [DART_FRB, DART_FRB_IO, DART_FRB_WEB, RUST_FRB_IO, RUST_FRB, RUST_FRB_WEB]
 
-DMG_CONFIG = "installer/config.json"
-OUTPUT_DMG = "installer/mdd.dmg"
+DMG_CONFIG = "packages/config.json"
+OUTPUT_DMG = "packages/mdd.dmg"
 
 FRB_INSTALL_NAME = "flutter_rust_bridge_codegen@^2.0.0-dev.0"
 

@@ -21,5 +21,20 @@ final speciesListProvider =
 );
 
 typedef _$SpeciesList = AsyncNotifier<List<MddSpeciesListResult>>;
+String _$taxonDataHash() => r'a56df78ab524d69067688b351a5bc35f45a5e64a';
+
+/// See also [TaxonData].
+@ProviderFor(TaxonData)
+final taxonDataProvider =
+    AutoDisposeAsyncNotifierProvider<TaxonData, TaxonomyData>.internal(
+  TaxonData.new,
+  name: r'taxonDataProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$taxonDataHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$TaxonData = AutoDisposeAsyncNotifier<TaxonomyData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
