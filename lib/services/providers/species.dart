@@ -17,22 +17,28 @@ class SpeciesList extends _$SpeciesList {
   }
 }
 
+@Riverpod(keepAlive: true)
+class CurrentMddID extends _$CurrentMddID {
+  @override
+  int build() {
+    return 0;
+  }
+
+  void setMddID(int mddID) {
+    state = mddID;
+  }
+}
+
 @riverpod
 class TaxonData extends _$TaxonData {
-  // Default to platypus
-  int _mddID = 1000001;
-
   Future<TaxonomyData> _fetch() async {
+    final int mddID = ref.watch(currentMddIDProvider);
     return await mdd.MddQuery(ref.read(databaseProvider))
-        .retrieveTaxonData(_mddID);
+        .retrieveTaxonData(mddID);
   }
 
   @override
   FutureOr<TaxonomyData> build() async {
     return await _fetch();
-  }
-
-  void setMddID(int mddID) {
-    _mddID = mddID;
   }
 }

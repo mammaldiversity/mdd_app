@@ -125,18 +125,10 @@ class SpeciesTile extends ConsumerWidget {
           ),
           trailing: IconButton(
             icon: const Icon(Icons.favorite_border_outlined),
-            onPressed: () {
-              ref.read(taxonDataProvider.notifier).setMddID(speciesData.id);
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) => const SpeciesPage(),
-                ),
-              );
-            },
+            onPressed: () {},
           ),
           onTap: () {
-            ref.read(taxonDataProvider.notifier).setMddID(speciesData.id);
+            ref.read(currentMddIDProvider.notifier).setMddID(speciesData.id);
             Navigator.push(
               context,
               MaterialPageRoute<void>(

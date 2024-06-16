@@ -21,7 +21,21 @@ final speciesListProvider =
 );
 
 typedef _$SpeciesList = AsyncNotifier<List<MddSpeciesListResult>>;
-String _$taxonDataHash() => r'a56df78ab524d69067688b351a5bc35f45a5e64a';
+String _$currentMddIDHash() => r'554f46ead8e1918f344e191656d4a3da028dd3ee';
+
+/// See also [CurrentMddID].
+@ProviderFor(CurrentMddID)
+final currentMddIDProvider = NotifierProvider<CurrentMddID, int>.internal(
+  CurrentMddID.new,
+  name: r'currentMddIDProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$currentMddIDHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CurrentMddID = Notifier<int>;
+String _$taxonDataHash() => r'74f82cd2dc0341d0468f30a84d732a0ddafdfadd';
 
 /// See also [TaxonData].
 @ProviderFor(TaxonData)
