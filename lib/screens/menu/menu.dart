@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/menu/settings.dart';
 
 class MoreMenu extends StatefulWidget {
   const MoreMenu({super.key});
@@ -10,8 +11,10 @@ class MoreMenu extends StatefulWidget {
 class _MoreMenuState extends State<MoreMenu> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('More Menu'),
+    return ListView(
+      children: const <Widget>[
+        AppearanceSetting(),
+      ],
     );
   }
 }

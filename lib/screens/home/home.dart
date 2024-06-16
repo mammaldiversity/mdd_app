@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/explore/explore.dart';
-import 'package:mdd/screens/more/more.dart';
+import 'package:mdd/screens/menu/menu.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/services/system.dart';
@@ -38,7 +38,7 @@ class _HomeScreenState extends State<MddPages> {
       ),
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         child: _pages.elementAt(_selectedPage),
       )),
       bottomNavigationBar: NavBar(
