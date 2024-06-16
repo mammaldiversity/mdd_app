@@ -1,5 +1,6 @@
 CREATE TABLE mddInfo (
-    version TEXT
+    version TEXT,
+    releaseDate TEXT
 );
 
 CREATE TABLE taxonomy (

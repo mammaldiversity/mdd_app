@@ -15,8 +15,15 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       $customConstraints: '');
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
+  late final GeneratedColumn<String> releaseDate = GeneratedColumn<String>(
+      'releaseDate', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
-  List<GeneratedColumn> get $columns => [version];
+  List<GeneratedColumn> get $columns => [version, releaseDate];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -31,6 +38,12 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
       context.handle(_versionMeta,
           version.isAcceptableOrUnknown(data['version']!, _versionMeta));
     }
+    if (data.containsKey('releaseDate')) {
+      context.handle(
+          _releaseDateMeta,
+          releaseDate.isAcceptableOrUnknown(
+              data['releaseDate']!, _releaseDateMeta));
+    }
     return context;
   }
 
@@ -42,6 +55,8 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
     return MddInfoData(
       version: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}version']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}releaseDate']),
     );
   }
 
@@ -56,12 +71,16 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
 
 class MddInfoData extends DataClass implements Insertable<MddInfoData> {
   final String? version;
-  const MddInfoData({this.version});
+  final String? releaseDate;
+  const MddInfoData({this.version, this.releaseDate});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (!nullToAbsent || version != null) {
       map['version'] = Variable<String>(version);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['releaseDate'] = Variable<String>(releaseDate);
     }
     return map;
   }
@@ -71,6 +90,9 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
       version: version == null && nullToAbsent
           ? const Value.absent()
           : Value(version),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
     );
   }
 
@@ -79,6 +101,7 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MddInfoData(
       version: serializer.fromJson<String?>(json['version']),
+      releaseDate: serializer.fromJson<String?>(json['releaseDate']),
     );
   }
   @override
@@ -86,53 +109,69 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'version': serializer.toJson<String?>(version),
+      'releaseDate': serializer.toJson<String?>(releaseDate),
     };
   }
 
-  MddInfoData copyWith({Value<String?> version = const Value.absent()}) =>
+  MddInfoData copyWith(
+          {Value<String?> version = const Value.absent(),
+          Value<String?> releaseDate = const Value.absent()}) =>
       MddInfoData(
         version: version.present ? version.value : this.version,
+        releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
       );
   @override
   String toString() {
     return (StringBuffer('MddInfoData(')
-          ..write('version: $version')
+          ..write('version: $version, ')
+          ..write('releaseDate: $releaseDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => version.hashCode;
+  int get hashCode => Object.hash(version, releaseDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MddInfoData && other.version == this.version);
+      (other is MddInfoData &&
+          other.version == this.version &&
+          other.releaseDate == this.releaseDate);
 }
 
 class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
   final Value<String?> version;
+  final Value<String?> releaseDate;
   final Value<int> rowid;
   const MddInfoCompanion({
     this.version = const Value.absent(),
+    this.releaseDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MddInfoCompanion.insert({
     this.version = const Value.absent(),
+    this.releaseDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   static Insertable<MddInfoData> custom({
     Expression<String>? version,
+    Expression<String>? releaseDate,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (version != null) 'version': version,
+      if (releaseDate != null) 'releaseDate': releaseDate,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  MddInfoCompanion copyWith({Value<String?>? version, Value<int>? rowid}) {
+  MddInfoCompanion copyWith(
+      {Value<String?>? version,
+      Value<String?>? releaseDate,
+      Value<int>? rowid}) {
     return MddInfoCompanion(
       version: version ?? this.version,
+      releaseDate: releaseDate ?? this.releaseDate,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -142,6 +181,9 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
     final map = <String, Expression>{};
     if (version.present) {
       map['version'] = Variable<String>(version.value);
+    }
+    if (releaseDate.present) {
+      map['releaseDate'] = Variable<String>(releaseDate.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -153,6 +195,7 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
   String toString() {
     return (StringBuffer('MddInfoCompanion(')
           ..write('version: $version, ')
+          ..write('releaseDate: $releaseDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2428,10 +2471,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $MddInfoInsertCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
+  Value<String?> releaseDate,
   Value<int> rowid,
 });
 typedef $MddInfoUpdateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
+  Value<String?> releaseDate,
   Value<int> rowid,
 });
 
@@ -2453,18 +2498,22 @@ class $MddInfoTableManager extends RootTableManager<
           getChildManagerBuilder: (p) => $MddInfoProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<String?> version = const Value.absent(),
+            Value<String?> releaseDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MddInfoCompanion(
             version: version,
+            releaseDate: releaseDate,
             rowid: rowid,
           ),
           getInsertCompanionBuilder: ({
             Value<String?> version = const Value.absent(),
+            Value<String?> releaseDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MddInfoCompanion.insert(
             version: version,
+            releaseDate: releaseDate,
             rowid: rowid,
           ),
         ));
@@ -2488,6 +2537,11 @@ class $MddInfoFilterComposer extends FilterComposer<_$AppDatabase, MddInfo> {
       column: $state.table.version,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get releaseDate => $state.composableBuilder(
+      column: $state.table.releaseDate,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
 }
 
 class $MddInfoOrderingComposer
@@ -2495,6 +2549,11 @@ class $MddInfoOrderingComposer
   $MddInfoOrderingComposer(super.$state);
   ColumnOrderings<String> get version => $state.composableBuilder(
       column: $state.table.version,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get releaseDate => $state.composableBuilder(
+      column: $state.table.releaseDate,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
