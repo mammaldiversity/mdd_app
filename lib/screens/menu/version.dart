@@ -14,16 +14,7 @@ class AppVersionView extends StatelessWidget {
           'App version',
           style: Theme.of(context).textTheme.labelLarge,
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Theme.of(context).colorScheme.primary.withAlpha(32),
-            ),
-            child: const VersionText(),
-          ),
-        ),
+        const VersionText(),
       ],
     );
   }
@@ -41,12 +32,12 @@ class VersionText extends StatelessWidget {
           if (snapshot.hasData) {
             return Text(
               '${snapshot.data?.version}+${snapshot.data?.buildNumber}',
-              style: Theme.of(context).textTheme.labelMedium,
+              style: Theme.of(context).textTheme.bodyMedium,
             );
           } else if (snapshot.hasError) {
             return Text(
               'Failed to load version information. Error: ${snapshot.error}',
-              style: Theme.of(context).textTheme.labelMedium,
+              style: Theme.of(context).textTheme.bodyMedium,
             );
           }
         }
