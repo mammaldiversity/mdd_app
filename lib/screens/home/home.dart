@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
+import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 
 const List<Widget> _pages = <Widget>[
@@ -19,15 +22,16 @@ const List<String> _pageTitles = <String>[
   'Menu',
 ];
 
-class MddPages extends StatefulWidget {
+class MddPages extends ConsumerStatefulWidget {
   const MddPages({super.key});
 
   @override
-  State<MddPages> createState() => _HomeScreenState();
+  MddPagesState createState() => MddPagesState();
 }
 
-class _HomeScreenState extends State<MddPages> {
+class MddPagesState extends ConsumerState<MddPages> {
   int _selectedPage = 0;
+  bool _isSearching = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,35 @@ class _HomeScreenState extends State<MddPages> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_pageTitles.elementAt(_selectedPage)),
+        actions: _selectedPage == 1
+            ? [
+                if (_isSearching)
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: SearchField(),
+                    ),
+                  ),
+                _isSearching
+                    ? IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          ref.invalidate(speciesListProvider);
+                          setState(() {
+                            _isSearching = false;
+                          });
+                        },
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          setState(() {
+                            _isSearching = true;
+                          });
+                        },
+                      )
+              ]
+            : [],
       ),
       body: SafeArea(
           child: Padding(

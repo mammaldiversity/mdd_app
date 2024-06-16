@@ -15,6 +15,19 @@ class SpeciesList extends _$SpeciesList {
   FutureOr<List<MddGroupListResult>> build() async {
     return await _fetchSpeciesList();
   }
+
+  Future<void> search(String query) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      if (state.value == null) return [];
+      final results =
+          await MddQuery(ref.read(databaseProvider)).searchTable(query);
+      final filteredResults = state.value!
+          .where((element) => results.contains(element.id))
+          .toList();
+      return filteredResults;
+    });
+  }
 }
 
 @Riverpod(keepAlive: true)

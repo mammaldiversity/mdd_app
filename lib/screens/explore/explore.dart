@@ -17,27 +17,23 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
   Widget build(BuildContext context) {
     return ref.watch(speciesListProvider).when(
           data: (List<MddGroupListResult> speciesList) {
-            return ListView(
-              children: <Widget>[
-                ..._groupByOrder(speciesList).entries.map(
-                  (MapEntry<String, List<MddGroupListResult>> entry) {
-                    return ExpansionTile(
-                      title: Text(
-                        entry.key,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      children: <Widget>[FamilyGroups(taxonList: entry.value)],
-                    );
-                  },
-                ),
-              ],
-            );
+            return ListView(children: <Widget>[
+              ..._groupByOrder(speciesList).entries.map(
+                (MapEntry<String, List<MddGroupListResult>> entry) {
+                  return ExpansionTile(
+                    title: Text(
+                      entry.key,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    children: <Widget>[FamilyGroups(taxonList: entry.value)],
+                  );
+                },
+              ),
+            ]);
           },
           loading: () => const Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
+              children: [
                 Padding(
                     padding: EdgeInsets.all(16),
                     child: SizedBox(
@@ -45,7 +41,7 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
                       width: 50,
                       child: CircularProgressIndicator(),
                     )),
-                Text('Retrieving MDD list...'),
+                Text('Retrieving species list...'),
               ],
             ),
           ),

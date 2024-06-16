@@ -31,6 +31,31 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MddGroupListResult>> retrieveGroupList() async {
     return mddGroupList().get();
   }
+
+  /// Search the table for a query
+  /// Returns a list of IDs
+  Future<List<int>> searchTable(String rawQuery) async {
+    final query = rawQuery.replaceAll(' ', '_');
+    // Search all columns for the query
+    final results = await (select(taxonomy)
+          ..where(
+            (tbl) =>
+                tbl.family.like('%$query%') |
+                tbl.taxonOrder.like('%$query%') |
+                tbl.genus.like('%$query%') |
+                tbl.specificEpithet.like('%$query%') |
+                tbl.sciName.like('%$query%') |
+                tbl.originalNameCombination.like('%$query%') |
+                tbl.specificEpithet.like('%$query%') |
+                tbl.mainCommonName.like('%$query%') |
+                tbl.otherCommonNames.like('%$query%') |
+                tbl.countryDistribution.like('%$query%') |
+                tbl.authoritySpeciesAuthor.like('%$query%') |
+                tbl.distributionNotes.like('%$query%'),
+          ))
+        .get();
+    return results.map((e) => e.id).toList();
+  }
 }
 
 class MainTaxonomyData {
