@@ -34,6 +34,7 @@ class Build:
             if platform.system() == "Windows":
                 self.build_windows()
             elif platform.system() == "Darwin":
+                self.build_android()
                 self.build_ios()
                 self.build_macos()
             elif platform.system() == "Linux":
