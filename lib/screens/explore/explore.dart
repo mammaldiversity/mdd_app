@@ -297,8 +297,8 @@ class ContentText extends StatelessWidget {
   void _launchURL(String url) async {
     // Open URL
     final Uri uri = Uri.parse(url);
-    if (await canLaunch(uri.toString())) {
-      await launch(uri.toString());
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
       throw 'Could not launch $uri';
     }
