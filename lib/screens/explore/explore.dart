@@ -50,7 +50,7 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
             ),
           ),
           error: (Object error, StackTrace stackTrace) => Center(
-            child: Text('Error: $error'),
+            child: Text('Error: $error. Stack trace: $stackTrace'),
           ),
         );
   }
