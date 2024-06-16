@@ -36,6 +36,8 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
           },
           loading: () => const Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
                     padding: EdgeInsets.all(16),
