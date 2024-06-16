@@ -108,8 +108,7 @@ class SpeciesTile extends ConsumerWidget {
         padding: const EdgeInsets.all(4),
         child: ListTile(
           visualDensity: VisualDensity.compact,
-          tileColor:
-              Theme.of(context).colorScheme.tertiaryContainer.withAlpha(80),
+          tileColor: Theme.of(context).colorScheme.primary.withAlpha(32),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
