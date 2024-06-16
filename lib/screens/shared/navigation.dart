@@ -24,11 +24,11 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
     icon: Icon(Icons.search_outlined),
     selectedIcon: Icon(Icons.search_rounded),
   ),
-  NavigationProperties(
-    label: 'Favorites',
-    icon: Icon(Icons.favorite_border),
-    selectedIcon: Icon(Icons.favorite),
-  ),
+  // NavigationProperties(
+  //   label: 'Favorites',
+  //   icon: Icon(Icons.favorite_border),
+  //   selectedIcon: Icon(Icons.favorite),
+  // ),
   NavigationProperties(
     label: 'More',
     icon: Icon(Icons.menu_outlined),

@@ -2407,18 +2407,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
   late final MddInfo mddInfo = MddInfo(this);
   late final Taxonomy taxonomy = Taxonomy(this);
-  Selectable<MddSpeciesListResult> mddSpeciesList() {
-    return customSelect(
-        'SELECT id, taxonOrder, genus, specificEpithet, mainCommonName FROM taxonomy',
+  Selectable<MddGroupListResult> mddGroupList() {
+    return customSelect('SELECT id, taxonOrder, family FROM taxonomy',
         variables: [],
         readsFrom: {
           taxonomy,
-        }).map((QueryRow row) => MddSpeciesListResult(
+        }).map((QueryRow row) => MddGroupListResult(
           id: row.read<int>('id'),
           taxonOrder: row.readNullable<String>('taxonOrder'),
-          genus: row.readNullable<String>('genus'),
-          specificEpithet: row.readNullable<String>('specificEpithet'),
-          mainCommonName: row.readNullable<String>('mainCommonName'),
+          family: row.readNullable<String>('family'),
         ));
   }
 
@@ -3351,17 +3348,13 @@ class _$AppDatabaseManager {
       $TaxonomyTableManager(_db, _db.taxonomy);
 }
 
-class MddSpeciesListResult {
+class MddGroupListResult {
   final int id;
   final String? taxonOrder;
-  final String? genus;
-  final String? specificEpithet;
-  final String? mainCommonName;
-  MddSpeciesListResult({
+  final String? family;
+  MddGroupListResult({
     required this.id,
     this.taxonOrder,
-    this.genus,
-    this.specificEpithet,
-    this.mainCommonName,
+    this.family,
   });
 }

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/more/more.dart';
-import 'package:mdd/screens/favorites/favorites.dart';
+// import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/services/system.dart';
 
 const List<Widget> _pages = <Widget>[
   HomeScreen(),
   ExploreSpecies(),
-  FavoriteSpecies(),
+  // FavoriteSpecies(),
   MoreMenu(),
 ];
 
 const List<String> _pageTitles = <String>[
   'Home',
   'Explore Species',
-  'Favorites',
+  // 'Favorites',
   'More Menu',
 ];
 
@@ -80,37 +80,42 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withAlpha(32),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Welcome",
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'The Mammal Diversity Database of '
-                        'the American Society of Mammalogists (ASM) '
-                        'is your home base for tracking the latest '
-                        'taxonomic changes to living and recently extinct '
-                        '(i.e., since ~1500 CE) species and higher taxa of mammals.',
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Total number of species: 6,718',
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                )),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withAlpha(32),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "Welcome",
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'The Mammal Diversity Database of '
+                      'the American Society of Mammalogists (ASM) '
+                      'is your home base for tracking the latest '
+                      'taxonomic changes to living and recently extinct '
+                      '(i.e., since ~1500 CE) species and higher taxa of mammals.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Total number of species: 6,718',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Database version\nv1.12.1, released 30 Jan 2024.',
+                style: Theme.of(context).textTheme.labelMedium,
+                textAlign: TextAlign.center),
           ],
         ),
       ),

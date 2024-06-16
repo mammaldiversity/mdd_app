@@ -6,33 +6,26 @@ part of 'mdd_query.dart';
 mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   MddInfo get mddInfo => attachedDatabase.mddInfo;
   Taxonomy get taxonomy => attachedDatabase.taxonomy;
-  Selectable<MddSpeciesListResult> mddSpeciesList() {
-    return customSelect(
-        'SELECT id, taxonOrder, genus, specificEpithet, mainCommonName FROM taxonomy',
+  Selectable<MddGroupListResult> mddGroupList() {
+    return customSelect('SELECT id, taxonOrder, family FROM taxonomy',
         variables: [],
         readsFrom: {
           taxonomy,
-        }).map((QueryRow row) => MddSpeciesListResult(
+        }).map((QueryRow row) => MddGroupListResult(
           id: row.read<int>('id'),
           taxonOrder: row.readNullable<String>('taxonOrder'),
-          genus: row.readNullable<String>('genus'),
-          specificEpithet: row.readNullable<String>('specificEpithet'),
-          mainCommonName: row.readNullable<String>('mainCommonName'),
+          family: row.readNullable<String>('family'),
         ));
   }
 }
 
-class MddSpeciesListResult {
+class MddGroupListResult {
   final int id;
   final String? taxonOrder;
-  final String? genus;
-  final String? specificEpithet;
-  final String? mainCommonName;
-  MddSpeciesListResult({
+  final String? family;
+  MddGroupListResult({
     required this.id,
     this.taxonOrder,
-    this.genus,
-    this.specificEpithet,
-    this.mainCommonName,
+    this.family,
   });
 }

@@ -15,6 +15,7 @@ import 'package:mdd/services/app_services.dart';
 part 'database.g.dart';
 
 const int _kDatabaseVersion = 1;
+const String mddVersion = '1.2.1';
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -29,7 +30,7 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
-          await createMddDefault('1.2.1');
+          await createMddDefault(mddVersion);
         },
       );
 
@@ -47,10 +48,6 @@ class AppDatabase extends _$AppDatabase {
       await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);
     }
-  }
-
-  Future<List<MddSpeciesListResult>> retrieveSpeciesList() async {
-    return mddSpeciesList().get();
   }
 }
 
