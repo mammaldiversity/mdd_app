@@ -61,23 +61,59 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 500),
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Image.asset(
-              'assets/icons/favicon512.png',
-              width: 120,
-              height: 120,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Image.asset(
+                'assets/icons/favicon512.png',
+                width: 120,
+                height: 120,
+              ),
             ),
-          ),
-          Text(
-            "ASM's Mammal Diversity Database",
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-        ],
+            Text(
+              "ASM's Mammal Diversity Database",
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.secondary.withAlpha(32),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Welcome",
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'The Mammal Diversity Database of '
+                        'the American Society of Mammalogists (ASM) '
+                        'is your home base for tracking the latest '
+                        'taxonomic changes to living and recently extinct '
+                        '(i.e., since ~1500 CE) species and higher taxa of mammals.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Total number of species: 6,718',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
       ),
     );
   }
