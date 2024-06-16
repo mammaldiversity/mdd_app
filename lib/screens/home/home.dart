@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
               child: Image.asset(
                 'assets/icons/favicon512.png',
                 width: 120,
@@ -112,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
             Text('Database version\nv1.12.1, released 30 Jan 2024.',
                 style: Theme.of(context).textTheme.labelMedium,
                 textAlign: TextAlign.center),
