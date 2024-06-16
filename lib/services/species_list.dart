@@ -1,3 +1,4 @@
+import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 
 class TaxonGroupService {
@@ -34,5 +35,49 @@ class TaxonGroupService {
       }
     }
     return taxonGroups;
+  }
+}
+
+class SpeciesText {
+  const SpeciesText({required this.taxonData});
+
+  final db.TaxonomyData taxonData;
+
+  String get speciesName {
+    return '${taxonData.genus} ${taxonData.specificEpithet}';
+  }
+
+  String get speciesAuthorCitation {
+    String authors = taxonData.authoritySpeciesAuthor ?? '';
+    String year = taxonData.authoritySpeciesYear.toString();
+    if (isParentheses(taxonData.authoritySpeciesCitation)) {
+      return '($authors, $year)';
+    }
+    return '$authors, $year';
+  }
+
+  bool isParentheses(String? text) {
+    return taxonData.authorityParentheses == 1;
+  }
+}
+
+String matchIUCNStatus(String? iucnStatus) {
+  switch (iucnStatus) {
+    case 'LC':
+      return 'Least Concern';
+    case 'NT':
+      return 'Near Threatened';
+    case 'VU':
+      return 'Vulnerable';
+    case 'EN':
+      return 'Endangered';
+    case 'CR':
+      return 'Critically Endangered';
+    case 'EW':
+      return 'Extinct in the Wild';
+    case 'EX':
+      return 'Extinct';
+    default:
+      return 'Not Evaluated';
   }
 }

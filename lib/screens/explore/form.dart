@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
+import 'package:mdd/services/species_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SpeciesPage extends ConsumerWidget {
@@ -43,70 +44,103 @@ class TaxonForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text('MDD ID: ${taxonData.id}'),
-            Text('${taxonData.genus} ${taxonData.specificEpithet}',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(fontStyle: FontStyle.italic)),
+            SpeciesTextView(taxonData: taxonData),
+            const SizedBox(height: 4),
             Text(
               '${taxonData.mainCommonName}',
+              style: Theme.of(context).textTheme.titleMedium?.apply(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
             ),
             const SizedBox(height: 8),
             ContentText(
               title: 'Authority citation',
               content: taxonData.authoritySpeciesCitation,
             ),
-            const SizedBox(height: 8),
             ContentText(
               title: 'Authority publication link',
               content: taxonData.authoritySpeciesLink,
               isUrl: true,
             ),
-            const SizedBox(height: 16),
+            ContentText(
+              title: 'Original name as described',
+              content: taxonData.originalNameCombination?.replaceAll('_', ' '),
+              isItalic: true,
+            ),
             ContentText(
               title: 'Nominal name',
               content: taxonData.nominalNames,
             ),
-            const SizedBox(height: 16),
+            ContentText(
+              title: 'Other common names',
+              content: taxonData.otherCommonNames,
+            ),
+            ContentText(
+              title: 'Holotype voucher catalogue number',
+              content: taxonData.holotypeVoucher,
+            ),
             ContentText(
               title: 'Type locality',
               content: taxonData.typeLocality,
             ),
-            const SizedBox(height: 8),
             ContentText(
-              title: 'Distribution',
+              title: 'Country distribution',
+              content: taxonData.countryDistribution,
+            ),
+            ContentText(
+              title: 'Distribution notes',
               content: taxonData.distributionNotes,
             ),
-            const SizedBox(height: 16),
+            ContentText(
+              title: 'Distribution references',
+              content: taxonData.distributionNotesCitation,
+            ),
+            if (taxonData.taxonomyNotes != 'NA')
+              ContentText(
+                title: 'Taxonomy notes',
+                content: taxonData.taxonomyNotes,
+              ),
+            if (taxonData.taxonomyNotesCitation != 'NA')
+              ContentText(
+                title: 'Taxonomy notes citation',
+                content: taxonData.taxonomyNotesCitation,
+              ),
             ContentText(
               title: 'IUCN Red List status',
-              content: _matchIucnStatus(taxonData.iucnStatus),
+              content: matchIUCNStatus(taxonData.iucnStatus),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  String _matchIucnStatus(String? iucnStatus) {
-    switch (iucnStatus) {
-      case 'LC':
-        return 'Least Concern';
-      case 'NT':
-        return 'Near Threatened';
-      case 'VU':
-        return 'Vulnerable';
-      case 'EN':
-        return 'Endangered';
-      case 'CR':
-        return 'Critically Endangered';
-      case 'EW':
-        return 'Extinct in the Wild';
-      case 'EX':
-        return 'Extinct';
-      default:
-        return 'Not Evaluated';
-    }
+class SpeciesTextView extends StatelessWidget {
+  const SpeciesTextView({super.key, required this.taxonData});
+
+  final TaxonomyData taxonData;
+
+  @override
+  Widget build(BuildContext context) {
+    final SpeciesText speciesText = SpeciesText(taxonData: taxonData);
+    return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: speciesText.speciesName,
+              style: Theme.of(context).textTheme.titleMedium?.apply(
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+            const TextSpan(text: ' '),
+            TextSpan(
+              text: speciesText.speciesAuthorCitation,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ));
   }
 }
 
@@ -116,40 +150,51 @@ class ContentText extends StatelessWidget {
     required this.title,
     required this.content,
     this.isUrl = false,
+    this.isItalic = false,
   });
 
   final String title;
   final String? content;
   final bool isUrl;
+  final bool isItalic;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        isUrl
-            ? InkWell(
-                child: Text(
-                  content ?? '',
-                  style: Theme.of(context).textTheme.bodyMedium?.apply(
-                        decoration: TextDecoration.underline,
-                      ),
-                  textAlign: TextAlign.center,
+    return content != null && content!.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                onTap: () {
-                  _launchURL(content ?? '');
-                },
-              )
-            : Text(
-                content ?? '',
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-      ],
-    );
+                isUrl
+                    ? InkWell(
+                        child: Text(
+                          content ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium?.apply(
+                                decoration: TextDecoration.underline,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        onTap: () {
+                          _launchURL(content ?? '');
+                        },
+                      )
+                    : Text(
+                        content ?? '',
+                        style: isItalic
+                            ? Theme.of(context).textTheme.bodyMedium?.apply(
+                                  fontStyle: FontStyle.italic,
+                                )
+                            : Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+              ],
+            ),
+          )
+        : const SizedBox.shrink();
   }
 
   void _launchURL(String url) async {
@@ -160,5 +205,14 @@ class ContentText extends StatelessWidget {
     } else {
       throw 'Could not launch $uri';
     }
+  }
+}
+
+class UrlText extends StatelessWidget {
+  const UrlText({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
