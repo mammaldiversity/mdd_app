@@ -33,6 +33,8 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
           },
           loading: () => const Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                     padding: EdgeInsets.all(16),
@@ -41,7 +43,8 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
                       width: 50,
                       child: CircularProgressIndicator(),
                     )),
-                Text('Retrieving species list...'),
+                Text('Retrieving MDD species list... ⏳'),
+                Text('This may take a few minutes for the first use.'),
               ],
             ),
           ),
