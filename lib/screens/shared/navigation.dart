@@ -21,8 +21,8 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
   ),
   NavigationProperties(
     label: 'Search',
-    icon: Icon(Icons.search_outlined),
-    selectedIcon: Icon(Icons.search_rounded),
+    icon: Icon(Icons.travel_explore_outlined),
+    selectedIcon: Icon(Icons.travel_explore_rounded),
   ),
   // NavigationProperties(
   //   label: 'Favorites',
