@@ -26,7 +26,13 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MainTaxonomyData>> retrieveSpeciesList(List<int> mddID) async {
     List<TaxonomyData> data =
         await (select(taxonomy)..where((tbl) => tbl.id.isIn(mddID))).get();
-    return data.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList();
+    // Convert to MainTaxonomyData and order by specific epithet
+    final taxonData =
+        data.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList();
+    return taxonData
+      ..sort((a, b) {
+        return a.specificEpithet.compareTo(b.specificEpithet);
+      });
   }
 
   Future<List<MddGroupListResult>> retrieveGroupList() async {

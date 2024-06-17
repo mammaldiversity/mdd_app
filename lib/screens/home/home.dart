@@ -17,7 +17,7 @@ const List<Widget> _pages = <Widget>[
 
 const List<String> _pageTitles = <String>[
   'Home',
-  'Explore Species',
+  'Explore Taxonomy',
   // 'Favorites',
   'Menu',
 ];

@@ -2449,7 +2449,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final MddInfo mddInfo = MddInfo(this);
   late final Taxonomy taxonomy = Taxonomy(this);
   Selectable<MddGroupListResult> mddGroupList() {
-    return customSelect('SELECT id, taxonOrder, family FROM taxonomy',
+    return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],
         readsFrom: {
           taxonomy,
@@ -2457,6 +2457,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
           id: row.read<int>('id'),
           taxonOrder: row.readNullable<String>('taxonOrder'),
           family: row.readNullable<String>('family'),
+          genus: row.readNullable<String>('genus'),
         ));
   }
 
@@ -3409,9 +3410,11 @@ class MddGroupListResult {
   final int id;
   final String? taxonOrder;
   final String? family;
+  final String? genus;
   MddGroupListResult({
     required this.id,
     this.taxonOrder,
     this.family,
+    this.genus,
   });
 }

@@ -24,7 +24,7 @@ class SearchField extends ConsumerWidget {
           ),
         ),
         elevation: const WidgetStatePropertyAll(0), // Convert int to double
-        hintText: 'Search for a species',
+        hintText: 'Search database',
         onChanged: (String value) {
           if (value.isNotEmpty) {
             ref.read(speciesListProvider.notifier).search(value);

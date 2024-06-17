@@ -55,4 +55,4 @@ CREATE TABLE taxonomy (
     diffSinceMSW3 TEXT
 );
 
-mddGroupList: SELECT id,taxonOrder,family FROM taxonomy;
+mddGroupList: SELECT id,taxonOrder,family,genus FROM taxonomy;

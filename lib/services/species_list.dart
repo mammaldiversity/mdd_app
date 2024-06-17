@@ -36,6 +36,21 @@ class TaxonGroupService {
     }
     return taxonGroups;
   }
+
+  Map<String, List<MddGroupListResult>> groupByGenus() {
+    Map<String, List<MddGroupListResult>> taxonGroups = {};
+    for (final MddGroupListResult taxon in taxonList) {
+      if (taxon.genus != null && taxonGroups.containsKey(taxon.genus)) {
+        taxonGroups[taxon.genus!] = [
+          ...taxonGroups[taxon.genus!]!,
+          taxon,
+        ];
+      } else {
+        taxonGroups[taxon.genus ?? ''] = [taxon];
+      }
+    }
+    return taxonGroups;
+  }
 }
 
 class SpeciesText {

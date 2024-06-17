@@ -74,9 +74,43 @@ class FamilyGroups extends StatelessWidget {
             return ExpansionTile(
               leading: Icon(Icons.list_outlined,
                   color: Theme.of(context).colorScheme.onSurface),
+              title: Text(entry.key,
+                  style: Theme.of(context).textTheme.titleMedium),
+              children: <Widget>[
+                GenusGroup(taxonList: entry.value),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Map<String, List<MddGroupListResult>> _groupByFamily(
+      List<MddGroupListResult> taxonList) {
+    return TaxonGroupService(taxonList: taxonList).groupByFamily();
+  }
+}
+
+class GenusGroup extends StatelessWidget {
+  const GenusGroup({super.key, required this.taxonList});
+
+  final List<MddGroupListResult> taxonList;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        ..._groupByGenus(taxonList).entries.map(
+          (MapEntry<String, List<MddGroupListResult>> entry) {
+            return ExpansionTile(
+              backgroundColor:
+                  Theme.of(context).colorScheme.primary.withAlpha(24),
               title: Text(
                 entry.key,
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleMedium?.apply(
+                      fontStyle: FontStyle.italic,
+                    ),
               ),
               children: <Widget>[
                 SpeciesGroups(
@@ -89,9 +123,9 @@ class FamilyGroups extends StatelessWidget {
     );
   }
 
-  Map<String, List<MddGroupListResult>> _groupByFamily(
+  Map<String, List<MddGroupListResult>> _groupByGenus(
       List<MddGroupListResult> taxonList) {
-    return TaxonGroupService(taxonList: taxonList).groupByFamily();
+    return TaxonGroupService(taxonList: taxonList).groupByGenus();
   }
 }
 

@@ -7,7 +7,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   MddInfo get mddInfo => attachedDatabase.mddInfo;
   Taxonomy get taxonomy => attachedDatabase.taxonomy;
   Selectable<MddGroupListResult> mddGroupList() {
-    return customSelect('SELECT id, taxonOrder, family FROM taxonomy',
+    return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],
         readsFrom: {
           taxonomy,
@@ -15,6 +15,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
           id: row.read<int>('id'),
           taxonOrder: row.readNullable<String>('taxonOrder'),
           family: row.readNullable<String>('family'),
+          genus: row.readNullable<String>('genus'),
         ));
   }
 }
@@ -23,9 +24,11 @@ class MddGroupListResult {
   final int id;
   final String? taxonOrder;
   final String? family;
+  final String? genus;
   MddGroupListResult({
     required this.id,
     this.taxonOrder,
     this.family,
+    this.genus,
   });
 }
