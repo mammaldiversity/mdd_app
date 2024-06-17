@@ -16,7 +16,7 @@ class SearchField extends ConsumerWidget {
         focusNode: focusNode,
         leading: const Icon(Icons.search),
         backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.secondaryContainer,
+          Theme.of(context).colorScheme.secondaryContainer.withAlpha(40),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
