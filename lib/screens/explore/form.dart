@@ -170,7 +170,7 @@ class SpeciesTextView extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                     fontWeightDelta: 1,
                     fontSizeDelta: 4,
-                    letterSpacingDelta: 1,
+                    letterSpacingDelta: 0.8,
                   ),
             ),
             const TextSpan(text: '\n'),
