@@ -226,6 +226,7 @@ class ContentText extends StatelessWidget {
                         style: isItalic
                             ? Theme.of(context).textTheme.bodyMedium?.apply(
                                   fontStyle: FontStyle.italic,
+                                  letterSpacingDelta: 0.6,
                                 )
                             : Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
