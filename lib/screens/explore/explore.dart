@@ -140,11 +140,13 @@ class SpeciesGroups extends ConsumerWidget {
           data: (List<MainTaxonomyData> speciesList) {
             return Column(
               children: <Widget>[
-                ...speciesList.map(
-                  (MainTaxonomyData taxonData) {
-                    return SpeciesTile(taxonData: taxonData);
-                  },
-                ),
+                // map list tile with index
+                ...List.generate(speciesList.length, (index) {
+                  return SpeciesTile(
+                    taxonData: speciesList[index],
+                    isOddIndex: index.isOdd,
+                  );
+                }),
               ],
             );
           },
@@ -175,9 +177,11 @@ class SpeciesTile extends ConsumerWidget {
   const SpeciesTile({
     super.key,
     required this.taxonData,
+    required this.isOddIndex,
   });
 
   final MainTaxonomyData taxonData;
+  final bool isOddIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -185,7 +189,13 @@ class SpeciesTile extends ConsumerWidget {
         padding: const EdgeInsets.all(4),
         child: ListTile(
           visualDensity: VisualDensity.compact,
-          tileColor: Theme.of(context).colorScheme.primary.withAlpha(32),
+          tileColor: isOddIndex
+              ? Theme.of(context).colorScheme.primary.withAlpha(32)
+              : Color.lerp(
+                  Theme.of(context).colorScheme.primary.withAlpha(32),
+                  Theme.of(context).colorScheme.surface,
+                  0.1,
+                ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
