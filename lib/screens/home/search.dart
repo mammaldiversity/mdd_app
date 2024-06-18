@@ -49,24 +49,31 @@ class SearchInfo extends ConsumerWidget {
                   data: (int totalRecords) {
                     return totalRecords == recordLength
                         ? const SizedBox.shrink()
-                        : Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              speciesList.isEmpty
-                                  ? 'No record found'
-                                  : 'Found ${speciesList.length} of $totalRecords records',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                speciesList.isEmpty
+                                    ? 'No record found'
+                                    : 'Found ${speciesList.length} of $totalRecords records',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
                             ),
                           );
                   },
-                  loading: () => const CircularProgressIndicator(),
+                  loading: () => const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(),
+                  ),
                   error: (Object error, StackTrace? stackTrace) {
                     return Text('Error: $error');
                   },

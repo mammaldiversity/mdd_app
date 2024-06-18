@@ -13,6 +13,9 @@ class MddTheme {
       colorScheme: lightColorScheme ?? _defaultLightColorScheme,
       useMaterial3: true,
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+      ),
     );
   }
 
@@ -21,6 +24,9 @@ class MddTheme {
       colorScheme: darkColorScheme ?? _defaultDarkColorScheme,
       useMaterial3: true,
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+      ),
     );
   }
 }
