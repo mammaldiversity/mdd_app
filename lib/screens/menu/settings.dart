@@ -8,10 +8,16 @@ const Map<String, ThemeMode> _themeMode = {
   'Dark': ThemeMode.dark,
 };
 
-const Map<String, IconData> theme = {
+const Map<String, IconData> themeIcon = {
   'System': Icons.auto_awesome_outlined,
   'Light': Icons.wb_sunny_outlined,
   'Dark': Icons.nightlight_outlined,
+};
+
+const Map<String, IconData> themeSelectedIcon = {
+  'System': Icons.auto_awesome_rounded,
+  'Light': Icons.wb_sunny_rounded,
+  'Dark': Icons.nightlight_rounded,
 };
 
 class AppearanceSetting extends StatelessWidget {
@@ -25,14 +31,14 @@ class AppearanceSetting extends StatelessWidget {
       children: [
         Text(
           'Appearance',
-          style: Theme.of(context).textTheme.labelLarge,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 2),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: Theme.of(context).colorScheme.primary.withAlpha(32),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
               ),
               child: const AppearanceList(),
             )),
@@ -48,18 +54,23 @@ class AppearanceList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(themeSettingProvider).when(
           data: (ThemeMode themeMode) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: _themeMode.keys
-                  .map(
-                    (String key) => AppearanceTile(
-                      icon: theme[key]!,
-                      text: key,
-                      isSelected: themeMode == _matchThemeMode(key),
-                    ),
-                  )
-                  .toList(),
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _themeMode.length,
+              itemBuilder: (BuildContext context, int index) {
+                final String themeName = _themeMode.keys.elementAt(index);
+                return AppearanceTile(
+                  icon: themeMode == _matchThemeMode(themeName)
+                      ? themeSelectedIcon[themeName]!
+                      : themeIcon[themeName]!,
+                  text: themeName,
+                  isSelected: themeMode == _matchThemeMode(themeName),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return const Divider(indent: 48, thickness: 1.2);
+              },
             );
           },
           loading: () => const Center(
