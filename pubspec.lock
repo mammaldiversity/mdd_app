@@ -359,10 +359,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: ee0d9798156ba523ca24bfb690efd15614f823685df270447c480dd5923d9a0b
+      sha256: "4ab629fec14aa4a6a3b503d15ec81cf0cd2cf4d409eb2bbdd32491fea69d9f61"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.39"
+    version: "2.0.0-dev.40"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -595,10 +595,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "9c96da072b421e98183f9ea7464898428e764bc0ce5567f27ec8693442e72514"
+      sha256: bca87b0165ffd7cdb9cad8edd22d18d2201e886d9a9f19b4fb3452ea7df3a72a
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.5"
+    version: "2.2.6"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -863,10 +863,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqlite3_flutter_libs
-      sha256: "9f89a7e7dc36eac2035808427eba1c3fbd79e59c3a22093d8dace6d36b1fe89e"
+      sha256: "62bbb4073edbcdf53f40c80775f33eea01d301b7b81417e5b3fb7395416258c1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.23"
+    version: "0.5.24"
   sqlparser:
     dependency: transitive
     description:

@@ -226,9 +226,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "2.0.0-dev.39"
+version = "2.0.0-dev.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92c9a3d358c2df51ac5ab05440334a63d7e2ce3229ca05d285769498bfe7fb8d"
+checksum = "5c365fbbceacaafff62c4efcb50584955624ae4f5524355e947591116fe26792"
 dependencies = [
  "allo-isolate",
  "android_logger",
@@ -253,9 +253,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "2.0.0-dev.39"
+version = "2.0.0-dev.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c73c8b391f3c0aed00493871aee6541c03d117d553fa5c121f126dfbbad5157"
+checksum = "a20b6a0e0ff1075c8425d5a157704376a342a9a1da6e5c0ecd358ae18c9a66cf"
 dependencies = [
  "hex",
  "md-5",
@@ -441,9 +441,9 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "miniz_oxide"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87dfd01fe195c66b572b37921ad8803d010623c0aca821bea2302239d155cdae"
+checksum = "b8a240ddb74feaf34a79a7add65a741f3167852fba007066dcac1ca548d89c08"
 dependencies = [
  "adler",
 ]
