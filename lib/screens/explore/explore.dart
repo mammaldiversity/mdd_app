@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/form.dart';
+import 'package:mdd/screens/shared/messages.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
@@ -31,23 +32,7 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
               ),
             ]);
           },
-          loading: () => const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: CircularProgressIndicator(),
-                    )),
-                Text('Retrieving MDD species list... ⏳'),
-                Text('This may take a few minutes for the first use.'),
-              ],
-            ),
-          ),
+          loading: () => const DataLoadingMessages(),
           error: (Object error, StackTrace stackTrace) => Center(
             child: Text('Error: $error. Stack trace: $stackTrace'),
           ),
