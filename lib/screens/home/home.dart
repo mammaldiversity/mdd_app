@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
+import 'package:mdd/screens/shared/messages.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/home/search.dart';
@@ -157,22 +158,39 @@ class HomeScreen extends StatelessWidget {
                       '(i.e., since ~1500 CE) species and higher taxa of mammals.',
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Total number of species: 6,718',
-                      textAlign: TextAlign.center,
-                    ),
                   ],
                 ),
               ),
             ),
+            const SpeciesCounts(),
             const SizedBox(height: 32),
             Text('Database version\nv1.12.1, released 30 Jan 2024.',
-                style: Theme.of(context).textTheme.labelMedium,
+                style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center),
           ],
         ),
       ),
     );
+  }
+}
+
+class SpeciesCounts extends ConsumerWidget {
+  const SpeciesCounts({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(speciesListProvider).when(
+        data: (speciesList) {
+          return Center(
+            child: Text(
+              'Total species: ${speciesList.length}',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          );
+        },
+        loading: () => const DataLoadingMessages(),
+        error: (Object error, StackTrace stackTrace) {
+          return Text('Error: $error');
+        });
   }
 }
