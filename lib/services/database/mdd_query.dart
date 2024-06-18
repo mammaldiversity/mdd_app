@@ -41,7 +41,7 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
 
   /// Search the table for a query
   /// Returns a list of IDs
-  Future<List<int>> searchTable(String rawQuery) async {
+  Future<List<MddGroupListResult>> searchTable(String rawQuery) async {
     final query = rawQuery.replaceAll(' ', '_');
     // Search all columns for the query
     final results = await (select(taxonomy)
@@ -61,7 +61,15 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.distributionNotes.like('%$query%'),
           ))
         .get();
-    return results.map((e) => e.id).toList();
+    final data = results
+        .map((e) => MddGroupListResult(
+              id: e.id,
+              family: e.family,
+              taxonOrder: e.taxonOrder,
+              genus: e.genus,
+            ))
+        .toList();
+    return data;
   }
 }
 

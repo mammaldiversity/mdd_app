@@ -25,12 +25,7 @@ class SpeciesList extends _$SpeciesList {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      final results =
-          await MddQuery(ref.read(databaseProvider)).searchTable(query);
-      final filteredResults = state.value!
-          .where((element) => results.contains(element.id))
-          .toList();
-      return filteredResults;
+      return await MddQuery(ref.read(databaseProvider)).searchTable(query);
     });
   }
 }
