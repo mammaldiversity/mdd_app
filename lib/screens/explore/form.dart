@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SpeciesPage extends ConsumerWidget {
   const SpeciesPage({super.key});
@@ -218,7 +218,7 @@ class ContentText extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
-                          _launchURL(content ?? '');
+                          launchURL(content ?? '');
                         },
                       )
                     : Text(
@@ -235,16 +235,6 @@ class ContentText extends StatelessWidget {
             ),
           )
         : const SizedBox.shrink();
-  }
-
-  void _launchURL(String url) async {
-    // Open URL
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $uri';
-    }
   }
 }
 
