@@ -136,6 +136,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const WelcomeText(),
+            const SizedBox(height: 16),
             const SpeciesCounts(),
             const SizedBox(height: 32),
             Text('Database version\nv1.12.1, released 30 Jan 2024.',
