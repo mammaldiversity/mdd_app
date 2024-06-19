@@ -10,6 +10,16 @@ SharedPreferences setting(SettingRef ref) {
 }
 
 @Riverpod(keepAlive: true)
+Future<bool> isFirstRun(IsFirstRunRef ref) async {
+  final prefs = ref.watch(settingProvider);
+  final isFirstRun = prefs.getBool('isFirstRun') ?? true;
+  if (isFirstRun) {
+    await prefs.setBool('isFirstRun', false);
+  }
+  return isFirstRun;
+}
+
+@Riverpod(keepAlive: true)
 class ThemeSetting extends _$ThemeSetting {
   Future<ThemeMode> _fetchSetting() async {
     final prefs = ref.watch(settingProvider);

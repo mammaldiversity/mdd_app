@@ -6,6 +6,7 @@ import 'package:mdd/screens/shared/messages.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/home/search.dart';
+import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 
@@ -134,7 +135,28 @@ class HomeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Padding(
+            const WelcomeText(),
+            const SpeciesCounts(),
+            const SizedBox(height: 32),
+            Text('Database version\nv1.12.1, released 30 Jan 2024.',
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WelcomeText extends ConsumerWidget {
+  const WelcomeText({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(isFirstRunProvider).when(
+        data: (isFirstRun) {
+          if (isFirstRun) {
+            return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -161,16 +183,15 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-            const SpeciesCounts(),
-            const SizedBox(height: 32),
-            Text('Database version\nv1.12.1, released 30 Jan 2024.',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center),
-          ],
-        ),
-      ),
-    );
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+        loading: () => const DataLoadingMessages(),
+        error: (Object error, StackTrace stackTrace) {
+          return Text('Error: $error');
+        });
   }
 }
 
