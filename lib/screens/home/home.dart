@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
-import 'package:mdd/screens/shared/messages.dart';
+import 'package:mdd/screens/shared/loadings.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/home/search.dart';
@@ -188,7 +188,7 @@ class WelcomeText extends ConsumerWidget {
             return const SizedBox.shrink();
           }
         },
-        loading: () => const DataLoadingMessages(),
+        loading: () => const SimpleLoadingOnly(),
         error: (Object error, StackTrace stackTrace) {
           return Text('Error: $error');
         });
@@ -209,7 +209,7 @@ class SpeciesCounts extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const DataLoadingMessages(),
+        loading: () => const DataLoadingMessages(isSimple: true),
         error: (Object error, StackTrace stackTrace) {
           return Text('Error: $error');
         });

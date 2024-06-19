@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/form.dart';
-import 'package:mdd/screens/shared/messages.dart';
+import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
@@ -32,7 +32,7 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
               ),
             ]);
           },
-          loading: () => const DataLoadingMessages(),
+          loading: () => const DataLoadingMessages(isSimple: false),
           error: (Object error, StackTrace stackTrace) => Center(
             child: Text('Error: $error. Stack trace: $stackTrace'),
           ),
