@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
+import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 // import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
@@ -115,9 +116,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 500),
-      child: Center(
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
         child: ListView(
           shrinkWrap: true,
           children: [
@@ -137,7 +138,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const WelcomeText(),
             const SizedBox(height: 16),
-            const SpeciesCounts(),
+            const DatabaseSearch(),
             const SizedBox(height: 32),
             Text('Database version\nv1.12.1, released 30 Jan 2024.',
                 style: Theme.of(context).textTheme.bodySmall,
@@ -196,23 +197,64 @@ class WelcomeText extends ConsumerWidget {
   }
 }
 
-class SpeciesCounts extends ConsumerWidget {
-  const SpeciesCounts({super.key});
+class DatabaseSearch extends ConsumerWidget {
+  const DatabaseSearch({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(speciesListProvider).when(
         data: (speciesList) {
-          return Center(
-            child: Text(
-              'Total species: ${speciesList.length}',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+          return Column(
+            children: [
+              const HomeSearchBar(),
+              const SizedBox(height: 16),
+              SpeciesCount(count: speciesList.length),
+            ],
           );
         },
         loading: () => const DataLoadingMessages(isSimple: true),
         error: (Object error, StackTrace stackTrace) {
           return Text('Error: $error');
         });
+  }
+}
+
+class HomeSearchBar extends StatelessWidget {
+  const HomeSearchBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: SearchBar(
+        hintText: 'Search database',
+        elevation: WidgetStateProperty.all(0),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) {
+                return const SearchDatabasePage();
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class SpeciesCount extends StatelessWidget {
+  const SpeciesCount({super.key, required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        'Total species: $count',
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+    );
   }
 }
