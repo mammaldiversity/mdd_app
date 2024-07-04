@@ -4,9 +4,9 @@ import 'package:mdd/screens/explore/explore.dart';
 import 'package:mdd/screens/menu/menu.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
-// import 'package:mdd/screens/favorites/favorites.dart';
 import 'package:mdd/screens/shared/navigation.dart';
-import 'package:mdd/screens/home/search.dart';
+import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
@@ -35,6 +35,7 @@ class MddPages extends ConsumerStatefulWidget {
 class MddPagesState extends ConsumerState<MddPages> {
   int _selectedPage = 0;
   bool _isSearching = false;
+  final _searchController = TextEditingController();
 
   late FocusNode _focusNode;
 
@@ -47,6 +48,7 @@ class MddPagesState extends ConsumerState<MddPages> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -62,14 +64,21 @@ class MddPagesState extends ConsumerState<MddPages> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: SearchField(
+                      child: CommonSearchField(
                         focusNode: _focusNode,
+                        controller: _searchController,
+                        onChanged: (String value) => _searchDatabase(value),
+                        onClear: () {
+                          _searchController.clear();
+                          ref.invalidate(speciesListProvider);
+                          setState(() {});
+                        },
                       ),
                     ),
                   ),
                 _isSearching
-                    ? IconButton(
-                        icon: const Icon(Icons.close),
+                    ? TextButton(
+                        child: const Text('Done'),
                         onPressed: () {
                           ref.invalidate(speciesListProvider);
                           setState(() {
@@ -108,6 +117,15 @@ class MddPagesState extends ConsumerState<MddPages> {
       ),
       bottomSheet: _isSearching ? const SearchInfo() : null,
     );
+  }
+
+  void _searchDatabase(String query) {
+    if (query.isNotEmpty) {
+      ref.read(speciesListProvider.notifier).search(query);
+    } else {
+      ref.invalidate(speciesListProvider);
+    }
+    setState(() {});
   }
 }
 
@@ -207,7 +225,7 @@ class DatabaseSearch extends ConsumerWidget {
           return Column(
             children: [
               const HomeSearchBar(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               SpeciesCount(count: speciesList.length),
             ],
           );
@@ -219,21 +237,56 @@ class DatabaseSearch extends ConsumerWidget {
   }
 }
 
-class HomeSearchBar extends StatelessWidget {
+class HomeSearchBar extends StatefulWidget {
   const HomeSearchBar({super.key});
+
+  @override
+  State<HomeSearchBar> createState() => _HomeSearchBarState();
+}
+
+class _HomeSearchBarState extends State<HomeSearchBar> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: SearchBar(
+        controller: _searchController,
         hintText: 'Search database',
+        hintStyle: WidgetStatePropertyAll(
+          Theme.of(context).textTheme.bodyMedium,
+        ),
         elevation: WidgetStateProperty.all(0),
+        backgroundColor: WidgetStatePropertyAll(
+          Theme.of(context).colorScheme.primaryContainer.withAlpha(32),
+        ),
+        onChanged: (value) {
+          if (value.isNotEmpty) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) {
+                  return SearchDatabasePage(
+                    controller: _searchController,
+                  );
+                },
+              ),
+            );
+          }
+        },
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) {
-                return const SearchDatabasePage();
+                return SearchDatabasePage(
+                  controller: _searchController,
+                );
               },
             ),
           );
@@ -256,5 +309,55 @@ class SpeciesCount extends StatelessWidget {
         style: Theme.of(context).textTheme.labelLarge,
       ),
     );
+  }
+}
+
+class SearchInfo extends ConsumerWidget {
+  const SearchInfo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(speciesListProvider).when(
+          data: (List<MddGroupListResult> speciesList) {
+            int recordLength = speciesList.length;
+            return ref.watch(totalRecordsProvider).when(
+                  data: (int totalRecords) {
+                    return totalRecords == recordLength
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                speciesList.isEmpty
+                                    ? 'No record found'
+                                    : 'Found ${speciesList.length} of $totalRecords records',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          );
+                  },
+                  loading: () => const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (Object error, StackTrace? stackTrace) {
+                    return Text('Error: $error');
+                  },
+                );
+          },
+          loading: () => const CircularProgressIndicator(),
+          error: (Object error, StackTrace? stackTrace) {
+            return Text('Error: $error');
+          },
+        );
   }
 }

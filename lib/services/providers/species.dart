@@ -5,6 +5,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'species.g.dart';
 
+@riverpod
+class SearchDatabase extends _$SearchDatabase {
+  @override
+  FutureOr<List<MainTaxonomyData>> build() async {
+    return [];
+  }
+
+  Future<void> search(String query) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      if (state.value == null) return [];
+      return await MddQuery(ref.read(databaseProvider)).searchSpecies(query);
+    });
+  }
+}
+
 @Riverpod(keepAlive: true)
 Future<int> totalRecords(TotalRecordsRef ref) async {
   return await MddQuery(ref.read(databaseProvider)).totalRecords();

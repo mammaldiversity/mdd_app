@@ -39,12 +39,37 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return mddGroupList().get();
   }
 
+  /// Search and return species data
+  Future<List<MainTaxonomyData>> searchSpecies(String rawQuery) async {
+    final query = rawQuery.replaceAll(' ', '_');
+    final results = await _search(query);
+    final data =
+        results.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList()
+          ..sort((a, b) {
+            return a.specificEpithet.compareTo(b.specificEpithet);
+          });
+    return data;
+  }
+
   /// Search the table for a query
   /// Returns a list of IDs
   Future<List<MddGroupListResult>> searchTable(String rawQuery) async {
     final query = rawQuery.replaceAll(' ', '_');
     // Search all columns for the query
-    final results = await (select(taxonomy)
+    final results = await _search(query);
+    final data = results
+        .map((e) => MddGroupListResult(
+              id: e.id,
+              family: e.family,
+              taxonOrder: e.taxonOrder,
+              genus: e.genus,
+            ))
+        .toList();
+    return data;
+  }
+
+  Future<List<TaxonomyData>> _search(String query) {
+    return (select(taxonomy)
           ..where(
             (tbl) =>
                 tbl.family.like('%$query%') |
@@ -61,15 +86,6 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.distributionNotes.like('%$query%'),
           ))
         .get();
-    final data = results
-        .map((e) => MddGroupListResult(
-              id: e.id,
-              family: e.family,
-              taxonOrder: e.taxonOrder,
-              genus: e.genus,
-            ))
-        .toList();
-    return data;
   }
 }
 

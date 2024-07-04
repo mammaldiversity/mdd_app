@@ -174,6 +174,22 @@ class _MainTaxonomyDataProviderElement
   List<int> get mddIDList => (origin as MainTaxonomyDataProvider).mddIDList;
 }
 
+String _$searchDatabaseHash() => r'f9f50f466b8687f4d94430d596304d72e29c8cdb';
+
+/// See also [SearchDatabase].
+@ProviderFor(SearchDatabase)
+final searchDatabaseProvider = AutoDisposeAsyncNotifierProvider<SearchDatabase,
+    List<MainTaxonomyData>>.internal(
+  SearchDatabase.new,
+  name: r'searchDatabaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$searchDatabaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SearchDatabase = AutoDisposeAsyncNotifier<List<MainTaxonomyData>>;
 String _$speciesListHash() => r'779979568d6b6c105af2d3e88ed707325977790c';
 
 /// See also [SpeciesList].

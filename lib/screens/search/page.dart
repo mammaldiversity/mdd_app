@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore.dart';
-import 'package:mdd/screens/home/search.dart';
+import 'package:mdd/screens/shared/search.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 
-class SearchDatabasePage extends StatefulWidget {
-  const SearchDatabasePage({super.key});
+class SearchDatabasePage extends ConsumerStatefulWidget {
+  const SearchDatabasePage({super.key, required this.controller});
+
+  final TextEditingController controller;
 
   @override
-  State<SearchDatabasePage> createState() => _SearchDatabasePageState();
+  SearchDatabasePageState createState() => SearchDatabasePageState();
 }
 
-class _SearchDatabasePageState extends State<SearchDatabasePage> {
+class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -37,12 +39,21 @@ class _SearchDatabasePageState extends State<SearchDatabasePage> {
           Expanded(
               child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: SearchField(focusNode: _focusNode),
+            child: CommonSearchField(
+              focusNode: _focusNode,
+              controller: widget.controller,
+              onChanged: _searchDatabase,
+              onClear: () {
+                widget.controller.clear();
+                ref.invalidate(searchDatabaseProvider);
+                setState(() {});
+              },
+            ),
           )),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
-            child: IconButton(
-                icon: const Icon(Icons.close),
+            child: TextButton(
+                child: const Text('Done'),
                 onPressed: () {
                   _focusNode.unfocus();
                   Navigator.pop(context);
@@ -55,6 +66,15 @@ class _SearchDatabasePageState extends State<SearchDatabasePage> {
       ),
     );
   }
+
+  void _searchDatabase(String? query) {
+    if (query != null || query!.isNotEmpty) {
+      ref.read(searchDatabaseProvider.notifier).search(query);
+    } else {
+      ref.invalidate(searchDatabaseProvider);
+    }
+    setState(() {});
+  }
 }
 
 class SpeciesListView extends ConsumerWidget {
@@ -62,13 +82,14 @@ class SpeciesListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(speciesListProvider).when(
-      data: (List<MddGroupListResult> speciesList) {
+    return ref.watch(searchDatabaseProvider).when(
+      data: (List<MainTaxonomyData> speciesList) {
         return ListView.builder(
           itemCount: speciesList.length,
           itemBuilder: (BuildContext context, int index) {
-            return SpeciesGroups(
-              taxonIDList: speciesList.map((e) => e.id).toList(),
+            return SpeciesTile(
+              taxonData: speciesList[index],
+              isOddIndex: index.isOdd,
             );
           },
         );
@@ -81,6 +102,30 @@ class SpeciesListView extends ConsumerWidget {
       error: (Object error, StackTrace stackTrace) {
         return Text('Error: $error');
       },
+    );
+  }
+}
+
+class EmptyData extends StatelessWidget {
+  const EmptyData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search,
+            size: 64,
+            color: Colors.grey,
+          ),
+          Text(
+            'No results found',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
     );
   }
 }
