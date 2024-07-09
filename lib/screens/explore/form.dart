@@ -91,9 +91,6 @@ class OtherDetails extends StatelessWidget {
       shrinkWrap: true,
       children: <Widget>[
         const SizedBox(height: 8),
-        Center(
-          child: Text('MDD ID: ${taxonData.id}'),
-        ),
         ContentText(
           title: 'Authority citation',
           content: taxonData.authoritySpeciesCitation,
@@ -149,6 +146,11 @@ class OtherDetails extends StatelessWidget {
         ContentText(
           title: 'IUCN Red List status',
           content: matchIUCNStatus(taxonData.iucnStatus),
+        ),
+        ContentText(
+          title: 'Species Permalink',
+          content: generatePermanentLink(taxonData.id),
+          isUrl: true,
         ),
       ],
     );
@@ -261,7 +263,7 @@ class StandardText extends StatelessWidget {
       style: isItalic
           ? Theme.of(context).textTheme.bodyMedium?.apply(
                 fontStyle: FontStyle.italic,
-                letterSpacingDelta: 0.6,
+                letterSpacingDelta: 0.8,
               )
           : Theme.of(context).textTheme.bodyMedium,
       textAlign: TextAlign.center,

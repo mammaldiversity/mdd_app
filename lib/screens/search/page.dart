@@ -56,6 +56,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                 child: const Text('Done'),
                 onPressed: () {
                   _focusNode.unfocus();
+                  widget.controller.clear();
                   Navigator.pop(context);
                 }),
           )

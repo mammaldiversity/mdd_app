@@ -1,6 +1,8 @@
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 
+const String mddSpeciesPermanentLink = 'https://www.mammaldiversity.org/taxon/';
+
 class TaxonGroupService {
   const TaxonGroupService({required this.taxonList});
 
@@ -95,4 +97,8 @@ String matchIUCNStatus(String? iucnStatus) {
     default:
       return 'Not Evaluated';
   }
+}
+
+String generatePermanentLink(int taxonID) {
+  return '$mddSpeciesPermanentLink$taxonID';
 }

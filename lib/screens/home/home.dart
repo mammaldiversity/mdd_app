@@ -265,7 +265,14 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
         ),
         elevation: WidgetStateProperty.all(0),
         backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.primaryContainer.withAlpha(32),
+          Theme.of(context).colorScheme.primaryContainer.withAlpha(24),
+        ),
+        side: WidgetStateProperty.all(
+          BorderSide(
+            color:
+                Theme.of(context).colorScheme.primaryContainer.withAlpha(180),
+            width: 2,
+          ),
         ),
         onChanged: (value) {
           if (value.isNotEmpty) {
