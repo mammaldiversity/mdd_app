@@ -8,9 +8,9 @@ class MddTheme {
   static final _defaultDarkColorScheme =
       FlexThemeData.dark(scheme: FlexScheme.amber).colorScheme;
 
-  static ThemeData lightTheme(ColorScheme? lightColorScheme) {
+  static ThemeData lightTheme() {
     return ThemeData(
-      colorScheme: lightColorScheme ?? _defaultLightColorScheme,
+      colorScheme: _defaultLightColorScheme,
       useMaterial3: true,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       bottomSheetTheme: const BottomSheetThemeData(
@@ -19,9 +19,9 @@ class MddTheme {
     );
   }
 
-  static ThemeData darkTheme(ColorScheme? darkColorScheme) {
+  static ThemeData darkTheme() {
     return ThemeData(
-      colorScheme: darkColorScheme ?? _defaultDarkColorScheme,
+      colorScheme: _defaultDarkColorScheme,
       useMaterial3: true,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       bottomSheetTheme: const BottomSheetThemeData(

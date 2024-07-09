@@ -42,7 +42,11 @@ class TaxonForm extends StatelessWidget {
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
             Expanded(
-              child: OtherDetails(taxonData: taxonData),
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 1200,
+                  ),
+                  child: OtherDetails(taxonData: taxonData)),
             )
           ],
         ));
@@ -209,28 +213,8 @@ class ContentText extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 isUrl
-                    ? InkWell(
-                        child: Text(
-                          content ?? '',
-                          style: Theme.of(context).textTheme.bodyMedium?.apply(
-                                decoration: TextDecoration.underline,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        onTap: () {
-                          launchURL(content ?? '');
-                        },
-                      )
-                    : Text(
-                        content ?? '',
-                        style: isItalic
-                            ? Theme.of(context).textTheme.bodyMedium?.apply(
-                                  fontStyle: FontStyle.italic,
-                                  letterSpacingDelta: 0.6,
-                                )
-                            : Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
+                    ? UrlText(content: content)
+                    : StandardText(content: content, isItalic: isItalic),
               ],
             ),
           )
@@ -239,10 +223,57 @@ class ContentText extends StatelessWidget {
 }
 
 class UrlText extends StatelessWidget {
-  const UrlText({super.key});
+  const UrlText({super.key, required this.content});
+
+  final String? content;
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return InkWell(
+      child: Text(
+        content ?? '',
+        style: Theme.of(context).textTheme.bodyMedium?.apply(
+              decoration: TextDecoration.underline,
+            ),
+        textAlign: TextAlign.center,
+      ),
+      onTap: () {
+        launchURL(content ?? '');
+      },
+    );
+  }
+}
+
+class StandardText extends StatelessWidget {
+  const StandardText({
+    super.key,
+    required this.content,
+    required this.isItalic,
+  });
+
+  final String? content;
+  final bool isItalic;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _cleanText(content),
+      style: isItalic
+          ? Theme.of(context).textTheme.bodyMedium?.apply(
+                fontStyle: FontStyle.italic,
+                letterSpacingDelta: 0.6,
+              )
+          : Theme.of(context).textTheme.bodyMedium,
+      textAlign: TextAlign.center,
+    );
+  }
+
+  String _cleanText(String? text) {
+    if (text == null) {
+      return '';
+    }
+    // We use middle dot as a separator for
+    // easier reading in the database
+    return text.replaceAll('|', ' • ');
   }
 }

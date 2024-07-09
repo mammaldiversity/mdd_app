@@ -1,4 +1,3 @@
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/home/home.dart';
@@ -22,28 +21,26 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
-      return MaterialApp(
-        title: 'Mammal Diversity Database',
-        debugShowCheckedModeBanner: false,
-        theme: MddTheme.lightTheme(lightColorScheme),
-        darkTheme: MddTheme.darkTheme(darkColorScheme),
-        themeMode: ref.watch(themeSettingProvider).when(
-            data: (ThemeMode themeMode) => themeMode,
-            loading: () => ThemeMode.system,
-            error: (Object error, _) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Failed to load theme setting.'
-                    ' Defaulting to system theme. Error: $error',
-                  ),
+    return MaterialApp(
+      title: 'Mammal Diversity Database',
+      debugShowCheckedModeBanner: false,
+      theme: MddTheme.lightTheme(),
+      darkTheme: MddTheme.darkTheme(),
+      themeMode: ref.watch(themeSettingProvider).when(
+          data: (ThemeMode themeMode) => themeMode,
+          loading: () => ThemeMode.system,
+          error: (Object error, _) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Failed to load theme setting.'
+                  ' Defaulting to system theme. Error: $error',
                 ),
-              );
-              return ThemeMode.system;
-            }),
-        home: const MddPages(),
-      );
-    });
+              ),
+            );
+            return ThemeMode.system;
+          }),
+      home: const MddPages(),
+    );
   }
 }
