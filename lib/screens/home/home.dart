@@ -36,6 +36,7 @@ class MddPagesState extends ConsumerState<MddPages> {
   int _selectedPage = 0;
   bool _isSearching = false;
   final _searchController = TextEditingController();
+  SearchFilter _selectedSearchOption = SearchFilter.all;
 
   late FocusNode _focusNode;
 
@@ -72,6 +73,23 @@ class MddPagesState extends ConsumerState<MddPages> {
                           _searchController.clear();
                           ref.invalidate(speciesListProvider);
                           setState(() {});
+                        },
+                        onFiltering: () {
+                          showModalBottomSheet<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SearchFilterOptions(
+                                selectedOption: _selectedSearchOption,
+                                onSelected: (SearchFilter value) {
+                                  setState(() {
+                                    _selectedSearchOption = value;
+                                  });
+                                  _searchDatabase(_searchController.text);
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
                     ),
@@ -121,7 +139,9 @@ class MddPagesState extends ConsumerState<MddPages> {
 
   void _searchDatabase(String query) {
     if (query.isNotEmpty) {
-      ref.read(speciesListProvider.notifier).search(query);
+      ref
+          .read(speciesListProvider.notifier)
+          .search(query, filterBy: _selectedSearchOption);
     } else {
       ref.invalidate(speciesListProvider);
     }

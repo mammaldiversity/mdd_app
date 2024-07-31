@@ -16,7 +16,7 @@ class SearchDatabase extends _$SearchDatabase {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      return await MddQuery(ref.read(databaseProvider)).searchSpecies(query);
+      return await MDDSearch(ref.read(databaseProvider)).searchSpecies(query);
     });
   }
 }
@@ -37,11 +37,12 @@ class SpeciesList extends _$SpeciesList {
     return await _fetchSpeciesList();
   }
 
-  Future<void> search(String query) async {
+  Future<void> search(String query, {required SearchFilter filterBy}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      return await MddQuery(ref.read(databaseProvider)).searchTable(query);
+      return await MDDSearch(ref.read(databaseProvider))
+          .searchTable(query, filterBy: filterBy);
     });
   }
 }

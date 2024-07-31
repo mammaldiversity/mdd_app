@@ -174,7 +174,7 @@ class _MainTaxonomyDataProviderElement
   List<int> get mddIDList => (origin as MainTaxonomyDataProvider).mddIDList;
 }
 
-String _$searchDatabaseHash() => r'f9f50f466b8687f4d94430d596304d72e29c8cdb';
+String _$searchDatabaseHash() => r'3831e0823efa61ca3267434cb97ccf40485a1aaa';
 
 /// See also [SearchDatabase].
 @ProviderFor(SearchDatabase)
@@ -190,7 +190,7 @@ final searchDatabaseProvider = AutoDisposeAsyncNotifierProvider<SearchDatabase,
 );
 
 typedef _$SearchDatabase = AutoDisposeAsyncNotifier<List<MainTaxonomyData>>;
-String _$speciesListHash() => r'779979568d6b6c105af2d3e88ed707325977790c';
+String _$speciesListHash() => r'f8343024e9b6d86011ba3c4d8f719d8e2b18055a';
 
 /// See also [SpeciesList].
 @ProviderFor(SpeciesList)

@@ -48,6 +48,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                 ref.invalidate(searchDatabaseProvider);
                 setState(() {});
               },
+              onFiltering: () {},
             ),
           )),
           Padding(

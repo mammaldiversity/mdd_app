@@ -38,11 +38,16 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MddGroupListResult>> retrieveGroupList() async {
     return mddGroupList().get();
   }
+}
+
+enum SearchFilter { all, family, genus, species }
+
+class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
+  MDDSearch(super.db);
 
   /// Search and return species data
   Future<List<MainTaxonomyData>> searchSpecies(String rawQuery) async {
-    final query = rawQuery.replaceAll(' ', '_');
-    final results = await _search(query);
+    final results = await _searchBySpecies(rawQuery);
     final data =
         results.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList()
           ..sort((a, b) {
@@ -53,10 +58,10 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
 
   /// Search the table for a query
   /// Returns a list of IDs
-  Future<List<MddGroupListResult>> searchTable(String rawQuery) async {
-    final query = rawQuery.replaceAll(' ', '_');
+  Future<List<MddGroupListResult>> searchTable(String rawQuery,
+      {required SearchFilter filterBy}) async {
     // Search all columns for the query
-    final results = await _search(query);
+    final results = await _search(rawQuery, filterBy);
     final data = results
         .map((e) => MddGroupListResult(
               id: e.id,
@@ -68,7 +73,20 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return data;
   }
 
-  Future<List<TaxonomyData>> _search(String query) {
+  Future<List<TaxonomyData>> _search(String rawQuery, SearchFilter filterBy) {
+    switch (filterBy) {
+      case SearchFilter.all:
+        return _searchAll(rawQuery);
+      case SearchFilter.family:
+        return _searchByFamily(rawQuery);
+      case SearchFilter.genus:
+        return _searchByGenus(rawQuery);
+      case SearchFilter.species:
+        return _searchBySpecies(rawQuery);
+    }
+  }
+
+  Future<List<TaxonomyData>> _searchAll(String query) {
     return (select(taxonomy)
           ..where(
             (tbl) =>
@@ -85,6 +103,22 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.authoritySpeciesAuthor.like('%$query%') |
                 tbl.distributionNotes.like('%$query%'),
           ))
+        .get();
+  }
+
+  Future<List<TaxonomyData>> _searchByFamily(String rawQuery) {
+    return (select(taxonomy)..where((tbl) => tbl.family.like('%$rawQuery%')))
+        .get();
+  }
+
+  Future<List<TaxonomyData>> _searchByGenus(String rawQuery) {
+    return (select(taxonomy)..where((tbl) => tbl.genus.like('%$rawQuery%')))
+        .get();
+  }
+
+  Future<List<TaxonomyData>> _searchBySpecies(String rawQuery) {
+    final query = rawQuery.replaceAll(' ', '_');
+    return (select(taxonomy)..where((tbl) => tbl.sciName.like('%$query%')))
         .get();
   }
 }
