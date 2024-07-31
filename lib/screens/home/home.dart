@@ -77,13 +77,17 @@ class MddPagesState extends ConsumerState<MddPages> {
                         onFiltering: () {
                           showModalBottomSheet<void>(
                             context: context,
+                            isScrollControlled: true,
+                            showDragHandle: true,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
                             builder: (BuildContext context) {
                               return SearchFilterOptions(
                                 selectedOption: _selectedSearchOption,
-                                onSelected: (SearchFilter value) {
-                                  setState(() {
+                                onSelected: (SearchFilter? value) {
+                                  if (value != null) {
                                     _selectedSearchOption = value;
-                                  });
+                                  }
                                   _searchDatabase(_searchController.text);
                                   Navigator.pop(context);
                                 },

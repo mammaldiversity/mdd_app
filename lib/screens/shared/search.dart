@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/utils.dart';
 
 class CommonSearchField extends StatefulWidget {
   const CommonSearchField({
@@ -65,41 +66,24 @@ class SearchFilterOptions extends StatelessWidget {
   });
 
   final SearchFilter selectedOption;
-  final ValueChanged<SearchFilter> onSelected;
+  final void Function(SearchFilter?) onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ListTile(
-          title: const Text('All'),
-          onTap: () {
-            onSelected(SearchFilter.all);
-          },
-          selected: selectedOption == SearchFilter.all,
-        ),
-        ListTile(
-          title: const Text('Family'),
-          onTap: () {
-            onSelected(SearchFilter.family);
-          },
-          selected: selectedOption == SearchFilter.family,
-        ),
-        ListTile(
-          title: const Text('Genus'),
-          onTap: () {
-            onSelected(SearchFilter.genus);
-          },
-          selected: selectedOption == SearchFilter.genus,
-        ),
-        ListTile(
-          title: const Text('Species'),
-          onTap: () {
-            onSelected(SearchFilter.species);
-          },
-          selected: selectedOption == SearchFilter.species,
-        ),
-      ],
-    );
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(2, 0, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: SearchFilter.values
+              .map(
+                (option) => RadioListTile<SearchFilter>(
+                  title: Text(option.name.toSentenceCase()),
+                  value: option,
+                  groupValue: selectedOption,
+                  onChanged: onSelected,
+                ),
+              )
+              .toList(),
+        ));
   }
 }
