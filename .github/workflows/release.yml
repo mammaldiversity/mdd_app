@@ -1,0 +1,82 @@
+name: releases
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        os: ["windows-latest", "ubuntu-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17.x"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - run: |
+          flutter pub get
+          flutter analyze
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Build
+        uses: subosito/flutter-action@v2
+      - if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          flutter build linux --release
+
+      - if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          flutter build windows --release
+
+      - name: Compress Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          echo "Compressing files..."
+          mkdir mdd
+          mv build/linux/x64/release/bundle/* mdd
+          tar -czvf mdd.tar.gz mdd
+
+      - name: Compress Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          echo "Creating folder..."
+          mkdir mdd
+          echo "Compressing files..."
+          mv build\windows\x64\runner\Release\* mdd
+          powershell Compress-Archive -Path mdd -DestinationPath mdd.zip
+
+      - name: Upload linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: mdd.tar.gz
+          asset_name: mdd-Linux-x86_64.tar.gz
+          tag: ${{ github.ref_name }}
+
+      - name: Upload windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: mdd.zip
+          asset_name: mdd-Windows-x86_64.zip
+          tag: ${{ github.ref_name }}
