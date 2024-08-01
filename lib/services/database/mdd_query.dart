@@ -46,8 +46,9 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   MDDSearch(super.db);
 
   /// Search and return species data
-  Future<List<MainTaxonomyData>> searchSpecies(String rawQuery) async {
-    final results = await _searchBySpecies(rawQuery);
+  Future<List<MainTaxonomyData>> searchSpecies(String rawQuery,
+      {required SearchFilter filterBy}) async {
+    final results = await _search(rawQuery, filterBy);
     final data =
         results.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList()
           ..sort((a, b) {

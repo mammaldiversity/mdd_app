@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
 
 class CommonSearchField extends StatefulWidget {
@@ -85,5 +86,55 @@ class SearchFilterOptions extends StatelessWidget {
               )
               .toList(),
         ));
+  }
+}
+
+class SearchFilterView {
+  const SearchFilterView({
+    required this.selectedOption,
+    required this.onSelected,
+  });
+
+  final SearchFilter selectedOption;
+  final void Function(SearchFilter?) onSelected;
+
+  void showFilteringOptions(BuildContext context) {
+    final ScreenType screenType = getScreenType(context);
+    if (screenType == ScreenType.small) {
+      showFilteringModalSheet(context);
+    } else {
+      showFilteringDialog(context);
+    }
+  }
+
+  void showFilteringModalSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      showDragHandle: true,
+      builder: (context) => SearchFilterOptions(
+        selectedOption: selectedOption,
+        onSelected: onSelected,
+      ),
+    );
+  }
+
+  void showFilteringDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Search Filter'),
+        content: SearchFilterOptions(
+          selectedOption: selectedOption,
+          onSelected: onSelected,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 }

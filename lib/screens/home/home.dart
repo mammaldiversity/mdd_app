@@ -75,25 +75,7 @@ class MddPagesState extends ConsumerState<MddPages> {
                           setState(() {});
                         },
                         onFiltering: () {
-                          showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            showDragHandle: true,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            builder: (BuildContext context) {
-                              return SearchFilterOptions(
-                                selectedOption: _selectedSearchOption,
-                                onSelected: (SearchFilter? value) {
-                                  if (value != null) {
-                                    _selectedSearchOption = value;
-                                  }
-                                  _searchDatabase(_searchController.text);
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          );
+                          _showFilteringOptions();
                         },
                       ),
                     ),
@@ -150,6 +132,19 @@ class MddPagesState extends ConsumerState<MddPages> {
       ref.invalidate(speciesListProvider);
     }
     setState(() {});
+  }
+
+  void _showFilteringOptions() {
+    SearchFilterView(
+      selectedOption: _selectedSearchOption,
+      onSelected: (SearchFilter? value) {
+        if (value != null) {
+          _selectedSearchOption = value;
+        }
+        _searchDatabase(_searchController.text);
+        Navigator.pop(context);
+      },
+    ).showFilteringOptions(context);
   }
 }
 

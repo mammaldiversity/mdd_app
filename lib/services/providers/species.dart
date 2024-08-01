@@ -12,11 +12,12 @@ class SearchDatabase extends _$SearchDatabase {
     return [];
   }
 
-  Future<void> search(String query) async {
+  Future<void> search(String query, {required SearchFilter filterBy}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      return await MDDSearch(ref.read(databaseProvider)).searchSpecies(query);
+      return await MDDSearch(ref.read(databaseProvider))
+          .searchSpecies(query, filterBy: filterBy);
     });
   }
 }

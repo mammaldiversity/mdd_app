@@ -16,6 +16,7 @@ class SearchDatabasePage extends ConsumerStatefulWidget {
 
 class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   final FocusNode _focusNode = FocusNode();
+  SearchFilter _selectedOption = SearchFilter.all;
 
   @override
   void initState() {
@@ -48,7 +49,9 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                 ref.invalidate(searchDatabaseProvider);
                 setState(() {});
               },
-              onFiltering: () {},
+              onFiltering: () {
+                _showFilteringOptions();
+              },
             ),
           )),
           Padding(
@@ -71,11 +74,28 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
 
   void _searchDatabase(String? query) {
     if (query != null || query!.isNotEmpty) {
-      ref.read(searchDatabaseProvider.notifier).search(query);
+      ref
+          .read(searchDatabaseProvider.notifier)
+          .search(query, filterBy: _selectedOption);
     } else {
       ref.invalidate(searchDatabaseProvider);
     }
     setState(() {});
+  }
+
+  void _showFilteringOptions() {
+    SearchFilterView(
+      selectedOption: _selectedOption,
+      onSelected: (SearchFilter? option) {
+        if (option != null) {
+          _selectedOption = option;
+        }
+        if (widget.controller.text.isNotEmpty) {
+          _searchDatabase(widget.controller.text);
+        }
+        Navigator.pop(context);
+      },
+    ).showFilteringOptions(context);
   }
 }
 
