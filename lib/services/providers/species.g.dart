@@ -174,7 +174,7 @@ class _MainTaxonomyDataProviderElement
   List<int> get mddIDList => (origin as MainTaxonomyDataProvider).mddIDList;
 }
 
-String _$searchDatabaseHash() => r'3831e0823efa61ca3267434cb97ccf40485a1aaa';
+String _$searchDatabaseHash() => r'48fe276b76fbfbde2626fd5051896653aac60d27';
 
 /// See also [SearchDatabase].
 @ProviderFor(SearchDatabase)

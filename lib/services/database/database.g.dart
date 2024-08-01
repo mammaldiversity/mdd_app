@@ -120,6 +120,14 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
         version: version.present ? version.value : this.version,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
       );
+  MddInfoData copyWithCompanion(MddInfoCompanion data) {
+    return MddInfoData(
+      version: data.version.present ? data.version.value : this.version,
+      releaseDate:
+          data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('MddInfoData(')
@@ -1679,6 +1687,120 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
         diffSinceMSW3:
             diffSinceMSW3.present ? diffSinceMSW3.value : this.diffSinceMSW3,
       );
+  TaxonomyData copyWithCompanion(TaxonomyCompanion data) {
+    return TaxonomyData(
+      id: data.id.present ? data.id.value : this.id,
+      phylosort: data.phylosort.present ? data.phylosort.value : this.phylosort,
+      subclass: data.subclass.present ? data.subclass.value : this.subclass,
+      infraclass:
+          data.infraclass.present ? data.infraclass.value : this.infraclass,
+      magnorder: data.magnorder.present ? data.magnorder.value : this.magnorder,
+      superorder:
+          data.superorder.present ? data.superorder.value : this.superorder,
+      taxonOrder:
+          data.taxonOrder.present ? data.taxonOrder.value : this.taxonOrder,
+      suborder: data.suborder.present ? data.suborder.value : this.suborder,
+      infraorder:
+          data.infraorder.present ? data.infraorder.value : this.infraorder,
+      parvorder: data.parvorder.present ? data.parvorder.value : this.parvorder,
+      superfamily:
+          data.superfamily.present ? data.superfamily.value : this.superfamily,
+      family: data.family.present ? data.family.value : this.family,
+      subfamily: data.subfamily.present ? data.subfamily.value : this.subfamily,
+      tribe: data.tribe.present ? data.tribe.value : this.tribe,
+      genus: data.genus.present ? data.genus.value : this.genus,
+      subgenus: data.subgenus.present ? data.subgenus.value : this.subgenus,
+      specificEpithet: data.specificEpithet.present
+          ? data.specificEpithet.value
+          : this.specificEpithet,
+      sciName: data.sciName.present ? data.sciName.value : this.sciName,
+      authoritySpeciesAuthor: data.authoritySpeciesAuthor.present
+          ? data.authoritySpeciesAuthor.value
+          : this.authoritySpeciesAuthor,
+      authoritySpeciesYear: data.authoritySpeciesYear.present
+          ? data.authoritySpeciesYear.value
+          : this.authoritySpeciesYear,
+      authorityParentheses: data.authorityParentheses.present
+          ? data.authorityParentheses.value
+          : this.authorityParentheses,
+      mainCommonName: data.mainCommonName.present
+          ? data.mainCommonName.value
+          : this.mainCommonName,
+      otherCommonNames: data.otherCommonNames.present
+          ? data.otherCommonNames.value
+          : this.otherCommonNames,
+      originalNameCombination: data.originalNameCombination.present
+          ? data.originalNameCombination.value
+          : this.originalNameCombination,
+      authoritySpeciesCitation: data.authoritySpeciesCitation.present
+          ? data.authoritySpeciesCitation.value
+          : this.authoritySpeciesCitation,
+      authoritySpeciesLink: data.authoritySpeciesLink.present
+          ? data.authoritySpeciesLink.value
+          : this.authoritySpeciesLink,
+      holotypeVoucher: data.holotypeVoucher.present
+          ? data.holotypeVoucher.value
+          : this.holotypeVoucher,
+      holotypeVoucherURIs: data.holotypeVoucherURIs.present
+          ? data.holotypeVoucherURIs.value
+          : this.holotypeVoucherURIs,
+      typeLocality: data.typeLocality.present
+          ? data.typeLocality.value
+          : this.typeLocality,
+      typeLocalityLatitude: data.typeLocalityLatitude.present
+          ? data.typeLocalityLatitude.value
+          : this.typeLocalityLatitude,
+      typeLocalityLongitude: data.typeLocalityLongitude.present
+          ? data.typeLocalityLongitude.value
+          : this.typeLocalityLongitude,
+      nominalNames: data.nominalNames.present
+          ? data.nominalNames.value
+          : this.nominalNames,
+      taxonomyNotes: data.taxonomyNotes.present
+          ? data.taxonomyNotes.value
+          : this.taxonomyNotes,
+      taxonomyNotesCitation: data.taxonomyNotesCitation.present
+          ? data.taxonomyNotesCitation.value
+          : this.taxonomyNotesCitation,
+      distributionNotes: data.distributionNotes.present
+          ? data.distributionNotes.value
+          : this.distributionNotes,
+      distributionNotesCitation: data.distributionNotesCitation.present
+          ? data.distributionNotesCitation.value
+          : this.distributionNotesCitation,
+      subregionDistribution: data.subregionDistribution.present
+          ? data.subregionDistribution.value
+          : this.subregionDistribution,
+      countryDistribution: data.countryDistribution.present
+          ? data.countryDistribution.value
+          : this.countryDistribution,
+      continentDistribution: data.continentDistribution.present
+          ? data.continentDistribution.value
+          : this.continentDistribution,
+      biogeographicRealm: data.biogeographicRealm.present
+          ? data.biogeographicRealm.value
+          : this.biogeographicRealm,
+      iucnStatus:
+          data.iucnStatus.present ? data.iucnStatus.value : this.iucnStatus,
+      extinct: data.extinct.present ? data.extinct.value : this.extinct,
+      domestic: data.domestic.present ? data.domestic.value : this.domestic,
+      flagged: data.flagged.present ? data.flagged.value : this.flagged,
+      cMWSciName:
+          data.cMWSciName.present ? data.cMWSciName.value : this.cMWSciName,
+      diffSinceCMW: data.diffSinceCMW.present
+          ? data.diffSinceCMW.value
+          : this.diffSinceCMW,
+      mSW3Matchtype: data.mSW3Matchtype.present
+          ? data.mSW3Matchtype.value
+          : this.mSW3Matchtype,
+      mSW3SciName:
+          data.mSW3SciName.present ? data.mSW3SciName.value : this.mSW3SciName,
+      diffSinceMSW3: data.diffSinceMSW3.present
+          ? data.diffSinceMSW3.value
+          : this.diffSinceMSW3,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TaxonomyData(')
@@ -2445,7 +2567,7 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
-  _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final MddInfo mddInfo = MddInfo(this);
   late final Taxonomy taxonomy = Taxonomy(this);
   Selectable<MddGroupListResult> mddGroupList() {
@@ -2468,7 +2590,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [mddInfo, taxonomy];
 }
 
-typedef $MddInfoInsertCompanionBuilder = MddInfoCompanion Function({
+typedef $MddInfoCreateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
   Value<String?> releaseDate,
   Value<int> rowid,
@@ -2485,8 +2607,7 @@ class $MddInfoTableManager extends RootTableManager<
     MddInfoData,
     $MddInfoFilterComposer,
     $MddInfoOrderingComposer,
-    $MddInfoProcessedTableManager,
-    $MddInfoInsertCompanionBuilder,
+    $MddInfoCreateCompanionBuilder,
     $MddInfoUpdateCompanionBuilder> {
   $MddInfoTableManager(_$AppDatabase db, MddInfo table)
       : super(TableManagerState(
@@ -2494,8 +2615,7 @@ class $MddInfoTableManager extends RootTableManager<
           table: table,
           filteringComposer: $MddInfoFilterComposer(ComposerState(db, table)),
           orderingComposer: $MddInfoOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $MddInfoProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String?> version = const Value.absent(),
             Value<String?> releaseDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -2505,7 +2625,7 @@ class $MddInfoTableManager extends RootTableManager<
             releaseDate: releaseDate,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<String?> version = const Value.absent(),
             Value<String?> releaseDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -2516,18 +2636,6 @@ class $MddInfoTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $MddInfoProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    MddInfo,
-    MddInfoData,
-    $MddInfoFilterComposer,
-    $MddInfoOrderingComposer,
-    $MddInfoProcessedTableManager,
-    $MddInfoInsertCompanionBuilder,
-    $MddInfoUpdateCompanionBuilder> {
-  $MddInfoProcessedTableManager(super.$state);
 }
 
 class $MddInfoFilterComposer extends FilterComposer<_$AppDatabase, MddInfo> {
@@ -2557,7 +2665,7 @@ class $MddInfoOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $TaxonomyInsertCompanionBuilder = TaxonomyCompanion Function({
+typedef $TaxonomyCreateCompanionBuilder = TaxonomyCompanion Function({
   Value<int> id,
   Value<int?> phylosort,
   Value<String?> subclass,
@@ -2666,8 +2774,7 @@ class $TaxonomyTableManager extends RootTableManager<
     TaxonomyData,
     $TaxonomyFilterComposer,
     $TaxonomyOrderingComposer,
-    $TaxonomyProcessedTableManager,
-    $TaxonomyInsertCompanionBuilder,
+    $TaxonomyCreateCompanionBuilder,
     $TaxonomyUpdateCompanionBuilder> {
   $TaxonomyTableManager(_$AppDatabase db, Taxonomy table)
       : super(TableManagerState(
@@ -2675,8 +2782,7 @@ class $TaxonomyTableManager extends RootTableManager<
           table: table,
           filteringComposer: $TaxonomyFilterComposer(ComposerState(db, table)),
           orderingComposer: $TaxonomyOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $TaxonomyProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int?> phylosort = const Value.absent(),
             Value<String?> subclass = const Value.absent(),
@@ -2778,7 +2884,7 @@ class $TaxonomyTableManager extends RootTableManager<
             mSW3SciName: mSW3SciName,
             diffSinceMSW3: diffSinceMSW3,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int?> phylosort = const Value.absent(),
             Value<String?> subclass = const Value.absent(),
@@ -2881,18 +2987,6 @@ class $TaxonomyTableManager extends RootTableManager<
             diffSinceMSW3: diffSinceMSW3,
           ),
         ));
-}
-
-class $TaxonomyProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    Taxonomy,
-    TaxonomyData,
-    $TaxonomyFilterComposer,
-    $TaxonomyOrderingComposer,
-    $TaxonomyProcessedTableManager,
-    $TaxonomyInsertCompanionBuilder,
-    $TaxonomyUpdateCompanionBuilder> {
-  $TaxonomyProcessedTableManager(super.$state);
 }
 
 class $TaxonomyFilterComposer extends FilterComposer<_$AppDatabase, Taxonomy> {
@@ -3398,9 +3492,9 @@ class $TaxonomyOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-class _$AppDatabaseManager {
+class $AppDatabaseManager {
   final _$AppDatabase _db;
-  _$AppDatabaseManager(this._db);
+  $AppDatabaseManager(this._db);
   $MddInfoTableManager get mddInfo => $MddInfoTableManager(_db, _db.mddInfo);
   $TaxonomyTableManager get taxonomy =>
       $TaxonomyTableManager(_db, _db.taxonomy);
