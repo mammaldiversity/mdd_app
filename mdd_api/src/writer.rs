@@ -1,4 +1,7 @@
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::parser::MddParser;
 
@@ -23,18 +26,11 @@ impl<'a> MddWriter<'a> {
     /// Write to a file.
     pub fn write(&self, json_data: &str) -> Result<(), Box<dyn std::error::Error>> {
         fs::create_dir_all(&self.output_dir)?;
+        let output_path = self._create_output_path();
         if self.to_csv {
-            let output_file = self
-                .output_dir
-                .join(&self.output_filename)
-                .with_extension(CSV_EXTENSION);
-            self.to_csv(json_data, &output_file)?;
+            self.to_csv(json_data, &output_path)?;
         } else {
-            let output_file = self
-                .output_dir
-                .join(&self.output_filename)
-                .with_extension(JSON_EXTENSION);
-            self.to_json(json_data, &output_file)?;
+            self.to_json(json_data, &output_path)?;
         }
         Ok(())
     }
@@ -45,9 +41,7 @@ impl<'a> MddWriter<'a> {
         json_data: &str,
         output_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let output_file = output_path.with_extension(CSV_EXTENSION);
-
-        let mut wtr = csv::Writer::from_path(output_file)?;
+        let mut wtr = csv::Writer::from_path(output_path)?;
         let records: Vec<MddParser> = serde_json::from_str(json_data)?;
         for record in records {
             wtr.serialize(record)?;
@@ -63,9 +57,26 @@ impl<'a> MddWriter<'a> {
         json_data: &str,
         output_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let output_file = output_path.with_extension(JSON_EXTENSION);
-        std::fs::write(output_file, json_data)?;
+        std::fs::write(output_path, json_data)?;
         Ok(())
+    }
+
+    // Check if file exists, or else create a new filename
+    // with suffix _1, _2, _3, etc.
+    fn _create_output_path(&self) -> PathBuf {
+        let mut output_path = self.output_dir.join(&self.output_filename);
+        let mut i = 1;
+        while output_path.exists() {
+            output_path = self
+                .output_dir
+                .join(format!("{}_{}", self.output_filename, i));
+            i += 1;
+        }
+        if self.to_csv {
+            output_path.with_extension(CSV_EXTENSION)
+        } else {
+            output_path.with_extension(JSON_EXTENSION)
+        }
     }
 }
 
