@@ -53,5 +53,7 @@
 	</array>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to access document folders</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to access your photo library</string>
 </dict>
 </plist>
