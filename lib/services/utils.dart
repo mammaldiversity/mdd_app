@@ -1,3 +1,5 @@
+import 'package:path/path.dart' as path;
+
 extension StringExtension on String {
   String toSentenceCase() {
     try {
@@ -17,5 +19,10 @@ extension StringExtension on String {
           .toSentenceCase();
     }
     return toSentenceCase();
+  }
+
+  String extractExtension() {
+    final ext = path.extension(this);
+    return ext.isNotEmpty ? ext.substring(1) : '';
   }
 }

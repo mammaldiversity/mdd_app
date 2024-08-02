@@ -8,6 +8,7 @@ import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/system.dart';
+import 'package:mdd/services/utils.dart';
 import 'package:mdd/src/rust/api/parser.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
@@ -15,19 +16,19 @@ import 'package:share_plus/share_plus.dart';
 enum ExportFormat { json, csv }
 
 const String _kOutputDir = 'exported_data';
-const String _kFileName = 'export';
+const String _kFileName = 'export.csv';
 
 class FileWriter {
   const FileWriter({
     required this.ref,
-    this.outputDir,
-    this.fileName,
+    required this.fileName,
     required this.format,
+    this.outputDir,
   });
 
   final WidgetRef ref;
   final String? outputDir;
-  final String? fileName;
+  final String fileName;
   final ExportFormat format;
 
   Future<XFile> toFile(List<int> mddIDs) async {
@@ -36,7 +37,7 @@ class FileWriter {
     final writer = DatabaseWriter(
       jsonData: data,
       outputDir: await _getOutputDir(),
-      outputFilename: fileName ?? _kFileName,
+      outputFilename: fileName,
       toCsv: toCsv,
     );
     final String outputPath = await writer.write();
@@ -86,7 +87,7 @@ class FileExport {
     final file = await FileWriter(
       ref: ref,
       outputDir: null,
-      fileName: null,
+      fileName: _kFileName,
       format: ExportFormat.csv,
     ).toFile(mddIDs);
     await Share.shareXFiles([file]);
@@ -94,31 +95,43 @@ class FileExport {
   }
 
   Future<String?> _saveFiles() async {
-    final outputFile = await FilePicker.platform.saveFile(
-      type: FileType.custom,
-      allowedExtensions: ['json', 'csv'],
-      dialogTitle: 'Save Exported Data. Set file extension to json or csv',
-      fileName: 'export.csv',
-    );
+    final outputFile = await _pickSaveFile();
     if (outputFile != null) {
-      final writer = FileWriter(
-        ref: ref,
-        outputDir: path.dirname(outputFile),
-        fileName: path.basename(outputFile),
-        format: _getOutputFormat(outputFile),
-      );
-      final outputPath = await writer.toFile(mddIDs);
-      return outputPath.path;
+      final ext = outputFile.extractExtension();
+      ExportFormat format =
+          ext.isEmpty ? ExportFormat.csv : _getOutputFormat(ext);
+      try {
+        return await _writeFile(outputFile, format);
+      } catch (e) {
+        throw Exception(
+            'Failed to write file. Check file name has an extension.');
+      }
     }
     return null;
   }
 
-  ExportFormat _getOutputFormat(String outputFile) {
-    final ext = path.extension(outputFile);
-    if (ext.isNotEmpty) {
-      final format = ext.substring(1);
-      return format == 'json' ? ExportFormat.json : ExportFormat.csv;
-    }
-    return ExportFormat.csv;
+  Future<String?> _writeFile(String outputFile, ExportFormat format) async {
+    final writer = FileWriter(
+      ref: ref,
+      outputDir: path.dirname(outputFile),
+      fileName: path.basename(outputFile),
+      format: format,
+    );
+    final outputPath = await writer.toFile(mddIDs);
+    return outputPath.path;
+  }
+
+  Future<String?> _pickSaveFile() async {
+    final outputFile = await FilePicker.platform.saveFile(
+      type: FileType.custom,
+      allowedExtensions: ['json', 'csv'],
+      dialogTitle: 'Please select a file',
+      fileName: _kFileName,
+    );
+    return outputFile;
+  }
+
+  ExportFormat _getOutputFormat(String fileExtension) {
+    return fileExtension == 'json' ? ExportFormat.json : ExportFormat.csv;
   }
 }
