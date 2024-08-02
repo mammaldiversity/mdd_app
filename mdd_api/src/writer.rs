@@ -24,15 +24,17 @@ impl<'a> MddWriter<'a> {
     }
     /// Parse json data to csv.
     /// Write to a file.
-    pub fn write(&self, json_data: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn write(&self, json_data: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
         fs::create_dir_all(&self.output_dir)?;
         let output_path = self._create_output_path();
+        // Replace taxonOrder with order to avoid conflict with parser.
+        let data = json_data.replace("taxonOrder", "order");
         if self.to_csv {
-            self.to_csv(json_data, &output_path)?;
+            self.to_csv(&data, &output_path)?;
         } else {
-            self.to_json(json_data, &output_path)?;
+            self.to_json(&data, &output_path)?;
         }
-        Ok(())
+        Ok(output_path)
     }
 
     /// Write json
@@ -42,7 +44,7 @@ impl<'a> MddWriter<'a> {
         output_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let mut wtr = csv::Writer::from_path(output_path)?;
-        let records: Vec<MddParser> = serde_json::from_str(json_data)?;
+        let records: Vec<MddParser> = serde_json::from_str(&json_data)?;
         for record in records {
             wtr.serialize(record)?;
         }
@@ -98,5 +100,16 @@ mod test {
         parser.write(json_mdd).unwrap();
         let json_result = output_dir.join(filename).with_extension(JSON_EXTENSION);
         assert_eq!(json_result.exists(), true);
+    }
+
+    #[test]
+    fn test_write_csv() {
+        let input_path = "tests/data/export.json";
+        let json_mdd = std::fs::read_to_string(input_path).unwrap();
+        let output_dir = TempDir::new("output").unwrap();
+        let output_dir = env::current_dir().unwrap().join(output_dir.path());
+        let filename = "output";
+        let parser = MddWriter::new(&output_dir, filename, true);
+        parser.write(&json_mdd).unwrap();
     }
 }

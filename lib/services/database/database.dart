@@ -8,7 +8,6 @@ import 'package:mdd/src/rust/api/parser.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:mdd/services/app_services.dart';
 
@@ -62,8 +61,8 @@ LazyDatabase _openConnection() {
 }
 
 Future<File> get dBPath async {
-  final Directory appDocDir = await getApplicationDocumentsDirectory();
-  final dbPath = path.join(appDocDir.path, appDataDirName, 'mdd.db');
+  final Directory appDocDir = await getAppDir();
+  final dbPath = path.join(appDocDir.path, 'mdd.db');
   final dbFile = File(dbPath);
   if (!dbFile.existsSync()) {
     await dbFile.create(recursive: true);

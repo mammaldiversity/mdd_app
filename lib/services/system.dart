@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -10,6 +12,21 @@ import 'package:package_info_plus/package_info_plus.dart';
 /// - large: 1200dp to 1599dp
 /// - extra-large: 1600dp and above
 enum ScreenType { small, medium, expanded, large, extraLarge }
+
+enum PlatformType { mobile, desktop }
+
+/// Check platform type
+/// - mobile: iOS or Android
+/// - desktop: Windows, macOS, or Linux
+PlatformType getPlatformType() {
+  if (Platform.isIOS || Platform.isAndroid) {
+    return PlatformType.mobile;
+  } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    return PlatformType.desktop;
+  } else {
+    throw UnsupportedError('This platform is not supported');
+  }
+}
 
 ScreenType getScreenType(BuildContext context) {
   final double deviceWidth = MediaQuery.of(context).size.width;

@@ -112,9 +112,8 @@ fn wire__crate__api__parser__database_writer_write_impl(
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::api::parser::DatabaseWriter::write(&api_that);
-                    })?;
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::parser::DatabaseWriter::write(&api_that))?;
                     Ok(output_ok)
                 })())
             }

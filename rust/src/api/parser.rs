@@ -37,12 +37,13 @@ impl DatabaseWriter {
         }
     }
 
-    pub fn write(&self) {
+    pub fn write(&self) -> String {
         let writer = MddWriter::new(
             Path::new(&self.output_dir),
             &self.output_filename,
             self.to_csv,
         );
-        writer.write(&self.json_data).expect("Failed to write data");
+        let output_path = writer.write(&self.json_data).expect("Failed to write data");
+        output_path.to_string_lossy().to_string()
     }
 }

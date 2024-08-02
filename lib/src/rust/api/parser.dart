@@ -36,7 +36,7 @@ class DatabaseWriter {
           outputFilename: outputFilename,
           toCsv: toCsv);
 
-  Future<void> write() =>
+  Future<String> write() =>
       RustLib.instance.api.crateApiParserDatabaseWriterWrite(
         that: this,
       );

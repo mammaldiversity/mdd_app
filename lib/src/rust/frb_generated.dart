@@ -75,7 +75,7 @@ abstract class RustLibApi extends BaseApi {
       required String outputFilename,
       required bool toCsv});
 
-  Future<void> crateApiParserDatabaseWriterWrite(
+  Future<String> crateApiParserDatabaseWriterWrite(
       {required DatabaseWriter that});
 
   Future<void> crateApiParserInitApp();
@@ -124,7 +124,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiParserDatabaseWriterWrite(
+  Future<String> crateApiParserDatabaseWriterWrite(
       {required DatabaseWriter that}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
@@ -134,7 +134,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             funcId: 2, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
+        decodeSuccessData: sse_decode_String,
         decodeErrorData: null,
       ),
       constMeta: kCrateApiParserDatabaseWriterWriteConstMeta,

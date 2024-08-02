@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
@@ -128,11 +129,7 @@ class SearchResultInfo extends ConsumerWidget {
                           VerticalDivider(
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          IconButton(
-                            icon: Icon(Icons.adaptive.share),
-                            tooltip: 'Share results',
-                            onPressed: () {},
-                          ),
+                          SearchExportButton(mddIDs: foundRecords),
                         ],
                       ),
                     ),
@@ -147,6 +144,49 @@ class SearchResultInfo extends ConsumerWidget {
             return Text('Error: $error');
           },
         );
+  }
+}
+
+class SearchExportButton extends ConsumerStatefulWidget {
+  const SearchExportButton({super.key, required this.mddIDs});
+
+  final List<int> mddIDs;
+
+  @override
+  SearchExportButtonState createState() => SearchExportButtonState();
+}
+
+class SearchExportButtonState extends ConsumerState<SearchExportButton> {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.adaptive.share),
+      tooltip: 'Share results',
+      onPressed: () async {
+        try {
+          await _exportRecords();
+        } catch (e) {
+          if (mounted) {
+            _showSnackBar(e.toString());
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> _exportRecords() async {
+    String? result = await FileExport(ref: ref, mddIDs: widget.mddIDs).write();
+    if (result != null) {
+      _showSnackBar('Done! File saved at $result');
+    }
+  }
+
+  void _showSnackBar(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+      ),
+    );
   }
 }
 
