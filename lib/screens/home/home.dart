@@ -346,39 +346,7 @@ class SearchInfo extends ConsumerWidget {
     return ref.watch(speciesListProvider).when(
           data: (List<MddGroupListResult> speciesList) {
             int recordLength = speciesList.length;
-            return ref.watch(totalRecordsProvider).when(
-                  data: (int totalRecords) {
-                    return totalRecords == recordLength
-                        ? const SizedBox.shrink()
-                        : Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                speciesList.isEmpty
-                                    ? 'No record found'
-                                    : 'Found ${speciesList.length} of $totalRecords records',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          );
-                  },
-                  loading: () => const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(),
-                  ),
-                  error: (Object error, StackTrace? stackTrace) {
-                    return Text('Error: $error');
-                  },
-                );
+            return SearchResultInfo(foundRecordCount: recordLength);
           },
           loading: () => const CircularProgressIndicator(),
           error: (Object error, StackTrace? stackTrace) {

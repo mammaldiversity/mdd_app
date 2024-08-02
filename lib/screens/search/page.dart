@@ -69,6 +69,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
       body: const Center(
         child: SpeciesListView(),
       ),
+      bottomSheet: const SearchDatabaseInfo(),
     );
   }
 
@@ -122,6 +123,28 @@ class SpeciesListView extends ConsumerWidget {
         );
       },
       error: (Object error, StackTrace stackTrace) {
+        return Text('Error: $error');
+      },
+    );
+  }
+}
+
+class SearchDatabaseInfo extends ConsumerWidget {
+  const SearchDatabaseInfo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(searchDatabaseProvider).when(
+      data: (List<MainTaxonomyData> speciesList) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+          child: SearchResultInfo(foundRecordCount: speciesList.length),
+        );
+      },
+      loading: () {
+        return const CircularProgressIndicator();
+      },
+      error: (Object error, StackTrace? stackTrace) {
         return Text('Error: $error');
       },
     );

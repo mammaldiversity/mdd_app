@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
 
@@ -86,6 +88,48 @@ class SearchFilterOptions extends StatelessWidget {
               )
               .toList(),
         ));
+  }
+}
+
+class SearchResultInfo extends ConsumerWidget {
+  const SearchResultInfo({
+    super.key,
+    required this.foundRecordCount,
+  });
+
+  final int foundRecordCount;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(totalRecordsProvider).when(
+          data: (int totalRecords) {
+            return totalRecords == foundRecordCount || foundRecordCount == 0
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        'Found $foundRecordCount of $totalRecords records',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  );
+          },
+          loading: () => const SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator(),
+          ),
+          error: (Object error, StackTrace? stackTrace) {
+            return Text('Error: $error');
+          },
+        );
   }
 }
 
