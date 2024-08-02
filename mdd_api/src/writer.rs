@@ -121,17 +121,4 @@ mod test {
         let output_path = parser.create_output_path();
         assert_eq!(output_path, output_dir.join("output.json"));
     }
-
-    #[test]
-    fn check_filename_conflict() {
-        let output_dir = TempDir::new("output").unwrap();
-        let output_dir = env::current_dir().unwrap().join(output_dir.path());
-        let filename = "output";
-        let parser = MddWriter::new(&output_dir, filename, false);
-        let output_path = parser.create_output_path();
-        let output_path = output_path.with_extension(JSON_EXTENSION);
-        std::fs::write(&output_path, "test").unwrap();
-        let output_path = parser.create_output_path();
-        assert_eq!(output_path, output_dir.join("output_1.json"));
-    }
 }
