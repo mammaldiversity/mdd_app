@@ -5,6 +5,7 @@ import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
+import 'package:path/path.dart' as path;
 
 class CommonSearchField extends StatefulWidget {
   const CommonSearchField({
@@ -112,7 +113,7 @@ class SearchResultInfo extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
+                        color: Theme.of(context).colorScheme.secondaryContainer,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       height: 50,
@@ -126,8 +127,13 @@ class SearchResultInfo extends ConsumerWidget {
                             style: Theme.of(context).textTheme.bodyMedium,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(width: 4),
                           VerticalDivider(
-                            color: Theme.of(context).colorScheme.primary,
+                            thickness: 2,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withAlpha(80),
                           ),
                           SearchExportButton(mddIDs: foundRecords),
                         ],
@@ -177,7 +183,10 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
   Future<void> _exportRecords() async {
     String? result = await FileExport(ref: ref, mddIDs: widget.mddIDs).write();
     if (result != null) {
-      _showSnackBar('Done! File saved at $result');
+      final platformType = getPlatformType();
+      final outputPath =
+          platformType == PlatformType.mobile ? path.basename(result) : result;
+      _showSnackBar('Done! File saved as $outputPath');
     }
   }
 
