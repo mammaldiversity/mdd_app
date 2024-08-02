@@ -129,11 +129,8 @@ class SearchResultInfo extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           VerticalDivider(
-                            thickness: 2,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withAlpha(80),
+                            thickness: 1.2,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           SearchExportButton(mddIDs: foundRecords),
                         ],
