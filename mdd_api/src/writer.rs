@@ -66,7 +66,16 @@ impl<'a> MddWriter<'a> {
     // Check if file exists, or else create a new filename
     // with suffix _1, _2, _3, etc.
     fn _create_output_path(&self) -> PathBuf {
-        let mut output_path = self.output_dir.join(&self.output_filename);
+        let extension = if self.to_csv {
+            CSV_EXTENSION
+        } else {
+            JSON_EXTENSION
+        };
+
+        let mut output_path = self
+            .output_dir
+            .join(&self.output_filename)
+            .with_extension(extension);
         let mut i = 1;
         while output_path.exists() {
             output_path = self
@@ -74,11 +83,7 @@ impl<'a> MddWriter<'a> {
                 .join(format!("{}_{}", self.output_filename, i));
             i += 1;
         }
-        if self.to_csv {
-            output_path.with_extension(CSV_EXTENSION)
-        } else {
-            output_path.with_extension(JSON_EXTENSION)
-        }
+        output_path
     }
 }
 

@@ -116,8 +116,8 @@ class FileExport {
   ExportFormat _getOutputFormat(String outputFile) {
     final ext = path.extension(outputFile);
     if (ext.isNotEmpty) {
-      ext.substring(1);
-      return ext == 'json' ? ExportFormat.json : ExportFormat.csv;
+      final format = ext.substring(1);
+      return format == 'json' ? ExportFormat.json : ExportFormat.csv;
     }
     return ExportFormat.csv;
   }

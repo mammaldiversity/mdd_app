@@ -184,6 +184,7 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
   void _showSnackBar(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 10),
         content: Text(msg),
       ),
     );
