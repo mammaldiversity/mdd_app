@@ -1,18 +1,11 @@
 //! Parse MDD csv data into a structured format.
 //!
-use std::{
-    fs::{self},
-    path::Path,
-};
 
 use serde::{Deserialize, Serialize};
 
-const CSV_EXTENSION: &str = "csv";
-const JSON_EXTENSION: &str = "json";
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CsvToJSONParser {
+pub struct MddParser {
     id: usize,
     phylosort: usize,
     subclass: String,
@@ -73,7 +66,7 @@ pub struct CsvToJSONParser {
     diff_since_msw3: String,
 }
 
-impl CsvToJSONParser {
+impl MddParser {
     pub fn new() -> Self {
         Self {
             id: 0,
@@ -134,72 +127,17 @@ impl CsvToJSONParser {
         let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
         let mut records = Vec::new();
         for result in rdr.deserialize() {
-            let record: CsvToJSONParser = result.unwrap();
+            let record: MddParser = result.unwrap();
             let json_record = serde_json::to_string(&record).expect("Failed to serialize");
             records.push(json_record);
         }
         records
     }
-
-    /// Parse json data to csv.
-    /// Write to a file.
-    pub fn write_from_json(
-        &self,
-        json_data: &str,
-        output_dir: &Path,
-        output_filename: &str,
-        to_csv: bool,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        fs::create_dir_all(&output_dir)?;
-        if to_csv {
-            let output_file = output_dir
-                .join(output_filename)
-                .with_extension(CSV_EXTENSION);
-            self.to_csv(json_data, &output_file)?;
-        } else {
-            let output_file = output_dir
-                .join(output_filename)
-                .with_extension(JSON_EXTENSION);
-            self.to_json(json_data, &output_file)?;
-        }
-        Ok(())
-    }
-
-    /// Write json
-    fn to_csv(
-        &self,
-        json_data: &str,
-        output_path: &Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let output_file = output_path.with_extension(CSV_EXTENSION);
-
-        let mut wtr = csv::Writer::from_path(output_file)?;
-        let records: Vec<CsvToJSONParser> = serde_json::from_str(json_data)?;
-        for record in records {
-            wtr.serialize(record)?;
-        }
-        wtr.flush()?;
-        Ok(())
-    }
-
-    /// Write json
-    /// Write to a file.
-    fn to_json(
-        &self,
-        json_data: &str,
-        output_path: &Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let output_file = output_path.with_extension(JSON_EXTENSION);
-        std::fs::write(output_file, json_data)?;
-        Ok(())
-    }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::{env, path::Path};
-
-    use tempdir::TempDir;
+    use std::path::Path;
 
     use super::*;
 
@@ -207,22 +145,8 @@ mod tests {
     fn test_parse_to_json() {
         let csv_data = Path::new("../assets/mdd_data/data.csv");
         let csv_data = std::fs::read_to_string(csv_data).unwrap();
-        let parser = CsvToJSONParser::new();
+        let parser = MddParser::new();
         let json_data = parser.parse_to_json(&csv_data);
         assert_eq!(json_data.len(), 6718);
-    }
-
-    #[test]
-    fn test_write_json() {
-        let json_mdd: &str = r#"[{"id":1,"phylosort":1,"subclass":"Theria"}]"#;
-        let output_dir = TempDir::new("output").unwrap();
-        let output_path = env::current_dir().unwrap().join(output_dir.path());
-        let filename = "output";
-        let parser = CsvToJSONParser::new();
-        parser
-            .write_from_json(json_mdd, &output_path, &filename, false)
-            .unwrap();
-        let json_result = output_path.join(filename).with_extension(JSON_EXTENSION);
-        assert_eq!(json_result.exists(), true);
     }
 }

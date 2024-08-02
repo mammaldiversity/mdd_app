@@ -40,7 +40,7 @@ dependencies:
   path: ^1.9.0
   rust_lib_mdd:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.40
+  flutter_rust_bridge: 2.0.0
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
   flex_color_scheme: ^7.3.1
