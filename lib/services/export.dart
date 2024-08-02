@@ -104,7 +104,7 @@ class FileExport {
       final writer = FileWriter(
         ref: ref,
         outputDir: path.dirname(outputFile),
-        fileName: path.basenameWithoutExtension(outputFile),
+        fileName: path.basename(outputFile),
         format: _getOutputFormat(outputFile),
       );
       final outputPath = await writer.toFile(mddIDs);
