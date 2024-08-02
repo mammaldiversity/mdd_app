@@ -179,11 +179,9 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
 
   Future<void> _exportRecords() async {
     String? result = await FileExport(ref: ref, mddIDs: widget.mddIDs).write();
-    if (result != null) {
-      final platformType = getPlatformType();
-      final outputPath =
-          platformType == PlatformType.mobile ? path.basename(result) : result;
-      _showSnackBar('Done! File saved as $outputPath');
+    final platformType = getPlatformType();
+    if (result != null && platformType == PlatformType.desktop) {
+      _showSnackBar('Done! File saved as $result');
     }
   }
 
