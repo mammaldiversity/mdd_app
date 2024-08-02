@@ -138,7 +138,9 @@ class SearchDatabaseInfo extends ConsumerWidget {
       data: (List<MainTaxonomyData> speciesList) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
-          child: SearchResultInfo(foundRecordCount: speciesList.length),
+          child: SearchResultInfo(
+            foundRecords: speciesList.map((e) => e.id).toList(),
+          ),
         );
       },
       loading: () {

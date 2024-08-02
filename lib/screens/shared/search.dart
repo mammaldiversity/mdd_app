@@ -94,13 +94,14 @@ class SearchFilterOptions extends StatelessWidget {
 class SearchResultInfo extends ConsumerWidget {
   const SearchResultInfo({
     super.key,
-    required this.foundRecordCount,
+    required this.foundRecords,
   });
 
-  final int foundRecordCount;
+  final List<int> foundRecords;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final int foundRecordCount = foundRecords.length;
     return ref.watch(totalRecordsProvider).when(
           data: (int totalRecords) {
             return totalRecords == foundRecordCount || foundRecordCount == 0
@@ -108,15 +109,31 @@ class SearchResultInfo extends ConsumerWidget {
                 : Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Text(
-                        'Found $foundRecordCount of $totalRecords records',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      height: 50,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Found $foundRecordCount of $totalRecords records',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          VerticalDivider(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.adaptive.share),
+                            tooltip: 'Share results',
+                            onPressed: () {},
+                          ),
+                        ],
                       ),
                     ),
                   );

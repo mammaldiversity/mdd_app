@@ -345,8 +345,8 @@ class SearchInfo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(speciesListProvider).when(
           data: (List<MddGroupListResult> speciesList) {
-            int recordLength = speciesList.length;
-            return SearchResultInfo(foundRecordCount: recordLength);
+            return SearchResultInfo(
+                foundRecords: speciesList.map((e) => e.id).toList());
           },
           loading: () => const CircularProgressIndicator(),
           error: (Object error, StackTrace? stackTrace) {
