@@ -5,7 +5,6 @@ import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
-import 'package:path/path.dart' as path;
 
 class CommonSearchField extends StatefulWidget {
   const CommonSearchField({
