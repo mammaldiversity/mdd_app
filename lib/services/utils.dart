@@ -7,6 +7,9 @@ extension StringExtension on String {
     }
   }
 
+  /// Converts an enum string to a sentence case.
+  /// camelCase matches are converted to 'Camel case'.
+  /// It will not match camelCase that contains numbers.
   String enumToSentenceCase() {
     bool isCamelCase = contains(RegExp(r'^([a-z]+)([A-Z][a-z]+)'));
     if (isCamelCase) {
