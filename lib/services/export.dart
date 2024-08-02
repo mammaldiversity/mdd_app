@@ -103,8 +103,11 @@ class FileExport {
       try {
         return await _writeFile(outputFile, format);
       } catch (e) {
-        throw Exception(
-            'Failed to write file. Check file name has an extension.');
+        if (outputFile.extractExtension().isEmpty) {
+          throw Exception('No file extension provided');
+        } else {
+          throw Exception('Failed to write file: $e');
+        }
       }
     }
     return null;
