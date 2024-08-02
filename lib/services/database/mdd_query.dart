@@ -40,7 +40,7 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   }
 }
 
-enum SearchFilter { all, family, genus, species }
+enum SearchFilter { all, family, genus, species, countryDistribution }
 
 class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   MDDSearch(super.db);
@@ -84,6 +84,8 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         return _searchByGenus(rawQuery);
       case SearchFilter.species:
         return _searchBySpecies(rawQuery);
+      case SearchFilter.countryDistribution:
+        return _searchByCountry(rawQuery);
     }
   }
 
@@ -120,6 +122,12 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<TaxonomyData>> _searchBySpecies(String rawQuery) {
     final query = rawQuery.replaceAll(' ', '_');
     return (select(taxonomy)..where((tbl) => tbl.sciName.like('%$query%')))
+        .get();
+  }
+
+  Future<List<TaxonomyData>> _searchByCountry(String rawQuery) async {
+    return (select(taxonomy)
+          ..where((tbl) => tbl.countryDistribution.like('%$rawQuery%')))
         .get();
   }
 }

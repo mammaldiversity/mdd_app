@@ -78,7 +78,7 @@ class SearchFilterOptions extends StatelessWidget {
           children: SearchFilter.values
               .map(
                 (option) => RadioListTile<SearchFilter>(
-                  title: Text(option.name.toSentenceCase()),
+                  title: Text(option.name.enumToSentenceCase()),
                   value: option,
                   groupValue: selectedOption,
                   onChanged: onSelected,

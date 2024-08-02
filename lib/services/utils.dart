@@ -6,4 +6,13 @@ extension StringExtension on String {
       return '';
     }
   }
+
+  String enumToSentenceCase() {
+    bool isCamelCase = contains(RegExp(r'^([a-z]+)([A-Z][a-z]+)'));
+    if (isCamelCase) {
+      return replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}')
+          .toSentenceCase();
+    }
+    return toSentenceCase();
+  }
 }

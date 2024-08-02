@@ -7,4 +7,9 @@ void main() {
     String input = 'hello';
     expect(input.toSentenceCase(), 'Hello');
   });
+
+  test('Enum to sentence case', () {
+    String input = 'helloWorld';
+    expect(input.enumToSentenceCase(), 'Hello world');
+  });
 }
