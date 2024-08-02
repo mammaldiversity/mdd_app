@@ -26,7 +26,7 @@ impl<'a> MddWriter<'a> {
     /// Write to a file.
     pub fn write(&self, json_data: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
         fs::create_dir_all(&self.output_dir)?;
-        let output_path = self._create_output_path();
+        let output_path = self.create_output_path();
         // Replace taxonOrder with order to avoid conflict with parser.
         let data = json_data.replace("taxonOrder", "order");
         if self.to_csv {
@@ -65,25 +65,19 @@ impl<'a> MddWriter<'a> {
 
     // Check if file exists, or else create a new filename
     // with suffix _1, _2, _3, etc.
-    fn _create_output_path(&self) -> PathBuf {
-        let extension = if self.to_csv {
+    fn create_output_path(&self) -> PathBuf {
+        let extension = self.get_extension();
+        self.output_dir
+            .join(&self.output_filename)
+            .with_extension(extension)
+    }
+
+    fn get_extension(&self) -> &str {
+        if self.to_csv {
             CSV_EXTENSION
         } else {
             JSON_EXTENSION
-        };
-
-        let mut output_path = self
-            .output_dir
-            .join(&self.output_filename)
-            .with_extension(extension);
-        let mut i = 1;
-        while output_path.exists() {
-            output_path = self
-                .output_dir
-                .join(format!("{}_{}", self.output_filename, i));
-            i += 1;
         }
-        output_path
     }
 }
 
@@ -116,5 +110,28 @@ mod test {
         let filename = "output";
         let parser = MddWriter::new(&output_dir, filename, true);
         parser.write(&json_mdd).unwrap();
+    }
+
+    #[test]
+    fn check_filename() {
+        let output_dir = TempDir::new("output").unwrap();
+        let output_dir = env::current_dir().unwrap().join(output_dir.path());
+        let filename = "output";
+        let parser = MddWriter::new(&output_dir, filename, false);
+        let output_path = parser.create_output_path();
+        assert_eq!(output_path, output_dir.join("output.json"));
+    }
+
+    #[test]
+    fn check_filename_conflict() {
+        let output_dir = TempDir::new("output").unwrap();
+        let output_dir = env::current_dir().unwrap().join(output_dir.path());
+        let filename = "output";
+        let parser = MddWriter::new(&output_dir, filename, false);
+        let output_path = parser.create_output_path();
+        let output_path = output_path.with_extension(JSON_EXTENSION);
+        std::fs::write(&output_path, "test").unwrap();
+        let output_path = parser.create_output_path();
+        assert_eq!(output_path, output_dir.join("output_1.json"));
     }
 }
