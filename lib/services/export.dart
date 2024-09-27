@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
@@ -74,23 +75,27 @@ class FileExport {
   final WidgetRef ref;
   final List<int> mddIDs;
 
-  Future<String?> write() async {
+  Future<String?> write(BuildContext context) async {
     final platformType = getPlatformType();
     if (platformType == PlatformType.mobile) {
-      return await _writeMobile();
+      return await _writeMobile(context);
     } else {
       return await _saveFiles();
     }
   }
 
-  Future<String?> _writeMobile() async {
+  Future<String?> _writeMobile(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
     final file = await FileWriter(
       ref: ref,
       outputDir: null,
       fileName: _kFileName,
       format: ExportFormat.csv,
     ).toFile(mddIDs);
-    await Share.shareXFiles([file]);
+    await Share.shareXFiles(
+      [file],
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    );
     return file.path;
   }
 
