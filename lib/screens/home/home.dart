@@ -6,6 +6,7 @@ import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
@@ -14,14 +15,14 @@ import 'package:mdd/services/system.dart';
 const List<Widget> _pages = <Widget>[
   HomeScreen(),
   ExploreSpecies(),
-  // FavoriteSpecies(),
+  MddStats(),
   MoreMenu(),
 ];
 
 const List<String> _pageTitles = <String>[
   'Home',
   'Explore Taxonomy',
-  // 'Favorites',
+  'Statistics',
   'Menu',
 ];
 
