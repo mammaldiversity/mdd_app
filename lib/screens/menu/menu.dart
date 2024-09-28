@@ -4,6 +4,7 @@ import 'package:mdd/screens/menu/version.dart';
 import 'package:mdd/services/app_services.dart';
 
 const mddWebsiteUrl = 'https://mammaldiversity.org';
+const mddAboutUrl = 'https://mammaldiversity.org/about';
 
 class MoreMenu extends StatefulWidget {
   const MoreMenu({super.key});
@@ -19,6 +20,8 @@ class _MoreMenuState extends State<MoreMenu> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ListView(
         children: <Widget>[
+          const AboutUrlTile(),
+          const SizedBox(height: 4),
           const MDDWebTile(),
           const SizedBox(height: 16),
           Text(
@@ -32,6 +35,25 @@ class _MoreMenuState extends State<MoreMenu> {
         ],
       ),
     );
+  }
+}
+
+class AboutUrlTile extends StatelessWidget {
+  const AboutUrlTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        leading: const Icon(Icons.info_outline),
+        title: const Text('About'),
+        trailing: const Icon(Icons.open_in_new),
+        onTap: () {
+          launchURL(mddAboutUrl);
+        });
   }
 }
 
