@@ -7,13 +7,16 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct MddParser {
     id: usize,
+    sci_name: String,
+    main_common_name: String,
+    other_common_names: String,
     phylosort: usize,
     subclass: String,
     infraclass: String,
     magnorder: String,
     superorder: String,
-    // taxonOrder is a reserved keyword in Rust.
-    // So, we need to rename it to order.
+    // order is a reserved keyword in Rust.
+    // So, we need to rename it to taxonOrder.
     #[serde(rename(serialize = "taxonOrder", deserialize = "order"))]
     taxon_order: String,
     suborder: String,
@@ -26,18 +29,16 @@ pub struct MddParser {
     genus: String,
     subgenus: String,
     specific_epithet: String,
-    sci_name: String,
     authority_species_author: String,
     authority_species_year: usize,
     authority_parentheses: usize,
-    main_common_name: String,
-    other_common_names: String,
     original_name_combination: String,
     authority_species_citation: String,
     authority_species_link: String,
-    holotype_voucher: String,
+    type_voucher: String,
     #[serde(rename = "holotypeVoucherURIs")]
-    holotype_voucher_uri: String,
+    type_kind: String,
+    type_voucher_uri: String,
     type_locality: String,
     type_locality_latitude: String,
     type_locality_longitude: String,
@@ -95,8 +96,9 @@ impl MddParser {
             original_name_combination: "".to_string(),
             authority_species_citation: "".to_string(),
             authority_species_link: "".to_string(),
-            holotype_voucher: "".to_string(),
-            holotype_voucher_uri: "".to_string(),
+            type_voucher: "".to_string(),
+            type_kind: "".to_string(),
+            type_voucher_uri: "".to_string(),
             type_locality: "".to_string(),
             type_locality_latitude: "".to_string(),
             type_locality_longitude: "".to_string(),
