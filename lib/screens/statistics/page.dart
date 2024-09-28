@@ -11,7 +11,7 @@ class _SearchSpeciesState extends State<MddStats> {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('Search Species'),
+      child: Text('Stats'),
     );
   }
 }
