@@ -45,3 +45,6 @@ app.*.map.json
 /target/
 
 *.dmg
+
+*_syn.csv
+data.csv

@@ -6,6 +6,7 @@ part of 'mdd_query.dart';
 mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   MddInfo get mddInfo => attachedDatabase.mddInfo;
   Taxonomy get taxonomy => attachedDatabase.taxonomy;
+  Synonym get synonym => attachedDatabase.synonym;
   Selectable<MddGroupListResult> mddGroupList() {
     return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],

@@ -1,0 +1,56 @@
+use mdd::MddData;
+use serde::{Deserialize, Serialize};
+use synonyms::SynonymData;
+
+pub mod mdd;
+pub mod synonyms;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AllMddData {
+    version: String,
+    data: Vec<MddData>,
+    synonyms: Vec<SynonymData>,
+}
+
+impl AllMddData {
+    pub fn new() -> Self {
+        Self {
+            version: "".to_string(),
+            data: Vec::new(),
+            synonyms: Vec::new(),
+        }
+    }
+
+    pub fn from_json(json_data: &str) -> Self {
+        serde_json::from_str(json_data).expect("Failed to deserialize")
+    }
+
+    pub fn from_parser(mdd_data: Vec<MddData>, synonym_data: Vec<SynonymData>) -> Self {
+        Self {
+            version: "".to_string(),
+            data: mdd_data,
+            synonyms: synonym_data,
+        }
+    }
+
+    pub fn add_data(&mut self, data: MddData) {
+        self.data.push(data);
+    }
+
+    pub fn set_version(&mut self, version: &str) {
+        self.version = version.to_string();
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).expect("Failed to serialize")
+    }
+
+    pub fn get_data(&self) -> Vec<String> {
+        self.data.iter().map(|d| d.to_json()).collect()
+    }
+
+    pub fn get_version(&self) -> &str {
+        &self.version
+    }
+}

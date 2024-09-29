@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use mdd_api::{parser::MddData, writer::MddWriter};
+use mdd_api::{parser::AllMddData, writer::MddWriter};
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -18,7 +18,7 @@ impl MddHelper {
     }
 
     pub fn get_data(&self) -> Vec<String> {
-        let mdd_data = MddData::from_json(&self.data);
+        let mdd_data = AllMddData::from_json(&self.data);
         mdd_data.get_data()
     }
 }

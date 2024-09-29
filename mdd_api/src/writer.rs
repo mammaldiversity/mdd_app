@@ -1,9 +1,12 @@
 use std::{
     fs,
+    io::{BufReader, Read},
     path::{Path, PathBuf},
 };
 
-use crate::parser::MddData;
+use flate2::bufread::MultiGzDecoder;
+
+use crate::parser::AllMddData;
 
 const CSV_EXTENSION: &str = "csv";
 const JSON_EXTENSION: &str = "json";
@@ -21,6 +24,18 @@ impl<'a> MddWriter<'a> {
             output_filename,
             to_csv,
         }
+    }
+
+    /// Read gunzip json data.
+    /// Parse to csv.
+    pub fn write_from_gz(&self, json_path: &Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        let file = fs::File::open(json_path)?;
+        let inner = BufReader::new(file);
+        let mut json_data = MultiGzDecoder::new(inner);
+        let mut buf = String::new();
+        json_data.read_to_string(&mut buf)?;
+        self.write(&buf)?;
+        Ok(self.create_output_path())
     }
 
     /// Parse json data to csv.
@@ -44,7 +59,7 @@ impl<'a> MddWriter<'a> {
         output_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let mut wtr = csv::Writer::from_path(output_path)?;
-        let records: MddData = serde_json::from_str(&json_data)?;
+        let records: AllMddData = serde_json::from_str(&json_data)?;
         let data = records.get_data();
         for record in data {
             wtr.serialize(record)?;
@@ -100,13 +115,12 @@ mod test {
 
     #[test]
     fn test_write_csv() {
-        let input_path = "../assets/data/data.json";
-        let json_mdd = std::fs::read_to_string(input_path).unwrap();
+        let input_path = Path::new("../assets/data/data.json.gz");
         let output_dir = TempDir::new("output").unwrap();
         let output_dir = env::current_dir().unwrap().join(output_dir.path());
         let filename = "output";
         let parser = MddWriter::new(&output_dir, filename, true);
-        parser.write(&json_mdd).unwrap();
+        parser.write_from_gz(input_path).unwrap();
     }
 
     #[test]

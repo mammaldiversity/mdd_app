@@ -16,6 +16,13 @@ pub struct JsonArgs {
     #[arg(
         long,
         short,
+        default_value = "synonyms.csv",
+        help = "Input synonyms CSV file"
+    )]
+    pub synonym: PathBuf,
+    #[arg(
+        long,
+        short,
         default_value = "../assets/data",
         help = "Output directory"
     )]
