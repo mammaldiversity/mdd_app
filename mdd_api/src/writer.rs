@@ -60,7 +60,7 @@ impl<'a> MddWriter<'a> {
     ) -> Result<(), Box<dyn std::error::Error>> {
         let mut wtr = csv::Writer::from_path(output_path)?;
         let records: AllMddData = serde_json::from_str(&json_data)?;
-        let data = records.get_data();
+        let data = records.get_mdd_data();
         for record in data {
             wtr.serialize(record)?;
         }

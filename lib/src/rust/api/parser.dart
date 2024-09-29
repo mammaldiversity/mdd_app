@@ -57,19 +57,19 @@ class DatabaseWriter {
 }
 
 class MddHelper {
-  final String data;
+  final Uint8List data;
 
   const MddHelper({
     required this.data,
   });
 
-  Future<List<String>> getData() =>
+  Future<(List<String>, List<String>)> getData() =>
       RustLib.instance.api.crateApiParserMddHelperGetData(
         that: this,
       );
 
   // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<MddHelper> newInstance({required String data}) =>
+  static Future<MddHelper> newInstance({required List<int> data}) =>
       RustLib.instance.api.crateApiParserMddHelperNew(data: data);
 
   @override

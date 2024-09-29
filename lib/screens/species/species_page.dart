@@ -118,7 +118,7 @@ class OtherDetails extends StatelessWidget {
         ),
         ContentText(
           title: 'Holotype voucher catalogue number',
-          content: taxonData.holotypeVoucher,
+          content: taxonData.typeVoucher,
         ),
         ContentText(
           title: 'Type locality',

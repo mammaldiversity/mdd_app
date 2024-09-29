@@ -9,16 +9,16 @@ pub fn init_app() {
 }
 
 pub struct MddHelper {
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
 impl MddHelper {
-    pub fn new(data: String) -> Self {
+    pub fn new(data: Vec<u8>) -> Self {
         MddHelper { data }
     }
 
-    pub fn get_data(&self) -> Vec<String> {
-        let mdd_data = AllMddData::from_json(&self.data);
+    pub fn get_data(&self) -> (Vec<String>, Vec<String>) {
+        let mdd_data = AllMddData::from_gz_bytes(&self.data);
         mdd_data.get_data()
     }
 }

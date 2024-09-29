@@ -34,17 +34,27 @@ class AppDatabase extends _$AppDatabase {
       );
 
   Future<void> createMddDefault(String version) async {
-    final String mddData = await rootBundle.loadString('assets/data/data.json');
+    final mddData = await rootBundle.load('assets/data/data.json.gz');
+    final buffer = mddData.buffer.asUint8List();
     final MddInfoCompanion dbData = MddInfoCompanion.insert(
       version: Value(version),
     );
-    final List<String> mdd = await MddHelper(data: mddData).getData();
-    for (var value in mdd) {
+    final (List<String>, List<String>) data =
+        await MddHelper(data: buffer).getData();
+
+    for (var value in data.$1) {
       final Map<String, dynamic> dataJson = json.decode(value);
 
       TaxonomyData data = TaxonomyData.fromJson(dataJson);
       await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);
+    }
+
+    for (var value in data.$2) {
+      final Map<String, dynamic> dataJson = json.decode(value);
+
+      SynonymData data = SynonymData.fromJson(dataJson);
+      await into(synonym).insert(data);
     }
   }
 }

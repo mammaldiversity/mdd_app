@@ -2646,9 +2646,9 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _yearMeta = const VerificationMeta('year');
-  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+  late final GeneratedColumn<String> year = GeneratedColumn<String>(
       'year', aliasedName, true,
-      type: DriftSqlType.int,
+      type: DriftSqlType.string,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _authorityParenthesesMeta =
@@ -3212,7 +3212,7 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
       author: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}author']),
       year: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}year']),
+          .read(DriftSqlType.string, data['${effectivePrefix}year']),
       authorityParentheses: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}authorityParentheses']),
       nomenclatureStatus: attachedDatabase.typeMapping.read(
@@ -3307,7 +3307,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
   final String? species;
   final String? rootName;
   final String? author;
-  final int? year;
+  final String? year;
   final int? authorityParentheses;
   final String? nomenclatureStatus;
   final String? validity;
@@ -3410,7 +3410,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       map['author'] = Variable<String>(author);
     }
     if (!nullToAbsent || year != null) {
-      map['year'] = Variable<int>(year);
+      map['year'] = Variable<String>(year);
     }
     if (!nullToAbsent || authorityParentheses != null) {
       map['authorityParentheses'] = Variable<int>(authorityParentheses);
@@ -3666,7 +3666,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       species: serializer.fromJson<String?>(json['species']),
       rootName: serializer.fromJson<String?>(json['rootName']),
       author: serializer.fromJson<String?>(json['author']),
-      year: serializer.fromJson<int?>(json['year']),
+      year: serializer.fromJson<String?>(json['year']),
       authorityParentheses:
           serializer.fromJson<int?>(json['authorityParentheses']),
       nomenclatureStatus:
@@ -3728,7 +3728,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       'species': serializer.toJson<String?>(species),
       'rootName': serializer.toJson<String?>(rootName),
       'author': serializer.toJson<String?>(author),
-      'year': serializer.toJson<int?>(year),
+      'year': serializer.toJson<String?>(year),
       'authorityParentheses': serializer.toJson<int?>(authorityParentheses),
       'nomenclatureStatus': serializer.toJson<String?>(nomenclatureStatus),
       'validity': serializer.toJson<String?>(validity),
@@ -3779,7 +3779,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
           Value<String?> species = const Value.absent(),
           Value<String?> rootName = const Value.absent(),
           Value<String?> author = const Value.absent(),
-          Value<int?> year = const Value.absent(),
+          Value<String?> year = const Value.absent(),
           Value<int?> authorityParentheses = const Value.absent(),
           Value<String?> nomenclatureStatus = const Value.absent(),
           Value<String?> validity = const Value.absent(),
@@ -4158,7 +4158,7 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
   final Value<String?> species;
   final Value<String?> rootName;
   final Value<String?> author;
-  final Value<int?> year;
+  final Value<String?> year;
   final Value<int?> authorityParentheses;
   final Value<String?> nomenclatureStatus;
   final Value<String?> validity;
@@ -4295,7 +4295,7 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
     Expression<String>? species,
     Expression<String>? rootName,
     Expression<String>? author,
-    Expression<int>? year,
+    Expression<String>? year,
     Expression<int>? authorityParentheses,
     Expression<String>? nomenclatureStatus,
     Expression<String>? validity,
@@ -4398,7 +4398,7 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
       Value<String?>? species,
       Value<String?>? rootName,
       Value<String?>? author,
-      Value<int?>? year,
+      Value<String?>? year,
       Value<int?>? authorityParentheses,
       Value<String?>? nomenclatureStatus,
       Value<String?>? validity,
@@ -4510,7 +4510,7 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
       map['author'] = Variable<String>(author.value);
     }
     if (year.present) {
-      map['year'] = Variable<int>(year.value);
+      map['year'] = Variable<String>(year.value);
     }
     if (authorityParentheses.present) {
       map['authorityParentheses'] = Variable<int>(authorityParentheses.value);
@@ -5672,7 +5672,7 @@ typedef $SynonymCreateCompanionBuilder = SynonymCompanion Function({
   Value<String?> species,
   Value<String?> rootName,
   Value<String?> author,
-  Value<int?> year,
+  Value<String?> year,
   Value<int?> authorityParentheses,
   Value<String?> nomenclatureStatus,
   Value<String?> validity,
@@ -5718,7 +5718,7 @@ typedef $SynonymUpdateCompanionBuilder = SynonymCompanion Function({
   Value<String?> species,
   Value<String?> rootName,
   Value<String?> author,
-  Value<int?> year,
+  Value<String?> year,
   Value<int?> authorityParentheses,
   Value<String?> nomenclatureStatus,
   Value<String?> validity,
@@ -5790,7 +5790,7 @@ class $SynonymFilterComposer extends FilterComposer<_$AppDatabase, Synonym> {
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<int> get year => $state.composableBuilder(
+  ColumnFilters<String> get year => $state.composableBuilder(
       column: $state.table.year,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
@@ -6012,7 +6012,7 @@ class $SynonymOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<int> get year => $state.composableBuilder(
+  ColumnOrderings<String> get year => $state.composableBuilder(
       column: $state.table.year,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
@@ -6225,7 +6225,7 @@ class $SynonymTableManager extends RootTableManager<
             Value<String?> species = const Value.absent(),
             Value<String?> rootName = const Value.absent(),
             Value<String?> author = const Value.absent(),
-            Value<int?> year = const Value.absent(),
+            Value<String?> year = const Value.absent(),
             Value<int?> authorityParentheses = const Value.absent(),
             Value<String?> nomenclatureStatus = const Value.absent(),
             Value<String?> validity = const Value.absent(),
@@ -6317,7 +6317,7 @@ class $SynonymTableManager extends RootTableManager<
             Value<String?> species = const Value.absent(),
             Value<String?> rootName = const Value.absent(),
             Value<String?> author = const Value.absent(),
-            Value<int?> year = const Value.absent(),
+            Value<String?> year = const Value.absent(),
             Value<int?> authorityParentheses = const Value.absent(),
             Value<String?> nomenclatureStatus = const Value.absent(),
             Value<String?> validity = const Value.absent(),

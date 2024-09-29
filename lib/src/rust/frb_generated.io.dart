@@ -37,10 +37,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
   MddHelper dco_decode_mdd_helper(dynamic raw);
+
+  @protected
+  (List<String>, List<String>) dco_decode_record_list_string_list_string(
+      dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -68,10 +75,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
   MddHelper sse_decode_mdd_helper(SseDeserializer deserializer);
+
+  @protected
+  (List<String>, List<String>) sse_decode_record_list_string_list_string(
+      SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -104,11 +118,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_prim_u_8_loose(List<int> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer);
 
   @protected
   void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_record_list_string_list_string(
+      (List<String>, List<String>) self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

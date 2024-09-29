@@ -63,7 +63,7 @@ CREATE TABLE synonym (
     species TEXT,
     rootName TEXT,
     author TEXT,
-    year INT,
+    year TEXT,
     authorityParentheses INT,
     nomenclatureStatus TEXT,
     validity TEXT,

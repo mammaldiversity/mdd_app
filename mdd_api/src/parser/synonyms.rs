@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Default, Deserialize, Clone)]
 pub struct SynonymData {
-    syn_id: String,
-    hesp_id: String,
+    syn_id: u32,
+    hesp_id: u32,
     // MDD species_id
-    species_id: String,
+    species_id: u32,
     species: String,
     root_name: String,
     author: String,
     year: String,
-    authority_parentheses: String,
+    authority_parentheses: u8,
     nomenclature_status: String,
     validity: String,
     original_combination: String,
@@ -52,14 +52,14 @@ pub struct SynonymData {
 impl SynonymData {
     pub fn new() -> Self {
         Self {
-            syn_id: "".to_string(),
-            hesp_id: "".to_string(),
-            species_id: "".to_string(),
+            syn_id: 0,
+            hesp_id: 0,
+            species_id: 0,
             species: "".to_string(),
             root_name: "".to_string(),
             author: "".to_string(),
             year: "".to_string(),
-            authority_parentheses: "".to_string(),
+            authority_parentheses: 0,
             nomenclature_status: "".to_string(),
             validity: "".to_string(),
             original_combination: "".to_string(),
@@ -102,9 +102,13 @@ impl SynonymData {
         let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
         let mut records = Vec::new();
         for result in rdr.deserialize() {
-            let record: Self = result.unwrap();
+            let record: Self = result.unwrap_or_default();
             records.push(record);
         }
         records
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).expect("Failed to serialize")
     }
 }
