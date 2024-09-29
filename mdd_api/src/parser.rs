@@ -18,6 +18,10 @@ impl MddData {
         }
     }
 
+    pub fn from_json(json_data: &str) -> Self {
+        serde_json::from_str(json_data).expect("Failed to deserialize")
+    }
+
     pub fn add_data(&mut self, data: MddParser) {
         self.data.push(data);
     }
@@ -28,10 +32,6 @@ impl MddData {
 
     pub fn to_json(&self) -> String {
         serde_json::to_string(&self).expect("Failed to serialize")
-    }
-
-    pub fn from_json(json_data: &str) -> Self {
-        serde_json::from_str(json_data).expect("Failed to deserialize")
     }
 
     pub fn get_data(&self) -> Vec<String> {
@@ -189,10 +189,11 @@ mod tests {
 
     #[test]
     fn test_parse_to_json() {
-        let csv_data = Path::new("../assets/mdd_data/data.csv");
+        let csv_data = Path::new("../assets/data/data.csv");
         let csv_data = std::fs::read_to_string(csv_data).unwrap();
         let parser = MddParser::new();
         let json_data = parser.from_csv_to_json(&csv_data);
-        assert_eq!(json_data.len(), 6718);
+        let data = MddData::from_json(&json_data);
+        assert_eq!(data.data.len(), 6753);
     }
 }

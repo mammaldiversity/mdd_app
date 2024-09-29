@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::parser::MddParser;
+use crate::parser::MddData;
 
 const CSV_EXTENSION: &str = "csv";
 const JSON_EXTENSION: &str = "json";
@@ -44,8 +44,9 @@ impl<'a> MddWriter<'a> {
         output_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let mut wtr = csv::Writer::from_path(output_path)?;
-        let records: Vec<MddParser> = serde_json::from_str(&json_data)?;
-        for record in records {
+        let records: MddData = serde_json::from_str(&json_data)?;
+        let data = records.get_data();
+        for record in data {
             wtr.serialize(record)?;
         }
         wtr.flush()?;
@@ -103,7 +104,7 @@ mod test {
 
     #[test]
     fn test_write_csv() {
-        let input_path = "tests/data/export.json";
+        let input_path = "../assets/data/data.json";
         let json_mdd = std::fs::read_to_string(input_path).unwrap();
         let output_dir = TempDir::new("output").unwrap();
         let output_dir = env::current_dir().unwrap().join(output_dir.path());
