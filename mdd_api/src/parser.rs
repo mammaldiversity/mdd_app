@@ -5,6 +5,34 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct MDDdata {
+    version: String,
+    data: Vec<MddParser>,
+}
+
+impl MDDdata {
+    pub fn new() -> Self {
+        Self {
+            version: "".to_string(),
+            data: Vec::new(),
+        }
+    }
+
+    pub fn add_data(&mut self, data: MddParser) {
+        self.data.push(data);
+    }
+
+    pub fn set_version(&mut self, version: &str) {
+        self.version = version.to_string();
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).expect("Failed to serialize")
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct MddParser {
     id: usize,
     sci_name: String,
@@ -36,8 +64,8 @@ pub struct MddParser {
     authority_species_citation: String,
     authority_species_link: String,
     type_voucher: String,
-    #[serde(rename = "holotypeVoucherURIs")]
     type_kind: String,
+    #[serde(rename = "typeVoucherURIs")]
     type_voucher_uri: String,
     type_locality: String,
     type_locality_latitude: String,
@@ -125,15 +153,14 @@ impl MddParser {
 
     /// Parse csv data to json.
     /// Return in String json format.
-    pub fn parse_to_json(&self, csv_data: &str) -> Vec<String> {
+    pub fn parse_to_json(&self, csv_data: &str) -> String {
         let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
-        let mut records = Vec::new();
+        let mut records = MDDdata::new();
         for result in rdr.deserialize() {
             let record: MddParser = result.unwrap();
-            let json_record = serde_json::to_string(&record).expect("Failed to serialize");
-            records.push(json_record);
+            records.add_data(record);
         }
-        records
+        records.to_json()
     }
 }
 
