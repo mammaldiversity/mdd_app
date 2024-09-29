@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/species/synonyms.dart';
 import 'package:mdd/screens/species/taxonomy.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
@@ -42,6 +43,7 @@ class TaxonForm extends StatelessWidget {
         child: Column(
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
+            const SizedBox(height: 80, child: SynonymList()),
             Expanded(
               child: ConstrainedBox(
                   constraints: const BoxConstraints(
