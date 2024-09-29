@@ -22,6 +22,7 @@ impl<'a> MddWriter<'a> {
             to_csv,
         }
     }
+
     /// Parse json data to csv.
     /// Write to a file.
     pub fn write(&self, json_data: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
@@ -37,7 +38,6 @@ impl<'a> MddWriter<'a> {
         Ok(output_path)
     }
 
-    /// Write json
     fn to_csv(
         &self,
         json_data: &str,
@@ -53,8 +53,6 @@ impl<'a> MddWriter<'a> {
         Ok(())
     }
 
-    /// Write json
-    /// Write to a file.
     fn to_json(
         &self,
         json_data: &str,
@@ -64,8 +62,6 @@ impl<'a> MddWriter<'a> {
         Ok(())
     }
 
-    // Check if file exists, or else create a new filename
-    // with suffix _1, _2, _3, etc.
     fn create_output_path(&self) -> PathBuf {
         let extension = self.get_extension();
         self.output_dir
