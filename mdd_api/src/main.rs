@@ -36,7 +36,7 @@ impl<'a> JsonParser<'a> {
     fn parse_to_json(&self) {
         let csv_data = std::fs::read_to_string(self.input_path).unwrap();
         let parser = MddParser::new();
-        let json_data = parser.parse_to_json(&csv_data);
+        let json_data = parser.from_csv_to_json(&csv_data);
         let output = self.output_path.join("data.json");
         std::fs::write(output, json_data).expect("Unable to write file");
     }

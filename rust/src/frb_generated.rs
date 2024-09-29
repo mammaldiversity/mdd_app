@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.4.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -800361547;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1904297377;
 
 // Section: executor
 
@@ -154,7 +154,7 @@ fn wire__crate__api__parser__init_app_impl(
         },
     )
 }
-fn wire__crate__api__parser__parse_csv_to_json_impl(
+fn wire__crate__api__parser__mdd_helper_get_data_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -162,7 +162,7 @@ fn wire__crate__api__parser__parse_csv_to_json_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "parse_csv_to_json",
+            debug_name: "mdd_helper_get_data",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -176,12 +176,46 @@ fn wire__crate__api__parser__parse_csv_to_json_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_csv_data = <String>::sse_decode(&mut deserializer);
+            let api_that = <crate::api::parser::MddHelper>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
                     let output_ok =
-                        Result::<_, ()>::Ok(crate::api::parser::parse_csv_to_json(&api_csv_data))?;
+                        Result::<_, ()>::Ok(crate::api::parser::MddHelper::get_data(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__parser__mdd_helper_new_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "mdd_helper_new",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_data = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::parser::MddHelper::new(api_data))?;
                     Ok(output_ok)
                 })())
             }
@@ -246,6 +280,14 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for crate::api::parser::MddHelper {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_data = <String>::sse_decode(deserializer);
+        return crate::api::parser::MddHelper { data: var_data };
+    }
+}
+
 impl SseDecode for u8 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -279,7 +321,8 @@ fn pde_ffi_dispatcher_primary_impl(
             wire__crate__api__parser__database_writer_write_impl(port, ptr, rust_vec_len, data_len)
         }
         3 => wire__crate__api__parser__init_app_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__parser__parse_csv_to_json_impl(port, ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__parser__mdd_helper_get_data_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__parser__mdd_helper_new_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -318,6 +361,20 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::parser::DatabaseWriter>
     for crate::api::parser::DatabaseWriter
 {
     fn into_into_dart(self) -> crate::api::parser::DatabaseWriter {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::parser::MddHelper {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.data.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::parser::MddHelper {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::parser::MddHelper>
+    for crate::api::parser::MddHelper
+{
+    fn into_into_dart(self) -> crate::api::parser::MddHelper {
         self
     }
 }
@@ -363,6 +420,13 @@ impl SseEncode for Vec<u8> {
         for item in self {
             <u8>::sse_encode(item, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::api::parser::MddHelper {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.data, serializer);
     }
 }
 

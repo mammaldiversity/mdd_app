@@ -4,11 +4,11 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:mdd/src/rust/api/parser.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
+import 'package:mdd/src/rust/api/parser.dart';
 import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
@@ -34,15 +34,14 @@ class AppDatabase extends _$AppDatabase {
       );
 
   Future<void> createMddDefault(String version) async {
-    final String mddData =
-        await rootBundle.loadString('assets/mdd_data/data.csv');
+    final String mddData = await rootBundle.loadString('assets/data/data.json');
     final MddInfoCompanion dbData = MddInfoCompanion.insert(
       version: Value(version),
     );
-    final List<String> dataString = await parseCsvToJson(csvData: mddData);
-    for (var jason in dataString) {
-      final Map<String, dynamic> dataJson = json.decode(jason);
-      if (kDebugMode) print('Data JSON: $dataJson');
+    final List<String> mdd = await MddHelper(data: mddData).getData();
+    for (var value in mdd) {
+      final Map<String, dynamic> dataJson = json.decode(value);
+
       TaxonomyData data = TaxonomyData.fromJson(dataJson);
       await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);

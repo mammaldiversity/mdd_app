@@ -6,9 +6,6 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<List<String>> parseCsvToJson({required String csvData}) =>
-    RustLib.instance.api.crateApiParserParseCsvToJson(csvData: csvData);
-
 /// Wrapper for writer API to write data to a file.
 /// Supports writing to JSON and CSV.
 class DatabaseWriter {
@@ -57,4 +54,31 @@ class DatabaseWriter {
           outputDir == other.outputDir &&
           outputFilename == other.outputFilename &&
           toCsv == other.toCsv;
+}
+
+class MddHelper {
+  final String data;
+
+  const MddHelper({
+    required this.data,
+  });
+
+  Future<List<String>> getData() =>
+      RustLib.instance.api.crateApiParserMddHelperGetData(
+        that: this,
+      );
+
+  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
+  static Future<MddHelper> newInstance({required String data}) =>
+      RustLib.instance.api.crateApiParserMddHelperNew(data: data);
+
+  @override
+  int get hashCode => data.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MddHelper &&
+          runtimeType == other.runtimeType &&
+          data == other.data;
 }

@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct MDDdata {
+pub struct MddData {
     version: String,
     data: Vec<MddParser>,
 }
 
-impl MDDdata {
+impl MddData {
     pub fn new() -> Self {
         Self {
             version: "".to_string(),
@@ -29,6 +29,18 @@ impl MDDdata {
     pub fn to_json(&self) -> String {
         serde_json::to_string(&self).expect("Failed to serialize")
     }
+
+    pub fn from_json(json_data: &str) -> Self {
+        serde_json::from_str(json_data).expect("Failed to deserialize")
+    }
+
+    pub fn get_data(&self) -> Vec<String> {
+        self.data.iter().map(|d| d.to_json()).collect()
+    }
+
+    pub fn get_version(&self) -> &str {
+        &self.version
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -45,7 +57,8 @@ pub struct MddParser {
     superorder: String,
     // order is a reserved keyword in Rust.
     // So, we need to rename it to taxonOrder.
-    #[serde(rename(serialize = "taxonOrder", deserialize = "order"))]
+    // #[serde(rename(serialize = "taxonOrder", deserialize = "order"))]
+    #[serde(alias = "order")]
     taxon_order: String,
     suborder: String,
     infraorder: String,
@@ -153,14 +166,18 @@ impl MddParser {
 
     /// Parse csv data to json.
     /// Return in String json format.
-    pub fn parse_to_json(&self, csv_data: &str) -> String {
+    pub fn from_csv_to_json(&self, csv_data: &str) -> String {
         let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
-        let mut records = MDDdata::new();
+        let mut records = MddData::new();
         for result in rdr.deserialize() {
             let record: MddParser = result.unwrap();
             records.add_data(record);
         }
         records.to_json()
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).expect("Failed to serialize")
     }
 }
 
@@ -175,7 +192,7 @@ mod tests {
         let csv_data = Path::new("../assets/mdd_data/data.csv");
         let csv_data = std::fs::read_to_string(csv_data).unwrap();
         let parser = MddParser::new();
-        let json_data = parser.parse_to_json(&csv_data);
+        let json_data = parser.from_csv_to_json(&csv_data);
         assert_eq!(json_data.len(), 6718);
     }
 }

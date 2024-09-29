@@ -30,6 +30,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DatabaseWriter dco_decode_box_autoadd_database_writer(dynamic raw);
 
   @protected
+  MddHelper dco_decode_box_autoadd_mdd_helper(dynamic raw);
+
+  @protected
   DatabaseWriter dco_decode_database_writer(dynamic raw);
 
   @protected
@@ -37,6 +40,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  MddHelper dco_decode_mdd_helper(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -55,6 +61,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       SseDeserializer deserializer);
 
   @protected
+  MddHelper sse_decode_box_autoadd_mdd_helper(SseDeserializer deserializer);
+
+  @protected
   DatabaseWriter sse_decode_database_writer(SseDeserializer deserializer);
 
   @protected
@@ -62,6 +71,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  MddHelper sse_decode_mdd_helper(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -83,6 +95,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       DatabaseWriter self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_mdd_helper(
+      MddHelper self, SseSerializer serializer);
+
+  @protected
   void sse_encode_database_writer(
       DatabaseWriter self, SseSerializer serializer);
 
@@ -92,6 +108,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

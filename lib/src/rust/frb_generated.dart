@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.4.0';
 
   @override
-  int get rustContentHash => -800361547;
+  int get rustContentHash => 1904297377;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -90,7 +90,10 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiParserInitApp();
 
-  Future<List<String>> crateApiParserParseCsvToJson({required String csvData});
+  Future<List<String>> crateApiParserMddHelperGetData(
+      {required MddHelper that});
+
+  Future<MddHelper> crateApiParserMddHelperNew({required String data});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -183,11 +186,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<String>> crateApiParserParseCsvToJson({required String csvData}) {
+  Future<List<String>> crateApiParserMddHelperGetData(
+      {required MddHelper that}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(csvData, serializer);
+        sse_encode_box_autoadd_mdd_helper(that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 4, port: port_);
       },
@@ -195,16 +199,40 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeSuccessData: sse_decode_list_String,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiParserParseCsvToJsonConstMeta,
-      argValues: [csvData],
+      constMeta: kCrateApiParserMddHelperGetDataConstMeta,
+      argValues: [that],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiParserParseCsvToJsonConstMeta =>
+  TaskConstMeta get kCrateApiParserMddHelperGetDataConstMeta =>
       const TaskConstMeta(
-        debugName: "parse_csv_to_json",
-        argNames: ["csvData"],
+        debugName: "mdd_helper_get_data",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<MddHelper> crateApiParserMddHelperNew({required String data}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(data, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_mdd_helper,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiParserMddHelperNewConstMeta,
+      argValues: [data],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiParserMddHelperNewConstMeta => const TaskConstMeta(
+        debugName: "mdd_helper_new",
+        argNames: ["data"],
       );
 
   @protected
@@ -223,6 +251,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   DatabaseWriter dco_decode_box_autoadd_database_writer(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_database_writer(raw);
+  }
+
+  @protected
+  MddHelper dco_decode_box_autoadd_mdd_helper(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_mdd_helper(raw);
   }
 
   @protected
@@ -249,6 +283,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  MddHelper dco_decode_mdd_helper(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return MddHelper(
+      data: dco_decode_String(arr[0]),
+    );
   }
 
   @protected
@@ -284,6 +329,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MddHelper sse_decode_box_autoadd_mdd_helper(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_mdd_helper(deserializer));
+  }
+
+  @protected
   DatabaseWriter sse_decode_database_writer(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_jsonData = sse_decode_String(deserializer);
@@ -314,6 +365,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  MddHelper sse_decode_mdd_helper(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_data = sse_decode_String(deserializer);
+    return MddHelper(data: var_data);
   }
 
   @protected
@@ -353,6 +411,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_mdd_helper(
+      MddHelper self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_mdd_helper(self, serializer);
+  }
+
+  @protected
   void sse_encode_database_writer(
       DatabaseWriter self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -377,6 +442,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.data, serializer);
   }
 
   @protected

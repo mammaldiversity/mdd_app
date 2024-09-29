@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use mdd_api::{parser::MddParser, writer::MddWriter};
+use mdd_api::{parser::MddData, writer::MddWriter};
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -8,9 +8,19 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
-pub fn parse_csv_to_json(csv_data: &str) -> Vec<String> {
-    let parser = MddParser::new();
-    parser.parse_to_json(csv_data)
+pub struct MddHelper {
+    pub data: String,
+}
+
+impl MddHelper {
+    pub fn new(data: String) -> Self {
+        MddHelper { data }
+    }
+
+    pub fn get_data(&self) -> Vec<String> {
+        let mdd_data = MddData::from_json(&self.data);
+        mdd_data.get_data()
+    }
 }
 
 /// Wrapper for writer API to write data to a file.
