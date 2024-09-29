@@ -234,5 +234,20 @@ final taxonDataProvider =
 );
 
 typedef _$TaxonData = AutoDisposeAsyncNotifier<db.TaxonomyData>;
+String _$synonymDataHash() => r'1f3b603937490f0b26b84e152485c5bc15d3b893';
+
+/// See also [SynonymData].
+@ProviderFor(SynonymData)
+final synonymDataProvider =
+    AutoDisposeAsyncNotifierProvider<SynonymData, db.SynonymData>.internal(
+  SynonymData.new,
+  name: r'synonymDataProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$synonymDataHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SynonymData = AutoDisposeAsyncNotifier<db.SynonymData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

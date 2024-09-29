@@ -74,6 +74,20 @@ class TaxonData extends _$TaxonData {
 }
 
 @riverpod
+class SynonymData extends _$SynonymData {
+  Future<db.SynonymData> _fetch() async {
+    final int mddID = ref.watch(currentMddIDProvider);
+    return await MddQuery(ref.read(databaseProvider))
+        .retrieveSynonymData(mddID);
+  }
+
+  @override
+  FutureOr<db.SynonymData> build() async {
+    return await _fetch();
+  }
+}
+
+@riverpod
 Future<List<MainTaxonomyData>> mainTaxonomyData(
     MainTaxonomyDataRef ref, List<int> mddIDList) async {
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
