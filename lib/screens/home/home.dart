@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/explore/explore.dart';
+import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/menu/menu.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';

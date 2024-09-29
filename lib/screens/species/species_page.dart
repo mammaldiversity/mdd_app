@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/species/taxonomy.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
@@ -91,6 +92,8 @@ class OtherDetails extends StatelessWidget {
       shrinkWrap: true,
       children: <Widget>[
         const SizedBox(height: 8),
+        ClassificationContainer(taxonData: taxonData),
+        const SizedBox(height: 4),
         ContentText(
           title: 'Authority citation',
           content: taxonData.authoritySpeciesCitation,
