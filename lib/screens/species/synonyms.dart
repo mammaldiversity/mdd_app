@@ -33,7 +33,7 @@ class SynonymContainer extends StatelessWidget {
       itemCount: data.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(data[index].speciesId.toString()),
+          title: Text('${data[index].genus} ${data[index].specificEpithet}'),
         );
       },
     );
