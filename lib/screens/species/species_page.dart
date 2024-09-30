@@ -50,7 +50,6 @@ class TaxonForm extends StatelessWidget {
                   ),
                   child: OtherDetails(taxonData: taxonData)),
             ),
-            const SizedBox(height: 80, child: SynonymList()),
           ],
         ));
   }
@@ -157,6 +156,7 @@ class OtherDetails extends StatelessWidget {
           content: generatePermanentLink(taxonData.id),
           isUrl: true,
         ),
+        const SynonymList(),
       ],
     );
   }

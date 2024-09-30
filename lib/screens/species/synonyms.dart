@@ -12,7 +12,7 @@ class SynonymList extends ConsumerWidget {
           data: (synonymData) {
             return synonymData.isNotEmpty
                 ? SynonymContainer(data: synonymData)
-                : const Text('No synonyms found');
+                : const Center(child: Text('No synonyms found.'));
           },
           loading: () => const CircularProgressIndicator(),
           error: (Object error, StackTrace stackTrace) {
@@ -29,24 +29,46 @@ class SynonymContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: data.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('${data[index].genus} ${data[index].specificEpithet}'),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(children: [
+        const Divider(indent: 8, endIndent: 8),
+        const SizedBox(height: 8),
+        Text('Synonyms', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        ...data.map(
+          (synonymData) => SynonymCard(data: synonymData),
+        ),
+      ]),
     );
   }
 }
 
-class SynonymPage extends StatelessWidget {
-  const SynonymPage({super.key, required this.data});
+class SynonymCard extends StatelessWidget {
+  const SynonymCard({super.key, required this.data});
 
   final db.SynonymData data;
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return OutlinedButton(
+      onPressed: () {},
+      child: Text(
+        _createSynName(),
+        style: Theme.of(context).textTheme.bodySmall,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  String _createSynName() {
+    final String author = data.author ?? '';
+    final String species = data.species ?? '';
+    final String year = data.year ?? '';
+    if (data.authorityParentheses == 1) {
+      return '$species ($author, $year)';
+    } else {
+      return '$species $author $year';
+    }
   }
 }
