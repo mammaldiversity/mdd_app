@@ -20,7 +20,7 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
     selectedIcon: Icon(Icons.home_rounded),
   ),
   NavigationProperties(
-    label: 'Search',
+    label: 'Explore',
     icon: Icon(Icons.travel_explore_outlined),
     selectedIcon: Icon(Icons.travel_explore_rounded),
   ),
