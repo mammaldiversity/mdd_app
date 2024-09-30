@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mdd/services/database/database.dart';
 
 part 'mdd_query.g.dart';
@@ -19,8 +20,13 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   }
 
   Future<List<SynonymData>> retrieveSynonymData(int mddID) async {
-    return await (select(synonym)..where((tbl) => tbl.speciesId.equals(mddID)))
+    final data = await (select(synonym)
+          ..where((tbl) => tbl.speciesId.equals(mddID)))
         .get();
+    if (kDebugMode) {
+      print('Synonym data: $data');
+    }
+    return data;
   }
 
   // Count total synonyms

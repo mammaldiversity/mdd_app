@@ -43,14 +43,14 @@ class TaxonForm extends StatelessWidget {
         child: Column(
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
-            const SizedBox(height: 80, child: SynonymList()),
             Expanded(
               child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     maxWidth: 1200,
                   ),
                   child: OtherDetails(taxonData: taxonData)),
-            )
+            ),
+            const SizedBox(height: 80, child: SynonymList()),
           ],
         ));
   }
