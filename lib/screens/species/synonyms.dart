@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
+import 'package:mdd/services/system.dart';
 
 class SynonymList extends ConsumerWidget {
   const SynonymList({super.key});
@@ -29,16 +30,32 @@ class SynonymContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScreenType screenType = getScreenType(context);
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(children: [
-        const Divider(indent: 8, endIndent: 8),
+        const Divider(),
         const SizedBox(height: 8),
         Text('Synonyms', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        ...data.map(
-          (synonymData) => SynonymCard(data: synonymData),
-        ),
+        screenType != ScreenType.small
+            ? Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: data
+                    .map(
+                      (synonymData) => SynonymCard(data: synonymData),
+                    )
+                    .toList(),
+              )
+            : Column(
+                children: data
+                    .map(
+                      (synonymData) => SynonymCard(data: synonymData),
+                    )
+                    .toList(),
+              ),
       ]),
     );
   }
