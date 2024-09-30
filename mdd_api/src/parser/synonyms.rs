@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Default, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SynonymData {
     syn_id: u32,
     hesp_id: u32,

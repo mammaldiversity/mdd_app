@@ -20,19 +20,26 @@ struct JsonParser<'a> {
     input_path: &'a Path,
     synonym_path: &'a Path,
     output_path: &'a Path,
+    plain_text: bool,
 }
 
 impl<'a> JsonParser<'a> {
-    fn new(input_path: &'a Path, synonym_path: &'a Path, output_path: &'a Path) -> Self {
-        Self {
-            input_path,
-            synonym_path,
-            output_path,
-        }
-    }
+    // fn new(input_path: &'a Path, synonym_path: &'a Path, output_path: &'a Path) -> Self {
+    //     Self {
+    //         input_path,
+    //         synonym_path,
+    //         output_path,
+    //         plain_text: false,
+    //     }
+    // }
 
     fn from_args(args: &'a JsonArgs) -> Self {
-        Self::new(&args.input, &args.synonym, &args.output)
+        Self {
+            input_path: &args.input,
+            synonym_path: &args.synonym,
+            output_path: &args.output,
+            plain_text: args.plain_text,
+        }
     }
 
     fn parse_to_json(&self) {
@@ -44,7 +51,16 @@ impl<'a> JsonParser<'a> {
         let synonym_data = synonyms.from_csv_to_json(&syn_data);
         let all_data = AllMddData::from_parser(mdd_data, synonym_data);
         let json = all_data.to_json();
-        self.write_gzip(&json);
+        if self.plain_text {
+            self.write_plain_text(&json);
+        } else {
+            self.write_gzip(&json);
+        }
+    }
+
+    fn write_plain_text(&self, data: &str) {
+        let output = self.output_path.join("data.json");
+        std::fs::write(output, data).expect("Unable to write file");
     }
 
     fn write_gzip(&self, data: &str) {

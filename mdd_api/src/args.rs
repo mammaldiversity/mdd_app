@@ -27,4 +27,6 @@ pub struct JsonArgs {
         help = "Output directory"
     )]
     pub output: PathBuf,
+    #[arg(long, short, help = "Export plain text data")]
+    pub plain_text: bool,
 }
