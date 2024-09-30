@@ -51,12 +51,15 @@ class SynonymCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: () {},
-      child: Text(
-        _createSynName(),
-        style: Theme.of(context).textTheme.bodySmall,
-        textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.all(2),
+      child: OutlinedButton(
+        onPressed: () {},
+        child: Text(
+          _createSynName(),
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
