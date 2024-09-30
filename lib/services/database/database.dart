@@ -73,11 +73,11 @@ Future<File> get dBPath async {
   final Directory appDocDir = await getAppDir();
   final dbPath = path.join(appDocDir.path, 'mdd.db');
   final dbFile = File(dbPath);
-  if (dbFile.existsSync()) {
-    await dbFile.delete();
-    await dbFile.create(recursive: true);
-  } else {
-    await dbFile.create(recursive: true);
-  }
+  // if (dbFile.existsSync()) {
+  //   await dbFile.delete();
+  //   await dbFile.create(recursive: true);
+  // } else {
+  //   await dbFile.create(recursive: true);
+  // }
   return dbFile;
 }

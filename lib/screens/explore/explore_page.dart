@@ -57,7 +57,7 @@ class FamilyGroups extends StatelessWidget {
         ..._groupByFamily(taxonList).entries.map(
           (MapEntry<String, List<MddGroupListResult>> entry) {
             return ExpansionTile(
-              leading: Icon(Icons.list_outlined,
+              leading: Icon(Icons.view_list_rounded,
                   color: Theme.of(context).colorScheme.onSurface),
               title: Text(entry.key,
                   style: Theme.of(context).textTheme.titleMedium),
