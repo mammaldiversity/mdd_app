@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/species/synonyms.dart';
-import 'package:mdd/screens/species/taxonomy.dart';
+import 'package:mdd/screens/taxon/synonyms.dart';
+import 'package:mdd/screens/taxon/taxonomy.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
