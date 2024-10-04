@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/system.dart';
@@ -61,34 +62,128 @@ class SynonymContainer extends StatelessWidget {
   }
 }
 
-class SynonymCard extends StatelessWidget {
+class SynonymCard extends StatefulWidget {
   const SynonymCard({super.key, required this.data});
 
   final db.SynonymData data;
 
   @override
+  State<SynonymCard> createState() => _SynonymCardState();
+}
+
+class _SynonymCardState extends State<SynonymCard> {
+  @override
   Widget build(BuildContext context) {
+    final String taxonName = _createSynName();
     return Padding(
       padding: const EdgeInsets.all(2),
       child: OutlinedButton(
-        onPressed: () {},
         child: Text(
-          _createSynName(),
+          taxonName,
           style: Theme.of(context).textTheme.bodySmall,
           textAlign: TextAlign.center,
         ),
+        onPressed: () {
+          _showDetails(getScreenType(context), taxonName);
+        },
       ),
     );
   }
 
   String _createSynName() {
-    final String author = data.author ?? '';
-    final String species = data.species ?? '';
-    final String year = data.year ?? '';
-    if (data.authorityParentheses == 1) {
+    final String author = widget.data.author ?? '';
+    final String species = widget.data.species ?? '';
+    final String year = widget.data.year ?? '';
+    if (widget.data.authorityParentheses == 1) {
       return '$species ($author, $year)';
     } else {
       return '$species $author $year';
     }
+  }
+
+  // Show modal sheet on mobile and alert dialog on desktop
+  void _showDetails(ScreenType screenType, String taxonName) {
+    if (screenType == ScreenType.small) {
+      showModalBottomSheet(
+        enableDrag: true,
+        context: context,
+        showDragHandle: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        builder: (BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
+            child: SynonymDetails(
+              taxonName: taxonName,
+              data: widget.data,
+            ),
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SynonymDetails(
+              taxonName: taxonName,
+              data: widget.data,
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+}
+
+class SynonymDetails extends StatelessWidget {
+  const SynonymDetails({
+    super.key,
+    required this.taxonName,
+    required this.data,
+  });
+
+  final db.SynonymData data;
+  final String taxonName;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            taxonName,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          ContentText(
+            title: "Name Usages",
+            content: data.nameUsages,
+          ),
+          ContentText(
+            title: "Authority Citation",
+            content: data.authorityCitation,
+          ),
+          ContentText(
+            title: "Holotype",
+            content: data.holotype,
+          ),
+        ],
+      ),
+    );
   }
 }
