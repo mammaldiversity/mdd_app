@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/taxon/correction.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
 import 'package:mdd/screens/taxon/taxonomy.dart';
 import 'package:mdd/services/app_services.dart';
@@ -157,6 +158,7 @@ class OtherDetails extends StatelessWidget {
           isUrl: true,
         ),
         const SynonymList(),
+        const CorrectionRequest(),
       ],
     );
   }

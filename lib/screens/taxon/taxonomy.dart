@@ -10,11 +10,11 @@ class ClassificationContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
