@@ -105,9 +105,10 @@ class _SynonymCardState extends State<SynonymCard> {
   void _showDetails(ScreenType screenType, String taxonName) {
     if (screenType == ScreenType.small) {
       showModalBottomSheet(
-        enableDrag: true,
         context: context,
+        enableDrag: true,
         showDragHandle: true,
+        isScrollControlled: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -116,7 +117,6 @@ class _SynonymCardState extends State<SynonymCard> {
           return Container(
             padding: const EdgeInsets.fromLTRB(8, 2, 8, 16),
             child: SynonymDetails(
-              taxonName: taxonName,
               data: widget.data,
             ),
           );
@@ -128,7 +128,6 @@ class _SynonymCardState extends State<SynonymCard> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: SynonymDetails(
-              taxonName: taxonName,
               data: widget.data,
             ),
             actions: <Widget>[
@@ -149,12 +148,10 @@ class _SynonymCardState extends State<SynonymCard> {
 class SynonymDetails extends StatelessWidget {
   const SynonymDetails({
     super.key,
-    required this.taxonName,
     required this.data,
   });
 
   final db.SynonymData data;
-  final String taxonName;
 
   @override
   Widget build(BuildContext context) {
@@ -165,8 +162,15 @@ class SynonymDetails extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Text(
-            taxonName,
-            style: Theme.of(context).textTheme.titleLarge,
+            data.species ?? '',
+            style: Theme.of(context).textTheme.titleLarge?.apply(
+                  fontStyle: FontStyle.italic,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            _getAuthority(),
+            style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
@@ -201,11 +205,29 @@ class SynonymDetails extends StatelessWidget {
             isUrl: true,
           ),
           ContentText(
+            title: "Authority Publication",
+            content: data.citationGroup,
+          ),
+          ContentText(
+            title: "Authority Publication Link",
+            content: data.citationKind,
+          ),
+          ContentText(
             title: "Comments",
             content: data.comments,
           ),
         ],
       ),
     );
+  }
+
+  String _getAuthority() {
+    final String author = data.author ?? '';
+    final String year = data.year ?? '';
+    if (data.authorityParentheses == 1) {
+      return '($author, $year)';
+    } else {
+      return '$author $year';
+    }
   }
 }

@@ -14,7 +14,7 @@ import 'package:mdd/services/app_services.dart';
 part 'database.g.dart';
 
 const int _kDatabaseVersion = 1;
-const String mddVersion = '1.2.1';
+const String mddVersion = '1.13';
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -44,7 +44,6 @@ class AppDatabase extends _$AppDatabase {
 
     for (var value in data.$1) {
       final Map<String, dynamic> dataJson = json.decode(value);
-
       TaxonomyData data = TaxonomyData.fromJson(dataJson);
       await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);
