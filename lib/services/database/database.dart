@@ -36,22 +36,31 @@ class AppDatabase extends _$AppDatabase {
   Future<void> createMddDefault(String version) async {
     final mddData = await rootBundle.load('assets/data/data.json.gz');
     final buffer = mddData.buffer.asUint8List();
-    final MddInfoCompanion dbData = MddInfoCompanion.insert(
-      version: Value(version),
-    );
-    final (List<String>, List<String>) data =
-        await MddHelper(data: buffer).getData();
+    final MddHelper data = await MddHelper.parse(bytes: buffer);
+    await _updateMddInfo(version, data.releaseDate);
+    await _updateMdd(data.mddData);
+    await _updateSynData(data.synData);
+  }
 
-    for (var value in data.$1) {
+  Future<void> _updateMddInfo(String version, String releaseDate) async {
+    final MddInfoCompanion data = MddInfoCompanion(
+      version: Value(version),
+      releaseDate: Value(releaseDate),
+    );
+    await into(mddInfo).insert(data);
+  }
+
+  Future<void> _updateMdd(List<String> data) async {
+    for (var value in data) {
       final Map<String, dynamic> dataJson = json.decode(value);
       TaxonomyData data = TaxonomyData.fromJson(dataJson);
-      await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);
     }
+  }
 
-    for (var value in data.$2) {
+  Future<void> _updateSynData(List<String> data) async {
+    for (var value in data) {
       final Map<String, dynamic> dataJson = json.decode(value);
-
       SynonymData data = SynonymData.fromJson(dataJson);
       await into(synonym).insert(data);
     }

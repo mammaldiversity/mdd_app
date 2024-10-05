@@ -20,22 +20,17 @@ pub struct MddHelper {
 }
 
 impl MddHelper {
-    pub fn new() -> Self {
-        Self {
-            version: "".to_string(),
-            release_date: "".to_string(),
-            mdd_data: Vec::new(),
-            syn_data: Vec::new(),
-        }
-    }
-
-    pub fn get_data(&mut self, bytes: Vec<u8>) {
+    pub fn parse(bytes: Vec<u8>) -> Self {
         let mdd_data = AllMddData::from_gz_bytes(&bytes);
         let (mdd, syn) = mdd_data.get_data();
-        self.version = mdd_data.get_version().to_string();
-        self.release_date = mdd_data.get_release_date().to_string();
-        self.mdd_data = mdd;
-        self.syn_data = syn;
+        let version = mdd_data.get_version().to_string();
+        let release_date = mdd_data.get_release_date().to_string();
+        Self {
+            version: version,
+            release_date: release_date,
+            mdd_data: mdd,
+            syn_data: syn,
+        }
     }
 }
 

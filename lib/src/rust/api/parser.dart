@@ -57,28 +57,42 @@ class DatabaseWriter {
 }
 
 class MddHelper {
-  final Uint8List data;
+  /// MDD file version
+  final String version;
+
+  /// MDD release date
+  final String releaseDate;
+
+  /// MDD main data
+  final List<String> mddData;
+
+  /// Synonyms data
+  final List<String> synData;
 
   const MddHelper({
-    required this.data,
+    required this.version,
+    required this.releaseDate,
+    required this.mddData,
+    required this.synData,
   });
 
-  Future<(List<String>, List<String>)> getData() =>
-      RustLib.instance.api.crateApiParserMddHelperGetData(
-        that: this,
-      );
-
-  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<MddHelper> newInstance({required List<int> data}) =>
-      RustLib.instance.api.crateApiParserMddHelperNew(data: data);
+  static Future<MddHelper> parse({required List<int> bytes}) =>
+      RustLib.instance.api.crateApiParserMddHelperParse(bytes: bytes);
 
   @override
-  int get hashCode => data.hashCode;
+  int get hashCode =>
+      version.hashCode ^
+      releaseDate.hashCode ^
+      mddData.hashCode ^
+      synData.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MddHelper &&
           runtimeType == other.runtimeType &&
-          data == other.data;
+          version == other.version &&
+          releaseDate == other.releaseDate &&
+          mddData == other.mddData &&
+          synData == other.synData;
 }
