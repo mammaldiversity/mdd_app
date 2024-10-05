@@ -7,6 +7,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/shared/search.dart';
 import 'package:mdd/screens/statistics/page.dart';
+import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
@@ -178,7 +179,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const DatabaseSearch(),
             const SizedBox(height: 32),
-            Text('Database version\nv1.12.1, released 30 Jan 2024.',
+            Text('Database version\nv${db.mddVersion}, released 30 Jan 2024.',
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center),
           ],

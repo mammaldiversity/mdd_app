@@ -21,6 +21,8 @@ struct JsonParser<'a> {
     synonym_path: &'a Path,
     output_path: &'a Path,
     plain_text: bool,
+    mdd_version: &'a str,
+    release_date: &'a str,
 }
 
 impl<'a> JsonParser<'a> {
@@ -39,6 +41,8 @@ impl<'a> JsonParser<'a> {
             synonym_path: &args.synonym,
             output_path: &args.output,
             plain_text: args.plain_text,
+            mdd_version: &args.mdd_version,
+            release_date: &args.release_date,
         }
     }
 
@@ -49,7 +53,9 @@ impl<'a> JsonParser<'a> {
         let mdd_data = parser.from_csv_to_json(&mdd_data);
         let synonyms = SynonymData::new();
         let synonym_data = synonyms.from_csv_to_json(&syn_data);
-        let all_data = AllMddData::from_parser(mdd_data, synonym_data);
+        let mut all_data = AllMddData::from_parser(mdd_data, synonym_data);
+        all_data.set_version(self.mdd_version);
+        all_data.set_release_date(self.release_date);
         let json = all_data.to_json();
         if self.plain_text {
             self.write_plain_text(&json);

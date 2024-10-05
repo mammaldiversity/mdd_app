@@ -9,17 +9,33 @@ pub fn init_app() {
 }
 
 pub struct MddHelper {
-    pub data: Vec<u8>,
+    /// MDD file version
+    pub version: String,
+    /// MDD release date
+    pub release_date: String,
+    /// MDD main data
+    pub mdd_data: Vec<String>,
+    /// Synonyms data
+    pub syn_data: Vec<String>,
 }
 
 impl MddHelper {
-    pub fn new(data: Vec<u8>) -> Self {
-        MddHelper { data }
+    pub fn new() -> Self {
+        Self {
+            version: "".to_string(),
+            release_date: "".to_string(),
+            mdd_data: Vec::new(),
+            syn_data: Vec::new(),
+        }
     }
 
-    pub fn get_data(&self) -> (Vec<String>, Vec<String>) {
-        let mdd_data = AllMddData::from_gz_bytes(&self.data);
-        mdd_data.get_data()
+    pub fn get_data(&mut self, bytes: Vec<u8>) {
+        let mdd_data = AllMddData::from_gz_bytes(&bytes);
+        let (mdd, syn) = mdd_data.get_data();
+        self.version = mdd_data.get_version().to_string();
+        self.release_date = mdd_data.get_release_date().to_string();
+        self.mdd_data = mdd;
+        self.syn_data = syn;
     }
 }
 

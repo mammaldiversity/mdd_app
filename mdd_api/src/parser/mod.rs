@@ -10,6 +10,7 @@ pub mod synonyms;
 #[serde(rename_all = "camelCase")]
 pub struct AllMddData {
     version: String,
+    release_date: String,
     data: Vec<MddData>,
     synonyms: Vec<SynonymData>,
 }
@@ -18,6 +19,7 @@ impl AllMddData {
     pub fn new() -> Self {
         Self {
             version: "".to_string(),
+            release_date: "".to_string(),
             data: Vec::new(),
             synonyms: Vec::new(),
         }
@@ -38,6 +40,7 @@ impl AllMddData {
             version: "".to_string(),
             data: mdd_data,
             synonyms: synonym_data,
+            release_date: "".to_string(),
         }
     }
 
@@ -47,6 +50,10 @@ impl AllMddData {
 
     pub fn set_version(&mut self, version: &str) {
         self.version = version.to_string();
+    }
+
+    pub fn set_release_date(&mut self, release_date: &str) {
+        self.release_date = release_date.to_string();
     }
 
     pub fn to_json(&self) -> String {
@@ -65,5 +72,9 @@ impl AllMddData {
 
     pub fn get_version(&self) -> &str {
         &self.version
+    }
+
+    pub fn get_release_date(&self) -> &str {
+        &self.release_date
     }
 }

@@ -29,4 +29,8 @@ pub struct JsonArgs {
     pub output: PathBuf,
     #[arg(long, short, help = "Export plain text data")]
     pub plain_text: bool,
+    #[arg(long = "mdd", help = "MDD data version", require_equals = true)]
+    pub mdd_version: String,
+    #[arg(long = "date", help = "MDD release date", require_equals = true)]
+    pub release_date: String,
 }
