@@ -114,7 +114,7 @@ class _SynonymCardState extends State<SynonymCard> {
         ),
         builder: (BuildContext context) {
           return Container(
-            padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
+            padding: const EdgeInsets.fromLTRB(8, 2, 8, 16),
             child: SynonymDetails(
               taxonName: taxonName,
               data: widget.data,
@@ -171,6 +171,14 @@ class SynonymDetails extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           ContentText(
+            title: "Family",
+            content: data.family,
+          ),
+          ContentText(
+            title: "Holotype",
+            content: data.holotype,
+          ),
+          ContentText(
             title: "Name Usages",
             content: data.nameUsages,
           ),
@@ -179,8 +187,22 @@ class SynonymDetails extends StatelessWidget {
             content: data.authorityCitation,
           ),
           ContentText(
-            title: "Holotype",
-            content: data.holotype,
+            title: "Authority Link",
+            content: data.authorityLink,
+            isUrl: true,
+          ),
+          ContentText(
+            title: "Authority Page",
+            content: data.authorityPage,
+          ),
+          ContentText(
+            title: "Authority Page Link",
+            content: data.authorityPageLink,
+            isUrl: true,
+          ),
+          ContentText(
+            title: "Comments",
+            content: data.comments,
           ),
         ],
       ),

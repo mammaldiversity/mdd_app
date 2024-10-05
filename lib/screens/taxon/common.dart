@@ -17,7 +17,7 @@ class ContentText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return content != null && content!.isNotEmpty
+    return content != null && content!.isNotEmpty && content != 'NA'
         ? Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Column(
