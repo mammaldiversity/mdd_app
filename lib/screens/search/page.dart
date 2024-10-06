@@ -74,14 +74,15 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   }
 
   void _searchDatabase(String? query) {
-    if (query != null || query!.isNotEmpty) {
-      ref
-          .read(searchDatabaseProvider.notifier)
-          .search(query, filterBy: _selectedOption);
-    } else {
-      ref.invalidate(searchDatabaseProvider);
-    }
-    setState(() {});
+    setState(() {
+      if (query != null || query!.isNotEmpty) {
+        ref
+            .read(searchDatabaseProvider.notifier)
+            .search(query, filterBy: _selectedOption);
+      } else {
+        ref.invalidate(searchDatabaseProvider);
+      }
+    });
   }
 
   void _showFilteringOptions() {

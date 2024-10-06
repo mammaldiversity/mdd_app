@@ -4,6 +4,7 @@ import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/home/search.dart';
 import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
+import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/shared/search.dart';
 import 'package:mdd/screens/statistics/page.dart';
@@ -34,9 +35,7 @@ class MddPages extends ConsumerStatefulWidget {
 
 class MddPagesState extends ConsumerState<MddPages> {
   int _selectedPage = 0;
-  bool _isSearching = false;
   final _searchController = TextEditingController();
-  SearchFilter _selectedSearchOption = SearchFilter.all;
 
   late FocusNode _focusNode;
 
@@ -61,45 +60,21 @@ class MddPagesState extends ConsumerState<MddPages> {
         title: Text(_pageTitles.elementAt(_selectedPage)),
         actions: _selectedPage == 1
             ? [
-                if (_isSearching)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: CommonSearchField(
-                        focusNode: _focusNode,
-                        controller: _searchController,
-                        onChanged: (String value) => _searchDatabase(value),
-                        onClear: () {
-                          _searchController.clear();
-                          ref.invalidate(speciesListProvider);
-                          setState(() {});
-                        },
-                        onFiltering: () {
-                          _showFilteringOptions();
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) {
+                          return SearchDatabasePage(
+                            controller: _searchController,
+                          );
                         },
                       ),
-                    ),
-                  ),
-                _isSearching
-                    ? TextButton(
-                        child: const Text('Done'),
-                        onPressed: () {
-                          ref.invalidate(speciesListProvider);
-                          setState(() {
-                            _isSearching = false;
-                          });
-                          _focusNode.unfocus();
-                        },
-                      )
-                    : IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: () {
-                          setState(() {
-                            _isSearching = true;
-                          });
-                          _focusNode.requestFocus();
-                        },
-                      )
+                    );
+                    _focusNode.requestFocus();
+                  },
+                )
               ]
             : [],
       ),
@@ -115,36 +90,10 @@ class MddPagesState extends ConsumerState<MddPages> {
           ref.invalidate(speciesListProvider);
           setState(() {
             _selectedPage = index;
-            _isSearching = false;
           });
         },
       ),
-      bottomSheet: _isSearching ? const SearchInfo() : null,
     );
-  }
-
-  void _searchDatabase(String query) {
-    if (query.isNotEmpty) {
-      ref
-          .read(speciesListProvider.notifier)
-          .search(query, filterBy: _selectedSearchOption);
-    } else {
-      ref.invalidate(speciesListProvider);
-    }
-    setState(() {});
-  }
-
-  void _showFilteringOptions() {
-    SearchFilterView(
-      selectedOption: _selectedSearchOption,
-      onSelected: (SearchFilter? value) {
-        if (value != null) {
-          _selectedSearchOption = value;
-        }
-        _searchDatabase(_searchController.text);
-        Navigator.pop(context);
-      },
-    ).showFilteringOptions(context);
   }
 }
 
