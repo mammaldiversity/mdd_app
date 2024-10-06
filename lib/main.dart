@@ -43,7 +43,7 @@ class MyApp extends ConsumerWidget {
             return ThemeMode.system;
           }),
       home: ref.watch(speciesListProvider).when(
-          data: (_) => const HomeScreen(),
+          data: (_) => const MddPages(),
           loading: () => const SetupPage(),
           error: (Object error, StackTrace stackTrace) {
             return Scaffold(

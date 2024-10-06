@@ -173,7 +173,7 @@ class HomeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            const WelcomeText(),
+            const Welcome(),
             const SizedBox(height: 16),
             const DatabaseSearch(),
           ],
