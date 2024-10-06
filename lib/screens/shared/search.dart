@@ -109,32 +109,29 @@ class SearchResultInfo extends ConsumerWidget {
                 ? const SizedBox.shrink()
                 : Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                    child: SizedBox(
                       height: 50,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'Found $foundRecordCount of $totalRecords records',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(width: 4),
-                          VerticalDivider(
-                            thickness: 1.2,
+                          SearchInfoBox(
                             color: Theme.of(context)
                                 .colorScheme
-                                .primary
-                                .withAlpha(120),
+                                .secondaryContainer,
+                            child: Text(
+                              'Found $foundRecordCount of $totalRecords records',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          SearchExportButton(mddIDs: foundRecords),
+                          const SizedBox(width: 4),
+                          SearchInfoBox(
+                            padding: 8,
+                            color: Theme.of(context).colorScheme.secondary,
+                            child: SearchExportButton(mddIDs: foundRecords),
+                          ),
                         ],
                       ),
                     ),
@@ -145,6 +142,27 @@ class SearchResultInfo extends ConsumerWidget {
             return Text('Error: $error');
           },
         );
+  }
+}
+
+class SearchInfoBox extends StatelessWidget {
+  const SearchInfoBox(
+      {super.key, required this.child, this.color, this.padding = 16});
+
+  final double padding;
+  final Color? color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 48,
+        padding: EdgeInsets.symmetric(horizontal: padding),
+        decoration: BoxDecoration(
+          color: color ?? Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Center(child: child));
   }
 }
 
@@ -161,7 +179,10 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.adaptive.share),
+      icon: Icon(
+        Icons.adaptive.share,
+        color: Theme.of(context).colorScheme.onSecondary,
+      ),
       tooltip: 'Share results',
       onPressed: () async {
         try {
