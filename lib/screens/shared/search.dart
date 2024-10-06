@@ -129,7 +129,10 @@ class SearchResultInfo extends ConsumerWidget {
                           const SizedBox(width: 4),
                           VerticalDivider(
                             thickness: 1.2,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withAlpha(120),
                           ),
                           SearchExportButton(mddIDs: foundRecords),
                         ],
@@ -137,11 +140,7 @@ class SearchResultInfo extends ConsumerWidget {
                     ),
                   );
           },
-          loading: () => const SizedBox(
-            height: 16,
-            width: 16,
-            child: CircularProgressIndicator(),
-          ),
+          loading: () => const SizedBox.shrink(),
           error: (Object error, StackTrace? stackTrace) {
             return Text('Error: $error');
           },
