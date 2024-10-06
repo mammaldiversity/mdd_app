@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/providers/settings.dart';
 
+const String _welcomeText = 'The Mammal Diversity Database of '
+    'the American Society of Mammalogists (ASM) '
+    'is your home base for tracking the latest '
+    'taxonomic changes to living and recently extinct '
+    '(i.e., since ~1500 CE) species and higher taxa of mammals.';
+
 class WelcomeText extends ConsumerWidget {
   const WelcomeText({super.key});
 
@@ -28,11 +34,7 @@ class WelcomeText extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'The Mammal Diversity Database of '
-                      'the American Society of Mammalogists (ASM) '
-                      'is your home base for tracking the latest '
-                      'taxonomic changes to living and recently extinct '
-                      '(i.e., since ~1500 CE) species and higher taxa of mammals.',
+                      _welcomeText,
                       textAlign: TextAlign.center,
                     ),
                   ],
