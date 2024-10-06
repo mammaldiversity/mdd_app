@@ -19,6 +19,10 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         .getSingle();
   }
 
+  Future<MddInfoData> retrieveMddInfo() async {
+    return await (select(mddInfo).getSingle());
+  }
+
   Future<List<SynonymData>> retrieveSynonymData(int mddID) async {
     final data = await (select(synonym)
           ..where((tbl) => tbl.speciesId.equals(mddID)))

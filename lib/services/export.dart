@@ -10,7 +10,7 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/services/utils.dart';
-import 'package:mdd/src/rust/api/parser.dart';
+import 'package:mdd/src/rust/api/writer.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 

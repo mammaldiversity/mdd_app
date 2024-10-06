@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.4.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1751802916;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1875179592;
 
 // Section: executor
 
@@ -45,81 +45,6 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
-fn wire__crate__api__parser__database_writer_new_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "database_writer_new",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_json_data = <String>::sse_decode(&mut deserializer);
-            let api_output_dir = <String>::sse_decode(&mut deserializer);
-            let api_output_filename = <String>::sse_decode(&mut deserializer);
-            let api_to_csv = <bool>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok(crate::api::parser::DatabaseWriter::new(
-                        api_json_data,
-                        api_output_dir,
-                        api_output_filename,
-                        api_to_csv,
-                    ))?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__parser__database_writer_write_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "database_writer_write",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_that = <crate::api::parser::DatabaseWriter>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let output_ok =
-                        Result::<_, ()>::Ok(crate::api::parser::DatabaseWriter::write(&api_that))?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
 fn wire__crate__api__parser__init_app_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -188,6 +113,81 @@ fn wire__crate__api__parser__mdd_helper_parse_impl(
         },
     )
 }
+fn wire__crate__api__writer__database_writer_new_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "database_writer_new",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_json_data = <String>::sse_decode(&mut deserializer);
+            let api_output_dir = <String>::sse_decode(&mut deserializer);
+            let api_output_filename = <String>::sse_decode(&mut deserializer);
+            let api_to_csv = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(crate::api::writer::DatabaseWriter::new(
+                        api_json_data,
+                        api_output_dir,
+                        api_output_filename,
+                        api_to_csv,
+                    ))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__writer__database_writer_write_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "database_writer_write",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <crate::api::writer::DatabaseWriter>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::writer::DatabaseWriter::write(&api_that))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 
 // Section: dart2rust
 
@@ -206,14 +206,14 @@ impl SseDecode for bool {
     }
 }
 
-impl SseDecode for crate::api::parser::DatabaseWriter {
+impl SseDecode for crate::api::writer::DatabaseWriter {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_jsonData = <String>::sse_decode(deserializer);
         let mut var_outputDir = <String>::sse_decode(deserializer);
         let mut var_outputFilename = <String>::sse_decode(deserializer);
         let mut var_toCsv = <bool>::sse_decode(deserializer);
-        return crate::api::parser::DatabaseWriter {
+        return crate::api::writer::DatabaseWriter {
             json_data: var_jsonData,
             output_dir: var_outputDir,
             output_filename: var_outputFilename,
@@ -290,12 +290,12 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__parser__database_writer_new_impl(port, ptr, rust_vec_len, data_len),
-        2 => {
-            wire__crate__api__parser__database_writer_write_impl(port, ptr, rust_vec_len, data_len)
+        1 => wire__crate__api__parser__init_app_impl(port, ptr, rust_vec_len, data_len),
+        2 => wire__crate__api__parser__mdd_helper_parse_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__writer__database_writer_new_impl(port, ptr, rust_vec_len, data_len),
+        4 => {
+            wire__crate__api__writer__database_writer_write_impl(port, ptr, rust_vec_len, data_len)
         }
-        3 => wire__crate__api__parser__init_app_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__parser__mdd_helper_parse_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -315,7 +315,7 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::parser::DatabaseWriter {
+impl flutter_rust_bridge::IntoDart for crate::api::writer::DatabaseWriter {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.json_data.into_into_dart().into_dart(),
@@ -327,13 +327,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::parser::DatabaseWriter {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::parser::DatabaseWriter
+    for crate::api::writer::DatabaseWriter
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::parser::DatabaseWriter>
-    for crate::api::parser::DatabaseWriter
+impl flutter_rust_bridge::IntoIntoDart<crate::api::writer::DatabaseWriter>
+    for crate::api::writer::DatabaseWriter
 {
-    fn into_into_dart(self) -> crate::api::parser::DatabaseWriter {
+    fn into_into_dart(self) -> crate::api::writer::DatabaseWriter {
         self
     }
 }
@@ -372,7 +372,7 @@ impl SseEncode for bool {
     }
 }
 
-impl SseEncode for crate::api::parser::DatabaseWriter {
+impl SseEncode for crate::api::writer::DatabaseWriter {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.json_data, serializer);

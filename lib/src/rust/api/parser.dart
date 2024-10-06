@@ -6,56 +6,6 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-/// Wrapper for writer API to write data to a file.
-/// Supports writing to JSON and CSV.
-class DatabaseWriter {
-  final String jsonData;
-  final String outputDir;
-  final String outputFilename;
-  final bool toCsv;
-
-  const DatabaseWriter({
-    required this.jsonData,
-    required this.outputDir,
-    required this.outputFilename,
-    required this.toCsv,
-  });
-
-  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<DatabaseWriter> newInstance(
-          {required String jsonData,
-          required String outputDir,
-          required String outputFilename,
-          required bool toCsv}) =>
-      RustLib.instance.api.crateApiParserDatabaseWriterNew(
-          jsonData: jsonData,
-          outputDir: outputDir,
-          outputFilename: outputFilename,
-          toCsv: toCsv);
-
-  Future<String> write() =>
-      RustLib.instance.api.crateApiParserDatabaseWriterWrite(
-        that: this,
-      );
-
-  @override
-  int get hashCode =>
-      jsonData.hashCode ^
-      outputDir.hashCode ^
-      outputFilename.hashCode ^
-      toCsv.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DatabaseWriter &&
-          runtimeType == other.runtimeType &&
-          jsonData == other.jsonData &&
-          outputDir == other.outputDir &&
-          outputFilename == other.outputFilename &&
-          toCsv == other.toCsv;
-}
-
 class MddHelper {
   /// MDD file version
   final String version;

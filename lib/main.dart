@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/home/home.dart';
+import 'package:mdd/screens/home/page.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/src/rust/frb_generated.dart';
 import 'package:mdd/styles/themes.dart';
