@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
+import 'package:mdd/screens/home/search.dart';
+import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
-import 'package:mdd/screens/search/page.dart';
-import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/shared/search.dart';
 import 'package:mdd/screens/statistics/page.dart';
-import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
-import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 
@@ -178,163 +176,8 @@ class HomeScreen extends StatelessWidget {
             const WelcomeText(),
             const SizedBox(height: 16),
             const DatabaseSearch(),
-            const SizedBox(height: 32),
-            Text('Database version\nv${db.mddVersion}, released 30 Jan 2024.',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class WelcomeText extends ConsumerWidget {
-  const WelcomeText({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(isFirstRunProvider).when(
-        data: (isFirstRun) {
-          if (isFirstRun) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withAlpha(32),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "Welcome",
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'The Mammal Diversity Database of '
-                      'the American Society of Mammalogists (ASM) '
-                      'is your home base for tracking the latest '
-                      'taxonomic changes to living and recently extinct '
-                      '(i.e., since ~1500 CE) species and higher taxa of mammals.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
-        loading: () => const SimpleLoadingOnly(),
-        error: (Object error, StackTrace stackTrace) {
-          return Text('Error: $error');
-        });
-  }
-}
-
-class DatabaseSearch extends ConsumerWidget {
-  const DatabaseSearch({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(speciesListProvider).when(
-        data: (speciesList) {
-          return Column(
-            children: [
-              const HomeSearchBar(),
-              const SizedBox(height: 8),
-              SpeciesCount(count: speciesList.length),
-            ],
-          );
-        },
-        loading: () => const DataLoadingMessages(isSimple: true),
-        error: (Object error, StackTrace stackTrace) {
-          return Text('Error: $error');
-        });
-  }
-}
-
-class HomeSearchBar extends StatefulWidget {
-  const HomeSearchBar({super.key});
-
-  @override
-  State<HomeSearchBar> createState() => _HomeSearchBarState();
-}
-
-class _HomeSearchBarState extends State<HomeSearchBar> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: SearchBar(
-        controller: _searchController,
-        hintText: 'Search database',
-        hintStyle: WidgetStatePropertyAll(
-          Theme.of(context).textTheme.bodyMedium,
-        ),
-        elevation: WidgetStateProperty.all(0),
-        backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.primaryContainer.withAlpha(24),
-        ),
-        side: WidgetStateProperty.all(
-          BorderSide(
-            color:
-                Theme.of(context).colorScheme.primaryContainer.withAlpha(180),
-            width: 2,
-          ),
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return SearchDatabasePage(
-                    controller: _searchController,
-                  );
-                },
-              ),
-            );
-          }
-        },
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) {
-                return SearchDatabasePage(
-                  controller: _searchController,
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class SpeciesCount extends StatelessWidget {
-  const SpeciesCount({super.key, required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Total species: $count',
-        style: Theme.of(context).textTheme.labelLarge,
       ),
     );
   }
