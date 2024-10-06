@@ -148,11 +148,11 @@ mod tests {
 
     #[test]
     fn test_parse_to_json() {
-        let csv_data = Path::new("data/data.csv");
+        let csv_data = Path::new("tests/data/test_data.csv");
         let csv_data = std::fs::read_to_string(csv_data).unwrap();
         let parser = MddData::new();
         let json_data = parser.from_csv_to_json(&csv_data);
         // let data = AllMddData::from_json(&json_data);
-        assert_eq!(json_data.len(), 6753);
+        assert_eq!(json_data.len(), 112);
     }
 }
