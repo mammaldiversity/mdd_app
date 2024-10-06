@@ -69,8 +69,8 @@ class SetupHeadline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'This app brings you offline access to '
-      'MDD taxonomic data.',
+      'This app provides offline access to '
+      'MDD data.',
       style: Theme.of(context).textTheme.titleLarge,
       textAlign: TextAlign.center,
     );
@@ -82,20 +82,22 @@ class OtherFeatures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Text(
-        'Other features:',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: 4),
-      Text(
-        'Advanced search '
-        '• Partial data export '
-        '• MDD statistics '
-        '• more...',
-        style: Theme.of(context).textTheme.bodyMedium,
-        textAlign: TextAlign.center,
-      ),
-    ]);
+    return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: [
+          Text(
+            'Other features:',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Advanced search '
+            '• Partial data export '
+            '• MDD statistics '
+            '• more...',
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        ]));
   }
 }

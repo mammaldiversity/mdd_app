@@ -16,6 +16,8 @@ class DatabaseSearch extends ConsumerWidget {
         HomeSearchBar(),
         SizedBox(height: 8),
         SpeciesCount(),
+        SizedBox(height: 16),
+        DatabaseInfo(),
       ],
     );
   }
