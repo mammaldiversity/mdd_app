@@ -118,7 +118,7 @@ class _SynonymCardState extends State<SynonymCard> {
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         builder: (BuildContext context) {
-          return SynonymDetails(
+          return SynonymSheet(
             data: widget.data,
           );
         },
@@ -127,23 +127,68 @@ class _SynonymCardState extends State<SynonymCard> {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            content: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: SynonymDetails(data: widget.data),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Close'),
-              ),
-            ],
+          return SynonymDialogs(
+            data: widget.data,
           );
         },
       );
     }
+  }
+}
+
+class SynonymDialogs extends StatelessWidget {
+  const SynonymDialogs({
+    super.key,
+    required this.data,
+  });
+
+  final db.SynonymData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6,
+        child: SynonymSheet(data: data),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+class SynonymSheet extends StatelessWidget {
+  const SynonymSheet({
+    super.key,
+    required this.data,
+  });
+
+  final db.SynonymData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SynonymTitle(
+          species: data.species,
+          author: data.author,
+          year: data.year,
+          withParentheses: data.authorityParentheses == 1,
+        ),
+        Flexible(
+          child: OtherSynonymData(data: data),
+        ),
+      ],
+    );
   }
 }
 
@@ -193,33 +238,6 @@ class SynonymTitle extends StatelessWidget {
     } else {
       return '$author $year';
     }
-  }
-}
-
-class SynonymDetails extends StatelessWidget {
-  const SynonymDetails({
-    super.key,
-    required this.data,
-  });
-
-  final db.SynonymData data;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        SynonymTitle(
-          species: data.species,
-          author: data.author,
-          year: data.year,
-          withParentheses: data.authorityParentheses == 1,
-        ),
-        OtherSynonymData(data: data),
-      ],
-    );
   }
 }
 
