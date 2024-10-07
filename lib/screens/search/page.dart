@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
-import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 

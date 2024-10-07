@@ -108,7 +108,7 @@ class SearchResultInfo extends ConsumerWidget {
             return totalRecords == foundRecordCount || foundRecordCount == 0
                 ? const SizedBox.shrink()
                 : Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 4),
                     child: SizedBox(
                       height: 50,
                       child: Row(

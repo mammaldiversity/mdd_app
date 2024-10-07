@@ -6,7 +6,7 @@ import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/navigation.dart';
-import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
