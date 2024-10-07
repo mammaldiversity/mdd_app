@@ -76,7 +76,7 @@ class SetupHeadline extends StatelessWidget {
       child: Text(
         'MDD is aimed to promote rigorous study of mammal diversity worldwide.',
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontFamily: 'MLibre Baskerville',
+              fontFamily: 'Libre Baskerville',
             ),
         textAlign: TextAlign.center,
       ),
