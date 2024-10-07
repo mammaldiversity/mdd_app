@@ -13,53 +13,58 @@ class SetupPage extends StatelessWidget {
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: ListView(
-          children: [
-            Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withAlpha(32),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              width: 400,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.asset("assets/animations/species.gif"),
-                  ),
-                  const SizedBox(height: 16),
-                  const SetupHeadline(),
-                  const SizedBox(height: 16),
-                  const OtherFeatures(),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-            Column(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
               children: [
-                const SimpleLoadingOnly(),
-                const SizedBox(height: 16),
-                Text(
-                  '⏳ Setting up MDD...',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withAlpha(32),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset("assets/animations/species.gif"),
+                      ),
+                      const SizedBox(height: 16),
+                      const SetupHeadline(),
+                      const SizedBox(height: 16),
+                      const OtherFeatures(),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'It may take several minutes.\n'
-                  'Keep this app open until setup is complete.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                const SizedBox(height: 40),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const SimpleLoadingOnly(),
+                    const SizedBox(height: 16),
+                    Text(
+                      '⏳ Setting up MDD...',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'It may take several minutes.\n'
+                      'Keep this app open until setup is complete.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                )
               ],
-            )
-          ],
+            ),
+          ),
         ),
       )),
     );
@@ -99,7 +104,7 @@ class OtherFeatures extends StatelessWidget {
             'Offline access '
             '• Advanced search '
             '• Partial data export '
-            '• MDD statistics '
+            '• Mammal diversity statistics '
             '• More...',
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
