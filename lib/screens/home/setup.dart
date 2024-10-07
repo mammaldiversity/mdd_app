@@ -21,6 +21,7 @@ class SetupPage extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary.withAlpha(32),
                 borderRadius: BorderRadius.circular(16),
               ),
+              width: 400,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
