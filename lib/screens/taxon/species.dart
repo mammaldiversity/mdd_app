@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/screens/taxon/correction.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
@@ -22,7 +23,7 @@ class SpeciesPage extends ConsumerWidget {
               data: (TaxonomyData taxonData) {
                 return TaxonForm(taxonData: taxonData);
               },
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const SimpleLoadingOnly(),
               error: (Object error, StackTrace stackTrace) {
                 return Text('Error: $error');
               },
@@ -40,7 +41,7 @@ class TaxonForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
@@ -75,7 +76,7 @@ class SpeciesDetails extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           const Divider(),
         ],
       ),

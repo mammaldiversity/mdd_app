@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
@@ -16,7 +17,7 @@ class SynonymList extends ConsumerWidget {
                 ? SynonymContainer(data: synonymData)
                 : const Center(child: Text('No synonyms found.'));
           },
-          loading: () => const CircularProgressIndicator(),
+          loading: () => const SimpleLoadingOnly(),
           error: (Object error, StackTrace stackTrace) {
             return Text('Error: $error');
           },
@@ -114,11 +115,8 @@ class _SynonymCardState extends State<SynonymCard> {
           maxHeight: MediaQuery.of(context).size.height * 0.8,
         ),
         builder: (BuildContext context) {
-          return Container(
-            padding: const EdgeInsets.fromLTRB(8, 2, 8, 16),
-            child: SynonymDetails(
-              data: widget.data,
-            ),
+          return SynonymDetails(
+            data: widget.data,
           );
         },
       );
@@ -127,8 +125,9 @@ class _SynonymCardState extends State<SynonymCard> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: SynonymDetails(
-              data: widget.data,
+            content: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: SynonymDetails(data: widget.data),
             ),
             actions: <Widget>[
               TextButton(
@@ -145,24 +144,28 @@ class _SynonymCardState extends State<SynonymCard> {
   }
 }
 
-class SynonymDetails extends StatelessWidget {
-  const SynonymDetails({
+class SynonymTitle extends StatelessWidget {
+  const SynonymTitle({
     super.key,
-    required this.data,
+    required this.species,
+    required this.author,
+    required this.year,
+    required this.withParentheses,
   });
 
-  final db.SynonymData data;
+  final String? species;
+  final String? author;
+  final String? year;
+  final bool withParentheses;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
+        children: [
           Text(
-            data.species ?? '',
+            species ?? '',
             style: Theme.of(context).textTheme.titleLarge?.apply(
                   fontStyle: FontStyle.italic,
                 ),
@@ -174,6 +177,63 @@ class SynonymDetails extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
+          const Divider(),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+
+  String _getAuthority() {
+    if (withParentheses) {
+      return '($author, $year)';
+    } else {
+      return '$author $year';
+    }
+  }
+}
+
+class SynonymDetails extends StatelessWidget {
+  const SynonymDetails({
+    super.key,
+    required this.data,
+  });
+
+  final db.SynonymData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SynonymTitle(
+          species: data.species,
+          author: data.author,
+          year: data.year,
+          withParentheses: data.authorityParentheses == 1,
+        ),
+        Expanded(
+          child: OtherSynonymData(data: data),
+        ),
+      ],
+    );
+  }
+}
+
+class OtherSynonymData extends StatelessWidget {
+  const OtherSynonymData({super.key, required this.data});
+
+  final db.SynonymData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+      child: ListView(
+        shrinkWrap: true,
+        children: <Widget>[
           ContentText(
             title: "Family",
             content: data.family,
@@ -219,15 +279,5 @@ class SynonymDetails extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getAuthority() {
-    final String author = data.author ?? '';
-    final String year = data.year ?? '';
-    if (data.authorityParentheses == 1) {
-      return '($author, $year)';
-    } else {
-      return '$author $year';
-    }
   }
 }
