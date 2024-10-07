@@ -8,7 +8,7 @@ class SetupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Welcome to MDD'),
+        title: const Text('Welcome'),
       ),
       body: SafeArea(
           child: Padding(
@@ -16,11 +16,13 @@ class SetupPage extends StatelessWidget {
         child: ListView(
           children: [
             Container(
+              constraints: const BoxConstraints(maxWidth: 400),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary.withAlpha(32),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -49,7 +51,7 @@ class SetupPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'This may take several minutes.\n'
+                  'It may take several minutes.\n'
                   'Keep this app open until setup is complete.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -68,11 +70,15 @@ class SetupHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'This app provides offline access to '
-      'MDD data.',
-      style: Theme.of(context).textTheme.titleLarge,
-      textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        'MDD is aimed to promote rigorous study of mammal diversity worldwide.',
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontFamily: 'MLibre Baskerville',
+            ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }
@@ -86,15 +92,16 @@ class OtherFeatures extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(children: [
           Text(
-            'Other features:',
+            'App Features:',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'Advanced search '
+            'Offline access '
+            '• Advanced search '
             '• Partial data export '
             '• MDD statistics '
-            '• more...',
+            '• More...',
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
