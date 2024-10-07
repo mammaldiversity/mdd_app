@@ -75,9 +75,7 @@ class SetupHeadline extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Text(
         'MDD is aimed to promote rigorous study of mammal diversity worldwide.',
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontFamily: 'Libre Baskerville',
-            ),
+        style: Theme.of(context).textTheme.titleLarge,
         textAlign: TextAlign.center,
       ),
     );
