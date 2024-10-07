@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/explore/explore.dart';
-import 'package:mdd/screens/shared/search.dart';
+import 'package:mdd/screens/explore/explore_page.dart';
+import 'package:mdd/screens/shared/loadings.dart';
+import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 
@@ -74,14 +75,15 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   }
 
   void _searchDatabase(String? query) {
-    if (query != null || query!.isNotEmpty) {
-      ref
-          .read(searchDatabaseProvider.notifier)
-          .search(query, filterBy: _selectedOption);
-    } else {
-      ref.invalidate(searchDatabaseProvider);
-    }
-    setState(() {});
+    setState(() {
+      if (query != null || query!.isNotEmpty) {
+        ref
+            .read(searchDatabaseProvider.notifier)
+            .search(query, filterBy: _selectedOption);
+      } else {
+        ref.invalidate(searchDatabaseProvider);
+      }
+    });
   }
 
   void _showFilteringOptions() {
@@ -119,7 +121,7 @@ class SpeciesListView extends ConsumerWidget {
       },
       loading: () {
         return const Center(
-          child: CircularProgressIndicator(),
+          child: SimpleLoadingOnly(),
         );
       },
       error: (Object error, StackTrace stackTrace) {
@@ -135,21 +137,19 @@ class SearchDatabaseInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(searchDatabaseProvider).when(
-      data: (List<MainTaxonomyData> speciesList) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
-          child: SearchResultInfo(
-            foundRecords: speciesList.map((e) => e.id).toList(),
-          ),
+          data: (List<MainTaxonomyData> speciesList) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+              child: SearchResultInfo(
+                foundRecords: speciesList.map((e) => e.id).toList(),
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (Object error, StackTrace? stackTrace) {
+            return Text('Error: $error');
+          },
         );
-      },
-      loading: () {
-        return const CircularProgressIndicator();
-      },
-      error: (Object error, StackTrace? stackTrace) {
-        return Text('Error: $error');
-      },
-    );
   }
 }
 

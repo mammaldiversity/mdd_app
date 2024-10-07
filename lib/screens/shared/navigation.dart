@@ -20,15 +20,15 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
     selectedIcon: Icon(Icons.home_rounded),
   ),
   NavigationProperties(
-    label: 'Search',
+    label: 'Explore',
     icon: Icon(Icons.travel_explore_outlined),
     selectedIcon: Icon(Icons.travel_explore_rounded),
   ),
-  // NavigationProperties(
-  //   label: 'Favorites',
-  //   icon: Icon(Icons.favorite_border),
-  //   selectedIcon: Icon(Icons.favorite),
-  // ),
+  NavigationProperties(
+    label: 'Stats',
+    icon: Icon(Icons.analytics_outlined),
+    selectedIcon: Icon(Icons.analytics_rounded),
+  ),
   NavigationProperties(
     label: 'More',
     icon: Icon(Icons.menu_outlined),

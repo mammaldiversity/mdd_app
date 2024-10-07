@@ -6,55 +6,43 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<List<String>> parseCsvToJson({required String csvData}) =>
-    RustLib.instance.api.crateApiParserParseCsvToJson(csvData: csvData);
+class MddHelper {
+  /// MDD file version
+  final String version;
 
-/// Wrapper for writer API to write data to a file.
-/// Supports writing to JSON and CSV.
-class DatabaseWriter {
-  final String jsonData;
-  final String outputDir;
-  final String outputFilename;
-  final bool toCsv;
+  /// MDD release date
+  final String releaseDate;
 
-  const DatabaseWriter({
-    required this.jsonData,
-    required this.outputDir,
-    required this.outputFilename,
-    required this.toCsv,
+  /// MDD main data
+  final List<String> mddData;
+
+  /// Synonyms data
+  final List<String> synData;
+
+  const MddHelper({
+    required this.version,
+    required this.releaseDate,
+    required this.mddData,
+    required this.synData,
   });
 
-  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<DatabaseWriter> newInstance(
-          {required String jsonData,
-          required String outputDir,
-          required String outputFilename,
-          required bool toCsv}) =>
-      RustLib.instance.api.crateApiParserDatabaseWriterNew(
-          jsonData: jsonData,
-          outputDir: outputDir,
-          outputFilename: outputFilename,
-          toCsv: toCsv);
-
-  Future<String> write() =>
-      RustLib.instance.api.crateApiParserDatabaseWriterWrite(
-        that: this,
-      );
+  static Future<MddHelper> parse({required List<int> bytes}) =>
+      RustLib.instance.api.crateApiParserMddHelperParse(bytes: bytes);
 
   @override
   int get hashCode =>
-      jsonData.hashCode ^
-      outputDir.hashCode ^
-      outputFilename.hashCode ^
-      toCsv.hashCode;
+      version.hashCode ^
+      releaseDate.hashCode ^
+      mddData.hashCode ^
+      synData.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DatabaseWriter &&
+      other is MddHelper &&
           runtimeType == other.runtimeType &&
-          jsonData == other.jsonData &&
-          outputDir == other.outputDir &&
-          outputFilename == other.outputFilename &&
-          toCsv == other.toCsv;
+          version == other.version &&
+          releaseDate == other.releaseDate &&
+          mddData == other.mddData &&
+          synData == other.synData;
 }

@@ -4,17 +4,17 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:mdd/src/rust/api/parser.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
+import 'package:mdd/src/rust/api/parser.dart';
 import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
 
 const int _kDatabaseVersion = 1;
-const String mddVersion = '1.2.1';
+const String mddVersion = '1.13';
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -34,18 +34,35 @@ class AppDatabase extends _$AppDatabase {
       );
 
   Future<void> createMddDefault(String version) async {
-    final String mddData =
-        await rootBundle.loadString('assets/mdd_data/data.csv');
-    final MddInfoCompanion dbData = MddInfoCompanion.insert(
+    final mddData = await rootBundle.load('assets/data/data.json.gz');
+    final buffer = mddData.buffer.asUint8List();
+    final MddHelper data = await MddHelper.parse(bytes: buffer);
+    await _updateMddInfo(version, data.releaseDate);
+    await _updateMdd(data.mddData);
+    await _updateSynData(data.synData);
+  }
+
+  Future<void> _updateMddInfo(String version, String releaseDate) async {
+    final MddInfoCompanion data = MddInfoCompanion(
       version: Value(version),
+      releaseDate: Value(releaseDate),
     );
-    final List<String> dataString = await parseCsvToJson(csvData: mddData);
-    for (var jason in dataString) {
-      final Map<String, dynamic> dataJson = json.decode(jason);
-      if (kDebugMode) print('Data JSON: $dataJson');
+    await into(mddInfo).insert(data);
+  }
+
+  Future<void> _updateMdd(List<String> data) async {
+    for (var value in data) {
+      final Map<String, dynamic> dataJson = json.decode(value);
       TaxonomyData data = TaxonomyData.fromJson(dataJson);
-      await into(mddInfo).insert(dbData);
       await into(taxonomy).insert(data);
+    }
+  }
+
+  Future<void> _updateSynData(List<String> data) async {
+    for (var value in data) {
+      final Map<String, dynamic> dataJson = json.decode(value);
+      SynonymData data = SynonymData.fromJson(dataJson);
+      await into(synonym).insert(data);
     }
   }
 }
@@ -64,8 +81,11 @@ Future<File> get dBPath async {
   final Directory appDocDir = await getAppDir();
   final dbPath = path.join(appDocDir.path, 'mdd.db');
   final dbFile = File(dbPath);
-  if (!dbFile.existsSync()) {
-    await dbFile.create(recursive: true);
-  }
+  // if (dbFile.existsSync()) {
+  //   await dbFile.delete();
+  //   await dbFile.create(recursive: true);
+  // } else {
+  //   await dbFile.create(recursive: true);
+  // }
   return dbFile;
 }

@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/parser.dart';
+import 'api/writer.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
@@ -68,7 +69,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.4.0';
 
   @override
-  int get rustContentHash => -800361547;
+  int get rustContentHash => 1875179592;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -79,18 +80,18 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<DatabaseWriter> crateApiParserDatabaseWriterNew(
+  Future<void> crateApiParserInitApp();
+
+  Future<MddHelper> crateApiParserMddHelperParse({required List<int> bytes});
+
+  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew(
       {required String jsonData,
       required String outputDir,
       required String outputFilename,
       required bool toCsv});
 
-  Future<String> crateApiParserDatabaseWriterWrite(
+  Future<String> crateApiWriterDatabaseWriterWrite(
       {required DatabaseWriter that});
-
-  Future<void> crateApiParserInitApp();
-
-  Future<List<String>> crateApiParserParseCsvToJson({required String csvData});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -102,70 +103,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<DatabaseWriter> crateApiParserDatabaseWriterNew(
-      {required String jsonData,
-      required String outputDir,
-      required String outputFilename,
-      required bool toCsv}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(jsonData, serializer);
-        sse_encode_String(outputDir, serializer);
-        sse_encode_String(outputFilename, serializer);
-        sse_encode_bool(toCsv, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 1, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_database_writer,
-        decodeErrorData: null,
-      ),
-      constMeta: kCrateApiParserDatabaseWriterNewConstMeta,
-      argValues: [jsonData, outputDir, outputFilename, toCsv],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateApiParserDatabaseWriterNewConstMeta =>
-      const TaskConstMeta(
-        debugName: "database_writer_new",
-        argNames: ["jsonData", "outputDir", "outputFilename", "toCsv"],
-      );
-
-  @override
-  Future<String> crateApiParserDatabaseWriterWrite(
-      {required DatabaseWriter that}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_database_writer(that, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: null,
-      ),
-      constMeta: kCrateApiParserDatabaseWriterWriteConstMeta,
-      argValues: [that],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateApiParserDatabaseWriterWriteConstMeta =>
-      const TaskConstMeta(
-        debugName: "database_writer_write",
-        argNames: ["that"],
-      );
-
-  @override
   Future<void> crateApiParserInitApp() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
+            funcId: 1, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -183,28 +126,86 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<String>> crateApiParserParseCsvToJson({required String csvData}) {
+  Future<MddHelper> crateApiParserMddHelperParse({required List<int> bytes}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(csvData, serializer);
+        sse_encode_list_prim_u_8_loose(bytes, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
+            funcId: 2, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_list_String,
+        decodeSuccessData: sse_decode_mdd_helper,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiParserParseCsvToJsonConstMeta,
-      argValues: [csvData],
+      constMeta: kCrateApiParserMddHelperParseConstMeta,
+      argValues: [bytes],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiParserParseCsvToJsonConstMeta =>
+  TaskConstMeta get kCrateApiParserMddHelperParseConstMeta =>
       const TaskConstMeta(
-        debugName: "parse_csv_to_json",
-        argNames: ["csvData"],
+        debugName: "mdd_helper_parse",
+        argNames: ["bytes"],
+      );
+
+  @override
+  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew(
+      {required String jsonData,
+      required String outputDir,
+      required String outputFilename,
+      required bool toCsv}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(jsonData, serializer);
+        sse_encode_String(outputDir, serializer);
+        sse_encode_String(outputFilename, serializer);
+        sse_encode_bool(toCsv, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 3, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_database_writer,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiWriterDatabaseWriterNewConstMeta,
+      argValues: [jsonData, outputDir, outputFilename, toCsv],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiWriterDatabaseWriterNewConstMeta =>
+      const TaskConstMeta(
+        debugName: "database_writer_new",
+        argNames: ["jsonData", "outputDir", "outputFilename", "toCsv"],
+      );
+
+  @override
+  Future<String> crateApiWriterDatabaseWriterWrite(
+      {required DatabaseWriter that}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_box_autoadd_database_writer(that, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiWriterDatabaseWriterWriteConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiWriterDatabaseWriterWriteConstMeta =>
+      const TaskConstMeta(
+        debugName: "database_writer_write",
+        argNames: ["that"],
       );
 
   @protected
@@ -246,9 +247,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<int> dco_decode_list_prim_u_8_loose(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as List<int>;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  MddHelper dco_decode_mdd_helper(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return MddHelper(
+      version: dco_decode_String(arr[0]),
+      releaseDate: dco_decode_String(arr[1]),
+      mddData: dco_decode_list_String(arr[2]),
+      synData: dco_decode_list_String(arr[3]),
+    );
   }
 
   @protected
@@ -310,10 +331,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<int> sse_decode_list_prim_u_8_loose(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  MddHelper sse_decode_mdd_helper(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_version = sse_decode_String(deserializer);
+    var var_releaseDate = sse_decode_String(deserializer);
+    var var_mddData = sse_decode_list_String(deserializer);
+    var var_synData = sse_decode_list_String(deserializer);
+    return MddHelper(
+        version: var_version,
+        releaseDate: var_releaseDate,
+        mddData: var_mddData,
+        synData: var_synData);
   }
 
   @protected
@@ -372,11 +414,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_prim_u_8_loose(
+      List<int> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer
+        .putUint8List(self is Uint8List ? self : Uint8List.fromList(self));
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.version, serializer);
+    sse_encode_String(self.releaseDate, serializer);
+    sse_encode_list_String(self.mddData, serializer);
+    sse_encode_list_String(self.synData, serializer);
   }
 
   @protected

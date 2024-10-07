@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/home/home.dart';
+import 'package:mdd/screens/home/page.dart';
+import 'package:mdd/screens/home/setup.dart';
 import 'package:mdd/services/providers/settings.dart';
+import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/src/rust/frb_generated.dart';
 import 'package:mdd/styles/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,7 +42,16 @@ class MyApp extends ConsumerWidget {
             );
             return ThemeMode.system;
           }),
-      home: const MddPages(),
+      home: ref.watch(speciesListProvider).when(
+          data: (_) => const MddPages(),
+          loading: () => const SetupPage(),
+          error: (Object error, StackTrace stackTrace) {
+            return Scaffold(
+              body: Center(
+                child: Text('Error: $error. Stack trace: $stackTrace'),
+              ),
+            );
+          }),
     );
   }
 }

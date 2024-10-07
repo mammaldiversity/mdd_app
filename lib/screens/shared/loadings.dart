@@ -82,11 +82,13 @@ class SimpleLoadingOnly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: SizedBox(
         height: 24,
         width: 24,
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(80),
+        ),
       ),
     );
   }
