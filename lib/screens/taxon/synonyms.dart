@@ -35,30 +35,34 @@ class SynonymContainer extends StatelessWidget {
     final ScreenType screenType = getScreenType(context);
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Column(children: [
-        const Divider(),
-        const SizedBox(height: 8),
-        Text('Synonyms', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        screenType != ScreenType.small
-            ? Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: data
-                    .map(
-                      (synonymData) => SynonymCard(data: synonymData),
-                    )
-                    .toList(),
-              )
-            : Column(
-                children: data
-                    .map(
-                      (synonymData) => SynonymCard(data: synonymData),
-                    )
-                    .toList(),
-              ),
-      ]),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(),
+          const SizedBox(height: 8),
+          Text('Synonyms', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          screenType != ScreenType.small
+              ? Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: data
+                      .map(
+                        (synonymData) => SynonymCard(data: synonymData),
+                      )
+                      .toList(),
+                )
+              : Column(
+                  children: data
+                      .map(
+                        (synonymData) => SynonymCard(data: synonymData),
+                      )
+                      .toList(),
+                ),
+        ],
+      ),
     );
   }
 }
@@ -107,12 +111,11 @@ class _SynonymCardState extends State<SynonymCard> {
     if (screenType == ScreenType.small) {
       showModalBottomSheet(
         context: context,
-        enableDrag: true,
         showDragHandle: true,
         isScrollControlled: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         builder: (BuildContext context) {
           return SynonymDetails(
@@ -214,9 +217,7 @@ class SynonymDetails extends StatelessWidget {
           year: data.year,
           withParentheses: data.authorityParentheses == 1,
         ),
-        Expanded(
-          child: OtherSynonymData(data: data),
-        ),
+        OtherSynonymData(data: data),
       ],
     );
   }
