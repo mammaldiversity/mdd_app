@@ -239,28 +239,28 @@ class OtherSynonymData extends StatelessWidget {
             content: data.family,
           ),
           ContentText(
-            title: "Root Name",
+            title: "Root name",
             content: data.rootName,
             isItalic: true,
           ),
           ContentText(
-            title: "Validity Status",
+            title: "Validity status",
             content: data.validity,
           ),
           ContentText(
-            title: "Nomenclature Status",
+            title: "Nomenclature status",
             content: data.nomenclatureStatus,
           ),
           ContentText(
-            title: "Type Material",
+            title: "Type material",
             content: data.holotype,
           ),
           ContentText(
-            title: "Type Kind",
+            title: "Type kind",
             content: data.typeKind,
           ),
           ContentText(
-            title: "Type Specimen Link",
+            title: "Type specimen link",
             content: data.typeSpecimenLink,
             isUrl: true,
           ),
@@ -269,25 +269,25 @@ class OtherSynonymData extends StatelessWidget {
             content: data.authorityCitation,
           ),
           ContentText(
-            title: "Authority Link",
+            title: "Authority link",
             content: data.authorityLink,
             isUrl: true,
           ),
           ContentText(
-            title: "Authority Page",
+            title: "Authority page",
             content: data.authorityPage,
           ),
           ContentText(
-            title: "Authority Page Link",
+            title: "Authority page link",
             content: data.authorityPageLink,
             isUrl: true,
           ),
           ContentText(
-            title: "Authority Publication",
+            title: "Authority publication",
             content: data.citationGroup,
           ),
           ContentText(
-            title: "Name Usages",
+            title: "Name usages",
             content: data.nameUsages,
           ),
           ContentText(
