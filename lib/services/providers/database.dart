@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -5,7 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'database.g.dart';
 
 @Riverpod(keepAlive: true)
-AppDatabase database(DatabaseRef ref) {
+AppDatabase database(Ref ref) {
   final db = AppDatabase();
   ref.onDispose(() {
     db.close();
@@ -14,6 +15,6 @@ AppDatabase database(DatabaseRef ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<MddInfoData> mddInfo(MddInfoRef ref) {
+Future<MddInfoData> mddInfo(Ref ref) {
   return MddQuery(ref.read(databaseProvider)).retrieveMddInfo();
 }

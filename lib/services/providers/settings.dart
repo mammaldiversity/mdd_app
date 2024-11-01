@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'settings.g.dart';
 
 @Riverpod(keepAlive: true)
-SharedPreferences setting(SettingRef ref) {
+SharedPreferences setting(Ref ref) {
   return throw UnimplementedError();
 }
 
 @Riverpod(keepAlive: true)
-Future<bool> isFirstRun(IsFirstRunRef ref) async {
+Future<bool> isFirstRun(Ref ref) async {
   final prefs = ref.watch(settingProvider);
   final isFirstRun = prefs.getBool('isFirstRun') ?? true;
   if (isFirstRun) {

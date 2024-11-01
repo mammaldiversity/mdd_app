@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
@@ -23,7 +24,7 @@ class SearchDatabase extends _$SearchDatabase {
 }
 
 @Riverpod(keepAlive: true)
-Future<int> totalRecords(TotalRecordsRef ref) async {
+Future<int> totalRecords(Ref ref) async {
   return await MddQuery(ref.read(databaseProvider)).totalRecords();
 }
 
@@ -89,6 +90,6 @@ class SynonymData extends _$SynonymData {
 
 @riverpod
 Future<List<MainTaxonomyData>> mainTaxonomyData(
-    MainTaxonomyDataRef ref, List<int> mddIDList) async {
+    Ref ref, List<int> mddIDList) async {
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
 }
