@@ -112,10 +112,6 @@ class OtherDetails extends StatelessWidget {
           isItalic: true,
         ),
         ContentText(
-          title: 'Nominal names',
-          content: taxonData.nominalNames,
-        ),
-        ContentText(
           title: 'Other common names',
           content: taxonData.otherCommonNames,
         ),
