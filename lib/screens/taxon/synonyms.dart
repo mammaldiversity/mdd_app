@@ -4,6 +4,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
+import 'package:mdd/services/synonyms.dart';
 import 'package:mdd/services/system.dart';
 
 class SynonymList extends ConsumerWidget {
@@ -96,14 +97,9 @@ class _SynonymCardState extends State<SynonymCard> {
   }
 
   String _createSynName() {
-    final String author = widget.data.author ?? '';
-    final String species = widget.data.species ?? '';
-    final String year = widget.data.year ?? '';
-    if (widget.data.authorityParentheses == 1) {
-      return '$species ($author, $year)';
-    } else {
-      return '$species $author $year';
-    }
+    final ({String authorYear, String name}) synName =
+        SynonymName(data: widget.data).getSynonym();
+    return '${synName.name} ${synName.authorYear}';
   }
 
   // Show modal sheet on mobile and alert dialog on desktop
@@ -173,16 +169,16 @@ class SynonymSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ({String authorYear, String name}) synName =
+        SynonymName(data: data).getSynonym();
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         SynonymTitle(
-          species: data.species,
-          author: data.author,
-          year: data.year,
-          withParentheses: data.authorityParentheses == 1,
+          synName: synName.name,
+          authorYear: synName.authorYear,
         ),
         Flexible(
           child: OtherSynonymData(data: data),
@@ -193,18 +189,11 @@ class SynonymSheet extends StatelessWidget {
 }
 
 class SynonymTitle extends StatelessWidget {
-  const SynonymTitle({
-    super.key,
-    required this.species,
-    required this.author,
-    required this.year,
-    required this.withParentheses,
-  });
+  const SynonymTitle(
+      {super.key, required this.synName, required this.authorYear});
 
-  final String? species;
-  final String? author;
-  final String? year;
-  final bool withParentheses;
+  final String synName;
+  final String authorYear;
 
   @override
   Widget build(BuildContext context) {
@@ -213,14 +202,14 @@ class SynonymTitle extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            species ?? '',
+            synName,
             style: Theme.of(context).textTheme.titleLarge?.apply(
                   fontStyle: FontStyle.italic,
                 ),
             textAlign: TextAlign.center,
           ),
           Text(
-            _getAuthority(),
+            authorYear,
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -230,14 +219,6 @@ class SynonymTitle extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getAuthority() {
-    if (withParentheses) {
-      return '($author, $year)';
-    } else {
-      return '$author $year';
-    }
   }
 }
 
@@ -258,12 +239,30 @@ class OtherSynonymData extends StatelessWidget {
             content: data.family,
           ),
           ContentText(
-            title: "Holotype",
+            title: "Root Name",
+            content: data.rootName,
+            isItalic: true,
+          ),
+          ContentText(
+            title: "Validity Status",
+            content: data.validity,
+          ),
+          ContentText(
+            title: "Nomenclature Status",
+            content: data.nomenclatureStatus,
+          ),
+          ContentText(
+            title: "Type Material",
             content: data.holotype,
           ),
           ContentText(
-            title: "Name Usages",
-            content: data.nameUsages,
+            title: "Type Kind",
+            content: data.typeKind,
+          ),
+          ContentText(
+            title: "Type Specimen Link",
+            content: data.typeSpecimenLink,
+            isUrl: true,
           ),
           ContentText(
             title: "Authority Citation",
@@ -288,8 +287,8 @@ class OtherSynonymData extends StatelessWidget {
             content: data.citationGroup,
           ),
           ContentText(
-            title: "Authority Publication Link",
-            content: data.citationKind,
+            title: "Name Usages",
+            content: data.nameUsages,
           ),
           ContentText(
             title: "Comments",
