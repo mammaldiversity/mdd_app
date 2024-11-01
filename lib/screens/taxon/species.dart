@@ -116,8 +116,17 @@ class OtherDetails extends StatelessWidget {
           content: taxonData.otherCommonNames,
         ),
         ContentText(
-          title: 'Holotype voucher catalogue number',
+          title: 'Type material',
           content: taxonData.typeVoucher,
+        ),
+        ContentText(
+          title: 'Type kind',
+          content: taxonData.typeKind,
+        ),
+        ContentText(
+          title: 'Type specimen URI',
+          content: taxonData.typeVoucherURIs,
+          isUrl: true,
         ),
         ContentText(
           title: 'Type locality',
