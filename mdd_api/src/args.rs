@@ -34,3 +34,9 @@ pub struct JsonArgs {
     #[arg(long = "date", help = "MDD release date", require_equals = true)]
     pub release_date: String,
 }
+
+#[derive(Args)]
+pub struct DbArgs {
+    #[arg(long, short, default_value = "data.json", help = "Input MDD CSV file")]
+    pub input: PathBuf,
+}
