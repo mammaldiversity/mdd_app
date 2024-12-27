@@ -7,6 +7,8 @@ use clap::{crate_authors, crate_description, crate_name, crate_version, Args, Pa
 pub enum Cli {
     #[command(name = "json", about = "Parse and export MDD data to JSON")]
     ToJson(JsonArgs),
+    #[command(name = "db", about = "Parse and export MDD data to SQLite database")]
+    ToDb(DbArgs),
 }
 
 #[derive(Args)]
@@ -31,8 +33,10 @@ pub struct JsonArgs {
     pub plain_text: bool,
     #[arg(long = "mdd", help = "MDD data version", require_equals = true)]
     pub mdd_version: String,
-    #[arg(long = "date", help = "MDD release date", require_equals = true)]
+    #[arg(long = "date", help = "MDD release date")]
     pub release_date: String,
+    #[arg(long = "limit", help = "Limit number of records")]
+    pub limit: Option<usize>,
 }
 
 #[derive(Args)]
