@@ -15,7 +15,7 @@ class SynonymName {
 
   String _getNames() {
     if (data.originalCombination != null &&
-        data.originalCombination?.isNotEmpty == true) {
+        data.originalCombination!.isNotEmpty) {
       return data.originalCombination!;
     } else {
       final String species = data.species ?? '';
