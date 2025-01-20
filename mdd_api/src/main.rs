@@ -30,15 +30,6 @@ struct JsonParser<'a> {
 }
 
 impl<'a> JsonParser<'a> {
-    // fn new(input_path: &'a Path, synonym_path: &'a Path, output_path: &'a Path) -> Self {
-    //     Self {
-    //         input_path,
-    //         synonym_path,
-    //         output_path,
-    //         plain_text: false,
-    //     }
-    // }
-
     fn from_args(args: &'a JsonArgs) -> Self {
         Self {
             input_path: &args.input,
@@ -68,6 +59,7 @@ impl<'a> JsonParser<'a> {
         let json = all_data.to_json();
         if self.plain_text {
             self.write_plain_text(&json);
+            self.write_gzip(&json);
         } else {
             self.write_gzip(&json);
         }

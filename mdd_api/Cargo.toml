@@ -21,3 +21,4 @@ tempdir = "0.3.7"
 
 [[bin]]
 name = "mdd"
+path = "src/main.rs"

@@ -50,5 +50,5 @@ app.*.map.json
 
 *_syn.csv
 data.csv
-
+mdd2.csv
 data.json
