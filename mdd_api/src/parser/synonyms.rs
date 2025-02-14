@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Default, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SynonymData {
-    syn_id: u32,
-    hesp_id: u32,
+    pub syn_id: u32,
+    pub hesp_id: u32,
     // MDD species_id
-    species_id: u32,
+    pub species_id: u32,
     species: String,
     root_name: String,
     author: String,

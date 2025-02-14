@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MddData {
-    id: u32,
+    pub id: u32,
     sci_name: String,
     main_common_name: String,
     other_common_names: String,
