@@ -65,6 +65,7 @@ impl WebMddData {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 struct SimpleMDD {
     mdd_id: u32,
     species_data: MddData,
@@ -82,6 +83,7 @@ impl SimpleMDD {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 struct MetaData {
     version: String,
     release_date: String,
@@ -122,23 +124,23 @@ impl MetaData {
         let species_count = data.len() as u32;
         let synonym_count = synonyms.len() as u32;
         let recently_extinct = data.iter().filter(|d| d.extinct == 1).count() as u32;
-        let living = data.iter().filter(|d| d.extinct == 0).count() as u32;
+        let living = species_count - recently_extinct;
         let domestic = data.iter().filter(|d| d.domestic == 1).count() as u32;
-        let living_wild = data.iter().filter(|d| d.domestic == 0).count() as u32;
+        let living_wild = living - domestic;
         let genus_count = data
             .iter()
             .map(|d| d.genus.clone())
-            .collect::<Vec<String>>()
+            .collect::<std::collections::HashSet<_>>()
             .len() as u32;
         let family_count = data
             .iter()
             .map(|d| d.family.clone())
-            .collect::<Vec<String>>()
+            .collect::<std::collections::HashSet<_>>()
             .len() as u32;
         let order_count = data
             .iter()
             .map(|d| d.taxon_order.clone())
-            .collect::<Vec<String>>()
+            .collect::<std::collections::HashSet<_>>()
             .len() as u32;
 
         Self {
