@@ -9,8 +9,7 @@ pub mod synonyms;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct WebMddData {
-    version: String,
-    release_date: String,
+    metadata: MetaData,
     data: Vec<SimpleMDD>,
     synonym_only: Vec<SynonymData>,
 }
@@ -18,8 +17,7 @@ pub struct WebMddData {
 impl WebMddData {
     pub fn new() -> Self {
         Self {
-            version: "".to_string(),
-            release_date: "".to_string(),
+            metadata: MetaData::new(),
             data: Vec::new(),
             synonym_only: Vec::new(),
         }
@@ -29,7 +27,12 @@ impl WebMddData {
         serde_json::from_str(json_data).expect("Failed to deserialize")
     }
 
-    pub fn from_parser(mdd_data: Vec<MddData>, synonym_data: Vec<SynonymData>) -> Self {
+    pub fn from_parser(
+        mdd_data: Vec<MddData>,
+        synonym_data: Vec<SynonymData>,
+        version: &str,
+        release_date: &str,
+    ) -> Self {
         let mut simple_mdd = Vec::new();
         // Get the synonyms that have no species id
         let synonym_only = synonym_data
@@ -39,7 +42,7 @@ impl WebMddData {
             .collect();
 
         // iter over the mdd data and get all the synonyms that match the species id
-
+        let metadata = MetaData::from_mdd(&mdd_data, &synonym_data, version, release_date);
         for mdd in mdd_data {
             let synonyms: Vec<SynonymData> = synonym_data
                 .iter()
@@ -50,19 +53,10 @@ impl WebMddData {
         }
 
         Self {
-            version: "".to_string(),
-            release_date: "".to_string(),
             data: simple_mdd,
             synonym_only,
+            metadata,
         }
-    }
-
-    pub fn set_version(&mut self, version: &str) {
-        self.version = version.to_string();
-    }
-
-    pub fn set_release_date(&mut self, release_date: &str) {
-        self.release_date = release_date.to_string();
     }
 
     pub fn to_json(&self) -> String {
@@ -83,6 +77,82 @@ impl SimpleMDD {
             mdd_id: species.id,
             species_data: species,
             synonyms,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct MetaData {
+    version: String,
+    release_date: String,
+    species_count: u32,
+    synonym_count: u32,
+    recently_extinct: u32,
+    living: u32,
+    domestic: u32,
+    living_wild: u32,
+    genus_count: u32,
+    family_count: u32,
+    order_count: u32,
+}
+
+impl MetaData {
+    fn new() -> Self {
+        Self {
+            version: "".to_string(),
+            release_date: "".to_string(),
+            species_count: 0,
+            synonym_count: 0,
+            recently_extinct: 0,
+            living: 0,
+            domestic: 0,
+            living_wild: 0,
+            genus_count: 0,
+            family_count: 0,
+            order_count: 0,
+        }
+    }
+
+    fn from_mdd(
+        data: &[MddData],
+        synonyms: &[SynonymData],
+        version: &str,
+        release_date: &str,
+    ) -> Self {
+        let species_count = data.len() as u32;
+        let synonym_count = synonyms.len() as u32;
+        let recently_extinct = data.iter().filter(|d| d.extinct == 1).count() as u32;
+        let living = data.iter().filter(|d| d.extinct == 0).count() as u32;
+        let domestic = data.iter().filter(|d| d.domestic == 1).count() as u32;
+        let living_wild = data.iter().filter(|d| d.domestic == 0).count() as u32;
+        let genus_count = data
+            .iter()
+            .map(|d| d.genus.clone())
+            .collect::<Vec<String>>()
+            .len() as u32;
+        let family_count = data
+            .iter()
+            .map(|d| d.family.clone())
+            .collect::<Vec<String>>()
+            .len() as u32;
+        let order_count = data
+            .iter()
+            .map(|d| d.taxon_order.clone())
+            .collect::<Vec<String>>()
+            .len() as u32;
+
+        Self {
+            version: version.to_string(),
+            release_date: release_date.to_string(),
+            species_count,
+            synonym_count,
+            recently_extinct,
+            living,
+            domestic,
+            living_wild,
+            genus_count,
+            family_count,
+            order_count,
         }
     }
 }

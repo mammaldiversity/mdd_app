@@ -53,9 +53,8 @@ impl<'a> JsonParser<'a> {
             self.limit_mdd_data(&mut mdd_data, self.limit.unwrap());
             self.limit_synonym_data(&mut synonym_data, self.limit.unwrap());
         }
-        let mut all_data = WebMddData::from_parser(mdd_data, synonym_data);
-        all_data.set_version(self.mdd_version);
-        all_data.set_release_date(self.release_date);
+        let all_data =
+            WebMddData::from_parser(mdd_data, synonym_data, self.mdd_version, self.release_date);
         let json = all_data.to_json();
         if self.plain_text {
             self.write_plain_text(&json);
