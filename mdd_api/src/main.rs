@@ -77,7 +77,7 @@ impl<'a> JsonParser<'a> {
     }
 
     fn write_plain_text(&self, data: &str) {
-        let output = self.output_path.join("data.json");
+        let output = self.get_output_path(false);
         std::fs::write(output, data).expect("Unable to write file");
     }
 
