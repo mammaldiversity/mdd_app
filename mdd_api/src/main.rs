@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use args::{Cli, JsonArgs};
 use clap::Parser;
-use mdd_api::parser::{mdd::MddData, synonyms::SynonymData, WebMddData};
+use mdd_api::parser::{mdd::MddData, synonyms::SynonymData, ReleasedMddData};
 
 mod args;
 
@@ -57,8 +57,12 @@ impl<'a> JsonParser<'a> {
             self.limit_mdd_data(&mut mdd_data, self.limit.unwrap());
             self.limit_synonym_data(&mut synonym_data, self.limit.unwrap());
         }
-        let all_data =
-            WebMddData::from_parser(mdd_data, synonym_data, self.mdd_version, self.release_date);
+        let all_data = ReleasedMddData::from_parser(
+            mdd_data,
+            synonym_data,
+            self.mdd_version,
+            self.release_date,
+        );
         let json = all_data.to_json();
         if self.plain_text {
             self.write_plain_text(&json);
