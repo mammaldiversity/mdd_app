@@ -37,6 +37,8 @@ pub struct JsonArgs {
     pub release_date: String,
     #[arg(long = "limit", help = "Limit number of records")]
     pub limit: Option<usize>,
+    #[arg(long, help = "Add prefix to output files")]
+    pub prefix: Option<String>,
 }
 
 #[derive(Args)]
