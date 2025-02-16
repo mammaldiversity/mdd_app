@@ -6,7 +6,7 @@ part of 'species.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$totalRecordsHash() => r'25a005c8ac6ce03332b88af496a6fe7a8dcadd0b';
+String _$totalRecordsHash() => r'd1c820391158d0b93ba74dbf950c66e826f9c025';
 
 /// See also [totalRecords].
 @ProviderFor(totalRecords)
@@ -19,8 +19,10 @@ final totalRecordsProvider = FutureProvider<int>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef TotalRecordsRef = FutureProviderRef<int>;
-String _$mainTaxonomyDataHash() => r'2cd6ec80cb1408a07b31befe326d392ef54ce92f';
+String _$mainTaxonomyDataHash() => r'223c5de37af3c8ce12da57801acc941e0a3a6e84';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -159,6 +161,8 @@ class MainTaxonomyDataProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin MainTaxonomyDataRef
     on AutoDisposeFutureProviderRef<List<MainTaxonomyData>> {
   /// The parameter `mddIDList` of this provider.
@@ -250,4 +254,4 @@ final synonymDataProvider = AutoDisposeAsyncNotifierProvider<SynonymData,
 
 typedef _$SynonymData = AutoDisposeAsyncNotifier<List<db.SynonymData>>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

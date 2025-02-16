@@ -1,4 +1,4 @@
-use mdd_api::parser::AllMddData;
+use mdd_api::parser::ReleasedMddData;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -19,7 +19,7 @@ pub struct MddHelper {
 
 impl MddHelper {
     pub fn parse(bytes: Vec<u8>) -> Self {
-        let mdd_data = AllMddData::from_gz_bytes(&bytes);
+        let mdd_data = ReleasedMddData::from_gz_bytes(&bytes);
         let (mdd, syn) = mdd_data.get_data();
         let version = mdd_data.get_version().to_string();
         let release_date = mdd_data.get_release_date().to_string();

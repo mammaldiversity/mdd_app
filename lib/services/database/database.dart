@@ -13,8 +13,7 @@ import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
 
-const int _kDatabaseVersion = 1;
-const String mddVersion = '1.13';
+const int _kDatabaseVersion = 2;
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -29,15 +28,21 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
-          await createMddDefault(mddVersion);
+          await createMddDefault();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from == 1) {
+            await m.createAll();
+            await createMddDefault();
+          }
         },
       );
 
-  Future<void> createMddDefault(String version) async {
+  Future<void> createMddDefault() async {
     final mddData = await rootBundle.load('assets/data/data.json.gz');
     final buffer = mddData.buffer.asUint8List();
     final MddHelper data = await MddHelper.parse(bytes: buffer);
-    await _updateMddInfo(version, data.releaseDate);
+    await _updateMddInfo(data.version, data.releaseDate);
     await _updateMdd(data.mddData);
     await _updateSynData(data.synData);
   }
