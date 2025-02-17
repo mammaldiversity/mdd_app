@@ -50,7 +50,9 @@ class AppDatabase extends _$AppDatabase {
       }
       final MddData decodedData = MddData.fromJson(json.decode(dataString));
       await _updateMdd(decodedData.speciesData);
-      await _updateSynData(decodedData.synonyms);
+      if (decodedData.synonyms.isNotEmpty) {
+        await _updateSynData(decodedData.synonyms);
+      }
     }
     final synonyms = List<SynonymData>.from(data.synData.map((data) {
       SynonymData.fromJson(json.decode(data));

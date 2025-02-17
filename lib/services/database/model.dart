@@ -12,8 +12,10 @@ class MddData {
   factory MddData.fromJson(Map<String, dynamic> json) {
     return MddData(
       speciesData: TaxonomyData.fromJson(json['speciesData']),
-      synonyms: List<SynonymData>.from(
-          json['synonyms'].map((data) => SynonymData.fromJson(data))),
+      synonyms: json['synonyms'] != null
+          ? List<SynonymData>.from(
+              json['synonyms'].map((data) => SynonymData.fromJson(data)))
+          : [],
     );
   }
 }
