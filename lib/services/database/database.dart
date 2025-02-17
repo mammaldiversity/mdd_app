@@ -54,9 +54,11 @@ class AppDatabase extends _$AppDatabase {
         await _updateSynData(decodedData.synonyms);
       }
     }
-    final synonyms = List<SynonymData>.from(data.synData.map((data) {
-      SynonymData.fromJson(json.decode(data));
-    }));
+
+    final List<SynonymData> synonyms = data.synData
+        .map((value) => SynonymData.fromJson(json.decode(value)))
+        .cast<SynonymData>()
+        .toList();
     await _updateSynData(synonyms);
   }
 
