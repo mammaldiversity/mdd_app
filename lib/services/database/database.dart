@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mdd/services/database/model.dart';
 import 'package:path/path.dart' as path;
 import 'package:mdd/src/rust/api/parser.dart';
 import 'package:mdd/services/app_services.dart';
@@ -43,8 +44,18 @@ class AppDatabase extends _$AppDatabase {
     final buffer = mddData.buffer.asUint8List();
     final MddHelper data = await MddHelper.parse(bytes: buffer);
     await _updateMddInfo(data.version, data.releaseDate);
-    await _updateMdd(data.mddData);
-    await _updateSynData(data.synData);
+    for (var dataString in data.mddData) {
+      if (kDebugMode) {
+        print('Decoding data: $dataString');
+      }
+      final MddData decodedData = MddData.fromJson(json.decode(dataString));
+      await _updateMdd(decodedData.speciesData);
+      await _updateSynData(decodedData.synonyms);
+    }
+    final synonyms = List<SynonymData>.from(data.synData.map((data) {
+      SynonymData.fromJson(json.decode(data));
+    }));
+    await _updateSynData(synonyms);
   }
 
   Future<void> _updateMddInfo(String version, String releaseDate) async {
@@ -55,19 +66,17 @@ class AppDatabase extends _$AppDatabase {
     await into(mddInfo).insert(data);
   }
 
-  Future<void> _updateMdd(List<String> data) async {
-    for (var value in data) {
-      final Map<String, dynamic> dataJson = json.decode(value);
-      TaxonomyData data = TaxonomyData.fromJson(dataJson);
-      await into(taxonomy).insert(data);
-    }
+  Future<void> _updateMdd(TaxonomyData data) async {
+    // final Map<String, dynamic> dataJson = json.decode(mddData);
+    // TaxonomyData data = TaxonomyData.fromJson(dataJson);
+    await into(taxonomy).insert(data);
   }
 
-  Future<void> _updateSynData(List<String> data) async {
+  Future<void> _updateSynData(List<SynonymData> data) async {
     for (var value in data) {
-      final Map<String, dynamic> dataJson = json.decode(value);
-      SynonymData data = SynonymData.fromJson(dataJson);
-      await into(synonym).insert(data);
+      // final Map<String, dynamic> dataJson = json.decode(value);
+      // SynonymData data = SynonymData.fromJson(dataJson);
+      await into(synonym).insert(value);
     }
   }
 }
@@ -86,11 +95,9 @@ Future<File> get dBPath async {
   final Directory appDocDir = await getAppDir();
   final dbPath = path.join(appDocDir.path, 'mdd.db');
   final dbFile = File(dbPath);
-  // if (dbFile.existsSync()) {
-  //   await dbFile.delete();
-  //   await dbFile.create(recursive: true);
-  // } else {
-  //   await dbFile.create(recursive: true);
-  // }
+  if (dbFile.existsSync()) {
+    // delete the database file
+    await dbFile.delete();
+  }
   return dbFile;
 }

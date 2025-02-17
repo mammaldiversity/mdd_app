@@ -507,23 +507,23 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       $customConstraints: '');
   static const VerificationMeta _extinctMeta =
       const VerificationMeta('extinct');
-  late final GeneratedColumn<String> extinct = GeneratedColumn<String>(
+  late final GeneratedColumn<int> extinct = GeneratedColumn<int>(
       'extinct', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _domesticMeta =
       const VerificationMeta('domestic');
-  late final GeneratedColumn<String> domestic = GeneratedColumn<String>(
+  late final GeneratedColumn<int> domestic = GeneratedColumn<int>(
       'domestic', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _flaggedMeta =
       const VerificationMeta('flagged');
-  late final GeneratedColumn<String> flagged = GeneratedColumn<String>(
+  late final GeneratedColumn<int> flagged = GeneratedColumn<int>(
       'flagged', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _cMWSciNameMeta =
@@ -535,9 +535,9 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       $customConstraints: '');
   static const VerificationMeta _diffSinceCMWMeta =
       const VerificationMeta('diffSinceCMW');
-  late final GeneratedColumn<String> diffSinceCMW = GeneratedColumn<String>(
+  late final GeneratedColumn<int> diffSinceCMW = GeneratedColumn<int>(
       'diffSinceCMW', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _mSW3MatchtypeMeta =
@@ -991,15 +991,15 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       iucnStatus: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}iucnStatus']),
       extinct: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}extinct']),
+          .read(DriftSqlType.int, data['${effectivePrefix}extinct']),
       domestic: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}domestic']),
+          .read(DriftSqlType.int, data['${effectivePrefix}domestic']),
       flagged: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}flagged']),
+          .read(DriftSqlType.int, data['${effectivePrefix}flagged']),
       cMWSciName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}CMW_sciName']),
       diffSinceCMW: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}diffSinceCMW']),
+          .read(DriftSqlType.int, data['${effectivePrefix}diffSinceCMW']),
       mSW3Matchtype: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}MSW3_matchtype']),
       mSW3SciName: attachedDatabase.typeMapping
@@ -1061,11 +1061,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
   final String? continentDistribution;
   final String? biogeographicRealm;
   final String? iucnStatus;
-  final String? extinct;
-  final String? domestic;
-  final String? flagged;
+  final int? extinct;
+  final int? domestic;
+  final int? flagged;
   final String? cMWSciName;
-  final String? diffSinceCMW;
+  final int? diffSinceCMW;
   final String? mSW3Matchtype;
   final String? mSW3SciName;
   final String? diffSinceMSW3;
@@ -1251,19 +1251,19 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       map['iucnStatus'] = Variable<String>(iucnStatus);
     }
     if (!nullToAbsent || extinct != null) {
-      map['extinct'] = Variable<String>(extinct);
+      map['extinct'] = Variable<int>(extinct);
     }
     if (!nullToAbsent || domestic != null) {
-      map['domestic'] = Variable<String>(domestic);
+      map['domestic'] = Variable<int>(domestic);
     }
     if (!nullToAbsent || flagged != null) {
-      map['flagged'] = Variable<String>(flagged);
+      map['flagged'] = Variable<int>(flagged);
     }
     if (!nullToAbsent || cMWSciName != null) {
       map['CMW_sciName'] = Variable<String>(cMWSciName);
     }
     if (!nullToAbsent || diffSinceCMW != null) {
-      map['diffSinceCMW'] = Variable<String>(diffSinceCMW);
+      map['diffSinceCMW'] = Variable<int>(diffSinceCMW);
     }
     if (!nullToAbsent || mSW3Matchtype != null) {
       map['MSW3_matchtype'] = Variable<String>(mSW3Matchtype);
@@ -1489,11 +1489,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       biogeographicRealm:
           serializer.fromJson<String?>(json['biogeographicRealm']),
       iucnStatus: serializer.fromJson<String?>(json['iucnStatus']),
-      extinct: serializer.fromJson<String?>(json['extinct']),
-      domestic: serializer.fromJson<String?>(json['domestic']),
-      flagged: serializer.fromJson<String?>(json['flagged']),
+      extinct: serializer.fromJson<int?>(json['extinct']),
+      domestic: serializer.fromJson<int?>(json['domestic']),
+      flagged: serializer.fromJson<int?>(json['flagged']),
       cMWSciName: serializer.fromJson<String?>(json['CMW_sciName']),
-      diffSinceCMW: serializer.fromJson<String?>(json['diffSinceCMW']),
+      diffSinceCMW: serializer.fromJson<int?>(json['diffSinceCMW']),
       mSW3Matchtype: serializer.fromJson<String?>(json['MSW3_matchtype']),
       mSW3SciName: serializer.fromJson<String?>(json['MSW3_sciName']),
       diffSinceMSW3: serializer.fromJson<String?>(json['diffSinceMSW3']),
@@ -1553,11 +1553,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
           serializer.toJson<String?>(continentDistribution),
       'biogeographicRealm': serializer.toJson<String?>(biogeographicRealm),
       'iucnStatus': serializer.toJson<String?>(iucnStatus),
-      'extinct': serializer.toJson<String?>(extinct),
-      'domestic': serializer.toJson<String?>(domestic),
-      'flagged': serializer.toJson<String?>(flagged),
+      'extinct': serializer.toJson<int?>(extinct),
+      'domestic': serializer.toJson<int?>(domestic),
+      'flagged': serializer.toJson<int?>(flagged),
       'CMW_sciName': serializer.toJson<String?>(cMWSciName),
-      'diffSinceCMW': serializer.toJson<String?>(diffSinceCMW),
+      'diffSinceCMW': serializer.toJson<int?>(diffSinceCMW),
       'MSW3_matchtype': serializer.toJson<String?>(mSW3Matchtype),
       'MSW3_sciName': serializer.toJson<String?>(mSW3SciName),
       'diffSinceMSW3': serializer.toJson<String?>(diffSinceMSW3),
@@ -1607,11 +1607,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
           Value<String?> continentDistribution = const Value.absent(),
           Value<String?> biogeographicRealm = const Value.absent(),
           Value<String?> iucnStatus = const Value.absent(),
-          Value<String?> extinct = const Value.absent(),
-          Value<String?> domestic = const Value.absent(),
-          Value<String?> flagged = const Value.absent(),
+          Value<int?> extinct = const Value.absent(),
+          Value<int?> domestic = const Value.absent(),
+          Value<int?> flagged = const Value.absent(),
           Value<String?> cMWSciName = const Value.absent(),
-          Value<String?> diffSinceCMW = const Value.absent(),
+          Value<int?> diffSinceCMW = const Value.absent(),
           Value<String?> mSW3Matchtype = const Value.absent(),
           Value<String?> mSW3SciName = const Value.absent(),
           Value<String?> diffSinceMSW3 = const Value.absent()}) =>
@@ -2033,11 +2033,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
   final Value<String?> continentDistribution;
   final Value<String?> biogeographicRealm;
   final Value<String?> iucnStatus;
-  final Value<String?> extinct;
-  final Value<String?> domestic;
-  final Value<String?> flagged;
+  final Value<int?> extinct;
+  final Value<int?> domestic;
+  final Value<int?> flagged;
   final Value<String?> cMWSciName;
-  final Value<String?> diffSinceCMW;
+  final Value<int?> diffSinceCMW;
   final Value<String?> mSW3Matchtype;
   final Value<String?> mSW3SciName;
   final Value<String?> diffSinceMSW3;
@@ -2188,11 +2188,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
     Expression<String>? continentDistribution,
     Expression<String>? biogeographicRealm,
     Expression<String>? iucnStatus,
-    Expression<String>? extinct,
-    Expression<String>? domestic,
-    Expression<String>? flagged,
+    Expression<int>? extinct,
+    Expression<int>? domestic,
+    Expression<int>? flagged,
     Expression<String>? cMWSciName,
-    Expression<String>? diffSinceCMW,
+    Expression<int>? diffSinceCMW,
     Expression<String>? mSW3Matchtype,
     Expression<String>? mSW3SciName,
     Expression<String>? diffSinceMSW3,
@@ -2307,11 +2307,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       Value<String?>? continentDistribution,
       Value<String?>? biogeographicRealm,
       Value<String?>? iucnStatus,
-      Value<String?>? extinct,
-      Value<String?>? domestic,
-      Value<String?>? flagged,
+      Value<int?>? extinct,
+      Value<int?>? domestic,
+      Value<int?>? flagged,
       Value<String?>? cMWSciName,
-      Value<String?>? diffSinceCMW,
+      Value<int?>? diffSinceCMW,
       Value<String?>? mSW3Matchtype,
       Value<String?>? mSW3SciName,
       Value<String?>? diffSinceMSW3}) {
@@ -2517,19 +2517,19 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['iucnStatus'] = Variable<String>(iucnStatus.value);
     }
     if (extinct.present) {
-      map['extinct'] = Variable<String>(extinct.value);
+      map['extinct'] = Variable<int>(extinct.value);
     }
     if (domestic.present) {
-      map['domestic'] = Variable<String>(domestic.value);
+      map['domestic'] = Variable<int>(domestic.value);
     }
     if (flagged.present) {
-      map['flagged'] = Variable<String>(flagged.value);
+      map['flagged'] = Variable<int>(flagged.value);
     }
     if (cMWSciName.present) {
       map['CMW_sciName'] = Variable<String>(cMWSciName.value);
     }
     if (diffSinceCMW.present) {
-      map['diffSinceCMW'] = Variable<String>(diffSinceCMW.value);
+      map['diffSinceCMW'] = Variable<int>(diffSinceCMW.value);
     }
     if (mSW3Matchtype.present) {
       map['MSW3_matchtype'] = Variable<String>(mSW3Matchtype.value);
@@ -4871,11 +4871,11 @@ typedef $TaxonomyCreateCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> continentDistribution,
   Value<String?> biogeographicRealm,
   Value<String?> iucnStatus,
-  Value<String?> extinct,
-  Value<String?> domestic,
-  Value<String?> flagged,
+  Value<int?> extinct,
+  Value<int?> domestic,
+  Value<int?> flagged,
   Value<String?> cMWSciName,
-  Value<String?> diffSinceCMW,
+  Value<int?> diffSinceCMW,
   Value<String?> mSW3Matchtype,
   Value<String?> mSW3SciName,
   Value<String?> diffSinceMSW3,
@@ -4923,11 +4923,11 @@ typedef $TaxonomyUpdateCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> continentDistribution,
   Value<String?> biogeographicRealm,
   Value<String?> iucnStatus,
-  Value<String?> extinct,
-  Value<String?> domestic,
-  Value<String?> flagged,
+  Value<int?> extinct,
+  Value<int?> domestic,
+  Value<int?> flagged,
   Value<String?> cMWSciName,
-  Value<String?> diffSinceCMW,
+  Value<int?> diffSinceCMW,
   Value<String?> mSW3Matchtype,
   Value<String?> mSW3SciName,
   Value<String?> diffSinceMSW3,
@@ -5086,19 +5086,19 @@ class $TaxonomyFilterComposer extends Composer<_$AppDatabase, Taxonomy> {
   ColumnFilters<String> get iucnStatus => $composableBuilder(
       column: $table.iucnStatus, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get extinct => $composableBuilder(
+  ColumnFilters<int> get extinct => $composableBuilder(
       column: $table.extinct, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get domestic => $composableBuilder(
+  ColumnFilters<int> get domestic => $composableBuilder(
       column: $table.domestic, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get flagged => $composableBuilder(
+  ColumnFilters<int> get flagged => $composableBuilder(
       column: $table.flagged, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get cMWSciName => $composableBuilder(
       column: $table.cMWSciName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get diffSinceCMW => $composableBuilder(
+  ColumnFilters<int> get diffSinceCMW => $composableBuilder(
       column: $table.diffSinceCMW, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mSW3Matchtype => $composableBuilder(
@@ -5267,19 +5267,19 @@ class $TaxonomyOrderingComposer extends Composer<_$AppDatabase, Taxonomy> {
   ColumnOrderings<String> get iucnStatus => $composableBuilder(
       column: $table.iucnStatus, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get extinct => $composableBuilder(
+  ColumnOrderings<int> get extinct => $composableBuilder(
       column: $table.extinct, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get domestic => $composableBuilder(
+  ColumnOrderings<int> get domestic => $composableBuilder(
       column: $table.domestic, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get flagged => $composableBuilder(
+  ColumnOrderings<int> get flagged => $composableBuilder(
       column: $table.flagged, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get cMWSciName => $composableBuilder(
       column: $table.cMWSciName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get diffSinceCMW => $composableBuilder(
+  ColumnOrderings<int> get diffSinceCMW => $composableBuilder(
       column: $table.diffSinceCMW,
       builder: (column) => ColumnOrderings(column));
 
@@ -5429,19 +5429,19 @@ class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
   GeneratedColumn<String> get iucnStatus => $composableBuilder(
       column: $table.iucnStatus, builder: (column) => column);
 
-  GeneratedColumn<String> get extinct =>
+  GeneratedColumn<int> get extinct =>
       $composableBuilder(column: $table.extinct, builder: (column) => column);
 
-  GeneratedColumn<String> get domestic =>
+  GeneratedColumn<int> get domestic =>
       $composableBuilder(column: $table.domestic, builder: (column) => column);
 
-  GeneratedColumn<String> get flagged =>
+  GeneratedColumn<int> get flagged =>
       $composableBuilder(column: $table.flagged, builder: (column) => column);
 
   GeneratedColumn<String> get cMWSciName => $composableBuilder(
       column: $table.cMWSciName, builder: (column) => column);
 
-  GeneratedColumn<String> get diffSinceCMW => $composableBuilder(
+  GeneratedColumn<int> get diffSinceCMW => $composableBuilder(
       column: $table.diffSinceCMW, builder: (column) => column);
 
   GeneratedColumn<String> get mSW3Matchtype => $composableBuilder(
@@ -5519,11 +5519,11 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> continentDistribution = const Value.absent(),
             Value<String?> biogeographicRealm = const Value.absent(),
             Value<String?> iucnStatus = const Value.absent(),
-            Value<String?> extinct = const Value.absent(),
-            Value<String?> domestic = const Value.absent(),
-            Value<String?> flagged = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
             Value<String?> cMWSciName = const Value.absent(),
-            Value<String?> diffSinceCMW = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
             Value<String?> mSW3Matchtype = const Value.absent(),
             Value<String?> mSW3SciName = const Value.absent(),
             Value<String?> diffSinceMSW3 = const Value.absent(),
@@ -5623,11 +5623,11 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> continentDistribution = const Value.absent(),
             Value<String?> biogeographicRealm = const Value.absent(),
             Value<String?> iucnStatus = const Value.absent(),
-            Value<String?> extinct = const Value.absent(),
-            Value<String?> domestic = const Value.absent(),
-            Value<String?> flagged = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
             Value<String?> cMWSciName = const Value.absent(),
-            Value<String?> diffSinceCMW = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
             Value<String?> mSW3Matchtype = const Value.absent(),
             Value<String?> mSW3SciName = const Value.absent(),
             Value<String?> diffSinceMSW3 = const Value.absent(),
