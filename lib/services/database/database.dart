@@ -99,9 +99,9 @@ Future<File> get dBPath async {
   final Directory appDocDir = await getAppDir();
   final dbPath = path.join(appDocDir.path, 'mdd.db');
   final dbFile = File(dbPath);
-  if (dbFile.existsSync()) {
-    // delete the database file
-    await dbFile.delete();
-  }
+  // if (dbFile.existsSync()) {
+  //   // delete the database file
+  //   await dbFile.delete();
+  // }
   return dbFile;
 }
