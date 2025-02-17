@@ -10,7 +10,8 @@ You can download the beta release from the [releases page](https://github.com/ma
 
 ### iOS, iPadOS, and macOS
 
-You will need to install the Apple TestFlight app and follow the instructions in this [link](https://testflight.apple.com/join/FXGXyw5e).
+Coming coon...
+<!-- You will need to install the Apple TestFlight app and follow the instructions in this [link](https://testflight.apple.com/join/FXGXyw5e). -->
 
 ## Development Status
 
