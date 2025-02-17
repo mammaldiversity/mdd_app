@@ -50,3 +50,5 @@ app.*.map.json
 data.csv
 
 data.json
+MDD*.csv
+Species_Syn*.csv
