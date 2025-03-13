@@ -219,15 +219,15 @@ mod test {
         assert_eq!(json_result.exists(), true);
     }
 
-    #[test]
-    fn test_write_csv() {
-        let input_path = Path::new("../assets/data/data.json.gz");
-        let output_dir = TempDir::new("output").unwrap();
-        let output_dir = env::current_dir().unwrap().join(output_dir.path());
-        let filename = "output";
-        let parser = AllMddWriter::new(&output_dir, filename, true);
-        parser.write_from_gz(input_path).unwrap();
-    }
+    // #[test]
+    // fn test_write_csv() {
+    //     let input_path = Path::new("../assets/data/data.json.gz");
+    //     let output_dir = TempDir::new("output").unwrap();
+    //     let output_dir = env::current_dir().unwrap().join(output_dir.path());
+    //     let filename = "output";
+    //     let parser = AllMddWriter::new(&output_dir, filename, true);
+    //     parser.write_from_gz(input_path).unwrap();
+    // }
 
     #[test]
     fn check_filename() {

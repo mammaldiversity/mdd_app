@@ -507,23 +507,23 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       $customConstraints: '');
   static const VerificationMeta _extinctMeta =
       const VerificationMeta('extinct');
-  late final GeneratedColumn<String> extinct = GeneratedColumn<String>(
+  late final GeneratedColumn<int> extinct = GeneratedColumn<int>(
       'extinct', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _domesticMeta =
       const VerificationMeta('domestic');
-  late final GeneratedColumn<String> domestic = GeneratedColumn<String>(
+  late final GeneratedColumn<int> domestic = GeneratedColumn<int>(
       'domestic', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _flaggedMeta =
       const VerificationMeta('flagged');
-  late final GeneratedColumn<String> flagged = GeneratedColumn<String>(
+  late final GeneratedColumn<int> flagged = GeneratedColumn<int>(
       'flagged', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _cMWSciNameMeta =
@@ -535,9 +535,9 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       $customConstraints: '');
   static const VerificationMeta _diffSinceCMWMeta =
       const VerificationMeta('diffSinceCMW');
-  late final GeneratedColumn<String> diffSinceCMW = GeneratedColumn<String>(
+  late final GeneratedColumn<int> diffSinceCMW = GeneratedColumn<int>(
       'diffSinceCMW', aliasedName, true,
-      type: DriftSqlType.string,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: '');
   static const VerificationMeta _mSW3MatchtypeMeta =
@@ -991,15 +991,15 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
       iucnStatus: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}iucnStatus']),
       extinct: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}extinct']),
+          .read(DriftSqlType.int, data['${effectivePrefix}extinct']),
       domestic: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}domestic']),
+          .read(DriftSqlType.int, data['${effectivePrefix}domestic']),
       flagged: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}flagged']),
+          .read(DriftSqlType.int, data['${effectivePrefix}flagged']),
       cMWSciName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}CMW_sciName']),
       diffSinceCMW: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}diffSinceCMW']),
+          .read(DriftSqlType.int, data['${effectivePrefix}diffSinceCMW']),
       mSW3Matchtype: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}MSW3_matchtype']),
       mSW3SciName: attachedDatabase.typeMapping
@@ -1061,11 +1061,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
   final String? continentDistribution;
   final String? biogeographicRealm;
   final String? iucnStatus;
-  final String? extinct;
-  final String? domestic;
-  final String? flagged;
+  final int? extinct;
+  final int? domestic;
+  final int? flagged;
   final String? cMWSciName;
-  final String? diffSinceCMW;
+  final int? diffSinceCMW;
   final String? mSW3Matchtype;
   final String? mSW3SciName;
   final String? diffSinceMSW3;
@@ -1251,19 +1251,19 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       map['iucnStatus'] = Variable<String>(iucnStatus);
     }
     if (!nullToAbsent || extinct != null) {
-      map['extinct'] = Variable<String>(extinct);
+      map['extinct'] = Variable<int>(extinct);
     }
     if (!nullToAbsent || domestic != null) {
-      map['domestic'] = Variable<String>(domestic);
+      map['domestic'] = Variable<int>(domestic);
     }
     if (!nullToAbsent || flagged != null) {
-      map['flagged'] = Variable<String>(flagged);
+      map['flagged'] = Variable<int>(flagged);
     }
     if (!nullToAbsent || cMWSciName != null) {
       map['CMW_sciName'] = Variable<String>(cMWSciName);
     }
     if (!nullToAbsent || diffSinceCMW != null) {
-      map['diffSinceCMW'] = Variable<String>(diffSinceCMW);
+      map['diffSinceCMW'] = Variable<int>(diffSinceCMW);
     }
     if (!nullToAbsent || mSW3Matchtype != null) {
       map['MSW3_matchtype'] = Variable<String>(mSW3Matchtype);
@@ -1489,11 +1489,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       biogeographicRealm:
           serializer.fromJson<String?>(json['biogeographicRealm']),
       iucnStatus: serializer.fromJson<String?>(json['iucnStatus']),
-      extinct: serializer.fromJson<String?>(json['extinct']),
-      domestic: serializer.fromJson<String?>(json['domestic']),
-      flagged: serializer.fromJson<String?>(json['flagged']),
+      extinct: serializer.fromJson<int?>(json['extinct']),
+      domestic: serializer.fromJson<int?>(json['domestic']),
+      flagged: serializer.fromJson<int?>(json['flagged']),
       cMWSciName: serializer.fromJson<String?>(json['CMW_sciName']),
-      diffSinceCMW: serializer.fromJson<String?>(json['diffSinceCMW']),
+      diffSinceCMW: serializer.fromJson<int?>(json['diffSinceCMW']),
       mSW3Matchtype: serializer.fromJson<String?>(json['MSW3_matchtype']),
       mSW3SciName: serializer.fromJson<String?>(json['MSW3_sciName']),
       diffSinceMSW3: serializer.fromJson<String?>(json['diffSinceMSW3']),
@@ -1553,11 +1553,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
           serializer.toJson<String?>(continentDistribution),
       'biogeographicRealm': serializer.toJson<String?>(biogeographicRealm),
       'iucnStatus': serializer.toJson<String?>(iucnStatus),
-      'extinct': serializer.toJson<String?>(extinct),
-      'domestic': serializer.toJson<String?>(domestic),
-      'flagged': serializer.toJson<String?>(flagged),
+      'extinct': serializer.toJson<int?>(extinct),
+      'domestic': serializer.toJson<int?>(domestic),
+      'flagged': serializer.toJson<int?>(flagged),
       'CMW_sciName': serializer.toJson<String?>(cMWSciName),
-      'diffSinceCMW': serializer.toJson<String?>(diffSinceCMW),
+      'diffSinceCMW': serializer.toJson<int?>(diffSinceCMW),
       'MSW3_matchtype': serializer.toJson<String?>(mSW3Matchtype),
       'MSW3_sciName': serializer.toJson<String?>(mSW3SciName),
       'diffSinceMSW3': serializer.toJson<String?>(diffSinceMSW3),
@@ -1607,11 +1607,11 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
           Value<String?> continentDistribution = const Value.absent(),
           Value<String?> biogeographicRealm = const Value.absent(),
           Value<String?> iucnStatus = const Value.absent(),
-          Value<String?> extinct = const Value.absent(),
-          Value<String?> domestic = const Value.absent(),
-          Value<String?> flagged = const Value.absent(),
+          Value<int?> extinct = const Value.absent(),
+          Value<int?> domestic = const Value.absent(),
+          Value<int?> flagged = const Value.absent(),
           Value<String?> cMWSciName = const Value.absent(),
-          Value<String?> diffSinceCMW = const Value.absent(),
+          Value<int?> diffSinceCMW = const Value.absent(),
           Value<String?> mSW3Matchtype = const Value.absent(),
           Value<String?> mSW3SciName = const Value.absent(),
           Value<String?> diffSinceMSW3 = const Value.absent()}) =>
@@ -2033,11 +2033,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
   final Value<String?> continentDistribution;
   final Value<String?> biogeographicRealm;
   final Value<String?> iucnStatus;
-  final Value<String?> extinct;
-  final Value<String?> domestic;
-  final Value<String?> flagged;
+  final Value<int?> extinct;
+  final Value<int?> domestic;
+  final Value<int?> flagged;
   final Value<String?> cMWSciName;
-  final Value<String?> diffSinceCMW;
+  final Value<int?> diffSinceCMW;
   final Value<String?> mSW3Matchtype;
   final Value<String?> mSW3SciName;
   final Value<String?> diffSinceMSW3;
@@ -2188,11 +2188,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
     Expression<String>? continentDistribution,
     Expression<String>? biogeographicRealm,
     Expression<String>? iucnStatus,
-    Expression<String>? extinct,
-    Expression<String>? domestic,
-    Expression<String>? flagged,
+    Expression<int>? extinct,
+    Expression<int>? domestic,
+    Expression<int>? flagged,
     Expression<String>? cMWSciName,
-    Expression<String>? diffSinceCMW,
+    Expression<int>? diffSinceCMW,
     Expression<String>? mSW3Matchtype,
     Expression<String>? mSW3SciName,
     Expression<String>? diffSinceMSW3,
@@ -2307,11 +2307,11 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       Value<String?>? continentDistribution,
       Value<String?>? biogeographicRealm,
       Value<String?>? iucnStatus,
-      Value<String?>? extinct,
-      Value<String?>? domestic,
-      Value<String?>? flagged,
+      Value<int?>? extinct,
+      Value<int?>? domestic,
+      Value<int?>? flagged,
       Value<String?>? cMWSciName,
-      Value<String?>? diffSinceCMW,
+      Value<int?>? diffSinceCMW,
       Value<String?>? mSW3Matchtype,
       Value<String?>? mSW3SciName,
       Value<String?>? diffSinceMSW3}) {
@@ -2517,19 +2517,19 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['iucnStatus'] = Variable<String>(iucnStatus.value);
     }
     if (extinct.present) {
-      map['extinct'] = Variable<String>(extinct.value);
+      map['extinct'] = Variable<int>(extinct.value);
     }
     if (domestic.present) {
-      map['domestic'] = Variable<String>(domestic.value);
+      map['domestic'] = Variable<int>(domestic.value);
     }
     if (flagged.present) {
-      map['flagged'] = Variable<String>(flagged.value);
+      map['flagged'] = Variable<int>(flagged.value);
     }
     if (cMWSciName.present) {
       map['CMW_sciName'] = Variable<String>(cMWSciName.value);
     }
     if (diffSinceCMW.present) {
-      map['diffSinceCMW'] = Variable<String>(diffSinceCMW.value);
+      map['diffSinceCMW'] = Variable<int>(diffSinceCMW.value);
     }
     if (mSW3Matchtype.present) {
       map['MSW3_matchtype'] = Variable<String>(mSW3Matchtype.value);
@@ -4722,31 +4722,49 @@ typedef $MddInfoUpdateCompanionBuilder = MddInfoCompanion Function({
   Value<int> rowid,
 });
 
-class $MddInfoFilterComposer extends FilterComposer<_$AppDatabase, MddInfo> {
-  $MddInfoFilterComposer(super.$state);
-  ColumnFilters<String> get version => $state.composableBuilder(
-      column: $state.table.version,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $MddInfoFilterComposer extends Composer<_$AppDatabase, MddInfo> {
+  $MddInfoFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get releaseDate => $state.composableBuilder(
-      column: $state.table.releaseDate,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
 }
 
-class $MddInfoOrderingComposer
-    extends OrderingComposer<_$AppDatabase, MddInfo> {
-  $MddInfoOrderingComposer(super.$state);
-  ColumnOrderings<String> get version => $state.composableBuilder(
-      column: $state.table.version,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+class $MddInfoOrderingComposer extends Composer<_$AppDatabase, MddInfo> {
+  $MddInfoOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get releaseDate => $state.composableBuilder(
-      column: $state.table.releaseDate,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+}
+
+class $MddInfoAnnotationComposer extends Composer<_$AppDatabase, MddInfo> {
+  $MddInfoAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get releaseDate => $composableBuilder(
+      column: $table.releaseDate, builder: (column) => column);
 }
 
 class $MddInfoTableManager extends RootTableManager<
@@ -4755,6 +4773,7 @@ class $MddInfoTableManager extends RootTableManager<
     MddInfoData,
     $MddInfoFilterComposer,
     $MddInfoOrderingComposer,
+    $MddInfoAnnotationComposer,
     $MddInfoCreateCompanionBuilder,
     $MddInfoUpdateCompanionBuilder,
     (MddInfoData, BaseReferences<_$AppDatabase, MddInfo, MddInfoData>),
@@ -4764,8 +4783,12 @@ class $MddInfoTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $MddInfoFilterComposer(ComposerState(db, table)),
-          orderingComposer: $MddInfoOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $MddInfoFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $MddInfoOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $MddInfoAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String?> version = const Value.absent(),
             Value<String?> releaseDate = const Value.absent(),
@@ -4799,6 +4822,7 @@ typedef $MddInfoProcessedTableManager = ProcessedTableManager<
     MddInfoData,
     $MddInfoFilterComposer,
     $MddInfoOrderingComposer,
+    $MddInfoAnnotationComposer,
     $MddInfoCreateCompanionBuilder,
     $MddInfoUpdateCompanionBuilder,
     (MddInfoData, BaseReferences<_$AppDatabase, MddInfo, MddInfoData>),
@@ -4847,11 +4871,11 @@ typedef $TaxonomyCreateCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> continentDistribution,
   Value<String?> biogeographicRealm,
   Value<String?> iucnStatus,
-  Value<String?> extinct,
-  Value<String?> domestic,
-  Value<String?> flagged,
+  Value<int?> extinct,
+  Value<int?> domestic,
+  Value<int?> flagged,
   Value<String?> cMWSciName,
-  Value<String?> diffSinceCMW,
+  Value<int?> diffSinceCMW,
   Value<String?> mSW3Matchtype,
   Value<String?> mSW3SciName,
   Value<String?> diffSinceMSW3,
@@ -4899,527 +4923,535 @@ typedef $TaxonomyUpdateCompanionBuilder = TaxonomyCompanion Function({
   Value<String?> continentDistribution,
   Value<String?> biogeographicRealm,
   Value<String?> iucnStatus,
-  Value<String?> extinct,
-  Value<String?> domestic,
-  Value<String?> flagged,
+  Value<int?> extinct,
+  Value<int?> domestic,
+  Value<int?> flagged,
   Value<String?> cMWSciName,
-  Value<String?> diffSinceCMW,
+  Value<int?> diffSinceCMW,
   Value<String?> mSW3Matchtype,
   Value<String?> mSW3SciName,
   Value<String?> diffSinceMSW3,
 });
 
-class $TaxonomyFilterComposer extends FilterComposer<_$AppDatabase, Taxonomy> {
-  $TaxonomyFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $TaxonomyFilterComposer extends Composer<_$AppDatabase, Taxonomy> {
+  $TaxonomyFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get phylosort => $state.composableBuilder(
-      column: $state.table.phylosort,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get phylosort => $composableBuilder(
+      column: $table.phylosort, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get subclass => $state.composableBuilder(
-      column: $state.table.subclass,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get subclass => $composableBuilder(
+      column: $table.subclass, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get infraclass => $state.composableBuilder(
-      column: $state.table.infraclass,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get infraclass => $composableBuilder(
+      column: $table.infraclass, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get magnorder => $state.composableBuilder(
-      column: $state.table.magnorder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get magnorder => $composableBuilder(
+      column: $table.magnorder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get superorder => $state.composableBuilder(
-      column: $state.table.superorder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get superorder => $composableBuilder(
+      column: $table.superorder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get taxonOrder => $state.composableBuilder(
-      column: $state.table.taxonOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get suborder => $state.composableBuilder(
-      column: $state.table.suborder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get suborder => $composableBuilder(
+      column: $table.suborder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get infraorder => $state.composableBuilder(
-      column: $state.table.infraorder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get infraorder => $composableBuilder(
+      column: $table.infraorder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get parvorder => $state.composableBuilder(
-      column: $state.table.parvorder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get parvorder => $composableBuilder(
+      column: $table.parvorder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get superfamily => $state.composableBuilder(
-      column: $state.table.superfamily,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get superfamily => $composableBuilder(
+      column: $table.superfamily, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get family => $state.composableBuilder(
-      column: $state.table.family,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get family => $composableBuilder(
+      column: $table.family, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get subfamily => $state.composableBuilder(
-      column: $state.table.subfamily,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get subfamily => $composableBuilder(
+      column: $table.subfamily, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get tribe => $state.composableBuilder(
-      column: $state.table.tribe,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get tribe => $composableBuilder(
+      column: $table.tribe, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get genus => $state.composableBuilder(
-      column: $state.table.genus,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get genus => $composableBuilder(
+      column: $table.genus, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get subgenus => $state.composableBuilder(
-      column: $state.table.subgenus,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get subgenus => $composableBuilder(
+      column: $table.subgenus, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get specificEpithet => $state.composableBuilder(
-      column: $state.table.specificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get sciName => $state.composableBuilder(
-      column: $state.table.sciName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get sciName => $composableBuilder(
+      column: $table.sciName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authoritySpeciesAuthor => $state.composableBuilder(
-      column: $state.table.authoritySpeciesAuthor,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authoritySpeciesAuthor => $composableBuilder(
+      column: $table.authoritySpeciesAuthor,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get authoritySpeciesYear => $state.composableBuilder(
-      column: $state.table.authoritySpeciesYear,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get authoritySpeciesYear => $composableBuilder(
+      column: $table.authoritySpeciesYear,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get authorityParentheses => $state.composableBuilder(
-      column: $state.table.authorityParentheses,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get mainCommonName => $state.composableBuilder(
-      column: $state.table.mainCommonName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get mainCommonName => $composableBuilder(
+      column: $table.mainCommonName,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get otherCommonNames => $state.composableBuilder(
-      column: $state.table.otherCommonNames,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get otherCommonNames => $composableBuilder(
+      column: $table.otherCommonNames,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get originalNameCombination => $state.composableBuilder(
-      column: $state.table.originalNameCombination,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get originalNameCombination => $composableBuilder(
+      column: $table.originalNameCombination,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authoritySpeciesCitation =>
-      $state.composableBuilder(
-          column: $state.table.authoritySpeciesCitation,
-          builder: (column, joinBuilders) =>
-              ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authoritySpeciesCitation => $composableBuilder(
+      column: $table.authoritySpeciesCitation,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authoritySpeciesLink => $state.composableBuilder(
-      column: $state.table.authoritySpeciesLink,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authoritySpeciesLink => $composableBuilder(
+      column: $table.authoritySpeciesLink,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeVoucher => $state.composableBuilder(
-      column: $state.table.typeVoucher,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeVoucher => $composableBuilder(
+      column: $table.typeVoucher, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeKind => $state.composableBuilder(
-      column: $state.table.typeKind,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeKind => $composableBuilder(
+      column: $table.typeKind, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeVoucherURIs => $state.composableBuilder(
-      column: $state.table.typeVoucherURIs,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeVoucherURIs => $composableBuilder(
+      column: $table.typeVoucherURIs,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeLocality => $state.composableBuilder(
-      column: $state.table.typeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeLocality => $composableBuilder(
+      column: $table.typeLocality, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeLocalityLatitude => $state.composableBuilder(
-      column: $state.table.typeLocalityLatitude,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeLocalityLatitude => $composableBuilder(
+      column: $table.typeLocalityLatitude,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeLocalityLongitude => $state.composableBuilder(
-      column: $state.table.typeLocalityLongitude,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeLocalityLongitude => $composableBuilder(
+      column: $table.typeLocalityLongitude,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get nominalNames => $state.composableBuilder(
-      column: $state.table.nominalNames,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get nominalNames => $composableBuilder(
+      column: $table.nominalNames, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get taxonomyNotes => $state.composableBuilder(
-      column: $state.table.taxonomyNotes,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get taxonomyNotes => $composableBuilder(
+      column: $table.taxonomyNotes, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get taxonomyNotesCitation => $state.composableBuilder(
-      column: $state.table.taxonomyNotesCitation,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get taxonomyNotesCitation => $composableBuilder(
+      column: $table.taxonomyNotesCitation,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get distributionNotes => $state.composableBuilder(
-      column: $state.table.distributionNotes,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get distributionNotes => $composableBuilder(
+      column: $table.distributionNotes,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get distributionNotesCitation =>
-      $state.composableBuilder(
-          column: $state.table.distributionNotesCitation,
-          builder: (column, joinBuilders) =>
-              ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get distributionNotesCitation => $composableBuilder(
+      column: $table.distributionNotesCitation,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get subregionDistribution => $state.composableBuilder(
-      column: $state.table.subregionDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get subregionDistribution => $composableBuilder(
+      column: $table.subregionDistribution,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get countryDistribution => $state.composableBuilder(
-      column: $state.table.countryDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get countryDistribution => $composableBuilder(
+      column: $table.countryDistribution,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get continentDistribution => $state.composableBuilder(
-      column: $state.table.continentDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get continentDistribution => $composableBuilder(
+      column: $table.continentDistribution,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get biogeographicRealm => $state.composableBuilder(
-      column: $state.table.biogeographicRealm,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get biogeographicRealm => $composableBuilder(
+      column: $table.biogeographicRealm,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get iucnStatus => $state.composableBuilder(
-      column: $state.table.iucnStatus,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get iucnStatus => $composableBuilder(
+      column: $table.iucnStatus, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get extinct => $state.composableBuilder(
-      column: $state.table.extinct,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get extinct => $composableBuilder(
+      column: $table.extinct, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get domestic => $state.composableBuilder(
-      column: $state.table.domestic,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get domestic => $composableBuilder(
+      column: $table.domestic, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get flagged => $state.composableBuilder(
-      column: $state.table.flagged,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get flagged => $composableBuilder(
+      column: $table.flagged, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get cMWSciName => $state.composableBuilder(
-      column: $state.table.cMWSciName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get cMWSciName => $composableBuilder(
+      column: $table.cMWSciName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get diffSinceCMW => $state.composableBuilder(
-      column: $state.table.diffSinceCMW,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get diffSinceCMW => $composableBuilder(
+      column: $table.diffSinceCMW, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get mSW3Matchtype => $state.composableBuilder(
-      column: $state.table.mSW3Matchtype,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get mSW3Matchtype => $composableBuilder(
+      column: $table.mSW3Matchtype, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get mSW3SciName => $state.composableBuilder(
-      column: $state.table.mSW3SciName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get mSW3SciName => $composableBuilder(
+      column: $table.mSW3SciName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get diffSinceMSW3 => $state.composableBuilder(
-      column: $state.table.diffSinceMSW3,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get diffSinceMSW3 => $composableBuilder(
+      column: $table.diffSinceMSW3, builder: (column) => ColumnFilters(column));
 }
 
-class $TaxonomyOrderingComposer
-    extends OrderingComposer<_$AppDatabase, Taxonomy> {
-  $TaxonomyOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+class $TaxonomyOrderingComposer extends Composer<_$AppDatabase, Taxonomy> {
+  $TaxonomyOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get phylosort => $state.composableBuilder(
-      column: $state.table.phylosort,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get phylosort => $composableBuilder(
+      column: $table.phylosort, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get subclass => $state.composableBuilder(
-      column: $state.table.subclass,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get subclass => $composableBuilder(
+      column: $table.subclass, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get infraclass => $state.composableBuilder(
-      column: $state.table.infraclass,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get infraclass => $composableBuilder(
+      column: $table.infraclass, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get magnorder => $state.composableBuilder(
-      column: $state.table.magnorder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get magnorder => $composableBuilder(
+      column: $table.magnorder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get superorder => $state.composableBuilder(
-      column: $state.table.superorder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get superorder => $composableBuilder(
+      column: $table.superorder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get taxonOrder => $state.composableBuilder(
-      column: $state.table.taxonOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get suborder => $state.composableBuilder(
-      column: $state.table.suborder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get suborder => $composableBuilder(
+      column: $table.suborder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get infraorder => $state.composableBuilder(
-      column: $state.table.infraorder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get infraorder => $composableBuilder(
+      column: $table.infraorder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get parvorder => $state.composableBuilder(
-      column: $state.table.parvorder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get parvorder => $composableBuilder(
+      column: $table.parvorder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get superfamily => $state.composableBuilder(
-      column: $state.table.superfamily,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get superfamily => $composableBuilder(
+      column: $table.superfamily, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get family => $state.composableBuilder(
-      column: $state.table.family,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get family => $composableBuilder(
+      column: $table.family, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get subfamily => $state.composableBuilder(
-      column: $state.table.subfamily,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get subfamily => $composableBuilder(
+      column: $table.subfamily, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get tribe => $state.composableBuilder(
-      column: $state.table.tribe,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get tribe => $composableBuilder(
+      column: $table.tribe, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get genus => $state.composableBuilder(
-      column: $state.table.genus,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get genus => $composableBuilder(
+      column: $table.genus, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get subgenus => $state.composableBuilder(
-      column: $state.table.subgenus,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get subgenus => $composableBuilder(
+      column: $table.subgenus, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get specificEpithet => $state.composableBuilder(
-      column: $state.table.specificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sciName => $state.composableBuilder(
-      column: $state.table.sciName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get sciName => $composableBuilder(
+      column: $table.sciName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authoritySpeciesAuthor =>
-      $state.composableBuilder(
-          column: $state.table.authoritySpeciesAuthor,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authoritySpeciesAuthor => $composableBuilder(
+      column: $table.authoritySpeciesAuthor,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get authoritySpeciesYear => $state.composableBuilder(
-      column: $state.table.authoritySpeciesYear,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get authoritySpeciesYear => $composableBuilder(
+      column: $table.authoritySpeciesYear,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get authorityParentheses => $state.composableBuilder(
-      column: $state.table.authorityParentheses,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get mainCommonName => $state.composableBuilder(
-      column: $state.table.mainCommonName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get mainCommonName => $composableBuilder(
+      column: $table.mainCommonName,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get otherCommonNames => $state.composableBuilder(
-      column: $state.table.otherCommonNames,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get otherCommonNames => $composableBuilder(
+      column: $table.otherCommonNames,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get originalNameCombination =>
-      $state.composableBuilder(
-          column: $state.table.originalNameCombination,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get originalNameCombination => $composableBuilder(
+      column: $table.originalNameCombination,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authoritySpeciesCitation =>
-      $state.composableBuilder(
-          column: $state.table.authoritySpeciesCitation,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authoritySpeciesCitation => $composableBuilder(
+      column: $table.authoritySpeciesCitation,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authoritySpeciesLink => $state.composableBuilder(
-      column: $state.table.authoritySpeciesLink,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authoritySpeciesLink => $composableBuilder(
+      column: $table.authoritySpeciesLink,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeVoucher => $state.composableBuilder(
-      column: $state.table.typeVoucher,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeVoucher => $composableBuilder(
+      column: $table.typeVoucher, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeKind => $state.composableBuilder(
-      column: $state.table.typeKind,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeKind => $composableBuilder(
+      column: $table.typeKind, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeVoucherURIs => $state.composableBuilder(
-      column: $state.table.typeVoucherURIs,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeVoucherURIs => $composableBuilder(
+      column: $table.typeVoucherURIs,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeLocality => $state.composableBuilder(
-      column: $state.table.typeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeLocality => $composableBuilder(
+      column: $table.typeLocality,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeLocalityLatitude => $state.composableBuilder(
-      column: $state.table.typeLocalityLatitude,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeLocalityLatitude => $composableBuilder(
+      column: $table.typeLocalityLatitude,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeLocalityLongitude => $state.composableBuilder(
-      column: $state.table.typeLocalityLongitude,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeLocalityLongitude => $composableBuilder(
+      column: $table.typeLocalityLongitude,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get nominalNames => $state.composableBuilder(
-      column: $state.table.nominalNames,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get nominalNames => $composableBuilder(
+      column: $table.nominalNames,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get taxonomyNotes => $state.composableBuilder(
-      column: $state.table.taxonomyNotes,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get taxonomyNotes => $composableBuilder(
+      column: $table.taxonomyNotes,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get taxonomyNotesCitation => $state.composableBuilder(
-      column: $state.table.taxonomyNotesCitation,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get taxonomyNotesCitation => $composableBuilder(
+      column: $table.taxonomyNotesCitation,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get distributionNotes => $state.composableBuilder(
-      column: $state.table.distributionNotes,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get distributionNotes => $composableBuilder(
+      column: $table.distributionNotes,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get distributionNotesCitation => $state
-      .composableBuilder(
-          column: $state.table.distributionNotesCitation,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get distributionNotesCitation => $composableBuilder(
+      column: $table.distributionNotesCitation,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get subregionDistribution => $state.composableBuilder(
-      column: $state.table.subregionDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get subregionDistribution => $composableBuilder(
+      column: $table.subregionDistribution,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get countryDistribution => $state.composableBuilder(
-      column: $state.table.countryDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get countryDistribution => $composableBuilder(
+      column: $table.countryDistribution,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get continentDistribution => $state.composableBuilder(
-      column: $state.table.continentDistribution,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get continentDistribution => $composableBuilder(
+      column: $table.continentDistribution,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get biogeographicRealm => $state.composableBuilder(
-      column: $state.table.biogeographicRealm,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get biogeographicRealm => $composableBuilder(
+      column: $table.biogeographicRealm,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get iucnStatus => $state.composableBuilder(
-      column: $state.table.iucnStatus,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get iucnStatus => $composableBuilder(
+      column: $table.iucnStatus, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get extinct => $state.composableBuilder(
-      column: $state.table.extinct,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get extinct => $composableBuilder(
+      column: $table.extinct, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get domestic => $state.composableBuilder(
-      column: $state.table.domestic,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get domestic => $composableBuilder(
+      column: $table.domestic, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get flagged => $state.composableBuilder(
-      column: $state.table.flagged,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get flagged => $composableBuilder(
+      column: $table.flagged, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get cMWSciName => $state.composableBuilder(
-      column: $state.table.cMWSciName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get cMWSciName => $composableBuilder(
+      column: $table.cMWSciName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get diffSinceCMW => $state.composableBuilder(
-      column: $state.table.diffSinceCMW,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get diffSinceCMW => $composableBuilder(
+      column: $table.diffSinceCMW,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get mSW3Matchtype => $state.composableBuilder(
-      column: $state.table.mSW3Matchtype,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get mSW3Matchtype => $composableBuilder(
+      column: $table.mSW3Matchtype,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get mSW3SciName => $state.composableBuilder(
-      column: $state.table.mSW3SciName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get mSW3SciName => $composableBuilder(
+      column: $table.mSW3SciName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get diffSinceMSW3 => $state.composableBuilder(
-      column: $state.table.diffSinceMSW3,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get diffSinceMSW3 => $composableBuilder(
+      column: $table.diffSinceMSW3,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
+  $TaxonomyAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get phylosort =>
+      $composableBuilder(column: $table.phylosort, builder: (column) => column);
+
+  GeneratedColumn<String> get subclass =>
+      $composableBuilder(column: $table.subclass, builder: (column) => column);
+
+  GeneratedColumn<String> get infraclass => $composableBuilder(
+      column: $table.infraclass, builder: (column) => column);
+
+  GeneratedColumn<String> get magnorder =>
+      $composableBuilder(column: $table.magnorder, builder: (column) => column);
+
+  GeneratedColumn<String> get superorder => $composableBuilder(
+      column: $table.superorder, builder: (column) => column);
+
+  GeneratedColumn<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get suborder =>
+      $composableBuilder(column: $table.suborder, builder: (column) => column);
+
+  GeneratedColumn<String> get infraorder => $composableBuilder(
+      column: $table.infraorder, builder: (column) => column);
+
+  GeneratedColumn<String> get parvorder =>
+      $composableBuilder(column: $table.parvorder, builder: (column) => column);
+
+  GeneratedColumn<String> get superfamily => $composableBuilder(
+      column: $table.superfamily, builder: (column) => column);
+
+  GeneratedColumn<String> get family =>
+      $composableBuilder(column: $table.family, builder: (column) => column);
+
+  GeneratedColumn<String> get subfamily =>
+      $composableBuilder(column: $table.subfamily, builder: (column) => column);
+
+  GeneratedColumn<String> get tribe =>
+      $composableBuilder(column: $table.tribe, builder: (column) => column);
+
+  GeneratedColumn<String> get genus =>
+      $composableBuilder(column: $table.genus, builder: (column) => column);
+
+  GeneratedColumn<String> get subgenus =>
+      $composableBuilder(column: $table.subgenus, builder: (column) => column);
+
+  GeneratedColumn<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet, builder: (column) => column);
+
+  GeneratedColumn<String> get sciName =>
+      $composableBuilder(column: $table.sciName, builder: (column) => column);
+
+  GeneratedColumn<String> get authoritySpeciesAuthor => $composableBuilder(
+      column: $table.authoritySpeciesAuthor, builder: (column) => column);
+
+  GeneratedColumn<int> get authoritySpeciesYear => $composableBuilder(
+      column: $table.authoritySpeciesYear, builder: (column) => column);
+
+  GeneratedColumn<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses, builder: (column) => column);
+
+  GeneratedColumn<String> get mainCommonName => $composableBuilder(
+      column: $table.mainCommonName, builder: (column) => column);
+
+  GeneratedColumn<String> get otherCommonNames => $composableBuilder(
+      column: $table.otherCommonNames, builder: (column) => column);
+
+  GeneratedColumn<String> get originalNameCombination => $composableBuilder(
+      column: $table.originalNameCombination, builder: (column) => column);
+
+  GeneratedColumn<String> get authoritySpeciesCitation => $composableBuilder(
+      column: $table.authoritySpeciesCitation, builder: (column) => column);
+
+  GeneratedColumn<String> get authoritySpeciesLink => $composableBuilder(
+      column: $table.authoritySpeciesLink, builder: (column) => column);
+
+  GeneratedColumn<String> get typeVoucher => $composableBuilder(
+      column: $table.typeVoucher, builder: (column) => column);
+
+  GeneratedColumn<String> get typeKind =>
+      $composableBuilder(column: $table.typeKind, builder: (column) => column);
+
+  GeneratedColumn<String> get typeVoucherURIs => $composableBuilder(
+      column: $table.typeVoucherURIs, builder: (column) => column);
+
+  GeneratedColumn<String> get typeLocality => $composableBuilder(
+      column: $table.typeLocality, builder: (column) => column);
+
+  GeneratedColumn<String> get typeLocalityLatitude => $composableBuilder(
+      column: $table.typeLocalityLatitude, builder: (column) => column);
+
+  GeneratedColumn<String> get typeLocalityLongitude => $composableBuilder(
+      column: $table.typeLocalityLongitude, builder: (column) => column);
+
+  GeneratedColumn<String> get nominalNames => $composableBuilder(
+      column: $table.nominalNames, builder: (column) => column);
+
+  GeneratedColumn<String> get taxonomyNotes => $composableBuilder(
+      column: $table.taxonomyNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get taxonomyNotesCitation => $composableBuilder(
+      column: $table.taxonomyNotesCitation, builder: (column) => column);
+
+  GeneratedColumn<String> get distributionNotes => $composableBuilder(
+      column: $table.distributionNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get distributionNotesCitation => $composableBuilder(
+      column: $table.distributionNotesCitation, builder: (column) => column);
+
+  GeneratedColumn<String> get subregionDistribution => $composableBuilder(
+      column: $table.subregionDistribution, builder: (column) => column);
+
+  GeneratedColumn<String> get countryDistribution => $composableBuilder(
+      column: $table.countryDistribution, builder: (column) => column);
+
+  GeneratedColumn<String> get continentDistribution => $composableBuilder(
+      column: $table.continentDistribution, builder: (column) => column);
+
+  GeneratedColumn<String> get biogeographicRealm => $composableBuilder(
+      column: $table.biogeographicRealm, builder: (column) => column);
+
+  GeneratedColumn<String> get iucnStatus => $composableBuilder(
+      column: $table.iucnStatus, builder: (column) => column);
+
+  GeneratedColumn<int> get extinct =>
+      $composableBuilder(column: $table.extinct, builder: (column) => column);
+
+  GeneratedColumn<int> get domestic =>
+      $composableBuilder(column: $table.domestic, builder: (column) => column);
+
+  GeneratedColumn<int> get flagged =>
+      $composableBuilder(column: $table.flagged, builder: (column) => column);
+
+  GeneratedColumn<String> get cMWSciName => $composableBuilder(
+      column: $table.cMWSciName, builder: (column) => column);
+
+  GeneratedColumn<int> get diffSinceCMW => $composableBuilder(
+      column: $table.diffSinceCMW, builder: (column) => column);
+
+  GeneratedColumn<String> get mSW3Matchtype => $composableBuilder(
+      column: $table.mSW3Matchtype, builder: (column) => column);
+
+  GeneratedColumn<String> get mSW3SciName => $composableBuilder(
+      column: $table.mSW3SciName, builder: (column) => column);
+
+  GeneratedColumn<String> get diffSinceMSW3 => $composableBuilder(
+      column: $table.diffSinceMSW3, builder: (column) => column);
 }
 
 class $TaxonomyTableManager extends RootTableManager<
@@ -5428,6 +5460,7 @@ class $TaxonomyTableManager extends RootTableManager<
     TaxonomyData,
     $TaxonomyFilterComposer,
     $TaxonomyOrderingComposer,
+    $TaxonomyAnnotationComposer,
     $TaxonomyCreateCompanionBuilder,
     $TaxonomyUpdateCompanionBuilder,
     (TaxonomyData, BaseReferences<_$AppDatabase, Taxonomy, TaxonomyData>),
@@ -5437,8 +5470,12 @@ class $TaxonomyTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $TaxonomyFilterComposer(ComposerState(db, table)),
-          orderingComposer: $TaxonomyOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $TaxonomyFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $TaxonomyOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $TaxonomyAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int?> phylosort = const Value.absent(),
@@ -5482,11 +5519,11 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> continentDistribution = const Value.absent(),
             Value<String?> biogeographicRealm = const Value.absent(),
             Value<String?> iucnStatus = const Value.absent(),
-            Value<String?> extinct = const Value.absent(),
-            Value<String?> domestic = const Value.absent(),
-            Value<String?> flagged = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
             Value<String?> cMWSciName = const Value.absent(),
-            Value<String?> diffSinceCMW = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
             Value<String?> mSW3Matchtype = const Value.absent(),
             Value<String?> mSW3SciName = const Value.absent(),
             Value<String?> diffSinceMSW3 = const Value.absent(),
@@ -5586,11 +5623,11 @@ class $TaxonomyTableManager extends RootTableManager<
             Value<String?> continentDistribution = const Value.absent(),
             Value<String?> biogeographicRealm = const Value.absent(),
             Value<String?> iucnStatus = const Value.absent(),
-            Value<String?> extinct = const Value.absent(),
-            Value<String?> domestic = const Value.absent(),
-            Value<String?> flagged = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
             Value<String?> cMWSciName = const Value.absent(),
-            Value<String?> diffSinceCMW = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
             Value<String?> mSW3Matchtype = const Value.absent(),
             Value<String?> mSW3SciName = const Value.absent(),
             Value<String?> diffSinceMSW3 = const Value.absent(),
@@ -5660,6 +5697,7 @@ typedef $TaxonomyProcessedTableManager = ProcessedTableManager<
     TaxonomyData,
     $TaxonomyFilterComposer,
     $TaxonomyOrderingComposer,
+    $TaxonomyAnnotationComposer,
     $TaxonomyCreateCompanionBuilder,
     $TaxonomyUpdateCompanionBuilder,
     (TaxonomyData, BaseReferences<_$AppDatabase, Taxonomy, TaxonomyData>),
@@ -5758,447 +5796,461 @@ typedef $SynonymUpdateCompanionBuilder = SynonymCompanion Function({
   Value<int> rowid,
 });
 
-class $SynonymFilterComposer extends FilterComposer<_$AppDatabase, Synonym> {
-  $SynonymFilterComposer(super.$state);
-  ColumnFilters<int> get synId => $state.composableBuilder(
-      column: $state.table.synId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $SynonymFilterComposer extends Composer<_$AppDatabase, Synonym> {
+  $SynonymFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get synId => $composableBuilder(
+      column: $table.synId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get hespId => $state.composableBuilder(
-      column: $state.table.hespId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get hespId => $composableBuilder(
+      column: $table.hespId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get speciesId => $state.composableBuilder(
-      column: $state.table.speciesId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get speciesId => $composableBuilder(
+      column: $table.speciesId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get species => $state.composableBuilder(
-      column: $state.table.species,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get species => $composableBuilder(
+      column: $table.species, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get rootName => $state.composableBuilder(
-      column: $state.table.rootName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get rootName => $composableBuilder(
+      column: $table.rootName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get author => $state.composableBuilder(
-      column: $state.table.author,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get author => $composableBuilder(
+      column: $table.author, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get year => $state.composableBuilder(
-      column: $state.table.year,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get year => $composableBuilder(
+      column: $table.year, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get authorityParentheses => $state.composableBuilder(
-      column: $state.table.authorityParentheses,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get nomenclatureStatus => $state.composableBuilder(
-      column: $state.table.nomenclatureStatus,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get nomenclatureStatus => $composableBuilder(
+      column: $table.nomenclatureStatus,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get validity => $state.composableBuilder(
-      column: $state.table.validity,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get validity => $composableBuilder(
+      column: $table.validity, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get originalCombination => $state.composableBuilder(
-      column: $state.table.originalCombination,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get originalCombination => $composableBuilder(
+      column: $table.originalCombination,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get originalRank => $state.composableBuilder(
-      column: $state.table.originalRank,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get originalRank => $composableBuilder(
+      column: $table.originalRank, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authorityCitation => $state.composableBuilder(
-      column: $state.table.authorityCitation,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authorityCitation => $composableBuilder(
+      column: $table.authorityCitation,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get uncheckedAuthorityCitation =>
-      $state.composableBuilder(
-          column: $state.table.uncheckedAuthorityCitation,
-          builder: (column, joinBuilders) =>
-              ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get uncheckedAuthorityCitation => $composableBuilder(
+      column: $table.uncheckedAuthorityCitation,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get sourcedUnverifiedCitations =>
-      $state.composableBuilder(
-          column: $state.table.sourcedUnverifiedCitations,
-          builder: (column, joinBuilders) =>
-              ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get sourcedUnverifiedCitations => $composableBuilder(
+      column: $table.sourcedUnverifiedCitations,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get citationGroup => $state.composableBuilder(
-      column: $state.table.citationGroup,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get citationGroup => $composableBuilder(
+      column: $table.citationGroup, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get citationKind => $state.composableBuilder(
-      column: $state.table.citationKind,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get citationKind => $composableBuilder(
+      column: $table.citationKind, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authorityPage => $state.composableBuilder(
-      column: $state.table.authorityPage,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authorityPage => $composableBuilder(
+      column: $table.authorityPage, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authorityLink => $state.composableBuilder(
-      column: $state.table.authorityLink,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authorityLink => $composableBuilder(
+      column: $table.authorityLink, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get authorityPageLink => $state.composableBuilder(
-      column: $state.table.authorityPageLink,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get authorityPageLink => $composableBuilder(
+      column: $table.authorityPageLink,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get uncheckedAuthorityPageLink =>
-      $state.composableBuilder(
-          column: $state.table.uncheckedAuthorityPageLink,
-          builder: (column, joinBuilders) =>
-              ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get uncheckedAuthorityPageLink => $composableBuilder(
+      column: $table.uncheckedAuthorityPageLink,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get oldTypeLocality => $state.composableBuilder(
-      column: $state.table.oldTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get oldTypeLocality => $composableBuilder(
+      column: $table.oldTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get originalTypeLocality => $state.composableBuilder(
-      column: $state.table.originalTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get originalTypeLocality => $composableBuilder(
+      column: $table.originalTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get uncheckedTypeLocality => $state.composableBuilder(
-      column: $state.table.uncheckedTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get uncheckedTypeLocality => $composableBuilder(
+      column: $table.uncheckedTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get emendedTypeLocality => $state.composableBuilder(
-      column: $state.table.emendedTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get emendedTypeLocality => $composableBuilder(
+      column: $table.emendedTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeLatitude => $state.composableBuilder(
-      column: $state.table.typeLatitude,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeLatitude => $composableBuilder(
+      column: $table.typeLatitude, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeLongitude => $state.composableBuilder(
-      column: $state.table.typeLongitude,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeLongitude => $composableBuilder(
+      column: $table.typeLongitude, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeCountry => $state.composableBuilder(
-      column: $state.table.typeCountry,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeCountry => $composableBuilder(
+      column: $table.typeCountry, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeSubregion => $state.composableBuilder(
-      column: $state.table.typeSubregion,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeSubregion => $composableBuilder(
+      column: $table.typeSubregion, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeSubregion2 => $state.composableBuilder(
-      column: $state.table.typeSubregion2,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeSubregion2 => $composableBuilder(
+      column: $table.typeSubregion2,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get holotype => $state.composableBuilder(
-      column: $state.table.holotype,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get holotype => $composableBuilder(
+      column: $table.holotype, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeKind => $state.composableBuilder(
-      column: $state.table.typeKind,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeKind => $composableBuilder(
+      column: $table.typeKind, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get typeSpecimenLink => $state.composableBuilder(
-      column: $state.table.typeSpecimenLink,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get typeSpecimenLink => $composableBuilder(
+      column: $table.typeSpecimenLink,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get taxonOrder => $state.composableBuilder(
-      column: $state.table.taxonOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get family => $state.composableBuilder(
-      column: $state.table.family,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get family => $composableBuilder(
+      column: $table.family, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get genus => $state.composableBuilder(
-      column: $state.table.genus,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get genus => $composableBuilder(
+      column: $table.genus, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get specificEpithet => $state.composableBuilder(
-      column: $state.table.specificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get subspecificEpithet => $state.composableBuilder(
-      column: $state.table.subspecificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get subspecificEpithet => $composableBuilder(
+      column: $table.subspecificEpithet,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get variantOf => $state.composableBuilder(
-      column: $state.table.variantOf,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get variantOf => $composableBuilder(
+      column: $table.variantOf, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get seniorHomonym => $state.composableBuilder(
-      column: $state.table.seniorHomonym,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get seniorHomonym => $composableBuilder(
+      column: $table.seniorHomonym, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get variantNameCitations => $state.composableBuilder(
-      column: $state.table.variantNameCitations,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get variantNameCitations => $composableBuilder(
+      column: $table.variantNameCitations,
+      builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get nameUsages => $state.composableBuilder(
-      column: $state.table.nameUsages,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get nameUsages => $composableBuilder(
+      column: $table.nameUsages, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get comments => $state.composableBuilder(
-      column: $state.table.comments,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get comments => $composableBuilder(
+      column: $table.comments, builder: (column) => ColumnFilters(column));
 }
 
-class $SynonymOrderingComposer
-    extends OrderingComposer<_$AppDatabase, Synonym> {
-  $SynonymOrderingComposer(super.$state);
-  ColumnOrderings<int> get synId => $state.composableBuilder(
-      column: $state.table.synId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+class $SynonymOrderingComposer extends Composer<_$AppDatabase, Synonym> {
+  $SynonymOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get synId => $composableBuilder(
+      column: $table.synId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get hespId => $state.composableBuilder(
-      column: $state.table.hespId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get hespId => $composableBuilder(
+      column: $table.hespId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get speciesId => $state.composableBuilder(
-      column: $state.table.speciesId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get speciesId => $composableBuilder(
+      column: $table.speciesId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get species => $state.composableBuilder(
-      column: $state.table.species,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get species => $composableBuilder(
+      column: $table.species, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get rootName => $state.composableBuilder(
-      column: $state.table.rootName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get rootName => $composableBuilder(
+      column: $table.rootName, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get author => $state.composableBuilder(
-      column: $state.table.author,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get author => $composableBuilder(
+      column: $table.author, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get year => $state.composableBuilder(
-      column: $state.table.year,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get year => $composableBuilder(
+      column: $table.year, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get authorityParentheses => $state.composableBuilder(
-      column: $state.table.authorityParentheses,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get nomenclatureStatus => $state.composableBuilder(
-      column: $state.table.nomenclatureStatus,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get nomenclatureStatus => $composableBuilder(
+      column: $table.nomenclatureStatus,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get validity => $state.composableBuilder(
-      column: $state.table.validity,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get validity => $composableBuilder(
+      column: $table.validity, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get originalCombination => $state.composableBuilder(
-      column: $state.table.originalCombination,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get originalCombination => $composableBuilder(
+      column: $table.originalCombination,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get originalRank => $state.composableBuilder(
-      column: $state.table.originalRank,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get originalRank => $composableBuilder(
+      column: $table.originalRank,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authorityCitation => $state.composableBuilder(
-      column: $state.table.authorityCitation,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authorityCitation => $composableBuilder(
+      column: $table.authorityCitation,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get uncheckedAuthorityCitation =>
-      $state.composableBuilder(
-          column: $state.table.uncheckedAuthorityCitation,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get uncheckedAuthorityCitation => $composableBuilder(
+      column: $table.uncheckedAuthorityCitation,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sourcedUnverifiedCitations =>
-      $state.composableBuilder(
-          column: $state.table.sourcedUnverifiedCitations,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get sourcedUnverifiedCitations => $composableBuilder(
+      column: $table.sourcedUnverifiedCitations,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get citationGroup => $state.composableBuilder(
-      column: $state.table.citationGroup,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get citationGroup => $composableBuilder(
+      column: $table.citationGroup,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get citationKind => $state.composableBuilder(
-      column: $state.table.citationKind,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get citationKind => $composableBuilder(
+      column: $table.citationKind,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authorityPage => $state.composableBuilder(
-      column: $state.table.authorityPage,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authorityPage => $composableBuilder(
+      column: $table.authorityPage,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authorityLink => $state.composableBuilder(
-      column: $state.table.authorityLink,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authorityLink => $composableBuilder(
+      column: $table.authorityLink,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get authorityPageLink => $state.composableBuilder(
-      column: $state.table.authorityPageLink,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get authorityPageLink => $composableBuilder(
+      column: $table.authorityPageLink,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get uncheckedAuthorityPageLink =>
-      $state.composableBuilder(
-          column: $state.table.uncheckedAuthorityPageLink,
-          builder: (column, joinBuilders) =>
-              ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get uncheckedAuthorityPageLink => $composableBuilder(
+      column: $table.uncheckedAuthorityPageLink,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get oldTypeLocality => $state.composableBuilder(
-      column: $state.table.oldTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get oldTypeLocality => $composableBuilder(
+      column: $table.oldTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get originalTypeLocality => $state.composableBuilder(
-      column: $state.table.originalTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get originalTypeLocality => $composableBuilder(
+      column: $table.originalTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get uncheckedTypeLocality => $state.composableBuilder(
-      column: $state.table.uncheckedTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get uncheckedTypeLocality => $composableBuilder(
+      column: $table.uncheckedTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get emendedTypeLocality => $state.composableBuilder(
-      column: $state.table.emendedTypeLocality,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get emendedTypeLocality => $composableBuilder(
+      column: $table.emendedTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeLatitude => $state.composableBuilder(
-      column: $state.table.typeLatitude,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeLatitude => $composableBuilder(
+      column: $table.typeLatitude,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeLongitude => $state.composableBuilder(
-      column: $state.table.typeLongitude,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeLongitude => $composableBuilder(
+      column: $table.typeLongitude,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeCountry => $state.composableBuilder(
-      column: $state.table.typeCountry,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeCountry => $composableBuilder(
+      column: $table.typeCountry, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeSubregion => $state.composableBuilder(
-      column: $state.table.typeSubregion,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeSubregion => $composableBuilder(
+      column: $table.typeSubregion,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeSubregion2 => $state.composableBuilder(
-      column: $state.table.typeSubregion2,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeSubregion2 => $composableBuilder(
+      column: $table.typeSubregion2,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get holotype => $state.composableBuilder(
-      column: $state.table.holotype,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get holotype => $composableBuilder(
+      column: $table.holotype, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeKind => $state.composableBuilder(
-      column: $state.table.typeKind,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeKind => $composableBuilder(
+      column: $table.typeKind, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get typeSpecimenLink => $state.composableBuilder(
-      column: $state.table.typeSpecimenLink,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get typeSpecimenLink => $composableBuilder(
+      column: $table.typeSpecimenLink,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get taxonOrder => $state.composableBuilder(
-      column: $state.table.taxonOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get family => $state.composableBuilder(
-      column: $state.table.family,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get family => $composableBuilder(
+      column: $table.family, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get genus => $state.composableBuilder(
-      column: $state.table.genus,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get genus => $composableBuilder(
+      column: $table.genus, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get specificEpithet => $state.composableBuilder(
-      column: $state.table.specificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get subspecificEpithet => $state.composableBuilder(
-      column: $state.table.subspecificEpithet,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get subspecificEpithet => $composableBuilder(
+      column: $table.subspecificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get variantOf => $state.composableBuilder(
-      column: $state.table.variantOf,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get variantOf => $composableBuilder(
+      column: $table.variantOf, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get seniorHomonym => $state.composableBuilder(
-      column: $state.table.seniorHomonym,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get seniorHomonym => $composableBuilder(
+      column: $table.seniorHomonym,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get variantNameCitations => $state.composableBuilder(
-      column: $state.table.variantNameCitations,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get variantNameCitations => $composableBuilder(
+      column: $table.variantNameCitations,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get nameUsages => $state.composableBuilder(
-      column: $state.table.nameUsages,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get nameUsages => $composableBuilder(
+      column: $table.nameUsages, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get comments => $state.composableBuilder(
-      column: $state.table.comments,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get comments => $composableBuilder(
+      column: $table.comments, builder: (column) => ColumnOrderings(column));
+}
+
+class $SynonymAnnotationComposer extends Composer<_$AppDatabase, Synonym> {
+  $SynonymAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get synId =>
+      $composableBuilder(column: $table.synId, builder: (column) => column);
+
+  GeneratedColumn<int> get hespId =>
+      $composableBuilder(column: $table.hespId, builder: (column) => column);
+
+  GeneratedColumn<int> get speciesId =>
+      $composableBuilder(column: $table.speciesId, builder: (column) => column);
+
+  GeneratedColumn<String> get species =>
+      $composableBuilder(column: $table.species, builder: (column) => column);
+
+  GeneratedColumn<String> get rootName =>
+      $composableBuilder(column: $table.rootName, builder: (column) => column);
+
+  GeneratedColumn<String> get author =>
+      $composableBuilder(column: $table.author, builder: (column) => column);
+
+  GeneratedColumn<String> get year =>
+      $composableBuilder(column: $table.year, builder: (column) => column);
+
+  GeneratedColumn<int> get authorityParentheses => $composableBuilder(
+      column: $table.authorityParentheses, builder: (column) => column);
+
+  GeneratedColumn<String> get nomenclatureStatus => $composableBuilder(
+      column: $table.nomenclatureStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get validity =>
+      $composableBuilder(column: $table.validity, builder: (column) => column);
+
+  GeneratedColumn<String> get originalCombination => $composableBuilder(
+      column: $table.originalCombination, builder: (column) => column);
+
+  GeneratedColumn<String> get originalRank => $composableBuilder(
+      column: $table.originalRank, builder: (column) => column);
+
+  GeneratedColumn<String> get authorityCitation => $composableBuilder(
+      column: $table.authorityCitation, builder: (column) => column);
+
+  GeneratedColumn<String> get uncheckedAuthorityCitation => $composableBuilder(
+      column: $table.uncheckedAuthorityCitation, builder: (column) => column);
+
+  GeneratedColumn<String> get sourcedUnverifiedCitations => $composableBuilder(
+      column: $table.sourcedUnverifiedCitations, builder: (column) => column);
+
+  GeneratedColumn<String> get citationGroup => $composableBuilder(
+      column: $table.citationGroup, builder: (column) => column);
+
+  GeneratedColumn<String> get citationKind => $composableBuilder(
+      column: $table.citationKind, builder: (column) => column);
+
+  GeneratedColumn<String> get authorityPage => $composableBuilder(
+      column: $table.authorityPage, builder: (column) => column);
+
+  GeneratedColumn<String> get authorityLink => $composableBuilder(
+      column: $table.authorityLink, builder: (column) => column);
+
+  GeneratedColumn<String> get authorityPageLink => $composableBuilder(
+      column: $table.authorityPageLink, builder: (column) => column);
+
+  GeneratedColumn<String> get uncheckedAuthorityPageLink => $composableBuilder(
+      column: $table.uncheckedAuthorityPageLink, builder: (column) => column);
+
+  GeneratedColumn<String> get oldTypeLocality => $composableBuilder(
+      column: $table.oldTypeLocality, builder: (column) => column);
+
+  GeneratedColumn<String> get originalTypeLocality => $composableBuilder(
+      column: $table.originalTypeLocality, builder: (column) => column);
+
+  GeneratedColumn<String> get uncheckedTypeLocality => $composableBuilder(
+      column: $table.uncheckedTypeLocality, builder: (column) => column);
+
+  GeneratedColumn<String> get emendedTypeLocality => $composableBuilder(
+      column: $table.emendedTypeLocality, builder: (column) => column);
+
+  GeneratedColumn<String> get typeLatitude => $composableBuilder(
+      column: $table.typeLatitude, builder: (column) => column);
+
+  GeneratedColumn<String> get typeLongitude => $composableBuilder(
+      column: $table.typeLongitude, builder: (column) => column);
+
+  GeneratedColumn<String> get typeCountry => $composableBuilder(
+      column: $table.typeCountry, builder: (column) => column);
+
+  GeneratedColumn<String> get typeSubregion => $composableBuilder(
+      column: $table.typeSubregion, builder: (column) => column);
+
+  GeneratedColumn<String> get typeSubregion2 => $composableBuilder(
+      column: $table.typeSubregion2, builder: (column) => column);
+
+  GeneratedColumn<String> get holotype =>
+      $composableBuilder(column: $table.holotype, builder: (column) => column);
+
+  GeneratedColumn<String> get typeKind =>
+      $composableBuilder(column: $table.typeKind, builder: (column) => column);
+
+  GeneratedColumn<String> get typeSpecimenLink => $composableBuilder(
+      column: $table.typeSpecimenLink, builder: (column) => column);
+
+  GeneratedColumn<String> get taxonOrder => $composableBuilder(
+      column: $table.taxonOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get family =>
+      $composableBuilder(column: $table.family, builder: (column) => column);
+
+  GeneratedColumn<String> get genus =>
+      $composableBuilder(column: $table.genus, builder: (column) => column);
+
+  GeneratedColumn<String> get specificEpithet => $composableBuilder(
+      column: $table.specificEpithet, builder: (column) => column);
+
+  GeneratedColumn<String> get subspecificEpithet => $composableBuilder(
+      column: $table.subspecificEpithet, builder: (column) => column);
+
+  GeneratedColumn<String> get variantOf =>
+      $composableBuilder(column: $table.variantOf, builder: (column) => column);
+
+  GeneratedColumn<String> get seniorHomonym => $composableBuilder(
+      column: $table.seniorHomonym, builder: (column) => column);
+
+  GeneratedColumn<String> get variantNameCitations => $composableBuilder(
+      column: $table.variantNameCitations, builder: (column) => column);
+
+  GeneratedColumn<String> get nameUsages => $composableBuilder(
+      column: $table.nameUsages, builder: (column) => column);
+
+  GeneratedColumn<String> get comments =>
+      $composableBuilder(column: $table.comments, builder: (column) => column);
 }
 
 class $SynonymTableManager extends RootTableManager<
@@ -6207,6 +6259,7 @@ class $SynonymTableManager extends RootTableManager<
     SynonymData,
     $SynonymFilterComposer,
     $SynonymOrderingComposer,
+    $SynonymAnnotationComposer,
     $SynonymCreateCompanionBuilder,
     $SynonymUpdateCompanionBuilder,
     (SynonymData, BaseReferences<_$AppDatabase, Synonym, SynonymData>),
@@ -6216,8 +6269,12 @@ class $SynonymTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $SynonymFilterComposer(ComposerState(db, table)),
-          orderingComposer: $SynonymOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $SynonymFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $SynonymOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $SynonymAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int?> synId = const Value.absent(),
             Value<int?> hespId = const Value.absent(),
@@ -6415,6 +6472,7 @@ typedef $SynonymProcessedTableManager = ProcessedTableManager<
     SynonymData,
     $SynonymFilterComposer,
     $SynonymOrderingComposer,
+    $SynonymAnnotationComposer,
     $SynonymCreateCompanionBuilder,
     $SynonymUpdateCompanionBuilder,
     (SynonymData, BaseReferences<_$AppDatabase, Synonym, SynonymData>),

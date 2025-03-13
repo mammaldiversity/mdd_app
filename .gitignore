@@ -54,3 +54,6 @@ mdd2.csv
 data.json
 Species_Syn*.csv
 MDD_*.csv
+test.json.gz 
+test.json
+_data*.json.gz

@@ -45,28 +45,29 @@ PODS:
     - FlutterMacOS
   - rust_lib_mdd (0.0.1):
     - Flutter
-  - SDWebImage (5.19.2):
-    - SDWebImage/Core (= 5.19.2)
-  - SDWebImage/Core (5.19.2)
+  - SDWebImage (5.20.0):
+    - SDWebImage/Core (= 5.20.0)
+  - SDWebImage/Core (5.20.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - "sqlite3 (3.46.0+1)":
-    - "sqlite3/common (= 3.46.0+1)"
-  - "sqlite3/common (3.46.0+1)"
-  - "sqlite3/dbstatvtab (3.46.0+1)":
+  - sqlite3 (3.49.0):
+    - sqlite3/common (= 3.49.0)
+  - sqlite3/common (3.49.0)
+  - sqlite3/dbstatvtab (3.49.0):
     - sqlite3/common
-  - "sqlite3/fts5 (3.46.0+1)":
+  - sqlite3/fts5 (3.49.0):
     - sqlite3/common
-  - "sqlite3/perf-threadsafe (3.46.0+1)":
+  - sqlite3/perf-threadsafe (3.49.0):
     - sqlite3/common
-  - "sqlite3/rtree (3.46.0+1)":
+  - sqlite3/rtree (3.49.0):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
-    - "sqlite3 (~> 3.46.0+1)"
+    - FlutterMacOS
+    - sqlite3 (~> 3.49.0)
     - sqlite3/dbstatvtab
     - sqlite3/fts5
     - sqlite3/perf-threadsafe
@@ -85,7 +86,7 @@ DEPENDENCIES:
   - rust_lib_mdd (from `.symlinks/plugins/rust_lib_mdd/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -116,28 +117,28 @@ EXTERNAL SOURCES:
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqlite3_flutter_libs:
-    :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
+  file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
   file_selector_ios: f0670c1064a8c8450e38145d8043160105d0b97c
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   rust_lib_mdd: a30d7e27a9997aa58910840c1c64179ca085a9a0
-  SDWebImage: dfe95b2466a9823cf9f0c6d01217c06550d7b29a
-  share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
+  SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sqlite3: 292c3e1bfe89f64e51ea7fc7dab9182a017c8630
-  sqlite3_flutter_libs: c00457ebd31e59fa6bb830380ddba24d44fbcd3b
+  sqlite3: 4922312598b67e1825c6a6c821296dcbf6783046
+  sqlite3_flutter_libs: 069c435986dd4b63461aecd68f4b30be4a9e9daa
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
