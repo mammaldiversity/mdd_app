@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/mammaldiversity/mdd_app"
 authors = ["Heru Handika <herubiolog@gmail.com>"]
+homepage = "https://www.mammaldiversity.org/"
 license = "MIT"
 readme = "../README.md"
-description = "API for Mammal Diversity Database"
+description = "Rust API for Mammal Diversity Database"
 keywords = ["utility", "biodiversity"]
 categories = ["command-line-utilities", "science"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
