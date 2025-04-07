@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use args::{Cli, JsonArgs};
 use clap::Parser;
@@ -64,6 +67,9 @@ impl<'a> JsonParser<'a> {
             self.release_date,
         );
         let json = all_data.to_json();
+        fs::create_dir_all(self.output_path).unwrap_or_else(|_| {
+            panic!("Failed to create output directory: {:?}", self.output_path)
+        });
         if self.plain_text {
             self.write_plain_text(&json);
             self.write_gzip(&json);
