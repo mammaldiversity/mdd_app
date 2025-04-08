@@ -54,8 +54,10 @@ impl<'a> JsonParser<'a> {
         let syn_data = std::fs::read_to_string(self.synonym_path).unwrap();
         let parser = MddData::new();
         let mut mdd_data = parser.from_csv_to_json(&mdd_data);
+        println!("Found MDD data records: {}", mdd_data.len());
         let synonyms = SynonymData::new();
         let mut synonym_data = synonyms.from_csv_to_json(&syn_data);
+        println!("Found synonym data records: {}", synonym_data.len());
         if synonym_data.is_empty() {
             println!("No synonym data found");
         }
@@ -76,6 +78,7 @@ impl<'a> JsonParser<'a> {
         if self.plain_text {
             self.write_plain_text(&json);
             self.write_gzip(&json);
+            println!("Output written to: {:?}", self.get_output_path(false));
         } else {
             self.write_gzip(&json);
         }
