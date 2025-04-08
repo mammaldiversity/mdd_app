@@ -56,6 +56,9 @@ impl<'a> JsonParser<'a> {
         let mut mdd_data = parser.from_csv_to_json(&mdd_data);
         let synonyms = SynonymData::new();
         let mut synonym_data = synonyms.from_csv_to_json(&syn_data);
+        if synonym_data.is_empty() {
+            println!("No synonym data found");
+        }
         if self.limit.is_some() {
             self.limit_mdd_data(&mut mdd_data, self.limit.unwrap());
             self.limit_synonym_data(&mut synonym_data, self.limit.unwrap());
