@@ -1,0 +1,2 @@
+/Users/hhandika/Codes/Flutter/mdd_app/android/app/.cxx/RelWithDebInfo/144z6h15/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+/Users/hhandika/Codes/Flutter/mdd_app/android/app/.cxx/RelWithDebInfo/144z6h15/armeabi-v7a/CMakeFiles/edit_cache.dir

@@ -1,0 +1,1 @@
+/Users/hhandika/Codes/Flutter/mdd_app/build/app/intermediates/cxx/RelWithDebInfo/6s4y3q5n/obj/armeabi-v7a
