@@ -56,4 +56,5 @@ Species_Syn*.csv
 MDD_*.csv
 test.json.gz 
 test.json
-_data*.json.gz
+*.json.gz
+*.json
