@@ -3,6 +3,7 @@ use mdd::MddData;
 use serde::{Deserialize, Serialize};
 use synonyms::SynonymData;
 
+pub mod country;
 pub mod mdd;
 pub mod synonyms;
 

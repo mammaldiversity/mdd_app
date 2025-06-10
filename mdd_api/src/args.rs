@@ -9,6 +9,8 @@ pub enum Cli {
     ToJson(JsonArgs),
     #[command(name = "db", about = "Parse and export MDD data to SQLite database")]
     ToDb(DbArgs),
+    #[command(name = "from-toml", about = "Parse and export MDD data from TOML file")]
+    FromToml(FromTomlArgs),
 }
 
 #[derive(Args)]
@@ -45,4 +47,19 @@ pub struct JsonArgs {
 pub struct DbArgs {
     #[arg(long, short, default_value = "data.json", help = "Input MDD CSV file")]
     pub input: PathBuf,
+}
+
+#[derive(Args)]
+pub struct FromTomlArgs {
+    #[arg(long, short, default_value = "data.toml", help = "Input MDD TOML file")]
+    pub input: PathBuf,
+    #[arg(
+        long,
+        short,
+        default_value = "../assets/data",
+        help = "Output directory"
+    )]
+    pub output: PathBuf,
+    #[arg(long, short, help = "Export plain text data")]
+    pub plain_text: bool,
 }

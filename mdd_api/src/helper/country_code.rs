@@ -245,7 +245,7 @@ pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
     ("UZ", "Uzbekistan"),
     ("VU", "Vanuatu"),
     ("VE", "Venezuela (Bolivarian Republic of)"),
-    ("VN", "Viet Nam"),
+    ("VN", "VietNam"),
     ("VG", "Virgin Islands (British)"),
     ("VI", "Virgin Islands (U.S.)"),
     ("WF", "Wallis and Futuna"),
@@ -255,9 +255,8 @@ pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
     ("ZW", "Zimbabwe"),
 ];
 
-/// A map of country names to their alpha-2 codes.
-/// We use `lazy_static` to initialize lazy-loaded static data.
 lazy_static::lazy_static! {
+    /// A static map that maps country names to their respective alpha-2 codes.
     pub static ref COUNTRY_MAP: HashMap<String, String> = {
         COUNTRY_AND_CODES.iter()
             .map(|&(code, name)| (name.to_string(), code.to_string()))

@@ -5,11 +5,16 @@ use std::{
 
 use args::{Cli, JsonArgs};
 use clap::Parser;
-use mdd_api::parser::{mdd::MddData, synonyms::SynonymData, ReleasedMddData};
+use mdd_api::parser::{
+    country::CountryMDDStats, mdd::MddData, synonyms::SynonymData, ReleasedMddData,
+};
 
 mod args;
 
 const DEFAULT_OUTPUT_FNAME: &str = "data";
+const DEFAULT_COUNTRY_STATS_FNAME: &str = "country_stats";
+const JSON_EXT: &str = "json";
+const GZIP_EXT: &str = "json.gz";
 
 fn main() {
     let args = Cli::parse();
@@ -17,6 +22,9 @@ fn main() {
         Cli::ToJson(export) => {
             let parser = JsonParser::from_args(&export);
             parser.parse_to_json();
+        }
+        Cli::FromToml(_) => {
+            println!("Not implemented");
         }
         Cli::ToDb(_) => {
             println!("Not implemented");
@@ -52,15 +60,31 @@ impl<'a> JsonParser<'a> {
     fn parse_to_json(&self) {
         let mdd_data = std::fs::read_to_string(self.input_path).unwrap();
         let syn_data = std::fs::read_to_string(self.synonym_path).unwrap();
+
+        println!("Parsing MDD data from: {:?}", self.input_path);
         let parser = MddData::new();
         let mut mdd_data = parser.from_csv_to_json(&mdd_data);
         println!("Found MDD data records: {}", mdd_data.len());
+
+        println!("Parsing synonym data from: {:?}", self.synonym_path);
         let synonyms = SynonymData::new();
         let mut synonym_data = synonyms.from_csv_to_json(&syn_data);
         println!("Found synonym data records: {}", synonym_data.len());
+
         if synonym_data.is_empty() {
             println!("No synonym data found");
         }
+
+        println!("Creating country mammal diversity statistics from MDD records");
+        let mut country_stats = CountryMDDStats::new();
+        country_stats.parse_country_data(&mdd_data);
+        println!(
+            "Total countries: {}, Total domesticated species: {}, Total widespread species: {}",
+            country_stats.total_countries,
+            country_stats.total_domesticated_species,
+            country_stats.total_widespread_species
+        );
+
         if self.limit.is_some() {
             self.limit_mdd_data(&mut mdd_data, self.limit.unwrap());
             self.limit_synonym_data(&mut synonym_data, self.limit.unwrap());
@@ -82,6 +106,14 @@ impl<'a> JsonParser<'a> {
         } else {
             self.write_gzip(&json);
         }
+
+        // Write country statistics to JSON file
+        country_stats.write_to_json_file(
+            &self
+                .output_path
+                .join(DEFAULT_COUNTRY_STATS_FNAME)
+                .with_extension(JSON_EXT),
+        );
     }
 
     fn limit_mdd_data(&self, data: &mut Vec<MddData>, limit: usize) {
@@ -111,9 +143,9 @@ impl<'a> JsonParser<'a> {
         };
         let output = self.output_path.join(fname);
         if is_gunzip {
-            output.with_extension("json.gz")
+            output.with_extension(GZIP_EXT)
         } else {
-            output.with_extension("json")
+            output.with_extension(JSON_EXT)
         }
     }
 }
