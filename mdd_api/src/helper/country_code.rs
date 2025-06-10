@@ -238,14 +238,14 @@ pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
     ("UG", "Uganda"),
     ("UA", "Ukraine"),
     ("AE", "United Arab Emirates"),
-    ("GB", "United Kingdom of Great Britain and Northern Ireland"),
+    ("GB", "United Kingdom"),
     ("UM", "United States Minor Outlying Islands"),
     ("US", "United States of America"),
     ("UY", "Uruguay"),
     ("UZ", "Uzbekistan"),
     ("VU", "Vanuatu"),
     ("VE", "Venezuela (Bolivarian Republic of)"),
-    ("VN", "VietNam"),
+    ("VN", "Viet Nam"),
     ("VG", "Virgin Islands (British)"),
     ("VI", "Virgin Islands (U.S.)"),
     ("WF", "Wallis and Futuna"),
@@ -255,11 +255,189 @@ pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
     ("ZW", "Zimbabwe"),
 ];
 
+// Country names found in the MDD data that are not in the ISO list.
+pub const NON_STANDARD_COUNTRY_CODES: [(&str, &str); 32] = [
+    // ("IN", "Andaman Islands"), // not a country
+    ("AG", "Antigua & Barbuda"),
+    // ("PT", "Azores"), // not a country
+    ("BO", "Bolivia"),
+    // ("BQ", "Bonaire"), // not a country
+    ("BA", "Bosnia & Herzegovina"),
+    ("VG", "British Virgin Islands"),
+    ("BN", "Brunei"),
+    // ("ES", "Canary Islands"), // not a country
+    // ("CC", "Cocos Islands"), // not a country
+    ("CZ", "Czech Republic"),
+    ("CD", "Democratic Republic of the Congo"),
+    ("TL", "East Timor"),
+    // ("EC", "Galapagos"), // not a country
+    ("IR", "Iran"),
+    // ("TF", "Kerguelen Islands"), // not a country
+    ("XK", "Kosovo"),
+    ("LA", "Laos"),
+    // ("PT", "Madeira"), // not a country
+    ("FM", "Micronesia"),
+    ("MD", "Moldova"),
+    // ("IN", "Nicobar Islands"), // not a country
+    ("KP", "North Korea"),
+    ("PS", "Palestine"),
+    // ("ZA", "Prince Edward Islands"), // not a country
+    ("CG", "Republic of the Congo"),
+    // ("RE", "Reunion"), // not a country (French overseas department)
+    ("RU", "Russia"),
+    // ("BQ", "Saba"), // not a country
+    ("SH", "Saint Helena"),
+    ("KN", "Saint Kitts & Nevis"),
+    ("MF", "Saint Martin"), // not a country (French part)
+    ("VC", "Saint Vincent & the Grenadines"),
+    // ("BQ", "Sint Eustatius"), // not a country
+    // ("GS", "South Georgia & the South Sandwich Islands"), // not a country
+    ("KR", "South Korea"),
+    ("SY", "Syria"),
+    ("ST", "São Tomé & Príncipe"),
+    ("TW", "Taiwan"),
+    ("TZ", "Tanzania"),
+    ("TT", "Trinidad & Tobago"),
+    ("TC", "Turks & Caicos Islands"),
+    ("US", "United States"),
+    ("VI", "United States Virgin Islands"),
+    ("VE", "Venezuela"),
+    ("VN", "Vietnam"),
+    // ("WF", "Wallis & Futuna"), // not a country
+];
+
+/// List of non-country region names that were commented out above.
+pub const KNOWN_REGION_NAMES: [(&str, &str); 15] = [
+    ("AND", "Andaman Islands"),
+    ("AZO", "Azores"),
+    ("BON", "Bonaire"),
+    ("CNY", "Canary Islands"),
+    ("COC", "Cocos Islands"),
+    ("GAL", "Galapagos"),
+    ("KER", "Kerguelen Islands"),
+    ("MAD", "Madeira"),
+    ("NIC", "Nicobar Islands"),
+    ("PEI", "Prince Edward Islands"),
+    ("REU", "Reunion"),
+    ("SAB", "Saba"),
+    ("STE", "Sint Eustatius"),
+    ("SGS", "South Georgia & the South Sandwich Islands"),
+    ("WAF", "Wallis & Futuna"),
+];
+
+pub const US_STATE_NAMES: [&str; 50] = [
+    "Alabama",
+    "Alaska",
+    "Arizona",
+    "Arkansas",
+    "California",
+    "Colorado",
+    "Connecticut",
+    "Delaware",
+    "Florida",
+    "Georgia",
+    "Hawai'i",
+    "Idaho",
+    "Illinois",
+    "Indiana",
+    "Iowa",
+    "Kansas",
+    "Kentucky",
+    "Louisiana",
+    "Maine",
+    "Maryland",
+    "Massachusetts",
+    "Michigan",
+    "Minnesota",
+    "Mississippi",
+    "Missouri",
+    "Montana",
+    "Nebraska",
+    "Nevada",
+    "New Hampshire",
+    "New Jersey",
+    "New Mexico",
+    "New York",
+    "North Carolina",
+    "North Dakota",
+    "Ohio",
+    "Oklahoma",
+    "Oregon",
+    "Pennsylvania",
+    "Rhode Island",
+    "South Carolina",
+    "South Dakota",
+    "Tennessee",
+    "Texas",
+    "Utah",
+    "Vermont",
+    "Virginia",
+    "Washington",
+    "West Virginia",
+    "Wisconsin",
+    "Wyoming",
+];
+
 lazy_static::lazy_static! {
     /// A static map that maps country names to their respective alpha-2 codes.
-    pub static ref COUNTRY_MAP: HashMap<String, String> = {
+    static ref COUNTRY_MAP: HashMap<String, String> = {
         COUNTRY_AND_CODES.iter()
             .map(|&(code, name)| (name.to_string(), code.to_string()))
             .collect()
     };
+
+    /// A static map that maps non-standard country names to their respective alpha-2 codes.
+    static ref NON_STANDARD_COUNTRY_MAP: HashMap<String, String> = {
+        NON_STANDARD_COUNTRY_CODES.iter()
+            .map(|&(code, name)| (name.to_string(), code.to_string()))
+            .collect()
+    };
+
+    /// A static map that maps known region names to their respective alpha-2 codes.
+    static ref KNOWN_REGION_MAP: HashMap<String, String> = {
+        KNOWN_REGION_NAMES.iter()
+            .map(|&(code, name)| (name.to_string(), code.to_string()))
+            .collect()
+    };
+
+    /// A static map that combines both standard and non-standard country names.
+    static ref ALL_COUNTRY_REGION_MAP: HashMap<String, String> = {
+        let mut map = COUNTRY_MAP.clone();
+        map.extend(NON_STANDARD_COUNTRY_MAP.clone());
+        map.extend(KNOWN_REGION_MAP.clone());
+        map
+    };
+}
+
+/// Gets the alpha-2 country code for a given country name.
+/// If the country name is not found in the standard or non-standard maps,
+/// it returns the country name as a fallback.
+pub fn get_country_code(country_name: &str) -> String {
+    // We change the country name listed as U.S states to United States
+    let country_name = if US_STATE_NAMES.contains(&country_name) {
+        "United States"
+    } else {
+        country_name
+    };
+
+    // If not found, check the non-standard country map
+    if let Some(code) = ALL_COUNTRY_REGION_MAP.get(country_name) {
+        return code.to_string();
+    } else {
+        // If still not found, return the country name as is
+        // This is useful for cases where the country name is not in the list
+        // and we want to keep it as a fallback.
+        return country_name.to_string();
+    }
+}
+
+/// Utility function to check if a country name is in the standard list.
+/// Match U.S states to United States for consistency.
+pub fn is_known_country_region(country_name: &str) -> bool {
+    let country_name = if US_STATE_NAMES.contains(&country_name) {
+        "United States"
+    } else {
+        country_name
+    };
+    ALL_COUNTRY_REGION_MAP.contains_key(country_name)
 }

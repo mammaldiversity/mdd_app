@@ -5,13 +5,11 @@
 
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
-    io::BufWriter,
     path::Path,
 };
 
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::io::Write;
 
 use crate::{
     helper::{country_code, MDD_LIST_SEPARATOR},
@@ -22,8 +20,8 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct CountryMDDStats {
     pub total_countries: u32,
-    pub total_domesticated_species: u32,
-    pub total_widespread_species: u32,
+    pub domesticated: Vec<u32>,
+    pub widespread: Vec<u32>,
     /// Map of country code to `CountryData`.
     /// The key is the country code (e.g., "US" for United States).
     pub country_data: BTreeMap<String, CountryData>,
@@ -33,8 +31,8 @@ impl CountryMDDStats {
     pub fn new() -> Self {
         Self {
             total_countries: 0,
-            total_domesticated_species: 0,
-            total_widespread_species: 0,
+            domesticated: Vec::new(),
+            widespread: Vec::new(),
             country_data: BTreeMap::new(),
         }
     }
@@ -52,13 +50,13 @@ impl CountryMDDStats {
 
             // Update domesticated species count.
             if species.country_distribution.to_lowercase() == "domesticated" {
-                self.update_domesticated_species_count();
+                self.domesticated.push(species.id);
                 continue; // Skip domesticated species.
             }
 
             // Update widespread species count.
-            if species.biogeographic_realm.to_lowercase() == "na" {
-                self.update_widespread_species_count();
+            if species.country_distribution.to_lowercase() == "na" {
+                self.widespread.push(species.id);
                 continue; // Skip widespread species.
             }
 
@@ -69,35 +67,36 @@ impl CountryMDDStats {
                 self.update_record(&species.country_distribution, &mut records, species);
             }
         }
-        self.update_records(&mut records);
+        self.update_data(&mut records);
     }
 
     pub fn write_to_json_file(&self, file_path: &Path) {
         let json_data = self.to_json();
         std::fs::write(file_path, json_data).expect("Failed to write CountryMDDStats to JSON file");
-        self.print_missing_country_codes();
+        // self.print_missing_country_codes();
     }
 
     fn to_json(&self) -> String {
         serde_json::to_string(self).expect("Failed to serialize CountryMDDStats")
     }
 
-    // We use regex two uppercase letters to check country codes from country data.
-    // If it does not match, we consider it a missing code.
-    // and print it out.
-    fn print_missing_country_codes(&self) {
-        let io = std::io::stdout();
-        let mut buff = BufWriter::new(io);
-        self.country_data.keys().for_each(|country_code| {
-            let re = &COUNTRY_CODE_REGEX;
-            if !re.is_match(country_code) {
-                writeln!(buff, "Missing country code: {}", country_code)
-                    .expect("Failed to write missing country code");
-            }
-        });
-    }
+    // // We use regex two uppercase letters to check country codes from country data.
+    // // If it does not match, we consider it a missing code.
+    // // and print it out.
+    // fn print_missing_country_codes(&self) {
+    //     let io = std::io::stdout();
+    //     let mut buff = BufWriter::new(io);
+    //     writeln!(buff, "Missing country codes:")
+    //         .expect("Failed to write missing country codes header");
+    //     self.country_data.keys().for_each(|country_code| {
+    //         let re = &COUNTRY_CODE_REGEX;
+    //         if !re.is_match(country_code) {
+    //             writeln!(buff, "{}", country_code).expect("Failed to write missing country code");
+    //         }
+    //     });
+    // }
 
-    fn update_records(&mut self, records: &mut HashMap<String, CountryRecord>) {
+    fn update_data(&mut self, records: &mut HashMap<String, CountryRecord>) {
         for (country_code, record) in records.iter_mut() {
             // Create CountryData from the record.
             let country_data = CountryData::from_record(record);
@@ -127,33 +126,35 @@ impl CountryMDDStats {
         records: &mut HashMap<String, CountryRecord>,
         data: &MddData,
     ) {
-        let predicted_distribution = data.country_distribution.ends_with('?');
-        let country_name = if predicted_distribution {
-            country_name.replace("?", "").trim().to_string()
-        } else {
-            country_name.trim().to_string()
-        };
-        if !country_name.is_empty() {
-            let country_code = country_code::COUNTRY_MAP
-                .get(&country_name)
-                .cloned()
-                .unwrap_or_else(|| {
-                    // If the country code is not found, use the name as the code.
-                    country_name.to_string()
-                });
-            let record = records
-                .entry(country_code)
-                .or_insert_with(|| CountryRecord::new(country_name.to_string()));
-            record.update(data, predicted_distribution);
+        let country_name = country_name.trim();
+        if country_name.is_empty() {
+            eprintln!(
+                "Warning: Empty country name found in MDD data for species ID: {}. \
+                It could be due to trailing spaces. \
+                 This will be skipped.",
+                data.id
+            );
+            return;
         }
-    }
+        let predicted = country_name.ends_with('?');
+        let country_name = if predicted {
+            country_name.replace("?", "").to_string()
+        } else {
+            country_name.to_string()
+        };
 
-    fn update_domesticated_species_count(&mut self) {
-        self.total_domesticated_species += 1;
-    }
+        if !country_code::is_known_country_region(&country_name) {
+            eprintln!(
+                "Warning: '{}' does not match any known country code.",
+                country_name
+            );
+        }
 
-    fn update_widespread_species_count(&mut self) {
-        self.total_widespread_species += 1;
+        let country_code = country_code::get_country_code(&country_name);
+        let record = records
+            .entry(country_code)
+            .or_insert_with(|| CountryRecord::new(country_name.to_string()));
+        record.update(data, predicted);
     }
 }
 

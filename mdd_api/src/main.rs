@@ -79,10 +79,10 @@ impl<'a> JsonParser<'a> {
         let mut country_stats = CountryMDDStats::new();
         country_stats.parse_country_data(&mdd_data);
         println!(
-            "Total countries: {}, Total domesticated species: {}, Total widespread species: {}",
+            "Total countries and regions: {}, Total domesticated species: {}, Total widespread species: {}",
             country_stats.total_countries,
-            country_stats.total_domesticated_species,
-            country_stats.total_widespread_species
+            country_stats.domesticated.len(),
+            country_stats.widespread.len()
         );
 
         if self.limit.is_some() {
