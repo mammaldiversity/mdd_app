@@ -24,6 +24,7 @@ pub struct CountryMDDStats {
     pub widespread: Vec<u32>,
     /// Map of country code to `CountryData`.
     /// The key is the country code (e.g., "US" for United States).
+    /// Predicted distribution is indicated by a question mark at the end of the country code.
     pub country_data: BTreeMap<String, CountryData>,
 }
 
