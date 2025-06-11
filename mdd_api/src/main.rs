@@ -5,14 +5,16 @@ use std::{
 
 use args::{Cli, JsonArgs};
 use clap::Parser;
-use mdd_api::parser::{
-    country::CountryMDDStats, mdd::MddData, synonyms::SynonymData, ReleasedMddData,
+use mdd_api::{
+    helper::country_code::CountryRegionCode,
+    parser::{country::CountryMDDStats, mdd::MddData, synonyms::SynonymData, ReleasedMddData},
 };
 
 mod args;
 
 const DEFAULT_OUTPUT_FNAME: &str = "data";
 const DEFAULT_COUNTRY_STATS_FNAME: &str = "country_stats";
+const DEFAULT_COUNTRY_REGION_FNAME: &str = "country_region_code";
 const JSON_EXT: &str = "json";
 const GZIP_EXT: &str = "json.gz";
 
@@ -112,6 +114,13 @@ impl<'a> JsonParser<'a> {
             &self
                 .output_path
                 .join(DEFAULT_COUNTRY_STATS_FNAME)
+                .with_extension(JSON_EXT),
+        );
+
+        CountryRegionCode::new().write_to_file(
+            &self
+                .output_path
+                .join(DEFAULT_COUNTRY_REGION_FNAME)
                 .with_extension(JSON_EXT),
         );
     }

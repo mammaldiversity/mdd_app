@@ -2,6 +2,8 @@
 /// This list is based on the ISO 3166-1 alpha-2 standard.
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 /// List of (alpha-2 code, country name) tuples based on ISO 3166-1 alpha-2.
 pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
     ("AF", "Afghanistan"),
@@ -440,4 +442,46 @@ pub fn is_known_country_region(country_name: &str) -> bool {
         country_name
     };
     ALL_COUNTRY_REGION_MAP.contains_key(country_name)
+}
+
+fn get_country_region_map() -> &'static HashMap<String, String> {
+    &ALL_COUNTRY_REGION_MAP
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CountryRegionCode {
+    pub region_to_code: HashMap<String, String>,
+    pub code_to_region: HashMap<String, String>,
+}
+
+impl CountryRegionCode {
+    pub fn new() -> Self {
+        let region_to_code = get_country_region_map().clone();
+        let code_to_region = region_to_code
+            .iter()
+            .map(|(k, v)| (v.clone(), k.clone()))
+            .collect();
+        Self {
+            region_to_code,
+            code_to_region,
+        }
+    }
+
+    pub fn get_code(&self, region: &str) -> Option<&String> {
+        self.region_to_code.get(region)
+    }
+
+    pub fn get_region(&self, code: &str) -> Option<&String> {
+        self.code_to_region.get(code)
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(self).expect("Failed to serialize CountryRegionCode")
+    }
+
+    pub fn write_to_file<P: AsRef<std::path::Path>>(&self, path: P) {
+        let json = self.to_json();
+        std::fs::write(path, json).expect("Failed to write CountryRegionCode to file");
+    }
 }
