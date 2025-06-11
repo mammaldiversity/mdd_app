@@ -69,6 +69,7 @@ impl CountryMDDStats {
             }
         }
         self.update_data(&mut records);
+        self.check_missing_country_code();
     }
 
     pub fn write_to_json_file(&self, file_path: &Path) {
@@ -106,6 +107,18 @@ impl CountryMDDStats {
         }
         // Update total countries count.
         self.total_countries = self.country_data.len() as u32;
+    }
+
+    fn check_missing_country_code(&self) {
+        for (country, record) in &self.country_data {
+            if record.code.is_empty() {
+                eprintln!(
+                    "Warning: Empty country code found in MDD data for species IDs: {:?}. \
+                    This will be skipped.",
+                    country
+                );
+            }
+        }
     }
 
     fn parse_multiple_countries(

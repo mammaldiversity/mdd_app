@@ -309,7 +309,8 @@ pub const NON_STANDARD_COUNTRY_CODES: [(&str, &str); 32] = [
 ];
 
 /// List of non-country region names that were commented out above.
-pub const KNOWN_REGION_NAMES: [(&str, &str); 15] = [
+pub const KNOWN_REGION_NAMES: [(&str, &str); 16] = [
+    ("ALS", "Alaska"),
     ("AND", "Andaman Islands"),
     ("AZO", "Azores"),
     ("BON", "Bonaire"),
@@ -415,13 +416,6 @@ lazy_static::lazy_static! {
 /// If the country name is not found in the standard or non-standard maps,
 /// it returns the country name as a fallback.
 pub fn get_country_code(country_name: &str) -> String {
-    // We change the country name listed as U.S states to United States
-    let country_name = if US_STATE_NAMES.contains(&country_name) {
-        "United States"
-    } else {
-        country_name
-    };
-
     // If not found, check the non-standard country map
     if let Some(code) = ALL_COUNTRY_REGION_MAP.get(country_name) {
         return code.to_string();
