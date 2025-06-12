@@ -167,8 +167,8 @@ impl CountryMDDStats {
         }
         let country_code = country_code::get_country_code(&country_name);
         let record = records
-            .entry(country_code.to_string())
-            .or_insert_with(|| CountryRecord::new(country_code.to_string()));
+            .entry(country_code)
+            .or_insert_with(|| CountryRecord::new(country_name));
         record.update(data, predicted);
     }
 }
