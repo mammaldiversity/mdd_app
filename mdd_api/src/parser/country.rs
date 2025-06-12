@@ -43,6 +43,7 @@ impl CountryMDDStats {
     /// It excludes domesticated species and widespread species (e.g., "NA" country list).
     /// If the country list does not match any known country code, it uses the country name as the code.
     pub fn parse_country_data(&mut self, mdd_data: &[MddData]) {
+        // We use country code as the key for country_data.
         let mut records: HashMap<String, CountryRecord> = HashMap::new();
         for species in mdd_data {
             if species.country_distribution.is_empty() {
@@ -99,23 +100,25 @@ impl CountryMDDStats {
     // }
 
     fn update_data(&mut self, records: &mut HashMap<String, CountryRecord>) {
-        for (country, record) in records.iter_mut() {
+        for (country_code, record) in records.iter_mut() {
             // Create CountryData from the record.
             let country_data = CountryData::from_record(record);
+
             // Insert into the country_data map.
-            self.country_data.insert(country.to_string(), country_data);
+            self.country_data
+                .insert(country_code.to_string(), country_data);
         }
         // Update total countries count.
         self.total_countries = self.country_data.len() as u32;
     }
 
     fn check_missing_country_code(&self) {
-        for (country, record) in &self.country_data {
-            if record.code.is_empty() {
+        for (code, record) in &self.country_data {
+            if code.is_empty() {
                 eprintln!(
                     "Warning: Empty country code found in MDD data for species IDs: {:?}. \
                     This will be skipped.",
-                    country
+                    record.name
                 );
             }
         }
@@ -162,10 +165,10 @@ impl CountryMDDStats {
                 country_name
             );
         }
-
+        let country_code = country_code::get_country_code(&country_name);
         let record = records
-            .entry(country_name.to_string())
-            .or_insert_with(|| CountryRecord::new(country_name.to_string()));
+            .entry(country_code.to_string())
+            .or_insert_with(|| CountryRecord::new(country_code.to_string()));
         record.update(data, predicted);
     }
 }
@@ -173,8 +176,7 @@ impl CountryMDDStats {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CountryData {
-    /// Alpha-2 country code.
-    pub code: String,
+    pub name: String,
     pub total_orders: u32,
     pub total_families: u32,
     pub total_genera: u32,
@@ -190,7 +192,7 @@ pub struct CountryData {
 impl CountryData {
     pub fn new() -> Self {
         Self {
-            code: String::new(),
+            name: String::new(),
             total_orders: 0,
             total_families: 0,
             total_genera: 0,
@@ -202,7 +204,7 @@ impl CountryData {
 
     fn from_record(record: &CountryRecord) -> Self {
         Self {
-            code: record.code.to_string(),
+            name: record.name.clone(),
             total_orders: record.orders.len() as u32,
             total_families: record.families.len() as u32,
             total_genera: record.genera.len() as u32,
@@ -221,8 +223,7 @@ impl CountryData {
 // Holds records of orders, families, and genera for a country.
 // to help keep track of unique orders, families, and genera for the stats.
 struct CountryRecord {
-    // Alpha-2 country code.
-    code: String,
+    name: String,
     orders: HashSet<String>,
     families: HashSet<String>,
     genera: HashSet<String>,
@@ -233,9 +234,8 @@ struct CountryRecord {
 
 impl CountryRecord {
     fn new(country_name: String) -> Self {
-        let country_code = country_code::get_country_code(&country_name);
         Self {
-            code: country_code,
+            name: country_name,
             orders: HashSet::new(),
             families: HashSet::new(),
             genera: HashSet::new(),

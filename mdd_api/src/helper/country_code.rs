@@ -258,45 +258,44 @@ pub const COUNTRY_AND_CODES: [(&str, &str); 249] = [
 ];
 
 // Country names found in the MDD data that are not in the ISO list.
-pub const NON_STANDARD_COUNTRY_CODES: [(&str, &str); 32] = [
-    // ("IN", "Andaman Islands"), // not a country
+pub const NON_STANDARD_COUNTRY_CODES: [(&str, &str); 50] = [
+    ("IN", "Andaman and Nicobar Islands"),
+    ("IN", "Andaman Islands"),
+    ("IR", "Iran"),
+    ("PT", "Azores"),
+    ("PT", "Madeira"),
+    ("EC", "Galápagos Islands"),
+    ("FK", "Falkland Islands"),
+    ("TF", "French Southern and Antarctic Lands"),
+    ("CV", "Cape Verde"),
+    ("CI", "Cote d'Ivoire"),
+    ("CI", "Côte d'Ivoire"),
+    ("ST", "São Tomé and Príncipe"),
+    ("ST", "São Tomé & Príncipe"),
+    ("SX", "Sint Maarten"),
+    ("MP", "Northern Marianas"),
     ("AG", "Antigua & Barbuda"),
-    // ("PT", "Azores"), // not a country
     ("BO", "Bolivia"),
-    // ("BQ", "Bonaire"), // not a country
     ("BA", "Bosnia & Herzegovina"),
     ("VG", "British Virgin Islands"),
     ("BN", "Brunei"),
-    // ("ES", "Canary Islands"), // not a country
-    // ("CC", "Cocos Islands"), // not a country
     ("CZ", "Czech Republic"),
     ("CD", "Democratic Republic of the Congo"),
     ("TL", "East Timor"),
-    // ("EC", "Galapagos"), // not a country
-    ("IR", "Iran"),
-    // ("TF", "Kerguelen Islands"), // not a country
     ("XK", "Kosovo"),
     ("LA", "Laos"),
-    // ("PT", "Madeira"), // not a country
     ("FM", "Micronesia"),
     ("MD", "Moldova"),
-    // ("IN", "Nicobar Islands"), // not a country
     ("KP", "North Korea"),
     ("PS", "Palestine"),
-    // ("ZA", "Prince Edward Islands"), // not a country
     ("CG", "Republic of the Congo"),
-    // ("RE", "Reunion"), // not a country (French overseas department)
     ("RU", "Russia"),
-    // ("BQ", "Saba"), // not a country
     ("SH", "Saint Helena"),
     ("KN", "Saint Kitts & Nevis"),
-    ("MF", "Saint Martin"), // not a country (French part)
+    ("MF", "Saint Martin"),
     ("VC", "Saint Vincent & the Grenadines"),
-    // ("BQ", "Sint Eustatius"), // not a country
-    // ("GS", "South Georgia & the South Sandwich Islands"), // not a country
     ("KR", "South Korea"),
     ("SY", "Syria"),
-    ("ST", "São Tomé & Príncipe"),
     ("TW", "Taiwan"),
     ("TZ", "Tanzania"),
     ("TT", "Trinidad & Tobago"),
@@ -305,7 +304,11 @@ pub const NON_STANDARD_COUNTRY_CODES: [(&str, &str); 32] = [
     ("VI", "United States Virgin Islands"),
     ("VE", "Venezuela"),
     ("VN", "Vietnam"),
-    // ("WF", "Wallis & Futuna"), // not a country
+    ("FO", "Faroe"),
+    ("AC", "Ascension"),
+    ("RE", "Reunion"),
+    ("GS", "South Georgia & the South Sandwich Islands"),
+    ("WF", "Wallis & Futuna"),
 ];
 
 /// List of non-country region names that were commented out above.
