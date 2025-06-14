@@ -21,14 +21,6 @@ jobs:
           distribution: "zulu"
           java-version: "17.x"
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-      - run: |
-          flutter pub get
-          flutter analyze
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -39,6 +31,14 @@ jobs:
         run: |
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
           mdd zip -i MDD.zip
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - run: |
+          flutter pub get
+          flutter analyze
 
       - name: Build
         uses: subosito/flutter-action@v2
