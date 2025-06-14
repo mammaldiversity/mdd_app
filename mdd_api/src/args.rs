@@ -65,11 +65,6 @@ pub struct FromTomlArgs {
 pub struct FromZipArgs {
     #[arg(long, short, default_value = "MDD.zip", help = "Input MDD ZIP file")]
     pub input: PathBuf,
-    #[arg(
-        long,
-        short,
-        default_value = "../assets/data",
-        help = "Output directory"
-    )]
+    #[arg(long, short, default_value = ".", help = "Output directory")]
     pub output: PathBuf,
 }
