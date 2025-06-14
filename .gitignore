@@ -58,3 +58,7 @@ test.json.gz
 test.json
 *.json.gz
 *.json
+*.zip
+*.csv
+__MACOSX
+MDD
