@@ -21,6 +21,7 @@ const DEFAULT_COUNTRY_STATS_FNAME: &str = "country_stats";
 const DEFAULT_COUNTRY_REGION_FNAME: &str = "country_region_code";
 const JSON_EXT: &str = "json";
 const GZIP_EXT: &str = "json.gz";
+const DEFAULT_PREFIX: &str = "mdd";
 
 fn main() {
     let args = Cli::parse();
@@ -144,7 +145,7 @@ impl<'a> JsonParser<'a> {
             mdd_version: None,
             release_date: None,
             limit: None,
-            prefix: None,
+            prefix: Some(DEFAULT_PREFIX),
         }
     }
 
