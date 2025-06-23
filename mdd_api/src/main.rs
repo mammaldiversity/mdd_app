@@ -266,7 +266,7 @@ impl<'a> JsonParser<'a> {
                 let file_meta =
                     fs::metadata(self.input_path).expect("Failed to read file metadata");
                 let modified_time = file_meta
-                    .modified()
+                    .created()
                     .expect("Failed to get file modified time");
                 let date = DateTime::<chrono::Local>::from(modified_time);
                 date.format("%B %e, %Y").to_string()
