@@ -203,6 +203,12 @@ impl<'a> JsonParser<'a> {
         );
         let all_data =
             ReleasedMddData::from_parser(mdd_data, synonym_data, &mdd_version, &release_date);
+        println!("MDD v{} data parsed successfully", mdd_version);
+        println!("Total MDD records: {}", all_data.data.len());
+        println!(
+            "Total synonym only records: {}",
+            all_data.synonym_only.len()
+        );
         let json = all_data.to_json();
         fs::create_dir_all(self.output_path).unwrap_or_else(|_| {
             panic!("Failed to create output directory: {:?}", self.output_path)

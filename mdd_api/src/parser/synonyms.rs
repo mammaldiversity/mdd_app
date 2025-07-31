@@ -11,7 +11,7 @@ pub struct SynonymData {
     pub syn_id: u32,
     pub hesp_id: u32,
     // MDD species_id
-    pub species_id: u32,
+    pub species_id: Option<u32>,
     species: String,
     root_name: String,
     author: String,
@@ -60,7 +60,7 @@ impl SynonymData {
         Self {
             syn_id: 0,
             hesp_id: 0,
-            species_id: 0,
+            species_id: None,
             species: "".to_string(),
             root_name: "".to_string(),
             author: "".to_string(),

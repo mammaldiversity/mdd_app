@@ -10,9 +10,9 @@ pub mod synonyms;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ReleasedMddData {
-    metadata: MetaData,
-    data: Vec<SimpleMDD>,
-    synonym_only: Vec<SynonymData>,
+    pub metadata: MetaData,
+    pub data: Vec<SimpleMDD>,
+    pub synonym_only: Vec<SynonymData>,
 }
 
 impl ReleasedMddData {
@@ -43,7 +43,7 @@ impl ReleasedMddData {
         // Get the synonyms that have no species id
         let synonym_only = synonym_data
             .iter()
-            .filter(|s| s.species_id == 0)
+            .filter(|s| s.species_id.is_none())
             .map(|s| s.clone())
             .collect();
 
@@ -52,7 +52,7 @@ impl ReleasedMddData {
         for mdd in mdd_data {
             let synonyms: Vec<SynonymData> = synonym_data
                 .iter()
-                .filter(|s| s.species_id == mdd.id)
+                .filter(|s| s.species_id == Some(mdd.id))
                 .map(|s| s.clone())
                 .collect();
             simple_mdd.push(SimpleMDD::new(mdd, synonyms));
@@ -86,7 +86,7 @@ impl ReleasedMddData {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-struct SimpleMDD {
+pub struct SimpleMDD {
     mdd_id: u32,
     species_data: MddData,
     synonyms: Vec<SynonymData>,
@@ -108,7 +108,7 @@ impl SimpleMDD {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-struct MetaData {
+pub struct MetaData {
     version: String,
     release_date: String,
     species_count: u32,
