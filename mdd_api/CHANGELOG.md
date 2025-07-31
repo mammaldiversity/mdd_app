@@ -1,5 +1,9 @@
 # CHANGELOGS
 
+## [0.4.3] - 2025-07-31
+
+- Fix failure parsing synonym only data.
+
 ## [0.4.2] - 2025-06-14
 
 - Fix prefix path for output file.
