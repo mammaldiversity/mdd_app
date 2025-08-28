@@ -1,7 +1,7 @@
 [metadata]
 name = "MDD"
-version = "2024.1"
+version = "2.2.1"
 release_date = "2024-06-01"
 mdd_file = "mdd_2024_1.csv"
 synonym_file = "synonyms_2024_1.csv"
-remarks = "This is a sample release."
+remarks = "This is a sample release. (optional)"

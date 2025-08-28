@@ -62,24 +62,31 @@ impl<'a> ZipParser<'a> {
         self.extract_zip_file();
         // We will find the MDD file prefix with MDD_v in the file name.
         // and synonym file with prefix "Species_Syn_v"
+        println!("Extracting files...");
         let glob_files = glob::glob(&format!(
             "{}/MDD/*.csv",
             self.output_path
                 .to_str()
                 .expect("Failed to convert Path to str")
         ));
+        println!("Finding MDD and synonym files...");
         let files = match glob_files {
             Ok(files) => files.filter_map(Result::ok).collect::<Vec<PathBuf>>(),
             Err(e) => panic!("Failed to find MDD files with pattern: {}", e),
         };
+        println!("Found {} MDD files.", files.len());
+        println!("Finding release.toml file...");
         let meta_path = self.find_release_toml_file(&files);
         let meta = if let Some(meta_path) = meta_path {
             let metadata =
                 ReleaseToml::from_file(&meta_path).expect("Failed to read release.toml file");
+            println!("Found release.toml file.");
             Some(metadata)
         } else {
+            println!("No release.toml file found. Using default metadata.");
             None
         };
+
         let mdd_file = self.find_mdd_file(&files);
         let syn_file = self.find_synonym_file(&files);
         if mdd_file.is_none() || syn_file.is_none() {
