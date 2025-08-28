@@ -1,5 +1,9 @@
 # CHANGELOGS
 
+## [0.5.0] - 2025-08-15
+
+- Add support to include release metadata.
+
 ## [0.4.3] - 2025-07-31
 
 - Fix failure parsing synonym only data.

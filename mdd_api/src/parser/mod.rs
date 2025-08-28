@@ -5,6 +5,7 @@ use synonyms::SynonymData;
 
 pub mod country;
 pub mod mdd;
+pub mod metadata;
 pub mod synonyms;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
