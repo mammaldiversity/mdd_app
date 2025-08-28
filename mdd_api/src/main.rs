@@ -8,7 +8,10 @@ use chrono::DateTime;
 use clap::Parser;
 use mdd_api::{
     helper::country_code::CountryRegionCode,
-    parser::{country::CountryMDDStats, mdd::MddData, synonyms::SynonymData, ReleasedMddData},
+    parser::{
+        country::CountryMDDStats, mdd::MddData, metadata::ReleaseToml, synonyms::SynonymData,
+        ReleasedMddData,
+    },
 };
 use regex::Regex;
 
@@ -69,17 +72,28 @@ impl<'a> ZipParser<'a> {
             Ok(files) => files.filter_map(Result::ok).collect::<Vec<PathBuf>>(),
             Err(e) => panic!("Failed to find MDD files with pattern: {}", e),
         };
+        let meta_path = self.find_release_toml_file(&files);
+        let meta = if let Some(meta_path) = meta_path {
+            let metadata =
+                ReleaseToml::from_file(&meta_path).expect("Failed to read release.toml file");
+            Some(metadata)
+        } else {
+            None
+        };
         let mdd_file = self.find_mdd_file(&files);
         let syn_file = self.find_synonym_file(&files);
         if mdd_file.is_none() || syn_file.is_none() {
             panic!("MDD or synonym file not found in the zip archive. Please check the zip file.");
         }
 
-        let json_parser = JsonParser::from_path(
+        let mut json_parser = JsonParser::from_path(
             mdd_file.as_ref().expect("MDD file not found"),
             syn_file.as_ref().expect("Synonym file not found"),
             self.output_path,
         );
+        if let Some(meta) = meta {
+            json_parser.update_release_data(&meta.metadata.release_date, &meta.metadata.version);
+        }
         json_parser.parse_to_json();
     }
 
@@ -90,6 +104,21 @@ impl<'a> ZipParser<'a> {
         archive
             .extract(&self.output_path)
             .expect("Failed to extract zip file");
+    }
+
+    fn find_release_toml_file(&self, files: &[PathBuf]) -> Option<PathBuf> {
+        for file in files {
+            if file
+                .file_name()
+                .expect("Failed to get file name")
+                .to_str()
+                .expect("Failed to convert OsStr to str")
+                .ends_with("release.toml")
+            {
+                return Some(file.to_path_buf());
+            }
+        }
+        None
     }
 
     fn find_mdd_file(&self, files: &[PathBuf]) -> Option<PathBuf> {
@@ -128,8 +157,8 @@ struct JsonParser<'a> {
     synonym_path: &'a Path,
     output_path: &'a Path,
     plain_text: bool,
-    mdd_version: Option<&'a str>,
-    release_date: Option<&'a str>,
+    mdd_version: Option<String>,
+    release_date: Option<String>,
     limit: Option<usize>,
     prefix: Option<&'a str>,
 }
@@ -148,14 +177,19 @@ impl<'a> JsonParser<'a> {
         }
     }
 
+    fn update_release_data(&mut self, date: &str, version: &str) {
+        self.release_date = Some(date.to_string());
+        self.mdd_version = Some(version.to_string());
+    }
+
     fn from_args(args: &'a JsonArgs) -> Self {
         Self {
             input_path: &args.input,
             synonym_path: &args.synonym,
             output_path: &args.output,
             plain_text: args.plain_text,
-            mdd_version: args.mdd_version.as_deref(),
-            release_date: args.release_date.as_deref(),
+            mdd_version: args.mdd_version.clone(),
+            release_date: args.release_date.clone(),
             limit: args.limit,
             prefix: args.prefix.as_deref(),
         }
@@ -235,8 +269,8 @@ impl<'a> JsonParser<'a> {
     // MDD species file_stem example: MDD_v2.2_6815species.
     // In this case, the version is 2.2.
     fn get_version(&self) -> String {
-        match self.mdd_version {
-            Some(version) => version.to_string(),
+        match &self.mdd_version {
+            Some(version) => version.clone(),
             None => {
                 let file_stem = self
                     .input_path
@@ -259,8 +293,8 @@ impl<'a> JsonParser<'a> {
 
     // We infer release date from the metadata if not specified.
     fn get_release_date(&self) -> String {
-        match self.release_date {
-            Some(date) => date.to_string(),
+        match &self.release_date {
+            Some(date) => date.clone(),
             None => {
                 let file_meta =
                     fs::metadata(self.input_path).expect("Failed to read file metadata");
