@@ -38,14 +38,12 @@ jobs:
 
       - name: Extract MDD data
         working-directory: assets/data
-        shell: bash
         run: |
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
           mdd zip -i MDD.zip
 
       - name: Extract MIL data
         working-directory: assets/data
-        shell: bash
         run: |
           MIL_URL=$(curl -s https://api.github.com/repos/mammaldiversity/asm-mil/releases/latest \
             | grep -o '"browser_download_url": *"[^"]*\.tar\.gz"' \
@@ -69,7 +67,6 @@ jobs:
 
       - name: Copy MIL images to assets
         working-directory: assets/data
-        shell: bash
         run: |
           IMAGES_DIR="$MIL_DIRNAME/images-540px-webp"
           mkdir -p ../mil-images
