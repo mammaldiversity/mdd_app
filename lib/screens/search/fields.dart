@@ -76,18 +76,20 @@ class SearchFilterOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(2, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: SearchFilter.values
-              .map(
-                (option) => RadioListTile<SearchFilter>(
-                  title: Text(option.name.enumToSentenceCase()),
-                  value: option,
-                  groupValue: selectedOption,
-                  onChanged: onSelected,
-                ),
-              )
-              .toList(),
+        child: RadioGroup<SearchFilter>(
+          groupValue: selectedOption,
+          onChanged: onSelected,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: SearchFilter.values
+                .map(
+                  (option) => RadioListTile<SearchFilter>(
+                    title: Text(option.name.enumToSentenceCase()),
+                    value: option,
+                  ),
+                )
+                .toList(),
+          ),
         ));
   }
 }

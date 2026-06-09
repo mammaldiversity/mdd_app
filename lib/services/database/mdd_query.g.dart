@@ -19,6 +19,19 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
           genus: row.readNullable<String>('genus'),
         ));
   }
+
+  MddQueryManager get managers => MddQueryManager(this);
+}
+
+class MddQueryManager {
+  final _$MddQueryMixin _db;
+  MddQueryManager(this._db);
+  $MddInfoTableManager get mddInfo =>
+      $MddInfoTableManager(_db.attachedDatabase, _db.mddInfo);
+  $TaxonomyTableManager get taxonomy =>
+      $TaxonomyTableManager(_db.attachedDatabase, _db.taxonomy);
+  $SynonymTableManager get synonym =>
+      $SynonymTableManager(_db.attachedDatabase, _db.synonym);
 }
 
 class MddGroupListResult {

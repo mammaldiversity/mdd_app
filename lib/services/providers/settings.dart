@@ -1,27 +1,24 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'settings.g.dart';
-
-@Riverpod(keepAlive: true)
-SharedPreferences setting(Ref ref) {
+final settingProvider = Provider<SharedPreferences>((ref) {
   return throw UnimplementedError();
-}
+});
 
-@Riverpod(keepAlive: true)
-Future<bool> isFirstRun(Ref ref) async {
+final isFirstRunProvider = FutureProvider<bool>((ref) async {
   final prefs = ref.watch(settingProvider);
   final isFirstRun = prefs.getBool('isFirstRun') ?? true;
   if (isFirstRun) {
     await prefs.setBool('isFirstRun', false);
   }
   return isFirstRun;
-}
+});
 
-@Riverpod(keepAlive: true)
-class ThemeSetting extends _$ThemeSetting {
+final themeSettingProvider = AsyncNotifierProvider<ThemeSetting, ThemeMode>(() => ThemeSetting());
+
+class ThemeSetting extends AsyncNotifier<ThemeMode> {
   Future<ThemeMode> _fetchSetting() async {
     final prefs = ref.watch(settingProvider);
     final savedTheme = prefs.getString('themeMode');
@@ -75,3 +72,4 @@ class ThemeSetting extends _$ThemeSetting {
     }
   }
 }
+

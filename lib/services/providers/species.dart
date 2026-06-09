@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'species.g.dart';
+final searchDatabaseProvider =
+    AsyncNotifierProvider<SearchDatabase, List<MainTaxonomyData>>(
+        () => SearchDatabase());
 
-@riverpod
-class SearchDatabase extends _$SearchDatabase {
+class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
   @override
   FutureOr<List<MainTaxonomyData>> build() async {
     return [];
@@ -23,13 +24,15 @@ class SearchDatabase extends _$SearchDatabase {
   }
 }
 
-@Riverpod(keepAlive: true)
-Future<int> totalRecords(Ref ref) async {
+final totalRecordsProvider = FutureProvider<int>((ref) async {
   return await MddQuery(ref.read(databaseProvider)).totalRecords();
-}
+});
 
-@Riverpod(keepAlive: true)
-class SpeciesList extends _$SpeciesList {
+final speciesListProvider =
+    AsyncNotifierProvider<SpeciesList, List<MddGroupListResult>>(
+        () => SpeciesList());
+
+class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   Future<List<MddGroupListResult>> _fetchSpeciesList() async {
     return MddQuery(ref.read(databaseProvider)).retrieveGroupList();
   }
@@ -49,8 +52,9 @@ class SpeciesList extends _$SpeciesList {
   }
 }
 
-@Riverpod(keepAlive: true)
-class CurrentMddID extends _$CurrentMddID {
+final currentMddIDProvider = NotifierProvider<CurrentMddID, int>(() => CurrentMddID());
+
+class CurrentMddID extends Notifier<int> {
   @override
   int build() {
     return 0;
@@ -61,8 +65,10 @@ class CurrentMddID extends _$CurrentMddID {
   }
 }
 
-@riverpod
-class TaxonData extends _$TaxonData {
+final taxonDataProvider =
+    AsyncNotifierProvider<TaxonData, db.TaxonomyData>(() => TaxonData());
+
+class TaxonData extends AsyncNotifier<db.TaxonomyData> {
   Future<db.TaxonomyData> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
     return await MddQuery(ref.read(databaseProvider)).retrieveTaxonData(mddID);
@@ -74,12 +80,14 @@ class TaxonData extends _$TaxonData {
   }
 }
 
-@riverpod
-class SynonymData extends _$SynonymData {
+final synonymDataProvider =
+    AsyncNotifierProvider<SynonymData, List<db.SynonymData>>(
+        () => SynonymData());
+
+class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   Future<List<db.SynonymData>> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.read(databaseProvider))
-        .retrieveSynonymData(mddID);
+    return await MddQuery(ref.read(databaseProvider)).retrieveSynonymData(mddID);
   }
 
   @override
@@ -88,8 +96,6 @@ class SynonymData extends _$SynonymData {
   }
 }
 
-@riverpod
-Future<List<MainTaxonomyData>> mainTaxonomyData(
-    Ref ref, List<int> mddIDList) async {
+final mainTaxonomyDataProvider = FutureProvider.family<List<MainTaxonomyData>, List<int>>((ref, mddIDList) async {
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
-}
+});
