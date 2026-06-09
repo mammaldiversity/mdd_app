@@ -108,6 +108,11 @@ class _DistributionMapState extends State<DistributionMap> {
       return const SizedBox.shrink();
     }
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final mapUrl = isDarkMode
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,7 +133,7 @@ class _DistributionMapState extends State<DistributionMap> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                  urlTemplate: mapUrl,
                   subdomains: const ['a', 'b', 'c'],
                   userAgentPackageName: 'org.mammaldiversity.mdd',
                 ),
