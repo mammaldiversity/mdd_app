@@ -62,3 +62,6 @@ test.json
 *.csv
 __MACOSX
 MDD
+
+# MIL Images
+mil-images/
