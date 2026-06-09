@@ -52,7 +52,8 @@ class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   }
 }
 
-final currentMddIDProvider = NotifierProvider<CurrentMddID, int>(() => CurrentMddID());
+final currentMddIDProvider =
+    NotifierProvider<CurrentMddID, int>(() => CurrentMddID());
 
 class CurrentMddID extends Notifier<int> {
   @override
@@ -87,7 +88,8 @@ final synonymDataProvider =
 class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   Future<List<db.SynonymData>> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.read(databaseProvider)).retrieveSynonymData(mddID);
+    return await MddQuery(ref.read(databaseProvider))
+        .retrieveSynonymData(mddID);
   }
 
   @override
@@ -96,6 +98,8 @@ class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   }
 }
 
-final mainTaxonomyDataProvider = FutureProvider.family<List<MainTaxonomyData>, List<int>>((ref, mddIDList) async {
+final mainTaxonomyDataProvider =
+    FutureProvider.family<List<MainTaxonomyData>, List<int>>(
+        (ref, mddIDList) async {
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
 });

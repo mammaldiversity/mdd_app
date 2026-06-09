@@ -30,6 +30,8 @@ class _MoreMenuState extends State<MoreMenu> {
           ),
           const Divider(thickness: 2.4),
           const AppearanceSetting(),
+          const SizedBox(height: 16),
+          const DatabaseLocationSetting(),
           const SizedBox(height: 32),
           const AppVersionView(),
         ],

@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/settings.dart';
 
 const Map<String, ThemeMode> _themeMode = {
@@ -34,7 +37,7 @@ class AppearanceSetting extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         Padding(
-            padding: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: 4),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -109,6 +112,70 @@ class AppearanceTile extends ConsumerWidget {
       onTap: () {
         ref.read(themeSettingProvider.notifier).setTheme(text);
       },
+    );
+  }
+}
+
+class DatabaseLocationSetting extends StatelessWidget {
+  const DatabaseLocationSetting({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Database Location',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+            ),
+            child: FutureBuilder<File>(
+              future: dBPath,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return ListTile(
+                    visualDensity: VisualDensity.compact,
+                    leading: const Icon(Icons.folder_open_rounded),
+                    title: SelectableText(
+                      snapshot.data!.path,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.copy_rounded),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(text: snapshot.data!.path),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Database location copied to clipboard'),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return const ListTile(
+                  visualDensity: VisualDensity.compact,
+                  leading: Icon(Icons.folder_open_rounded),
+                  title: Text('Loading...'),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

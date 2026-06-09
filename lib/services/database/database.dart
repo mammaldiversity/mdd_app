@@ -44,22 +44,27 @@ class AppDatabase extends _$AppDatabase {
     final buffer = mddData.buffer.asUint8List();
     final MddHelper data = await MddHelper.parse(bytes: buffer);
     await _updateMddInfo(data.version, data.releaseDate);
+    final List<TaxonomyData> allTaxonomy = [];
+    final List<SynonymData> allSynonyms = [];
+
     for (var dataString in data.mddData) {
-      if (kDebugMode) {
-        print('Decoding data: $dataString');
-      }
       final MddData decodedData = MddData.fromJson(json.decode(dataString));
-      await _updateMdd(decodedData.speciesData);
+      allTaxonomy.add(decodedData.speciesData);
       if (decodedData.synonyms.isNotEmpty) {
-        await _updateSynData(decodedData.synonyms);
+        allSynonyms.addAll(decodedData.synonyms);
       }
     }
 
-    final List<SynonymData> synonyms = data.synData
+    final List<SynonymData> extraSynonyms = data.synData
         .map((value) => SynonymData.fromJson(json.decode(value)))
         .cast<SynonymData>()
         .toList();
-    await _updateSynData(synonyms);
+    allSynonyms.addAll(extraSynonyms);
+
+    await batch((batch) {
+      batch.insertAll(taxonomy, allTaxonomy);
+      batch.insertAll(synonym, allSynonyms);
+    });
   }
 
   Future<void> _updateMddInfo(String version, String releaseDate) async {
@@ -68,20 +73,6 @@ class AppDatabase extends _$AppDatabase {
       releaseDate: Value(releaseDate),
     );
     await into(mddInfo).insert(data);
-  }
-
-  Future<void> _updateMdd(TaxonomyData data) async {
-    // final Map<String, dynamic> dataJson = json.decode(mddData);
-    // TaxonomyData data = TaxonomyData.fromJson(dataJson);
-    await into(taxonomy).insert(data);
-  }
-
-  Future<void> _updateSynData(List<SynonymData> data) async {
-    for (var value in data) {
-      // final Map<String, dynamic> dataJson = json.decode(value);
-      // SynonymData data = SynonymData.fromJson(dataJson);
-      await into(synonym).insert(value);
-    }
   }
 }
 
