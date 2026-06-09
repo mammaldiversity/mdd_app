@@ -4684,12 +4684,537 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
   }
 }
 
+class MilData extends Table with TableInfo<MilData, MilDataData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  MilData(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _milIdMeta = const VerificationMeta('milId');
+  late final GeneratedColumn<String> milId = GeneratedColumn<String>(
+      'milId', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  static const VerificationMeta _mddIdMeta = const VerificationMeta('mddId');
+  late final GeneratedColumn<int> mddId = GeneratedColumn<int>(
+      'mddId', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _photographerMeta =
+      const VerificationMeta('photographer');
+  late final GeneratedColumn<String> photographer = GeneratedColumn<String>(
+      'photographer', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _distributionMeta =
+      const VerificationMeta('distribution');
+  late final GeneratedColumn<String> distribution = GeneratedColumn<String>(
+      'distribution', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _dateTakenMeta =
+      const VerificationMeta('dateTaken');
+  late final GeneratedColumn<String> dateTaken = GeneratedColumn<String>(
+      'dateTaken', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _orientationMeta =
+      const VerificationMeta('orientation');
+  late final GeneratedColumn<String> orientation = GeneratedColumn<String>(
+      'orientation', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _isUncertainIdentificationMeta =
+      const VerificationMeta('isUncertainIdentification');
+  late final GeneratedColumn<int> isUncertainIdentification =
+      GeneratedColumn<int>('isUncertainIdentification', aliasedName, true,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  @override
+  List<GeneratedColumn> get $columns => [
+        milId,
+        mddId,
+        description,
+        photographer,
+        location,
+        distribution,
+        dateTaken,
+        orientation,
+        isUncertainIdentification
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'milData';
+  @override
+  VerificationContext validateIntegrity(Insertable<MilDataData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('milId')) {
+      context.handle(
+          _milIdMeta, milId.isAcceptableOrUnknown(data['milId']!, _milIdMeta));
+    } else if (isInserting) {
+      context.missing(_milIdMeta);
+    }
+    if (data.containsKey('mddId')) {
+      context.handle(
+          _mddIdMeta, mddId.isAcceptableOrUnknown(data['mddId']!, _mddIdMeta));
+    } else if (isInserting) {
+      context.missing(_mddIdMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('photographer')) {
+      context.handle(
+          _photographerMeta,
+          photographer.isAcceptableOrUnknown(
+              data['photographer']!, _photographerMeta));
+    }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
+    if (data.containsKey('distribution')) {
+      context.handle(
+          _distributionMeta,
+          distribution.isAcceptableOrUnknown(
+              data['distribution']!, _distributionMeta));
+    }
+    if (data.containsKey('dateTaken')) {
+      context.handle(_dateTakenMeta,
+          dateTaken.isAcceptableOrUnknown(data['dateTaken']!, _dateTakenMeta));
+    }
+    if (data.containsKey('orientation')) {
+      context.handle(
+          _orientationMeta,
+          orientation.isAcceptableOrUnknown(
+              data['orientation']!, _orientationMeta));
+    }
+    if (data.containsKey('isUncertainIdentification')) {
+      context.handle(
+          _isUncertainIdentificationMeta,
+          isUncertainIdentification.isAcceptableOrUnknown(
+              data['isUncertainIdentification']!,
+              _isUncertainIdentificationMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {milId};
+  @override
+  MilDataData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MilDataData(
+      milId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}milId'])!,
+      mddId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}mddId'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      photographer: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}photographer']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      distribution: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distribution']),
+      dateTaken: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dateTaken']),
+      orientation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}orientation']),
+      isUncertainIdentification: attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}isUncertainIdentification']),
+    );
+  }
+
+  @override
+  MilData createAlias(String alias) {
+    return MilData(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class MilDataData extends DataClass implements Insertable<MilDataData> {
+  final String milId;
+  final int mddId;
+  final String? description;
+  final String? photographer;
+  final String? location;
+  final String? distribution;
+  final String? dateTaken;
+  final String? orientation;
+  final int? isUncertainIdentification;
+  const MilDataData(
+      {required this.milId,
+      required this.mddId,
+      this.description,
+      this.photographer,
+      this.location,
+      this.distribution,
+      this.dateTaken,
+      this.orientation,
+      this.isUncertainIdentification});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['milId'] = Variable<String>(milId);
+    map['mddId'] = Variable<int>(mddId);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || photographer != null) {
+      map['photographer'] = Variable<String>(photographer);
+    }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    if (!nullToAbsent || distribution != null) {
+      map['distribution'] = Variable<String>(distribution);
+    }
+    if (!nullToAbsent || dateTaken != null) {
+      map['dateTaken'] = Variable<String>(dateTaken);
+    }
+    if (!nullToAbsent || orientation != null) {
+      map['orientation'] = Variable<String>(orientation);
+    }
+    if (!nullToAbsent || isUncertainIdentification != null) {
+      map['isUncertainIdentification'] =
+          Variable<int>(isUncertainIdentification);
+    }
+    return map;
+  }
+
+  MilDataCompanion toCompanion(bool nullToAbsent) {
+    return MilDataCompanion(
+      milId: Value(milId),
+      mddId: Value(mddId),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      photographer: photographer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photographer),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      distribution: distribution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distribution),
+      dateTaken: dateTaken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dateTaken),
+      orientation: orientation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(orientation),
+      isUncertainIdentification:
+          isUncertainIdentification == null && nullToAbsent
+              ? const Value.absent()
+              : Value(isUncertainIdentification),
+    );
+  }
+
+  factory MilDataData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MilDataData(
+      milId: serializer.fromJson<String>(json['milId']),
+      mddId: serializer.fromJson<int>(json['mddId']),
+      description: serializer.fromJson<String?>(json['description']),
+      photographer: serializer.fromJson<String?>(json['photographer']),
+      location: serializer.fromJson<String?>(json['location']),
+      distribution: serializer.fromJson<String?>(json['distribution']),
+      dateTaken: serializer.fromJson<String?>(json['dateTaken']),
+      orientation: serializer.fromJson<String?>(json['orientation']),
+      isUncertainIdentification:
+          serializer.fromJson<int?>(json['isUncertainIdentification']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'milId': serializer.toJson<String>(milId),
+      'mddId': serializer.toJson<int>(mddId),
+      'description': serializer.toJson<String?>(description),
+      'photographer': serializer.toJson<String?>(photographer),
+      'location': serializer.toJson<String?>(location),
+      'distribution': serializer.toJson<String?>(distribution),
+      'dateTaken': serializer.toJson<String?>(dateTaken),
+      'orientation': serializer.toJson<String?>(orientation),
+      'isUncertainIdentification':
+          serializer.toJson<int?>(isUncertainIdentification),
+    };
+  }
+
+  MilDataData copyWith(
+          {String? milId,
+          int? mddId,
+          Value<String?> description = const Value.absent(),
+          Value<String?> photographer = const Value.absent(),
+          Value<String?> location = const Value.absent(),
+          Value<String?> distribution = const Value.absent(),
+          Value<String?> dateTaken = const Value.absent(),
+          Value<String?> orientation = const Value.absent(),
+          Value<int?> isUncertainIdentification = const Value.absent()}) =>
+      MilDataData(
+        milId: milId ?? this.milId,
+        mddId: mddId ?? this.mddId,
+        description: description.present ? description.value : this.description,
+        photographer:
+            photographer.present ? photographer.value : this.photographer,
+        location: location.present ? location.value : this.location,
+        distribution:
+            distribution.present ? distribution.value : this.distribution,
+        dateTaken: dateTaken.present ? dateTaken.value : this.dateTaken,
+        orientation: orientation.present ? orientation.value : this.orientation,
+        isUncertainIdentification: isUncertainIdentification.present
+            ? isUncertainIdentification.value
+            : this.isUncertainIdentification,
+      );
+  MilDataData copyWithCompanion(MilDataCompanion data) {
+    return MilDataData(
+      milId: data.milId.present ? data.milId.value : this.milId,
+      mddId: data.mddId.present ? data.mddId.value : this.mddId,
+      description:
+          data.description.present ? data.description.value : this.description,
+      photographer: data.photographer.present
+          ? data.photographer.value
+          : this.photographer,
+      location: data.location.present ? data.location.value : this.location,
+      distribution: data.distribution.present
+          ? data.distribution.value
+          : this.distribution,
+      dateTaken: data.dateTaken.present ? data.dateTaken.value : this.dateTaken,
+      orientation:
+          data.orientation.present ? data.orientation.value : this.orientation,
+      isUncertainIdentification: data.isUncertainIdentification.present
+          ? data.isUncertainIdentification.value
+          : this.isUncertainIdentification,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MilDataData(')
+          ..write('milId: $milId, ')
+          ..write('mddId: $mddId, ')
+          ..write('description: $description, ')
+          ..write('photographer: $photographer, ')
+          ..write('location: $location, ')
+          ..write('distribution: $distribution, ')
+          ..write('dateTaken: $dateTaken, ')
+          ..write('orientation: $orientation, ')
+          ..write('isUncertainIdentification: $isUncertainIdentification')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      milId,
+      mddId,
+      description,
+      photographer,
+      location,
+      distribution,
+      dateTaken,
+      orientation,
+      isUncertainIdentification);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MilDataData &&
+          other.milId == this.milId &&
+          other.mddId == this.mddId &&
+          other.description == this.description &&
+          other.photographer == this.photographer &&
+          other.location == this.location &&
+          other.distribution == this.distribution &&
+          other.dateTaken == this.dateTaken &&
+          other.orientation == this.orientation &&
+          other.isUncertainIdentification == this.isUncertainIdentification);
+}
+
+class MilDataCompanion extends UpdateCompanion<MilDataData> {
+  final Value<String> milId;
+  final Value<int> mddId;
+  final Value<String?> description;
+  final Value<String?> photographer;
+  final Value<String?> location;
+  final Value<String?> distribution;
+  final Value<String?> dateTaken;
+  final Value<String?> orientation;
+  final Value<int?> isUncertainIdentification;
+  final Value<int> rowid;
+  const MilDataCompanion({
+    this.milId = const Value.absent(),
+    this.mddId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.photographer = const Value.absent(),
+    this.location = const Value.absent(),
+    this.distribution = const Value.absent(),
+    this.dateTaken = const Value.absent(),
+    this.orientation = const Value.absent(),
+    this.isUncertainIdentification = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MilDataCompanion.insert({
+    required String milId,
+    required int mddId,
+    this.description = const Value.absent(),
+    this.photographer = const Value.absent(),
+    this.location = const Value.absent(),
+    this.distribution = const Value.absent(),
+    this.dateTaken = const Value.absent(),
+    this.orientation = const Value.absent(),
+    this.isUncertainIdentification = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : milId = Value(milId),
+        mddId = Value(mddId);
+  static Insertable<MilDataData> custom({
+    Expression<String>? milId,
+    Expression<int>? mddId,
+    Expression<String>? description,
+    Expression<String>? photographer,
+    Expression<String>? location,
+    Expression<String>? distribution,
+    Expression<String>? dateTaken,
+    Expression<String>? orientation,
+    Expression<int>? isUncertainIdentification,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (milId != null) 'milId': milId,
+      if (mddId != null) 'mddId': mddId,
+      if (description != null) 'description': description,
+      if (photographer != null) 'photographer': photographer,
+      if (location != null) 'location': location,
+      if (distribution != null) 'distribution': distribution,
+      if (dateTaken != null) 'dateTaken': dateTaken,
+      if (orientation != null) 'orientation': orientation,
+      if (isUncertainIdentification != null)
+        'isUncertainIdentification': isUncertainIdentification,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MilDataCompanion copyWith(
+      {Value<String>? milId,
+      Value<int>? mddId,
+      Value<String?>? description,
+      Value<String?>? photographer,
+      Value<String?>? location,
+      Value<String?>? distribution,
+      Value<String?>? dateTaken,
+      Value<String?>? orientation,
+      Value<int?>? isUncertainIdentification,
+      Value<int>? rowid}) {
+    return MilDataCompanion(
+      milId: milId ?? this.milId,
+      mddId: mddId ?? this.mddId,
+      description: description ?? this.description,
+      photographer: photographer ?? this.photographer,
+      location: location ?? this.location,
+      distribution: distribution ?? this.distribution,
+      dateTaken: dateTaken ?? this.dateTaken,
+      orientation: orientation ?? this.orientation,
+      isUncertainIdentification:
+          isUncertainIdentification ?? this.isUncertainIdentification,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (milId.present) {
+      map['milId'] = Variable<String>(milId.value);
+    }
+    if (mddId.present) {
+      map['mddId'] = Variable<int>(mddId.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (photographer.present) {
+      map['photographer'] = Variable<String>(photographer.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (distribution.present) {
+      map['distribution'] = Variable<String>(distribution.value);
+    }
+    if (dateTaken.present) {
+      map['dateTaken'] = Variable<String>(dateTaken.value);
+    }
+    if (orientation.present) {
+      map['orientation'] = Variable<String>(orientation.value);
+    }
+    if (isUncertainIdentification.present) {
+      map['isUncertainIdentification'] =
+          Variable<int>(isUncertainIdentification.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MilDataCompanion(')
+          ..write('milId: $milId, ')
+          ..write('mddId: $mddId, ')
+          ..write('description: $description, ')
+          ..write('photographer: $photographer, ')
+          ..write('location: $location, ')
+          ..write('distribution: $distribution, ')
+          ..write('dateTaken: $dateTaken, ')
+          ..write('orientation: $orientation, ')
+          ..write('isUncertainIdentification: $isUncertainIdentification, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final MddInfo mddInfo = MddInfo(this);
   late final Taxonomy taxonomy = Taxonomy(this);
   late final Synonym synonym = Synonym(this);
+  late final MilData milData = MilData(this);
   Selectable<MddGroupListResult> mddGroupList() {
     return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],
@@ -4703,12 +5228,108 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         ));
   }
 
+  Selectable<StatSpeciesPerOrderResult> statSpeciesPerOrder() {
+    return customSelect(
+        'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerOrderResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatSpeciesPerFamilyResult> statSpeciesPerFamily() {
+    return customSelect(
+        'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerFamilyResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatSpeciesByIucnStatusResult> statSpeciesByIucnStatus() {
+    return customSelect(
+        'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByIucnStatusResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatSpeciesByDiscoveryDecadeResult>
+      statSpeciesByDiscoveryDecade() {
+    return customSelect(
+        'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
+          decade: row.readNullable<int>('decade'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatExtinctSpeciesResult> statExtinctSpecies() {
+    return customSelect(
+        'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatExtinctSpeciesResult(
+          isExtinct: row.readNullable<int>('isExtinct'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatDomesticSpeciesResult> statDomesticSpecies() {
+    return customSelect(
+        'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatDomesticSpeciesResult(
+          isDomestic: row.readNullable<int>('isDomestic'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatSpeciesByBiogeographicRealmResult>
+      statSpeciesByBiogeographicRealm() {
+    return customSelect(
+        'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByBiogeographicRealmResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<String?> statCountryDistributions() {
+    return customSelect(
+        'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map(
+        (QueryRow row) => row.readNullable<String>('countryDistribution'));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [mddInfo, taxonomy, synonym];
+      [mddInfo, taxonomy, synonym, milData];
 }
 
 typedef $MddInfoCreateCompanionBuilder = MddInfoCompanion Function({
@@ -6478,6 +7099,232 @@ typedef $SynonymProcessedTableManager = ProcessedTableManager<
     (SynonymData, BaseReferences<_$AppDatabase, Synonym, SynonymData>),
     SynonymData,
     PrefetchHooks Function()>;
+typedef $MilDataCreateCompanionBuilder = MilDataCompanion Function({
+  required String milId,
+  required int mddId,
+  Value<String?> description,
+  Value<String?> photographer,
+  Value<String?> location,
+  Value<String?> distribution,
+  Value<String?> dateTaken,
+  Value<String?> orientation,
+  Value<int?> isUncertainIdentification,
+  Value<int> rowid,
+});
+typedef $MilDataUpdateCompanionBuilder = MilDataCompanion Function({
+  Value<String> milId,
+  Value<int> mddId,
+  Value<String?> description,
+  Value<String?> photographer,
+  Value<String?> location,
+  Value<String?> distribution,
+  Value<String?> dateTaken,
+  Value<String?> orientation,
+  Value<int?> isUncertainIdentification,
+  Value<int> rowid,
+});
+
+class $MilDataFilterComposer extends Composer<_$AppDatabase, MilData> {
+  $MilDataFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get milId => $composableBuilder(
+      column: $table.milId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get mddId => $composableBuilder(
+      column: $table.mddId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get photographer => $composableBuilder(
+      column: $table.photographer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get distribution => $composableBuilder(
+      column: $table.distribution, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dateTaken => $composableBuilder(
+      column: $table.dateTaken, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get orientation => $composableBuilder(
+      column: $table.orientation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isUncertainIdentification => $composableBuilder(
+      column: $table.isUncertainIdentification,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $MilDataOrderingComposer extends Composer<_$AppDatabase, MilData> {
+  $MilDataOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get milId => $composableBuilder(
+      column: $table.milId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get mddId => $composableBuilder(
+      column: $table.mddId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get photographer => $composableBuilder(
+      column: $table.photographer,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get distribution => $composableBuilder(
+      column: $table.distribution,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dateTaken => $composableBuilder(
+      column: $table.dateTaken, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get orientation => $composableBuilder(
+      column: $table.orientation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isUncertainIdentification => $composableBuilder(
+      column: $table.isUncertainIdentification,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $MilDataAnnotationComposer extends Composer<_$AppDatabase, MilData> {
+  $MilDataAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get milId =>
+      $composableBuilder(column: $table.milId, builder: (column) => column);
+
+  GeneratedColumn<int> get mddId =>
+      $composableBuilder(column: $table.mddId, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get photographer => $composableBuilder(
+      column: $table.photographer, builder: (column) => column);
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get distribution => $composableBuilder(
+      column: $table.distribution, builder: (column) => column);
+
+  GeneratedColumn<String> get dateTaken =>
+      $composableBuilder(column: $table.dateTaken, builder: (column) => column);
+
+  GeneratedColumn<String> get orientation => $composableBuilder(
+      column: $table.orientation, builder: (column) => column);
+
+  GeneratedColumn<int> get isUncertainIdentification => $composableBuilder(
+      column: $table.isUncertainIdentification, builder: (column) => column);
+}
+
+class $MilDataTableManager extends RootTableManager<
+    _$AppDatabase,
+    MilData,
+    MilDataData,
+    $MilDataFilterComposer,
+    $MilDataOrderingComposer,
+    $MilDataAnnotationComposer,
+    $MilDataCreateCompanionBuilder,
+    $MilDataUpdateCompanionBuilder,
+    (MilDataData, BaseReferences<_$AppDatabase, MilData, MilDataData>),
+    MilDataData,
+    PrefetchHooks Function()> {
+  $MilDataTableManager(_$AppDatabase db, MilData table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $MilDataFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $MilDataOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $MilDataAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> milId = const Value.absent(),
+            Value<int> mddId = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> photographer = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> distribution = const Value.absent(),
+            Value<String?> dateTaken = const Value.absent(),
+            Value<String?> orientation = const Value.absent(),
+            Value<int?> isUncertainIdentification = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MilDataCompanion(
+            milId: milId,
+            mddId: mddId,
+            description: description,
+            photographer: photographer,
+            location: location,
+            distribution: distribution,
+            dateTaken: dateTaken,
+            orientation: orientation,
+            isUncertainIdentification: isUncertainIdentification,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String milId,
+            required int mddId,
+            Value<String?> description = const Value.absent(),
+            Value<String?> photographer = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> distribution = const Value.absent(),
+            Value<String?> dateTaken = const Value.absent(),
+            Value<String?> orientation = const Value.absent(),
+            Value<int?> isUncertainIdentification = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MilDataCompanion.insert(
+            milId: milId,
+            mddId: mddId,
+            description: description,
+            photographer: photographer,
+            location: location,
+            distribution: distribution,
+            dateTaken: dateTaken,
+            orientation: orientation,
+            isUncertainIdentification: isUncertainIdentification,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $MilDataProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    MilData,
+    MilDataData,
+    $MilDataFilterComposer,
+    $MilDataOrderingComposer,
+    $MilDataAnnotationComposer,
+    $MilDataCreateCompanionBuilder,
+    $MilDataUpdateCompanionBuilder,
+    (MilDataData, BaseReferences<_$AppDatabase, MilData, MilDataData>),
+    MilDataData,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6486,6 +7333,7 @@ class $AppDatabaseManager {
   $TaxonomyTableManager get taxonomy =>
       $TaxonomyTableManager(_db, _db.taxonomy);
   $SynonymTableManager get synonym => $SynonymTableManager(_db, _db.synonym);
+  $MilDataTableManager get milData => $MilDataTableManager(_db, _db.milData);
 }
 
 class MddGroupListResult {
@@ -6498,5 +7346,68 @@ class MddGroupListResult {
     this.taxonOrder,
     this.family,
     this.genus,
+  });
+}
+
+class StatSpeciesPerOrderResult {
+  final String? name;
+  final int count;
+  StatSpeciesPerOrderResult({
+    this.name,
+    required this.count,
+  });
+}
+
+class StatSpeciesPerFamilyResult {
+  final String? name;
+  final int count;
+  StatSpeciesPerFamilyResult({
+    this.name,
+    required this.count,
+  });
+}
+
+class StatSpeciesByIucnStatusResult {
+  final String? name;
+  final int count;
+  StatSpeciesByIucnStatusResult({
+    this.name,
+    required this.count,
+  });
+}
+
+class StatSpeciesByDiscoveryDecadeResult {
+  final int? decade;
+  final int count;
+  StatSpeciesByDiscoveryDecadeResult({
+    this.decade,
+    required this.count,
+  });
+}
+
+class StatExtinctSpeciesResult {
+  final int? isExtinct;
+  final int count;
+  StatExtinctSpeciesResult({
+    this.isExtinct,
+    required this.count,
+  });
+}
+
+class StatDomesticSpeciesResult {
+  final int? isDomestic;
+  final int count;
+  StatDomesticSpeciesResult({
+    this.isDomestic,
+    required this.count,
+  });
+}
+
+class StatSpeciesByBiogeographicRealmResult {
+  final String? name;
+  final int count;
+  StatSpeciesByBiogeographicRealmResult({
+    this.name,
+    required this.count,
   });
 }

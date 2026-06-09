@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/taxon/mil_images.dart';
+import 'package:mdd/screens/taxon/distribution_map.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/screens/taxon/correction.dart';
@@ -41,17 +43,25 @@ class TaxonForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
             Expanded(
-              child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 1200,
-                  ),
-                  child: OtherDetails(taxonData: taxonData)),
+              child: SizedBox(
+                width: double.infinity,
+                child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 1600,
+                      ),
+                      child: OtherDetailsResponsive(taxonData: taxonData)),
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
+            const CorrectionRequest(),
           ],
         ));
   }
@@ -67,14 +77,16 @@ class SpeciesDetails extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SpeciesTextView(taxonData: taxonData),
           const SizedBox(height: 4),
           Text(
-            '${taxonData.mainCommonName}',
+            taxonData.mainCommonName ?? '',
             style: Theme.of(context).textTheme.titleMedium?.apply(
                   color: Theme.of(context).colorScheme.primary,
                 ),
+            textAlign: TextAlign.left,
           ),
           const SizedBox(height: 4),
           const Divider(),
@@ -84,19 +96,75 @@ class SpeciesDetails extends StatelessWidget {
   }
 }
 
-class OtherDetails extends StatelessWidget {
-  const OtherDetails({super.key, required this.taxonData});
+class OtherDetailsResponsive extends StatelessWidget {
+  const OtherDetailsResponsive({super.key, required this.taxonData});
 
   final TaxonomyData taxonData;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      children: <Widget>[
-        const SizedBox(height: 8),
-        ClassificationContainer(taxonData: taxonData),
-        const SizedBox(height: 4),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 800) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    const MilImagesWidget(),
+                    const SizedBox(height: 8),
+                    ClassificationContainer(taxonData: taxonData),
+                    const SizedBox(height: 4),
+                    SpeciesInfoList(taxonData: taxonData),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    DistributionMap(
+                        countryDistribution: taxonData.countryDistribution),
+                    const SynonymList(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        } else {
+          return ListView(
+            shrinkWrap: true,
+            children: [
+              const MilImagesWidget(),
+              const SizedBox(height: 8),
+              ClassificationContainer(taxonData: taxonData),
+              const SizedBox(height: 4),
+              SpeciesInfoList(taxonData: taxonData),
+              DistributionMap(
+                  countryDistribution: taxonData.countryDistribution),
+              const SynonymList(),
+              const CorrectionRequest(),
+            ],
+          );
+        }
+      },
+    );
+  }
+}
+
+class SpeciesInfoList extends StatelessWidget {
+  const SpeciesInfoList({super.key, required this.taxonData});
+
+  final TaxonomyData taxonData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         ContentText(
           title: 'Authority citation',
           content: taxonData.authoritySpeciesCitation,
@@ -133,8 +201,16 @@ class OtherDetails extends StatelessWidget {
           content: taxonData.typeLocality,
         ),
         ContentText(
+          title: 'Biogeographic realm',
+          content: taxonData.biogeographicRealm,
+        ),
+        ContentText(
           title: 'Country distribution',
           content: taxonData.countryDistribution,
+        ),
+        ContentText(
+          title: 'Subregion distribution',
+          content: taxonData.subregionDistribution,
         ),
         ContentText(
           title: 'Distribution notes',
@@ -163,8 +239,6 @@ class OtherDetails extends StatelessWidget {
           content: generatePermanentLink(taxonData.id),
           isUrl: true,
         ),
-        const SynonymList(),
-        const CorrectionRequest(),
       ],
     );
   }

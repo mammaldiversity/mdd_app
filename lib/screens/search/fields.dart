@@ -76,18 +76,20 @@ class SearchFilterOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(2, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: SearchFilter.values
-              .map(
-                (option) => RadioListTile<SearchFilter>(
-                  title: Text(option.name.enumToSentenceCase()),
-                  value: option,
-                  groupValue: selectedOption,
-                  onChanged: onSelected,
-                ),
-              )
-              .toList(),
+        child: RadioGroup<SearchFilter>(
+          groupValue: selectedOption,
+          onChanged: onSelected,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: SearchFilter.values
+                .map(
+                  (option) => RadioListTile<SearchFilter>(
+                    title: Text(option.name.enumToSentenceCase()),
+                    value: option,
+                  ),
+                )
+                .toList(),
+          ),
         ));
   }
 }
@@ -183,7 +185,7 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
         Icons.adaptive.share,
         color: Theme.of(context).colorScheme.onSecondary,
       ),
-      tooltip: 'Share results',
+      tooltip: 'Export',
       onPressed: () async {
         try {
           await _exportRecords();
@@ -197,11 +199,26 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
   }
 
   Future<void> _exportRecords() async {
-    String? result =
-        await FileExport(ref: ref, mddIDs: widget.mddIDs).write(context);
-    final platformType = getPlatformType();
-    if (platformType == PlatformType.desktop) {
-      _showSnackBar('Done! File saved as $result');
+    final ExportSettings? settings = await showDialog<ExportSettings>(
+      context: context,
+      builder: (context) => const ExportDialog(),
+    );
+
+    if (settings != null && mounted) {
+      // Delay slightly to ensure the Flutter dialog is fully closed before opening the native file picker
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+
+      String? result = await FileExport(
+        ref: ref,
+        mddIDs: widget.mddIDs,
+        fileName: settings.fileName,
+        format: settings.format,
+      ).write(context);
+      final platformType = getPlatformType();
+      if (platformType == PlatformType.desktop && mounted && result != null) {
+        _showSnackBar('Done! File saved as $result');
+      }
     }
   }
 
@@ -261,6 +278,87 @@ class SearchFilterView {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ExportSettings {
+  final String fileName;
+  final ExportFormat format;
+
+  ExportSettings({required this.fileName, required this.format});
+}
+
+class ExportDialog extends StatefulWidget {
+  const ExportDialog({super.key});
+
+  @override
+  State<ExportDialog> createState() => _ExportDialogState();
+}
+
+class _ExportDialogState extends State<ExportDialog> {
+  late TextEditingController _filenameController;
+  ExportFormat _format = ExportFormat.csv;
+
+  @override
+  void initState() {
+    super.initState();
+    _filenameController = TextEditingController(text: kDefaultFileName);
+  }
+
+  @override
+  void dispose() {
+    _filenameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Export Data'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _filenameController,
+            decoration: const InputDecoration(
+              labelText: 'Filename',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SegmentedButton<ExportFormat>(
+            segments: const [
+              ButtonSegment(value: ExportFormat.csv, label: Text('CSV')),
+              ButtonSegment(value: ExportFormat.json, label: Text('JSON')),
+            ],
+            selected: {_format},
+            onSelectionChanged: (Set<ExportFormat> newSelection) {
+              setState(() {
+                _format = newSelection.first;
+              });
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (_filenameController.text.trim().isEmpty) return;
+            Navigator.of(context).pop(
+              ExportSettings(
+                fileName: _filenameController.text.trim(),
+                format: _format,
+              ),
+            );
+          },
+          child: const Text('Export'),
+        ),
+      ],
     );
   }
 }

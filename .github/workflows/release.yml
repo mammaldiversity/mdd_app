@@ -10,6 +10,9 @@ jobs:
     strategy:
       matrix:
         os: ["windows-latest", "ubuntu-latest"]
+    defaults:
+      run:
+        shell: bash
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
@@ -26,11 +29,52 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install mil-kit
+        run: pip install mil-kit
+
+      - name: Install MDD CLI
+        run: cargo install mdd_api
+
       - name: Extract MDD data
-        working-directory: db/data
+        working-directory: assets/data
         run: |
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
-          mdd zip -i MDD.zip
+          mdd unpack -i MDD.zip
+
+      - name: Extract MIL data
+        working-directory: assets/data
+        run: |
+          MIL_URL=$(curl -s https://api.github.com/repos/mammaldiversity/asm-mil/releases/latest \
+            | grep -o '"browser_download_url": *"[^"]*\.tar\.gz"' \
+            | grep -o 'https://[^"]*')
+          MIL_FILENAME=$(basename "$MIL_URL")
+          MIL_DIRNAME="${MIL_FILENAME%.tar.gz}"
+          echo "Downloading MIL data from $MIL_URL"
+          curl -L -o "$MIL_FILENAME" "$MIL_URL"
+          echo "Extracting $MIL_FILENAME to $MIL_DIRNAME"
+          tar -xzf "$MIL_FILENAME"
+          MDD_FILE=$(ls MDD/MDD_v*.csv)
+          MIL_DATE="${MIL_DIRNAME#mil-v}"
+          MIL_BASE_DATE=$(echo "$MIL_DATE" | sed 's/\.[0-9]*$//')
+          echo "MIL_DIRNAME=$MIL_DIRNAME" >> $GITHUB_ENV
+          echo "Processing MIL data using MDD file $MDD_FILE"
+          mil-kit mdd \
+            --mil-file "$MIL_DIRNAME/metadata/mil-$MIL_BASE_DATE.xlsx" \
+            --mdd-file "$MDD_FILE" \
+            --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
+            --output mil
+
+      - name: Copy MIL images to assets
+        working-directory: assets/data
+        run: |
+          IMAGES_DIR="$MIL_DIRNAME/images-540px-webp"
+          mkdir -p ../mil-images
+          find "$IMAGES_DIR" -name "*.webp" -exec mv {} ../mil-images/ \;
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

@@ -14,7 +14,7 @@ import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
 
-const int _kDatabaseVersion = 2;
+const int _kDatabaseVersion = 3;
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -30,11 +30,16 @@ class AppDatabase extends _$AppDatabase {
         onCreate: (Migrator m) async {
           await m.createAll();
           await createMddDefault();
+          await createMilData();
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from == 1) {
             await m.createAll();
             await createMddDefault();
+            await createMilData();
+          } else if (from == 2) {
+            await m.createTable(milData);
+            await createMilData();
           }
         },
       );
@@ -44,22 +49,27 @@ class AppDatabase extends _$AppDatabase {
     final buffer = mddData.buffer.asUint8List();
     final MddHelper data = await MddHelper.parse(bytes: buffer);
     await _updateMddInfo(data.version, data.releaseDate);
+    final List<TaxonomyData> allTaxonomy = [];
+    final List<SynonymData> allSynonyms = [];
+
     for (var dataString in data.mddData) {
-      if (kDebugMode) {
-        print('Decoding data: $dataString');
-      }
       final MddData decodedData = MddData.fromJson(json.decode(dataString));
-      await _updateMdd(decodedData.speciesData);
+      allTaxonomy.add(decodedData.speciesData);
       if (decodedData.synonyms.isNotEmpty) {
-        await _updateSynData(decodedData.synonyms);
+        allSynonyms.addAll(decodedData.synonyms);
       }
     }
 
-    final List<SynonymData> synonyms = data.synData
+    final List<SynonymData> extraSynonyms = data.synData
         .map((value) => SynonymData.fromJson(json.decode(value)))
         .cast<SynonymData>()
         .toList();
-    await _updateSynData(synonyms);
+    allSynonyms.addAll(extraSynonyms);
+
+    await batch((batch) {
+      batch.insertAll(taxonomy, allTaxonomy);
+      batch.insertAll(synonym, allSynonyms);
+    });
   }
 
   Future<void> _updateMddInfo(String version, String releaseDate) async {
@@ -70,18 +80,26 @@ class AppDatabase extends _$AppDatabase {
     await into(mddInfo).insert(data);
   }
 
-  Future<void> _updateMdd(TaxonomyData data) async {
-    // final Map<String, dynamic> dataJson = json.decode(mddData);
-    // TaxonomyData data = TaxonomyData.fromJson(dataJson);
-    await into(taxonomy).insert(data);
-  }
+  Future<void> createMilData() async {
+    final String milJsonString = await rootBundle.loadString('assets/data/mil.json');
+    final List<dynamic> milList = json.decode(milJsonString);
+    final List<MilDataCompanion> allMilData = milList.map((item) {
+      return MilDataCompanion.insert(
+        milId: item['milId']?.toString() ?? '',
+        mddId: int.tryParse(item['mddId']?.toString() ?? '0') ?? 0,
+        description: Value(item['description']?.toString()),
+        photographer: Value(item['photographer']?.toString()),
+        location: Value(item['location']?.toString()),
+        distribution: Value(item['distribution']?.toString()),
+        dateTaken: Value(item['dateTaken']?.toString()),
+        orientation: Value(item['orientation']?.toString()),
+        isUncertainIdentification: Value(item['isUncertainIdentification'] == true ? 1 : 0),
+      );
+    }).toList();
 
-  Future<void> _updateSynData(List<SynonymData> data) async {
-    for (var value in data) {
-      // final Map<String, dynamic> dataJson = json.decode(value);
-      // SynonymData data = SynonymData.fromJson(dataJson);
-      await into(synonym).insert(value);
-    }
+    await batch((batch) {
+      batch.insertAll(milData, allMilData);
+    });
   }
 }
 
