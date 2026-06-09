@@ -104,6 +104,11 @@ final mainTaxonomyDataProvider =
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
 });
 
+final milDataFamilyProvider =
+    FutureProvider.family<List<db.MilDataData>, int>((ref, mddID) async {
+  return MddQuery(ref.read(databaseProvider)).retrieveMilData(mddID);
+});
+
 final milDataProvider =
     AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
         () => MilDataNotifier());
