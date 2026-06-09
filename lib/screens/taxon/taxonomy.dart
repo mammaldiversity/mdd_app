@@ -10,24 +10,21 @@ class ClassificationContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        constraints: const BoxConstraints(maxWidth: 560),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              'Taxonomy',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            'Taxonomy',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           screenType == ScreenType.small
               ? Column(
@@ -49,7 +46,7 @@ class ClassificationContainer extends StatelessWidget {
                 ),
         ],
       ),
-    ));
+    );
   }
 }
 

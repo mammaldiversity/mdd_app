@@ -45,16 +45,23 @@ class TaxonForm extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SpeciesDetails(taxonData: taxonData),
             Expanded(
-              child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 1200,
-                  ),
-                  child: OtherDetailsResponsive(taxonData: taxonData)),
+              child: SizedBox(
+                width: double.infinity,
+                child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 1200,
+                      ),
+                      child: OtherDetailsResponsive(taxonData: taxonData)),
+                ),
+              ),
             ),
+            const SizedBox(height: 16),
+            const CorrectionRequest(),
           ],
         ));
   }
@@ -70,12 +77,12 @@ class SpeciesDetails extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SpeciesTextView(taxonData: taxonData),
           const SizedBox(height: 4),
           Text(
-            '${taxonData.mainCommonName ?? ''}',
+            taxonData.mainCommonName ?? '',
             style: Theme.of(context).textTheme.titleMedium?.apply(
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -100,7 +107,7 @@ class OtherDetailsResponsive extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth > 800) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: ListView(
@@ -114,14 +121,14 @@ class OtherDetailsResponsive extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 24),
               Expanded(
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    DistributionMap(countryDistribution: taxonData.countryDistribution),
+                    DistributionMap(
+                        countryDistribution: taxonData.countryDistribution),
                     const SynonymList(),
-                    const CorrectionRequest(),
                   ],
                 ),
               ),
@@ -136,7 +143,8 @@ class OtherDetailsResponsive extends StatelessWidget {
               ClassificationContainer(taxonData: taxonData),
               const SizedBox(height: 4),
               SpeciesInfoList(taxonData: taxonData),
-              DistributionMap(countryDistribution: taxonData.countryDistribution),
+              DistributionMap(
+                  countryDistribution: taxonData.countryDistribution),
               const SynonymList(),
               const CorrectionRequest(),
             ],
@@ -245,7 +253,7 @@ class SpeciesTextView extends StatelessWidget {
   Widget build(BuildContext context) {
     final SpeciesText speciesText = SpeciesText(taxonData: taxonData);
     return RichText(
-        textAlign: TextAlign.left,
+        textAlign: TextAlign.center,
         text: TextSpan(
           children: <TextSpan>[
             TextSpan(

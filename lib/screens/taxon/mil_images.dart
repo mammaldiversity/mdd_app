@@ -45,14 +45,18 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
   }
 
   Widget _buildMetadataRow(BuildContext context, String label, String? value) {
-    if (value == null || value.isEmpty || value == 'NA') return const SizedBox.shrink();
+    if (value == null || value.isEmpty || value == 'NA') {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 4.0),
       child: RichText(
         text: TextSpan(
           style: Theme.of(context).textTheme.bodyMedium,
           children: [
-            TextSpan(text: '$label : ', style: const TextStyle(fontWeight: FontWeight.w600)),
+            TextSpan(
+                text: '$label : ',
+                style: const TextStyle(fontWeight: FontWeight.w600)),
             TextSpan(text: value),
           ],
         ),
@@ -63,28 +67,23 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
   @override
   Widget build(BuildContext context) {
     final mil = widget.data[_currentIndex];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(
-            'MIL Images',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
         Stack(
           alignment: Alignment.center,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
               child: Image.asset(
                 'assets/mil-images/${mil.milId}.webp',
                 fit: BoxFit.cover,
                 width: double.infinity,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox(height: 300, child: Center(child: Icon(Icons.broken_image, size: 64))),
+                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                    height: 300,
+                    child: Center(child: Icon(Icons.broken_image, size: 64))),
               ),
             ),
             if (widget.data.length > 1) ...[
@@ -113,14 +112,18 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
               bottom: 12,
               left: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   '© ${mil.photographer ?? 'Unknown'} / ASM-MIL',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14),
                 ),
               ),
             ),
@@ -129,14 +132,18 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
                 bottom: 12,
                 right: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
+                    color: Colors.black.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     '${_currentIndex + 1} / ${widget.data.length}',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
                   ),
                 ),
               ),
@@ -146,8 +153,13 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.5),
+            borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

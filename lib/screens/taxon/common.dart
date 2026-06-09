@@ -21,10 +21,12 @@ class ContentText extends StatelessWidget {
         ? Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.left,
                 ),
                 isUrl
                     ? UrlText(content: content)
@@ -49,7 +51,7 @@ class UrlText extends StatelessWidget {
         style: Theme.of(context).textTheme.bodyMedium?.apply(
               decoration: TextDecoration.underline,
             ),
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.left,
       ),
       onTap: () {
         launchURL(content ?? '');
@@ -78,7 +80,7 @@ class StandardText extends StatelessWidget {
                 letterSpacingDelta: 0.8,
               )
           : Theme.of(context).textTheme.bodyMedium,
-      textAlign: TextAlign.center,
+      textAlign: TextAlign.left,
     );
   }
 
