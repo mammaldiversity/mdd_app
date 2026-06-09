@@ -31,39 +31,14 @@ class StatisticsService {
     final speciesPerOrder = await mddQuery.statSpeciesPerOrder().get();
     final speciesPerFamily = await mddQuery.statSpeciesPerFamily().get();
     final rawIucn = await mddQuery.statSpeciesByIucnStatus().get();
-    final Map<String, int> iucnCounts = {};
-    for (var row in rawIucn) {
-      String status = row.name ?? '';
-      int parenIndex = status.indexOf('(');
-      if (parenIndex != -1) {
-        status = status.substring(0, parenIndex).trim();
-      }
-      if (status.isNotEmpty) {
-        iucnCounts[status] = (iucnCounts[status] ?? 0) + row.count;
-      }
-    }
-    final cleanedIucn = iucnCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final cleanedIucn = cleanIucnStatusData(rawIucn);
 
     final discoveryDecade = await mddQuery.statSpeciesByDiscoveryDecade().get();
     final extinctSpecies = await mddQuery.statExtinctSpecies().get();
     final domesticSpecies = await mddQuery.statDomesticSpecies().get();
     
     final rawRealm = await mddQuery.statSpeciesByBiogeographicRealm().get();
-    final Map<String, int> realmCounts = {};
-    for (var row in rawRealm) {
-      String realmStr = row.name ?? '';
-      final realms = realmStr.split('|');
-      for (var r in realms) {
-        r = r.trim();
-        if (r.endsWith('?')) {
-          r = r.substring(0, r.length - 1).trim();
-        }
-        if (r.isNotEmpty && r != 'NA') {
-          realmCounts[r] = (realmCounts[r] ?? 0) + row.count;
-        }
-      }
-    }
-    final cleanedRealm = realmCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final cleanedRealm = cleanBiogeographicRealmData(rawRealm);
 
     final countryRows = await mddQuery.statCountryDistributions().get();
     final Map<String, int> countryCounts = {};
@@ -92,5 +67,42 @@ class StatisticsService {
       biogeographicRealm: cleanedRealm,
       topCountries: topCountries,
     );
+  }
+
+  static List<MapEntry<String, int>> cleanIucnStatusData(
+      List<StatSpeciesByIucnStatusResult> rawIucn) {
+    final Map<String, int> iucnCounts = {};
+    for (var row in rawIucn) {
+      String status = row.name ?? '';
+      int parenIndex = status.indexOf('(');
+      if (parenIndex != -1) {
+        status = status.substring(0, parenIndex).trim();
+      }
+      if (status.isNotEmpty) {
+        iucnCounts[status] = (iucnCounts[status] ?? 0) + row.count;
+      }
+    }
+    return iucnCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  static List<MapEntry<String, int>> cleanBiogeographicRealmData(
+      List<StatSpeciesByBiogeographicRealmResult> rawRealm) {
+    final Map<String, int> realmCounts = {};
+    for (var row in rawRealm) {
+      String realmStr = row.name ?? '';
+      final realms = realmStr.split('|');
+      for (var r in realms) {
+        r = r.trim();
+        if (r.endsWith('?')) {
+          r = r.substring(0, r.length - 1).trim();
+        }
+        if (r.isNotEmpty && r != 'NA') {
+          realmCounts[r] = (realmCounts[r] ?? 0) + row.count;
+        }
+      }
+    }
+    return realmCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
   }
 }
