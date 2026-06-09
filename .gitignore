@@ -46,6 +46,7 @@ app.*.map.json
 
 /target/
 
+
 *.dmg
 
 *_syn.csv
@@ -62,3 +63,6 @@ test.json
 *.csv
 __MACOSX
 MDD
+
+# MIL Images
+assets/mil-images/
