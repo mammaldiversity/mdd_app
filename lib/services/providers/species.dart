@@ -103,3 +103,19 @@ final mainTaxonomyDataProvider =
         (ref, mddIDList) async {
   return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
 });
+
+final milDataProvider =
+    AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
+        () => MilDataNotifier());
+
+class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
+  Future<List<db.MilDataData>> _fetch() async {
+    final int mddID = ref.watch(currentMddIDProvider);
+    return await MddQuery(ref.read(databaseProvider)).retrieveMilData(mddID);
+  }
+
+  @override
+  FutureOr<List<db.MilDataData>> build() async {
+    return await _fetch();
+  }
+}

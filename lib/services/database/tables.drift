@@ -102,6 +102,18 @@ CREATE TABLE synonym (
     comments TEXT
 );
 
+CREATE TABLE milData (
+    milId TEXT NOT NULL PRIMARY KEY,
+    mddId INT NOT NULL,
+    description TEXT,
+    photographer TEXT,
+    location TEXT,
+    distribution TEXT,
+    dateTaken TEXT,
+    orientation TEXT,
+    isUncertainIdentification INT
+);
+
 mddGroupList: SELECT id,taxonOrder,family,genus FROM taxonomy;
 
 statSpeciesPerOrder: SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC;

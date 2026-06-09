@@ -63,6 +63,7 @@ test.json
 *.csv
 __MACOSX
 MDD
+*.geojson
 
 # MIL Images
 assets/mil-images/

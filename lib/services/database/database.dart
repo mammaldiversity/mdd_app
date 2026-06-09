@@ -14,7 +14,7 @@ import 'package:mdd/services/app_services.dart';
 
 part 'database.g.dart';
 
-const int _kDatabaseVersion = 2;
+const int _kDatabaseVersion = 3;
 
 @DriftDatabase(
   include: {'tables.drift'},
@@ -30,11 +30,16 @@ class AppDatabase extends _$AppDatabase {
         onCreate: (Migrator m) async {
           await m.createAll();
           await createMddDefault();
+          await createMilData();
         },
         onUpgrade: (Migrator m, int from, int to) async {
           if (from == 1) {
             await m.createAll();
             await createMddDefault();
+            await createMilData();
+          } else if (from == 2) {
+            await m.createTable(milData);
+            await createMilData();
           }
         },
       );
@@ -73,6 +78,28 @@ class AppDatabase extends _$AppDatabase {
       releaseDate: Value(releaseDate),
     );
     await into(mddInfo).insert(data);
+  }
+
+  Future<void> createMilData() async {
+    final String milJsonString = await rootBundle.loadString('assets/data/mil.json');
+    final List<dynamic> milList = json.decode(milJsonString);
+    final List<MilDataCompanion> allMilData = milList.map((item) {
+      return MilDataCompanion.insert(
+        milId: item['milId']?.toString() ?? '',
+        mddId: int.tryParse(item['mddId']?.toString() ?? '0') ?? 0,
+        description: Value(item['description']?.toString()),
+        photographer: Value(item['photographer']?.toString()),
+        location: Value(item['location']?.toString()),
+        distribution: Value(item['distribution']?.toString()),
+        dateTaken: Value(item['dateTaken']?.toString()),
+        orientation: Value(item['orientation']?.toString()),
+        isUncertainIdentification: Value(item['isUncertainIdentification'] == true ? 1 : 0),
+      );
+    }).toList();
+
+    await batch((batch) {
+      batch.insertAll(milData, allMilData);
+    });
   }
 }
 

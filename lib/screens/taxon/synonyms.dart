@@ -26,14 +26,25 @@ class SynonymList extends ConsumerWidget {
   }
 }
 
-class SynonymContainer extends StatelessWidget {
+class SynonymContainer extends StatefulWidget {
   const SynonymContainer({super.key, required this.data});
 
   final List<db.SynonymData> data;
 
   @override
+  State<SynonymContainer> createState() => _SynonymContainerState();
+}
+
+class _SynonymContainerState extends State<SynonymContainer> {
+  bool _showAll = false;
+
+  @override
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
+    final bool hasMore = widget.data.length > 10;
+    final List<db.SynonymData> displayData =
+        _showAll || !hasMore ? widget.data : widget.data.take(10).toList();
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -49,19 +60,30 @@ class SynonymContainer extends StatelessWidget {
                   alignment: WrapAlignment.center,
                   spacing: 8,
                   runSpacing: 8,
-                  children: data
+                  children: displayData
                       .map(
                         (synonymData) => SynonymCard(data: synonymData),
                       )
                       .toList(),
                 )
               : Column(
-                  children: data
+                  children: displayData
                       .map(
                         (synonymData) => SynonymCard(data: synonymData),
                       )
                       .toList(),
                 ),
+          if (hasMore && !_showAll) ...[
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _showAll = true;
+                });
+              },
+              child: Text('Show all (${widget.data.length}) synonyms'),
+            ),
+          ],
         ],
       ),
     );

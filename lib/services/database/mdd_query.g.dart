@@ -7,6 +7,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   MddInfo get mddInfo => attachedDatabase.mddInfo;
   Taxonomy get taxonomy => attachedDatabase.taxonomy;
   Synonym get synonym => attachedDatabase.synonym;
+  MilData get milData => attachedDatabase.milData;
   Selectable<MddGroupListResult> mddGroupList() {
     return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],
@@ -128,6 +129,8 @@ class MddQueryManager {
       $TaxonomyTableManager(_db.attachedDatabase, _db.taxonomy);
   $SynonymTableManager get synonym =>
       $SynonymTableManager(_db.attachedDatabase, _db.synonym);
+  $MilDataTableManager get milData =>
+      $MilDataTableManager(_db.attachedDatabase, _db.milData);
 }
 
 class MddGroupListResult {
