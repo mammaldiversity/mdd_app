@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mdd/screens/menu/settings.dart';
 import 'package:mdd/screens/menu/version.dart';
 import 'package:mdd/services/app_services.dart';
+import 'package:mdd/services/system.dart';
 
 const mddWebsiteUrl = 'https://mammaldiversity.org';
 const mddAboutUrl = 'https://mammaldiversity.org/about';
@@ -16,6 +17,7 @@ class MoreMenu extends StatefulWidget {
 class _MoreMenuState extends State<MoreMenu> {
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = getPlatformType() == PlatformType.desktop;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ListView(
@@ -31,7 +33,12 @@ class _MoreMenuState extends State<MoreMenu> {
           const Divider(thickness: 2.4),
           const AppearanceSetting(),
           const SizedBox(height: 16),
-          const DatabaseLocationSetting(),
+          Visibility(
+            // Show only on desktop because mobile database
+            // Cannot be changed
+            visible: isDesktop,
+            child: const DatabaseLocationSetting(),
+          ),
           const SizedBox(height: 32),
           const AppVersionView(),
         ],

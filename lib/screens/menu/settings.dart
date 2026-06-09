@@ -38,11 +38,10 @@ class AppearanceSetting extends StatelessWidget {
         ),
         Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-              ),
+            child: Material(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
               child: const AppearanceList(),
             )),
       ],
@@ -135,11 +134,10 @@ class DatabaseLocationSetting extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-            ),
+          child: Material(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
             child: FutureBuilder<File>(
               future: dBPath,
               builder: (context, snapshot) {
