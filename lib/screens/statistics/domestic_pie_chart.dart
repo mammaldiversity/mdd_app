@@ -45,7 +45,7 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
                   ),
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 0,
-                  centerSpaceRadius: 40,
+                  centerSpaceRadius: double.nan,
                   sections: showingSections(data),
                 ),
               ),

@@ -45,7 +45,7 @@ class _ExtinctPieChartState extends State<ExtinctPieChart> {
                   ),
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 0,
-                  centerSpaceRadius: 40,
+                  centerSpaceRadius: double.nan,
                   sections: showingSections(data),
                 ),
               ),

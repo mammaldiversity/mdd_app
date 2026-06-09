@@ -60,7 +60,7 @@ class _IucnPieChartState extends State<IucnPieChart> {
                         ),
                         borderData: FlBorderData(show: false),
                         sectionsSpace: 0,
-                        centerSpaceRadius: 40,
+                        centerSpaceRadius: double.nan,
                         sections: showingSections(data),
                       ),
                     ),
@@ -69,19 +69,23 @@ class _IucnPieChartState extends State<IucnPieChart> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: data.asMap().entries.map((e) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0),
-                          child: Indicator(
-                            color: colors[e.key % colors.length],
-                            text: '${e.value.key} (${e.value.value})',
-                            isSquare: true,
-                          ),
-                        );
-                      }).toList(),
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: data.asMap().entries.map((e) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Indicator(
+                              color: colors[e.key % colors.length],
+                              text: '${e.value.key} (${e.value.value})',
+                              isSquare: true,
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),

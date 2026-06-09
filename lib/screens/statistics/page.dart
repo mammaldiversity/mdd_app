@@ -45,7 +45,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
               ),
               const SizedBox(height: 16),
               ChartCard(
-                title: 'Timeline of Species Descriptions by Decade',
+                title: 'Species Descriptions by Decade',
                 chart: DecadeBarChart(stats: stats),
               ),
               const SizedBox(height: 16),
@@ -59,24 +59,37 @@ class _MddStatsState extends ConsumerState<MddStats> {
                 chart: RealmPieChart(stats: stats),
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ChartCard(
-                      title: 'Extinct vs. Extant',
-                      chart: ExtinctPieChart(stats: stats),
-                      height: 200,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ChartCard(
-                      title: 'Domesticated vs. Wild',
-                      chart: DomesticPieChart(stats: stats),
-                      height: 200,
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final extinctChart = ChartCard(
+                    title: 'Extinct vs. Extant',
+                    chart: ExtinctPieChart(stats: stats),
+                    height: 200,
+                  );
+                  final domesticChart = ChartCard(
+                    title: 'Domesticated vs. Wild',
+                    chart: DomesticPieChart(stats: stats),
+                    height: 200,
+                  );
+
+                  if (constraints.maxWidth < 600) {
+                    return Column(
+                      children: [
+                        extinctChart,
+                        const SizedBox(height: 16),
+                        domesticChart,
+                      ],
+                    );
+                  } else {
+                    return Row(
+                      children: [
+                        Expanded(child: extinctChart),
+                        const SizedBox(width: 16),
+                        Expanded(child: domesticChart),
+                      ],
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 32),
             ],

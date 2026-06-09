@@ -29,9 +29,13 @@ class _RealmPieChartState extends State<RealmPieChart> {
     final List<MapEntry<String, int>> data = widget.stats.biogeographicRealm;
     if (data.isEmpty) return const SizedBox.shrink();
 
-    return AspectRatio(
-      aspectRatio: 1.3,
-      child: Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: AspectRatio(
+            aspectRatio: 1.3,
+            child: Row(
         children: <Widget>[
           Expanded(
             child: AspectRatio(
@@ -53,7 +57,7 @@ class _RealmPieChartState extends State<RealmPieChart> {
                   ),
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 0,
-                  centerSpaceRadius: 40,
+                  centerSpaceRadius: double.nan,
                   sections: showingSections(data),
                 ),
               ),
@@ -62,9 +66,12 @@ class _RealmPieChartState extends State<RealmPieChart> {
           const SizedBox(width: 8),
           Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                 children: data.asMap().entries.map((e) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
@@ -78,9 +85,21 @@ class _RealmPieChartState extends State<RealmPieChart> {
           ),
         ),
       ),
-      const SizedBox(width: 8),
-    ],
       ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ),
+        ),
+        const SizedBox(height: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            "Note: Realms with uncertain occurrence ('?') have been aggregated into their primary realm.",
+            style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
+          ),
+        ),
+      ],
     );
   }
 

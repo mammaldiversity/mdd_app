@@ -24,8 +24,14 @@ class CountryBarChart extends StatelessWidget {
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final xAxisLabel = data[group.x.toInt()].key;
               return BarTooltipItem(
-                '$xAxisLabel\n${rod.toY.toInt()}',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                '$xAxisLabel\n',
+                const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.normal),
+                children: [
+                  TextSpan(
+                    text: '${rod.toY.toInt()}',
+                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
               );
             },
           ),
@@ -49,7 +55,22 @@ class CountryBarChart extends StatelessWidget {
               reservedSize: 80,
             ),
           ),
-          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 50)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 50,
+              interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+              getTitlesWidget: (value, meta) {
+                return SideTitleWidget(
+                  meta: meta,
+                  child: Text(
+                    value.toInt().toString(),
+                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                  ),
+                );
+              },
+            ),
+          ),
           topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),

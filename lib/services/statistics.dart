@@ -55,6 +55,9 @@ class StatisticsService {
       final realms = realmStr.split('|');
       for (var r in realms) {
         r = r.trim();
+        if (r.endsWith('?')) {
+          r = r.substring(0, r.length - 1).trim();
+        }
         if (r.isNotEmpty && r != 'NA') {
           realmCounts[r] = (realmCounts[r] ?? 0) + row.count;
         }
