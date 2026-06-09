@@ -33,6 +33,13 @@ jobs:
       - name: Install mil-kit
         run: pip install mil-kit
 
+      - name: Install uv
+        run: pip install uv
+
+      - name: Test tools (svg_generator)
+        working-directory: tools/svg_generator
+        run: uv run pytest
+
       - name: Install MDD CLI
         run: cargo install mdd_api
 

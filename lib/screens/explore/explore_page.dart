@@ -24,11 +24,17 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
               ..._groupByOrder(speciesList).entries.map(
                 (MapEntry<String, List<MddGroupListResult>> entry) {
                   return ExpansionTile(
+                    iconColor: Theme.of(context).colorScheme.secondary,
                     leading: SvgPicture.asset(
                       'assets/order-icons/${entry.key.toLowerCase()}.svg',
                       width: 32,
                       height: 32,
-                      placeholderBuilder: (BuildContext context) => const Icon(Icons.pets, size: 24),
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.secondary,
+                        BlendMode.srcIn,
+                      ),
+                      placeholderBuilder: (BuildContext context) =>
+                          const Icon(Icons.pets, size: 24),
                     ),
                     title: Text(
                       entry.key,
@@ -65,8 +71,10 @@ class FamilyGroups extends StatelessWidget {
         ..._groupByFamily(taxonList).entries.map(
           (MapEntry<String, List<MddGroupListResult>> entry) {
             return ExpansionTile(
+              iconColor: Theme.of(context).colorScheme.secondary,
               leading: Icon(Icons.view_list_rounded,
-                  color: Theme.of(context).colorScheme.tertiary.withAlpha(400)),
+                  color:
+                      Theme.of(context).colorScheme.secondary.withAlpha(200)),
               title: Text(entry.key,
                   style: Theme.of(context).textTheme.titleMedium),
               children: <Widget>[
@@ -97,8 +105,9 @@ class GenusGroup extends StatelessWidget {
         ..._groupByGenus(taxonList).entries.map(
           (MapEntry<String, List<MddGroupListResult>> entry) {
             return ExpansionTile(
+              iconColor: Theme.of(context).colorScheme.secondary,
               backgroundColor:
-                  Theme.of(context).colorScheme.primary.withAlpha(24),
+                  Theme.of(context).colorScheme.secondary.withAlpha(40),
               title: Text(
                 entry.key,
                 style: Theme.of(context).textTheme.titleMedium?.apply(
@@ -149,7 +158,7 @@ class SpeciesGroups extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(8),
                     child: SizedBox(
                       height: 50,
                       width: 50,
@@ -266,18 +275,18 @@ class SpeciesTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final defaultTileColor = isOddIndex
-        ? Theme.of(context).colorScheme.primary.withAlpha(32)
+        ? Theme.of(context).colorScheme.secondary.withAlpha(32)
         : Color.lerp(
-            Theme.of(context).colorScheme.primary.withAlpha(32),
+            Theme.of(context).colorScheme.secondary.withAlpha(32),
             Theme.of(context).colorScheme.surface,
             0.1,
           );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Container(
+        child: Material(
           color: defaultTileColor,
           child: Stack(
             children: [

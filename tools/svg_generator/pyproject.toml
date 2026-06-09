@@ -13,3 +13,8 @@ dependencies = [
 
 [project.scripts]
 svg-generator = "main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
