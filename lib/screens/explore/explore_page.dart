@@ -297,31 +297,34 @@ class SpeciesTile extends ConsumerWidget {
                 width: 100,
                 child: SpeciesTileImage(mddId: taxonData.id),
               ),
-              ListTile(
-                contentPadding: const EdgeInsets.only(
-                    left: 116, right: 16, top: 8, bottom: 8),
-                title: Text(
-                  '${taxonData.genus} ${taxonData.specificEpithet}',
-                  style: Theme.of(context).textTheme.titleMedium?.apply(
-                        fontStyle: FontStyle.italic,
+              Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.only(
+                      left: 116, right: 16, top: 8, bottom: 8),
+                  title: Text(
+                    '${taxonData.genus} ${taxonData.specificEpithet}',
+                    style: Theme.of(context).textTheme.titleMedium?.apply(
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
+                  subtitle: Text(
+                    taxonData.mainCommonName,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  trailing: const Icon(Icons.info_outline, size: 20),
+                  onTap: () {
+                    ref
+                        .read(currentMddIDProvider.notifier)
+                        .setMddID(taxonData.id);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const SpeciesPage(),
                       ),
+                    );
+                  },
                 ),
-                subtitle: Text(
-                  taxonData.mainCommonName,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                trailing: const Icon(Icons.info_outline, size: 20),
-                onTap: () {
-                  ref
-                      .read(currentMddIDProvider.notifier)
-                      .setMddID(taxonData.id);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext context) => const SpeciesPage(),
-                    ),
-                  );
-                },
               ),
             ],
           ),

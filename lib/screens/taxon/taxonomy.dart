@@ -40,8 +40,8 @@ class ClassificationContainer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SubOrderAndHigherTaxa(taxonData: taxonData),
-                    LowerInfraOrderTaxa(taxonData: taxonData),
+                    Expanded(child: SubOrderAndHigherTaxa(taxonData: taxonData)),
+                    Expanded(child: LowerInfraOrderTaxa(taxonData: taxonData)),
                   ],
                 ),
         ],
@@ -150,26 +150,30 @@ class ClassificationData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return name != null && name != 'NA'
-        ? RichText(
-            textAlign: TextAlign.left,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              children: <TextSpan>[
-                TextSpan(
-                  text: '$rank: ',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                TextSpan(
-                  text: name,
-                  style: isItalic
-                      ? Theme.of(context).textTheme.bodyMedium?.apply(
-                            fontStyle: FontStyle.italic,
-                            letterSpacingDelta: 0.8,
-                          )
-                      : Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ))
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 4.0),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$rank: ',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  TextSpan(
+                    text: name!,
+                    style: isItalic
+                        ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              letterSpacing: 0.8,
+                            )
+                        : Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          )
         : const SizedBox.shrink();
   }
 }
