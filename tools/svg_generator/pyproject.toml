@@ -1,0 +1,15 @@
+[project]
+name = "svg-generator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.6",
+    "opencv-python>=4.13.0.92",
+    "python-dotenv>=1.2.2",
+    "svgwrite>=1.4.3",
+]
+
+[project.scripts]
+svg-generator = "main:main"
