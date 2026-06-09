@@ -6,6 +6,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ExploreSpecies extends ConsumerStatefulWidget {
   const ExploreSpecies({super.key});
@@ -23,6 +24,12 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
               ..._groupByOrder(speciesList).entries.map(
                 (MapEntry<String, List<MddGroupListResult>> entry) {
                   return ExpansionTile(
+                    leading: SvgPicture.asset(
+                      'assets/order-icons/${entry.key.toLowerCase()}.svg',
+                      width: 32,
+                      height: 32,
+                      placeholderBuilder: (BuildContext context) => const Icon(Icons.pets, size: 24),
+                    ),
                     title: Text(
                       entry.key,
                       style: Theme.of(context).textTheme.titleMedium,
@@ -59,7 +66,7 @@ class FamilyGroups extends StatelessWidget {
           (MapEntry<String, List<MddGroupListResult>> entry) {
             return ExpansionTile(
               leading: Icon(Icons.view_list_rounded,
-                  color: Theme.of(context).colorScheme.onSurface),
+                  color: Theme.of(context).colorScheme.tertiary.withAlpha(400)),
               title: Text(entry.key,
                   style: Theme.of(context).textTheme.titleMedium),
               children: <Widget>[
@@ -200,7 +207,6 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
             data.where((e) => e.orientation == 'landscape').toList();
         if (landscapeImages.isEmpty) {
           return Container(
-            width: 80,
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child:
                 const Center(child: Icon(Icons.image_not_supported, size: 24)),
@@ -220,10 +226,9 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
             'assets/mil-images/${image.milId}.webp',
             key: ValueKey(image.milId),
             fit: BoxFit.cover,
-            width: 80,
+            width: double.infinity,
             height: double.infinity,
             errorBuilder: (context, error, stackTrace) => Container(
-              width: 80,
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: const Center(child: Icon(Icons.broken_image, size: 24)),
             ),
@@ -231,7 +236,6 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
         );
       },
       loading: () => Container(
-        width: 80,
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: const Center(
           child: SizedBox(
@@ -242,7 +246,6 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
         ),
       ),
       error: (_, __) => Container(
-        width: 80,
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: const Center(child: Icon(Icons.error_outline, size: 24)),
       ),
@@ -271,39 +274,49 @@ class SpeciesTile extends ConsumerWidget {
           );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-      child: ListTile(
-        visualDensity: VisualDensity.compact,
-        contentPadding: const EdgeInsets.only(left: 0, right: 16),
-        minVerticalPadding: 0,
-        tileColor: defaultTileColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        leading: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          child: SpeciesTileImage(mddId: taxonData.id),
-        ),
-        title: Text(
-          '${taxonData.genus} ${taxonData.specificEpithet}',
-          style: Theme.of(context).textTheme.titleMedium?.apply(
-                fontStyle: FontStyle.italic,
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          color: defaultTileColor,
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 100,
+                child: SpeciesTileImage(mddId: taxonData.id),
               ),
+              ListTile(
+                contentPadding: const EdgeInsets.only(
+                    left: 116, right: 16, top: 8, bottom: 8),
+                title: Text(
+                  '${taxonData.genus} ${taxonData.specificEpithet}',
+                  style: Theme.of(context).textTheme.titleMedium?.apply(
+                        fontStyle: FontStyle.italic,
+                      ),
+                ),
+                subtitle: Text(
+                  taxonData.mainCommonName,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                trailing: const Icon(Icons.info_outline, size: 20),
+                onTap: () {
+                  ref
+                      .read(currentMddIDProvider.notifier)
+                      .setMddID(taxonData.id);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const SpeciesPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-        subtitle: Text(
-          taxonData.mainCommonName,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: () {
-          ref.read(currentMddIDProvider.notifier).setMddID(taxonData.id);
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => const SpeciesPage(),
-            ),
-          );
-        },
       ),
     );
   }

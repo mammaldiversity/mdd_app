@@ -52,6 +52,7 @@ dependencies:
   fl_chart: ^1.2.0
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +98,7 @@ flutter:
     - assets/icons/
     - assets/animations/
     - assets/mil-images/
+    - assets/order-icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -63,6 +63,8 @@ test.json
 *.csv
 __MACOSX
 MDD
+*.db
+*.sqlite
 
 # MIL Images
 assets/mil-images/
