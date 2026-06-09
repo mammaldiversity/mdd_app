@@ -39,7 +39,6 @@ jobs:
 
       - name: Extract MDD data
         working-directory: assets/data
-        shell: bash
         run: |
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
           mdd unpack -i MDD.zip
