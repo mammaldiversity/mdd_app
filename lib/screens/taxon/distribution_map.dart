@@ -23,7 +23,9 @@ class _DistributionMapState extends State<DistributionMap> {
   }
 
   Future<void> _loadPolygons() async {
-    if (widget.countryDistribution == null || widget.countryDistribution!.isEmpty || widget.countryDistribution == 'NA') {
+    if (widget.countryDistribution == null ||
+        widget.countryDistribution!.isEmpty ||
+        widget.countryDistribution == 'NA') {
       setState(() {
         _isLoading = false;
       });
@@ -31,7 +33,8 @@ class _DistributionMapState extends State<DistributionMap> {
     }
 
     try {
-      final String geoJsonData = await rootBundle.loadString('assets/data/countries.geojson');
+      final String geoJsonData =
+          await rootBundle.loadString('assets/data/countries.geojson');
       final Map<String, dynamic> json = jsonDecode(geoJsonData);
       final features = json['features'] as List;
 
@@ -42,7 +45,8 @@ class _DistributionMapState extends State<DistributionMap> {
 
       bool isTargetCountry(String name) {
         final lowerName = name.toLowerCase();
-        return targetCountries.any((target) => target.contains(lowerName) || lowerName.contains(target));
+        return targetCountries.any((target) =>
+            target.contains(lowerName) || lowerName.contains(target));
       }
 
       List<Polygon> loadedPolygons = [];
@@ -96,7 +100,8 @@ class _DistributionMapState extends State<DistributionMap> {
     }
     return Polygon(
       points: points,
-      color: const Color(0xFF117554).withOpacity(0.5), // Known color from website
+      color: const Color(0xFF117554)
+          .withValues(alpha: 0.5), // Known color from website
       borderColor: const Color(0xFF117554),
       borderStrokeWidth: 1,
     );
@@ -104,7 +109,9 @@ class _DistributionMapState extends State<DistributionMap> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.countryDistribution == null || widget.countryDistribution!.isEmpty || widget.countryDistribution == 'NA') {
+    if (widget.countryDistribution == null ||
+        widget.countryDistribution!.isEmpty ||
+        widget.countryDistribution == 'NA') {
       return const SizedBox.shrink();
     }
 
@@ -113,45 +120,53 @@ class _DistributionMapState extends State<DistributionMap> {
         ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
         : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        Text(
-          'Distribution Map',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 300,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(0, 0),
-                initialZoom: 1,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: mapUrl,
-                  subdomains: const ['a', 'b', 'c'],
-                  userAgentPackageName: 'org.mammaldiversity.mdd',
-                ),
-                if (!_isLoading && _polygons.isNotEmpty)
-                  PolygonLayer(
-                    polygons: _polygons,
-                  ),
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.tertiary.withAlpha(16),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(
+              'Distribution Map',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-        ),
-        if (_isLoading)
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Center(child: CircularProgressIndicator()),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 300,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: FlutterMap(
+                options: const MapOptions(
+                  initialCenter: LatLng(0, 0),
+                  initialZoom: 1,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: mapUrl,
+                    subdomains: const ['a', 'b', 'c'],
+                    userAgentPackageName: 'org.mammaldiversity.mdd',
+                  ),
+                  if (!_isLoading && _polygons.isNotEmpty)
+                    PolygonLayer(
+                      polygons: _polygons,
+                    ),
+                ],
+              ),
+            ),
           ),
-        const SizedBox(height: 8),
-      ],
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
     );
   }
 }

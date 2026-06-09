@@ -54,7 +54,7 @@ class TaxonForm extends StatelessWidget {
                 child: Center(
                   child: ConstrainedBox(
                       constraints: const BoxConstraints(
-                        maxWidth: 1200,
+                        maxWidth: 1600,
                       ),
                       child: OtherDetailsResponsive(taxonData: taxonData)),
                 ),
@@ -107,7 +107,7 @@ class OtherDetailsResponsive extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth > 800) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: ListView(
