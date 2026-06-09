@@ -103,3 +103,12 @@ CREATE TABLE synonym (
 );
 
 mddGroupList: SELECT id,taxonOrder,family,genus FROM taxonomy;
+
+statSpeciesPerOrder: SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC;
+statSpeciesPerFamily: SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15;
+statSpeciesByIucnStatus: SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != '' GROUP BY iucnStatus ORDER BY count DESC;
+statSpeciesByDiscoveryDecade: SELECT (authoritySpeciesYear / 10) * 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC;
+statExtinctSpecies: SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct;
+statDomesticSpecies: SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic;
+statSpeciesByBiogeographicRealm: SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != '' AND biogeographicRealm != 'NA' GROUP BY biogeographicRealm ORDER BY count DESC;
+statCountryDistributions: SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != '';

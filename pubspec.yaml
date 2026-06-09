@@ -50,6 +50,7 @@ dependencies:
   rust_lib_mdd:
     path: rust_builder
   flutter_rust_bridge: 2.8.0
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
