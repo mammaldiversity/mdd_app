@@ -6,6 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:mdd/screens/shared/card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+const String mapDescription = 'The map below provides a general overview. '
+    'Most species inhabit only specific regions within countries.';
+
 class DistributionMap extends StatefulWidget {
   const DistributionMap({super.key, required this.countryDistribution});
   final String? countryDistribution;
@@ -133,6 +136,7 @@ class _DistributionMapState extends State<DistributionMap> {
 
     return CommonCard(
       title: 'Distribution Map',
+      description: mapDescription,
       child: SizedBox(
         height: 300,
         child: ClipRRect(

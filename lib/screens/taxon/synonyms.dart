@@ -7,6 +7,9 @@ import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/synonyms.dart';
 import 'package:mdd/services/system.dart';
 
+const String synonymDescription =
+    'Present and past (if available) associated names to the species.';
+
 class SynonymList extends ConsumerWidget {
   const SynonymList({super.key});
 
@@ -49,6 +52,7 @@ class _SynonymContainerState extends State<SynonymContainer> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: CommonCard(
           title: 'Synonyms',
+          description: synonymDescription,
           child: Container(
             width: double.infinity,
             color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
