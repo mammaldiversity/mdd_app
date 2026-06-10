@@ -116,13 +116,16 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainer
+                        .withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     '${_currentIndex + 1} / ${widget.data.length}',
-                    style: const TextStyle(
-                        color: Colors.white,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 14),
                   ),
@@ -134,10 +137,7 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
             borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(16),
                 bottomRight: Radius.circular(16)),

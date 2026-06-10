@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DistributionMap extends StatefulWidget {
   const DistributionMap({super.key, required this.countryDistribution});
@@ -120,9 +121,18 @@ class _DistributionMapState extends State<DistributionMap> {
         ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
         : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
 
+    LatLngBounds? getBounds() {
+      if (_polygons.isEmpty) return null;
+      final points = _polygons.expand((p) => p.points).toList();
+      if (points.isEmpty) return null;
+      return LatLngBounds.fromPoints(points);
+    }
+
+    final bounds = getBounds();
+
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary.withAlpha(16),
+        color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -141,30 +151,63 @@ class _DistributionMapState extends State<DistributionMap> {
             height: 300,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(0, 0),
-                  initialZoom: 1,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: mapUrl,
-                    subdomains: const ['a', 'b', 'c'],
-                    userAgentPackageName: 'org.mammaldiversity.mdd',
-                  ),
-                  if (!_isLoading && _polygons.isNotEmpty)
-                    PolygonLayer(
-                      polygons: _polygons,
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : FlutterMap(
+                      options: MapOptions(
+                        initialCenter: const LatLng(0, 0),
+                        initialZoom: 1,
+                        initialCameraFit: bounds != null
+                            ? CameraFit.bounds(
+                                bounds: bounds,
+                                padding: const EdgeInsets.all(16),
+                              )
+                            : null,
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: mapUrl,
+                          subdomains: const ['a', 'b', 'c'],
+                          userAgentPackageName: 'org.mammaldiversity.mdd',
+                        ),
+                        if (_polygons.isNotEmpty)
+                          PolygonLayer(
+                            polygons: _polygons,
+                          ),
+                        RichAttributionWidget(
+                          alignment: AttributionAlignment.bottomLeft,
+                          openButton: (context, open) => IconButton(
+                            onPressed: open,
+                            tooltip: 'Attributions',
+                            icon: Icon(
+                              Icons.info_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          closeButton: (context, close) => IconButton(
+                            onPressed: close,
+                            icon: Icon(
+                              Icons.cancel_outlined,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          attributions: [
+                            TextSourceAttribution(
+                              'OpenStreetMap contributors, © CARTO',
+                              onTap: () => launchUrl(
+                                  Uri.parse('https://carto.com/attributions')),
+                            ),
+                            TextSourceAttribution(
+                              'Country Boundaries: Natural Earth',
+                              onTap: () => launchUrl(Uri.parse(
+                                  'https://www.naturalearthdata.com/')),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                ],
-              ),
             ),
           ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(child: CircularProgressIndicator()),
-            ),
         ],
       ),
     );
