@@ -42,23 +42,29 @@ class TaxonForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 1600,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                SpeciesDetails(taxonData: taxonData),
-                OtherDetailsResponsive(taxonData: taxonData),
-                const SizedBox(height: 16),
-                const CorrectionRequest(),
-              ],
-            ),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 1600,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SpeciesDetails(taxonData: taxonData),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      OtherDetailsResponsive(taxonData: taxonData),
+                      const SizedBox(height: 16),
+                      const CorrectionRequest(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
