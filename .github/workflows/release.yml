@@ -14,9 +14,12 @@ jobs:
       run:
         shell: bash
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -30,7 +33,7 @@ jobs:
           toolchain: stable
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -73,6 +76,12 @@ jobs:
             --mdd-file "$MDD_FILE" \
             --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
             --output mil
+      
+      - name: Move MDD data to assets
+        working-directory: assets/data
+        run: |
+          echo "Moving MDD data to assets/data/data.json.gz"
+          find . -type f -name "mdd.json.gz" -exec mv {} data.json.gz \;
 
       - name: Move MIL to assets
         working-directory: assets/data
@@ -84,30 +93,41 @@ jobs:
           echo "Moving mil.json to assets/data/mil.json"
           find . -name "mil.json" -exec mv {} mil.json \;
 
-      - name: Verify mil.json exists
+      - name: Verify all data exist
         run: |
           if [ ! -f assets/data/mil.json ]; then
             echo "Error: mil.json not found in assets/data"
             exit 1
           fi
-          echo "mil.json found in assets/data"
-
+          if [ ! -f assets/data/data.json.gz ]; then
+            echo "Error: data.json.gz not found in assets/data"
+            exit 1
+          fi
+          if [ ! -d assets/mil-images ]; then
+            echo "Error: assets/mil-images not found in assets"
+            exit 1
+          fi
+          echo "All data found in assets"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          
       - run: |
           flutter pub get
           flutter analyze
 
-      - name: Build
-        uses: subosito/flutter-action@v2
-      - if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Build Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --release
+      
+      - name: Build Android
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
           flutter build apk --release --split-per-abi
 
       - if: ${{ matrix.os == 'windows-latest' }}
@@ -120,7 +140,7 @@ jobs:
           echo "Compressing files..."
           mkdir mdd
           mv build/linux/x64/release/bundle/* mdd
-          tar -czvf mdd.tar.gz mdd
+          tar -czvf mdd-Linux-x86_64.tar.gz mdd
 
       - name: Compress Windows
         if: ${{ matrix.os == 'windows-latest' }}
@@ -129,32 +149,13 @@ jobs:
           mkdir mdd
           echo "Compressing files..."
           mv build/windows/x64/runner/Release/* mdd
-          powershell Compress-Archive -Path mdd -DestinationPath mdd.zip
+          powershell Compress-Archive -Path mdd -DestinationPath mdd-Windows-x86_64.zip
 
-      - name: Upload linux
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload Artifacts to Release
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: mdd.tar.gz
-          asset_name: mdd-Linux-x86_64.tar.gz
-          tag: ${{ github.ref_name }}
-
-      - name: Upload android
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/app/outputs/apk/release/*.apk
-          tag: ${{ github.ref_name }}
-          overwrite: true
-          file_glob: true
-
-      - name: Upload windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: mdd.zip
-          asset_name: mdd-Windows-x86_64.zip
-          tag: ${{ github.ref_name }}
+          files: |
+            mdd-Linux-x86_64.tar.gz
+            mdd-Windows-x86_64.zip
+            build/app/outputs/apk/release/*.apk
+          fail_on_unmatched_files: false
