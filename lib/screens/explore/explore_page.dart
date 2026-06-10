@@ -6,6 +6,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
+import 'package:mdd/services/common_names.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ExploreSpecies extends ConsumerStatefulWidget {
@@ -39,6 +40,12 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
                     title: Text(
                       entry.key,
                       style: Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      MammalianOrders().getCommonName(entry.key),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     children: <Widget>[FamilyGroups(taxonList: entry.value)],
                   );
@@ -76,7 +83,8 @@ class FamilyGroups extends StatelessWidget {
                   color:
                       Theme.of(context).colorScheme.secondary.withAlpha(200)),
               title: Text(entry.key,
-                  style: Theme.of(context).textTheme.titleMedium),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis),
               children: <Widget>[
                 GenusGroup(taxonList: entry.value),
               ],
