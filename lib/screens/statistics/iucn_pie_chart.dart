@@ -15,20 +15,42 @@ class IucnPieChart extends StatefulWidget {
 
 class _IucnPieChartState extends State<IucnPieChart> {
   int touchedIndex = -1;
-  final colors = [
-    Colors.red,
-    Colors.orange,
-    Colors.yellow,
-    Colors.green,
-    Colors.grey,
-    Colors.blue,
-    Colors.purple
-  ];
+  
+  final Map<String, Color> iucnColors = {
+    'EX': Colors.black87,
+    'EW': Colors.purple.shade900,
+    'CR': Colors.red,
+    'EN': Colors.orange,
+    'VU': Colors.yellow.shade800,
+    'NT': Colors.lightGreen,
+    'LC': Colors.green,
+    'DD': Colors.grey,
+    'NE': Colors.blueGrey,
+  };
+
+  final Map<String, int> iucnOrder = {
+    'EX': 0,
+    'EW': 1,
+    'CR': 2,
+    'EN': 3,
+    'VU': 4,
+    'NT': 5,
+    'LC': 6,
+    'DD': 7,
+    'NE': 8,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final List<MapEntry<String, int>> data = widget.stats.iucnStatus;
-    if (data.isEmpty) return const SizedBox.shrink();
+    final List<MapEntry<String, int>> rawData = widget.stats.iucnStatus;
+    if (rawData.isEmpty) return const SizedBox.shrink();
+
+    final List<MapEntry<String, int>> data = List.from(rawData)
+      ..sort((a, b) {
+        final orderA = iucnOrder[a.key] ?? 99;
+        final orderB = iucnOrder[b.key] ?? 99;
+        return orderA.compareTo(orderB);
+      });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,8 +101,8 @@ class _IucnPieChartState extends State<IucnPieChart> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 4.0),
                             child: Indicator(
-                              color: colors[e.key % colors.length],
-                              text: '${e.value.key} (${e.value.value})',
+                              color: iucnColors[e.value.key] ?? Colors.grey,
+                              text: '${_getFullIucnName(e.value.key)} (${e.value.value})',
                               isSquare: true,
                             ),
                           );
@@ -120,7 +142,7 @@ class _IucnPieChartState extends State<IucnPieChart> {
       final isLarge = count > 300 || isTouched;
 
       return PieChartSectionData(
-        color: colors[i % colors.length],
+        color: iucnColors[e.key] ?? Colors.grey,
         value: count.toDouble(),
         title: isLarge ? '$count' : '',
         radius: radius,
@@ -132,5 +154,20 @@ class _IucnPieChartState extends State<IucnPieChart> {
         ),
       );
     }).toList();
+  }
+
+  String _getFullIucnName(String code) {
+    const map = {
+      'EX': 'Extinct',
+      'EW': 'Extinct in the Wild',
+      'CR': 'Critically Endangered',
+      'EN': 'Endangered',
+      'VU': 'Vulnerable',
+      'NT': 'Near Threatened',
+      'LC': 'Least Concern',
+      'DD': 'Data Deficient',
+      'NE': 'Not Evaluated',
+    };
+    return map[code] ?? code;
   }
 }

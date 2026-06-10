@@ -24,6 +24,7 @@ class ChartCard extends StatelessWidget {
           children: [
             Text(
               title,
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),

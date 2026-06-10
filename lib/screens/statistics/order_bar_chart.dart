@@ -15,11 +15,24 @@ class OrderBarChart extends StatelessWidget {
         stats.speciesPerOrder.take(10).toList();
     double maxY =
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: maxY * 1.1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final requiredWidth = data.length * (20.0 + 12.0) + 50.0;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: requiredWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.center,
+                groupsSpace: 12,
+                maxY: maxY * 1.1,
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
@@ -49,16 +62,20 @@ class OrderBarChart extends StatelessWidget {
                 if (index < 0 || index >= data.length) {
                   return const SizedBox.shrink();
                 }
+
+                String text = data[index].name ?? '';
+                if (text.length > 11) text = '${text.substring(0, 9)}...';
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text(data[index].name ?? '',
-                        style: const TextStyle(fontSize: 10)),
+                    angle: -1.0,
+                    child: Text(text,
+                        style: TextStyle(fontSize: 10, color: textColor)),
                   ),
                 );
               },
-              reservedSize: 60,
+              reservedSize: 80,
             ),
           ),
           leftTitles: AxisTitles(
@@ -71,14 +88,19 @@ class OrderBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },
             ),
           ),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 24,
+              getTitlesWidget: (value, meta) => const SizedBox.shrink(),
+            ),
+          ),
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
@@ -98,6 +120,11 @@ class OrderBarChart extends StatelessWidget {
           );
         }).toList(),
       ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

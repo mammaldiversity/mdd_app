@@ -13,11 +13,24 @@ class DecadeBarChart extends StatelessWidget {
     if (stats.discoveryDecade.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryDecadeResult> data = stats.discoveryDecade;
     double maxY = data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: maxY * 1.1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final requiredWidth = data.length * (8.0 + 4.0) + 50.0;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: requiredWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.center,
+                groupsSpace: 4,
+                maxY: maxY * 1.1,
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
@@ -49,8 +62,8 @@ class DecadeBarChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text('${data[index].decade?.toInt() ?? 0}s', style: const TextStyle(fontSize: 10)),
+                    angle: -0.8,
+                    child: Text('${data[index].decade?.toInt() ?? 0}s', style: TextStyle(fontSize: 10, color: textColor)),
                   ),
                 );
               },
@@ -67,13 +80,19 @@ class DecadeBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 24,
+              getTitlesWidget: (value, meta) => const SizedBox.shrink(),
+            ),
+          ),
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         gridData: const FlGridData(show: false),
@@ -92,6 +111,11 @@ class DecadeBarChart extends StatelessWidget {
           );
         }).toList(),
       ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
