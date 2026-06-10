@@ -89,12 +89,12 @@ class _MddStatsState extends ConsumerState<MddStats> {
                   const SizedBox(height: 16),
                   buildRow(
                     ChartCard(
-                      title: 'Extinct vs. Extant',
+                      title: 'Extinct vs. Extant Species',
                       chart: ExtinctPieChart(stats: stats),
                       height: 200,
                     ),
                     ChartCard(
-                      title: 'Domesticated vs. Wild',
+                      title: 'Domesticated vs. Wild Species',
                       chart: DomesticPieChart(stats: stats),
                       height: 200,
                     ),

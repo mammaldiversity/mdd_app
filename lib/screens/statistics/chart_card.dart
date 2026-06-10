@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/shared/card.dart';
 
 class ChartCard extends StatelessWidget {
   final String title;
@@ -14,26 +15,13 @@ class ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: height,
-              child: chart,
-            ),
-          ],
-        ),
+    return CommonCard(
+      title: title,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        child: SizedBox(height: height, child: chart),
       ),
     );
   }

@@ -54,6 +54,7 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
           IconButton(
             icon: const Icon(Icons.tune),
             onPressed: widget.onFiltering,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ],
         onChanged: widget.onChanged,
@@ -121,7 +122,8 @@ class SearchResultInfo extends ConsumerWidget {
                           SearchInfoBox(
                             color: Theme.of(context)
                                 .colorScheme
-                                .secondaryContainer,
+                                .secondaryContainer
+                                .withValues(alpha: 0.6),
                             child: Text(
                               'Found $foundRecordCount of $totalRecords records',
                               style: Theme.of(context).textTheme.bodyMedium,
@@ -131,7 +133,10 @@ class SearchResultInfo extends ConsumerWidget {
                           const SizedBox(width: 4),
                           SearchInfoBox(
                             padding: 8,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withValues(alpha: 0.6),
                             child: SearchExportButton(mddIDs: foundRecords),
                           ),
                         ],
@@ -161,7 +166,7 @@ class SearchInfoBox extends StatelessWidget {
         height: 48,
         padding: EdgeInsets.symmetric(horizontal: padding),
         decoration: BoxDecoration(
-          color: color ?? Theme.of(context).colorScheme.primary,
+          color: color ?? Theme.of(context).colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Center(child: child));
@@ -183,7 +188,7 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
     return IconButton(
       icon: Icon(
         Icons.adaptive.share,
-        color: Theme.of(context).colorScheme.onSecondary,
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
       tooltip: 'Export',
       onPressed: () async {
