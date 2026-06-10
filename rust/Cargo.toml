@@ -8,4 +8,4 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.12.0"
-mdd_api = { path = "../mdd_api" }
+mdd_api = "0.7.0"
