@@ -11,6 +11,8 @@ import 'package:mdd/screens/statistics/iucn_pie_chart.dart';
 import 'package:mdd/screens/statistics/order_bar_chart.dart';
 import 'package:mdd/screens/statistics/realm_pie_chart.dart';
 import 'package:mdd/screens/statistics/year_bar_chart.dart';
+import 'package:mdd/screens/statistics/images_bar_chart.dart';
+import 'package:mdd/screens/statistics/images_pie_chart.dart';
 import 'package:mdd/services/providers/statistics.dart';
 
 class MddStats extends ConsumerStatefulWidget {
@@ -86,6 +88,17 @@ class _MddStatsState extends ConsumerState<MddStats> {
                     ChartCard(
                       title: 'Species Descriptions by Year (Top 15)',
                       chart: YearBarChart(stats: stats),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  buildRow(
+                    ChartCard(
+                      title: 'Species with Most Images (Top 15)',
+                      chart: ImagesBarChart(stats: stats),
+                    ),
+                    ChartCard(
+                      title: 'Proportion of Species with Images',
+                      chart: ImagesPieChart(stats: stats),
                     ),
                   ),
                   const SizedBox(height: 16),

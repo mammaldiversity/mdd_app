@@ -165,6 +165,36 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         ));
   }
 
+  Selectable<StatSpeciesWithMostImagesResult> statSpeciesWithMostImages() {
+    return customSelect(
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          milData,
+        }).map((QueryRow row) => StatSpeciesWithMostImagesResult(
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          imageCount: row.read<int>('imageCount'),
+        ));
+  }
+
+  Selectable<int> statSpeciesWithImagesCount() {
+    return customSelect('SELECT COUNT(DISTINCT mddId) AS count FROM milData',
+        variables: [],
+        readsFrom: {
+          milData,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statTotalSpeciesCount() {
+    return customSelect('SELECT COUNT(id) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
   MddQueryManager get managers => MddQueryManager(this);
 }
 
@@ -301,5 +331,16 @@ class RandomMilImagesWithTaxonomyResult {
     this.genus,
     this.specificEpithet,
     this.mainCommonName,
+  });
+}
+
+class StatSpeciesWithMostImagesResult {
+  final String? genus;
+  final String? specificEpithet;
+  final int imageCount;
+  StatSpeciesWithMostImagesResult({
+    this.genus,
+    this.specificEpithet,
+    required this.imageCount,
   });
 }

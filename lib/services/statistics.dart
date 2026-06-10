@@ -11,6 +11,9 @@ class MddStatistics {
   final List<StatDomesticSpeciesResult> domesticSpecies;
   final List<MapEntry<String, int>> biogeographicRealm;
   final List<MapEntry<String, int>> topCountries;
+  final List<StatSpeciesWithMostImagesResult> speciesWithMostImages;
+  final int speciesWithImagesCount;
+  final int totalSpeciesCount;
 
   MddStatistics({
     required this.speciesPerOrder,
@@ -23,6 +26,9 @@ class MddStatistics {
     required this.domesticSpecies,
     required this.biogeographicRealm,
     required this.topCountries,
+    required this.speciesWithMostImages,
+    required this.speciesWithImagesCount,
+    required this.totalSpeciesCount,
   });
 }
 
@@ -42,7 +48,7 @@ class StatisticsService {
     final discoveryYear = await mddQuery.statSpeciesByDiscoveryYear().get();
     final extinctSpecies = await mddQuery.statExtinctSpecies().get();
     final domesticSpecies = await mddQuery.statDomesticSpecies().get();
-    
+
     final rawRealm = await mddQuery.statSpeciesByBiogeographicRealm().get();
     final cleanedRealm = cleanBiogeographicRealmData(rawRealm);
 
@@ -63,6 +69,17 @@ class StatisticsService {
       ..sort((a, b) => b.value.compareTo(a.value));
     final topCountries = sortedCountries.take(15).toList();
 
+    final speciesWithMostImages =
+        await mddQuery.statSpeciesWithMostImages().get();
+
+    // count might be 0, so fallback to 0
+    final speciesWithImagesRow =
+        await mddQuery.statSpeciesWithImagesCount().getSingle();
+    final speciesWithImagesCount = speciesWithImagesRow;
+
+    final totalSpeciesRow = await mddQuery.statTotalSpeciesCount().getSingle();
+    final totalSpeciesCount = totalSpeciesRow;
+
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,
       speciesPerFamily: speciesPerFamily,
@@ -74,6 +91,9 @@ class StatisticsService {
       domesticSpecies: domesticSpecies,
       biogeographicRealm: cleanedRealm,
       topCountries: topCountries,
+      speciesWithMostImages: speciesWithMostImages,
+      speciesWithImagesCount: speciesWithImagesCount,
+      totalSpeciesCount: totalSpeciesCount,
     );
   }
 
