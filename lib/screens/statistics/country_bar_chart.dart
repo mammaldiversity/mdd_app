@@ -12,6 +12,7 @@ class CountryBarChart extends StatelessWidget {
     if (stats.topCountries.isEmpty) return const SizedBox.shrink();
     final data = stats.topCountries;
     double maxY = data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return BarChart(
       BarChartData(
@@ -44,11 +45,19 @@ class CountryBarChart extends StatelessWidget {
               getTitlesWidget: (double value, TitleMeta meta) {
                 final int index = value.toInt();
                 if (index < 0 || index >= data.length) return const SizedBox.shrink();
+                
+                String text = data[index].key;
+                if (text == 'United States of America') text = 'USA';
+                else if (text == 'Democratic Republic of the Congo') text = 'DR Congo';
+                else if (text == 'Papua New Guinea') text = 'PNG';
+                else if (text == 'Central African Republic') text = 'CAR';
+                else if (text.length > 12) text = '${text.substring(0, 10)}...';
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text(data[index].key, style: const TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
+                    angle: -0.8,
+                    child: Text(text, style: TextStyle(fontSize: 10, color: textColor), overflow: TextOverflow.ellipsis),
                   ),
                 );
               },
@@ -65,7 +74,7 @@ class CountryBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },

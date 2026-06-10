@@ -15,6 +15,7 @@ class OrderBarChart extends StatelessWidget {
         stats.speciesPerOrder.take(10).toList();
     double maxY =
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return BarChart(
       BarChartData(
@@ -49,16 +50,20 @@ class OrderBarChart extends StatelessWidget {
                 if (index < 0 || index >= data.length) {
                   return const SizedBox.shrink();
                 }
+
+                String text = data[index].name ?? '';
+                if (text.length > 11) text = '${text.substring(0, 9)}...';
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text(data[index].name ?? '',
-                        style: const TextStyle(fontSize: 10)),
+                    angle: -1.0,
+                    child: Text(text,
+                        style: TextStyle(fontSize: 10, color: textColor)),
                   ),
                 );
               },
-              reservedSize: 60,
+              reservedSize: 80,
             ),
           ),
           leftTitles: AxisTitles(
@@ -71,7 +76,7 @@ class OrderBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },

@@ -13,6 +13,7 @@ class DecadeBarChart extends StatelessWidget {
     if (stats.discoveryDecade.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryDecadeResult> data = stats.discoveryDecade;
     double maxY = data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return BarChart(
       BarChartData(
@@ -49,8 +50,8 @@ class DecadeBarChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text('${data[index].decade?.toInt() ?? 0}s', style: const TextStyle(fontSize: 10)),
+                    angle: -0.8,
+                    child: Text('${data[index].decade?.toInt() ?? 0}s', style: TextStyle(fontSize: 10, color: textColor)),
                   ),
                 );
               },
@@ -67,7 +68,7 @@ class DecadeBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },

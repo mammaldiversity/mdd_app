@@ -13,6 +13,7 @@ class FamilyBarChart extends StatelessWidget {
     if (stats.speciesPerFamily.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesPerFamilyResult> data = stats.speciesPerFamily.take(15).toList();
     double maxY = data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return BarChart(
       BarChartData(
@@ -45,15 +46,19 @@ class FamilyBarChart extends StatelessWidget {
               getTitlesWidget: (double value, TitleMeta meta) {
                 final int index = value.toInt();
                 if (index < 0 || index >= data.length) return const SizedBox.shrink();
+                
+                String text = data[index].name ?? '';
+                if (text.length > 11) text = '${text.substring(0, 9)}...';
+
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text(data[index].name ?? '', style: const TextStyle(fontSize: 10)),
+                    angle: -1.0,
+                    child: Text(text, style: TextStyle(fontSize: 10, color: textColor)),
                   ),
                 );
               },
-              reservedSize: 60,
+              reservedSize: 80,
             ),
           ),
           leftTitles: AxisTitles(
@@ -66,7 +71,7 @@ class FamilyBarChart extends StatelessWidget {
                   meta: meta,
                   child: Text(
                     value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10, color: Colors.black87),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 );
               },
