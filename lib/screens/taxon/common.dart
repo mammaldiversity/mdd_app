@@ -1,5 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd/services/app_services.dart';
+import 'package:mdd/services/text_parser.dart';
 
 class ContentText extends StatelessWidget {
   const ContentText({
@@ -17,79 +19,80 @@ class ContentText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return content != null && content!.isNotEmpty && content != 'NA'
-        ? Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.left,
-                ),
-                isUrl
-                    ? UrlText(content: content)
-                    : StandardText(content: content, isItalic: isItalic),
-              ],
-            ),
-          )
-        : const SizedBox.shrink();
-  }
-}
+    if (content == null || content!.isEmpty || content == 'NA') {
+      return const SizedBox.shrink();
+    }
 
-class UrlText extends StatelessWidget {
-  const UrlText({super.key, required this.content});
-
-  final String? content;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      child: Text(
-        content ?? '',
-        style: Theme.of(context).textTheme.bodyMedium?.apply(
-              decoration: TextDecoration.underline,
-            ),
-        textAlign: TextAlign.left,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.left,
+          ),
+          RichTextContent(content: content!, isItalic: isItalic),
+        ],
       ),
-      onTap: () {
-        launchURL(content ?? '');
-      },
     );
   }
 }
 
-class StandardText extends StatelessWidget {
-  const StandardText({
+class RichTextContent extends StatelessWidget {
+  const RichTextContent({
     super.key,
     required this.content,
-    required this.isItalic,
+    this.isItalic = false,
   });
 
-  final String? content;
+  final String content;
   final bool isItalic;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      _cleanText(content),
-      style: isItalic
-          ? Theme.of(context).textTheme.bodyMedium?.apply(
-                fontStyle: FontStyle.italic,
-                letterSpacingDelta: 0.8,
-              )
-          : Theme.of(context).textTheme.bodyMedium,
-      textAlign: TextAlign.left,
-    );
-  }
+    final tokens = TextParser.parse(content);
+    final baseStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+    
+    final defaultStyle = isItalic
+        ? baseStyle.apply(fontStyle: FontStyle.italic, letterSpacingDelta: 0.8)
+        : baseStyle;
 
-  String _cleanText(String? text) {
-    if (text == null) {
-      return '';
-    }
-    // We use middle dot as a separator for
-    // easier reading in the database
-    return text.replaceAll('|', ' • ');
+    return RichText(
+      textAlign: TextAlign.left,
+      text: TextSpan(
+        children: tokens.map((token) {
+          switch (token.type) {
+            case TextTokenType.standard:
+              return TextSpan(
+                text: token.text,
+                style: defaultStyle,
+              );
+            case TextTokenType.italic:
+              return TextSpan(
+                text: token.text,
+                style: defaultStyle.apply(
+                  fontStyle: FontStyle.italic,
+                  letterSpacingDelta: 0.8,
+                ),
+              );
+            case TextTokenType.url:
+              return TextSpan(
+                text: token.text,
+                style: defaultStyle.apply(
+                  decoration: TextDecoration.underline,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    if (token.url != null) {
+                      launchURL(token.url!);
+                    }
+                  },
+              );
+          }
+        }).toList(),
+      ),
+    );
   }
 }
