@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/screens/shared/loadings.dart';
+import 'package:mdd/services/app_services.dart';
 
 class MilImagesWidget extends ConsumerWidget {
   const MilImagesWidget({super.key});
@@ -133,9 +135,31 @@ class MilImage extends StatelessWidget {
   }
 }
 
-class MilMetadataView extends StatelessWidget {
+class MilMetadataView extends StatefulWidget {
   const MilMetadataView({super.key, required this.mil});
   final MilDataData mil;
+
+  @override
+  State<MilMetadataView> createState() => _MilMetadataViewState();
+}
+
+class _MilMetadataViewState extends State<MilMetadataView> {
+  late TapGestureRecognizer _tapGestureRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _tapGestureRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        launchURL('https://www.mammalsociety.org/image-library');
+      };
+  }
+
+  @override
+  void dispose() {
+    _tapGestureRecognizer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,14 +174,26 @@ class MilMetadataView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MilMetadataRow(label: 'Location', value: mil.location),
-          MilMetadataRow(label: 'Date taken', value: mil.dateTaken),
-          MilMetadataRow(label: 'Description', value: mil.description),
-          MilMetadataRow(label: 'Distribution', value: mil.distribution),
+          MilMetadataRow(label: 'Location', value: widget.mil.location),
+          MilMetadataRow(label: 'Date taken', value: widget.mil.dateTaken),
+          MilMetadataRow(label: 'Description', value: widget.mil.description),
+          MilMetadataRow(label: 'Distribution', value: widget.mil.distribution),
           const SizedBox(height: 12),
-          Text(
-            'Image courtesy of the ASM Mammal Images Library · MIL ID: ${mil.milId}',
-            style: Theme.of(context).textTheme.bodySmall,
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.bodySmall,
+              children: [
+                const TextSpan(text: 'Image courtesy of the '),
+                TextSpan(
+                  text: 'ASM Mammal Images Library',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  recognizer: _tapGestureRecognizer,
+                ),
+                TextSpan(text: ' · MIL ID: ${widget.mil.milId}'),
+              ],
+            ),
           ),
         ],
       ),
