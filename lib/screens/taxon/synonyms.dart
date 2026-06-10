@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
@@ -18,7 +17,7 @@ class SynonymList extends ConsumerWidget {
                 ? SynonymContainer(data: synonymData)
                 : const Center(child: Text('No synonyms found.'));
           },
-          loading: () => const SimpleLoadingOnly(),
+          loading: () => const SizedBox.shrink(),
           error: (Object error, StackTrace stackTrace) {
             return Text('Error: $error');
           },

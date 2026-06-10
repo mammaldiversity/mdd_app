@@ -108,25 +108,6 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
                 ),
               ),
             ],
-            Positioned(
-              bottom: 12,
-              left: 12,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '© ${mil.photographer ?? 'Unknown'} / ASM-MIL',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
-                ),
-              ),
-            ),
             if (widget.data.length > 1)
               Positioned(
                 bottom: 12,
