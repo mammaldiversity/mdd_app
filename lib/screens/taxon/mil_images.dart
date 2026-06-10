@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/app_services.dart';
@@ -151,7 +152,7 @@ class _MilMetadataViewState extends State<MilMetadataView> {
     super.initState();
     _tapGestureRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        launchURL('https://www.mammalsociety.org/image-library');
+        launchURL(milUrl);
       };
   }
 

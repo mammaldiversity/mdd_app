@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/menu/settings.dart';
 import 'package:mdd/screens/menu/version.dart';
+import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/services/app_services.dart';
+import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/system.dart';
-
-const mddWebsiteUrl = 'https://mammaldiversity.org';
-const mddAboutUrl = 'https://mammaldiversity.org/about';
 
 class MoreMenu extends StatefulWidget {
   const MoreMenu({super.key});
@@ -22,9 +21,7 @@ class _MoreMenuState extends State<MoreMenu> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ListView(
         children: <Widget>[
-          const AboutUrlTile(),
-          const SizedBox(height: 4),
-          const MDDWebTile(),
+          const EssentialUrls(),
           const SizedBox(height: 16),
           Text(
             'Settings',
@@ -47,40 +44,68 @@ class _MoreMenuState extends State<MoreMenu> {
   }
 }
 
-class AboutUrlTile extends StatelessWidget {
-  const AboutUrlTile({super.key});
+class EssentialUrls extends StatelessWidget {
+  const EssentialUrls({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-        tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+    return CommonCard(
+      title: 'Essential URLs',
+      child: Material(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              const UrlTile(
+                title: 'About the Mammal Diversity Database (MDD)',
+                url: mddAboutUrl,
+              ),
+              const SizedBox(height: 8),
+              const UrlTile(
+                title: 'MDD website',
+                url: mddWebsiteUrl,
+              ),
+              const SizedBox(height: 8),
+              const UrlTile(
+                title: 'Mammal Image Library (MIL)',
+                url: milUrl,
+                icon: Icons.image,
+              ),
+              const SizedBox(height: 8),
+              const UrlTile(
+                title: 'American Society of Mammalogists',
+                url: asmUrl,
+                icon: Icons.public,
+              ),
+            ],
+          ),
         ),
-        leading: const Icon(Icons.info_outline),
-        title: const Text('About'),
-        trailing: const Icon(Icons.open_in_new),
-        onTap: () {
-          launchURL(mddAboutUrl);
-        });
+      ),
+    );
   }
 }
 
-class MDDWebTile extends StatelessWidget {
-  const MDDWebTile({super.key});
+class UrlTile extends StatelessWidget {
+  const UrlTile({super.key, required this.title, required this.url, this.icon});
+
+  final String title;
+  final String url;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
         tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
-        leading: const Icon(Icons.public),
-        title: const Text('Visit MDD website'),
+        leading: Icon(icon ?? Icons.public),
+        title: Text(title),
         trailing: const Icon(Icons.open_in_new),
         onTap: () {
-          launchURL(mddWebsiteUrl);
+          launchURL(url);
         });
   }
 }
