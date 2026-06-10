@@ -14,6 +14,7 @@ import 'package:mdd/screens/statistics/year_bar_chart.dart';
 import 'package:mdd/screens/statistics/images_bar_chart.dart';
 import 'package:mdd/screens/statistics/images_pie_chart.dart';
 import 'package:mdd/services/providers/statistics.dart';
+import 'package:mdd/screens/shared/info_card.dart';
 
 class MddStats extends ConsumerStatefulWidget {
   const MddStats({super.key});
@@ -58,6 +59,8 @@ class _MddStatsState extends ConsumerState<MddStats> {
               return ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
+                  const InfoCard(text: 'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
+                  const SizedBox(height: 16),
                   buildRow(
                     ChartCard(
                       title: 'Species Diversity by Order',

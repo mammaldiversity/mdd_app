@@ -47,6 +47,8 @@ class SettingSection extends StatelessWidget {
             children: [
               const AppearanceSetting(),
               const SizedBox(height: 16),
+              const DisplaySetting(),
+              const SizedBox(height: 16),
               Visibility(
                 // Show only on desktop because mobile database
                 // Cannot be changed

@@ -23,6 +23,74 @@ const Map<String, IconData> themeSelectedIcon = {
   'Dark': Icons.nightlight_rounded,
 };
 
+class DisplaySetting extends StatelessWidget {
+  const DisplaySetting({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Display',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Material(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: const DisplayList(),
+            )),
+      ],
+    );
+  }
+}
+
+class DisplayList extends ConsumerWidget {
+  const DisplayList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final showWelcomeAsync = ref.watch(showWelcomeTextProvider);
+    final showInfoAsync = ref.watch(showInfoTextProvider);
+
+    return Column(
+      children: [
+        showWelcomeAsync.when(
+          data: (show) => SwitchListTile(
+            visualDensity: VisualDensity.compact,
+            secondary: const Icon(Icons.waving_hand_outlined),
+            title: const Text('Show Welcome Text'),
+            value: show,
+            onChanged: (val) {
+              ref.read(showWelcomeTextProvider.notifier).toggle(val);
+            },
+          ),
+          loading: () => const ListTile(title: Text('Loading...')),
+          error: (e, s) => ListTile(title: Text('Error: $e')),
+        ),
+        const Divider(indent: 48, thickness: 1.2),
+        showInfoAsync.when(
+          data: (show) => SwitchListTile(
+            visualDensity: VisualDensity.compact,
+            secondary: const Icon(Icons.info_outline),
+            title: const Text('Show Info Text'),
+            value: show,
+            onChanged: (val) {
+              ref.read(showInfoTextProvider.notifier).toggle(val);
+            },
+          ),
+          loading: () => const ListTile(title: Text('Loading...')),
+          error: (e, s) => ListTile(title: Text('Error: $e')),
+        ),
+      ],
+    );
+  }
+}
+
 class AppearanceSetting extends StatelessWidget {
   const AppearanceSetting({super.key});
 

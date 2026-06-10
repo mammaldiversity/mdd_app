@@ -16,7 +16,8 @@ final isFirstRunProvider = FutureProvider<bool>((ref) async {
   return isFirstRun;
 });
 
-final themeSettingProvider = AsyncNotifierProvider<ThemeSetting, ThemeMode>(() => ThemeSetting());
+final themeSettingProvider =
+    AsyncNotifierProvider<ThemeSetting, ThemeMode>(() => ThemeSetting());
 
 class ThemeSetting extends AsyncNotifier<ThemeMode> {
   Future<ThemeMode> _fetchSetting() async {
@@ -73,3 +74,51 @@ class ThemeSetting extends AsyncNotifier<ThemeMode> {
   }
 }
 
+final showWelcomeTextProvider =
+    AsyncNotifierProvider<ShowWelcomeTextSetting, bool>(
+        () => ShowWelcomeTextSetting());
+
+class ShowWelcomeTextSetting extends AsyncNotifier<bool> {
+  Future<bool> _fetchSetting() async {
+    final prefs = ref.watch(settingProvider);
+    return prefs.getBool('showWelcomeText') ?? true;
+  }
+
+  @override
+  FutureOr<bool> build() async {
+    return await _fetchSetting();
+  }
+
+  Future<void> toggle(bool value) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final prefs = ref.watch(settingProvider);
+      await prefs.setBool('showWelcomeText', value);
+      return value;
+    });
+  }
+}
+
+final showInfoTextProvider = AsyncNotifierProvider<ShowInfoTextSetting, bool>(
+    () => ShowInfoTextSetting());
+
+class ShowInfoTextSetting extends AsyncNotifier<bool> {
+  Future<bool> _fetchSetting() async {
+    final prefs = ref.watch(settingProvider);
+    return prefs.getBool('showInfoText') ?? true;
+  }
+
+  @override
+  FutureOr<bool> build() async {
+    return await _fetchSetting();
+  }
+
+  Future<void> toggle(bool value) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final prefs = ref.watch(settingProvider);
+      await prefs.setBool('showInfoText', value);
+      return value;
+    });
+  }
+}

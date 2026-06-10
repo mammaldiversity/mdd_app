@@ -8,6 +8,7 @@ import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
 import 'package:mdd/services/common_names.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mdd/screens/shared/info_card.dart';
 
 class ExploreSpecies extends ConsumerStatefulWidget {
   const ExploreSpecies({super.key});
@@ -22,6 +23,10 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
     return ref.watch(speciesListProvider).when(
           data: (List<MddGroupListResult> speciesList) {
             return ListView(children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: InfoCard(text: 'Browse the taxonomy of mammals, from order down to species. Click on a species to view its details or use the search bar to find a specific species.'),
+              ),
               ..._groupByOrder(speciesList).entries.map(
                 (MapEntry<String, List<MddGroupListResult>> entry) {
                   return ExpansionTile(

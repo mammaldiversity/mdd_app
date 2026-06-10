@@ -104,7 +104,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: ListView(
           shrinkWrap: true,
           children: [

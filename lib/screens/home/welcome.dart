@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/providers/settings.dart';
 
-const String _welcomeText = 'The Mammal Diversity Database of '
-    'the American Society of Mammalogists (ASM) '
-    'is your home base for tracking the latest '
-    'taxonomic changes to living and recently extinct '
+const String _welcomeText = 'The Mammal Diversity Database (MDD) '
+    'is a comprehensive, constantly updated resource for '
+    'the classification and nomenclature of living and recently extinct '
     '(i.e., since ~1500 CE) species and higher taxa of mammals.';
 
 class Welcome extends ConsumerWidget {
@@ -14,12 +13,16 @@ class Welcome extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(isFirstRunProvider).when(
-        data: (isFirstRun) {
-          if (isFirstRun) {
-            return const Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: WelcomeText());
+    return ref.watch(showWelcomeTextProvider).when(
+        data: (showWelcome) {
+          if (showWelcome) {
+            return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: const WelcomeText()),
+                ));
           } else {
             return const SizedBox.shrink();
           }
@@ -31,30 +34,49 @@ class Welcome extends ConsumerWidget {
   }
 }
 
-class WelcomeText extends StatelessWidget {
+class WelcomeText extends ConsumerWidget {
   const WelcomeText({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withAlpha(32),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            "Welcome",
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            _welcomeText,
-            textAlign: TextAlign.center,
-          ),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Material(
+      color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Welcome",
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () {
+                      ref.read(showWelcomeTextProvider.notifier).toggle(false);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              _welcomeText,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

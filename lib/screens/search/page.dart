@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/search/fields.dart';
+import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 
@@ -67,8 +68,18 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
           )
         ],
       ),
-      body: const Center(
-        child: SpeciesListView(),
+      body: const Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: InfoCard(
+                text: 'Search for a species using the search bar above. '
+                    'You can also filter search results, '
+                    'update your search settings, '
+                    'and export your findings.'),
+          ),
+          Expanded(child: SpeciesListView()),
+        ],
       ),
       bottomSheet: const SearchDatabaseInfo(),
     );
