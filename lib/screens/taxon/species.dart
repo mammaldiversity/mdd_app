@@ -113,9 +113,8 @@ class OtherDetailsResponsive extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const MilImagesWidget(),
-                    const SizedBox(height: 8),
                     ClassificationContainer(taxonData: taxonData),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     SpeciesInfoList(taxonData: taxonData),
                   ],
                 ),
@@ -138,7 +137,6 @@ class OtherDetailsResponsive extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const MilImagesWidget(),
-              const SizedBox(height: 8),
               ClassificationContainer(taxonData: taxonData),
               const SizedBox(height: 8),
               DistributionMap(

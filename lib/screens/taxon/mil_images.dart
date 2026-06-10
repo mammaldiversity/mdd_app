@@ -44,8 +44,135 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
     });
   }
 
-  Widget _buildMetadataRow(BuildContext context, String label, String? value) {
-    if (value == null || value.isEmpty || value == 'NA') {
+  @override
+  Widget build(BuildContext context) {
+    final mil = widget.data[_currentIndex];
+
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                MilImage(mil: mil),
+                if (widget.data.length > 1) ...[
+                  Positioned(
+                    left: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      child: IconButton(
+                        icon:
+                            const Icon(Icons.chevron_left, color: Colors.white),
+                        onPressed: _prevImage,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      child: IconButton(
+                        icon: const Icon(Icons.chevron_right,
+                            color: Colors.white),
+                        onPressed: _nextImage,
+                      ),
+                    ),
+                  ),
+                ],
+                if (widget.data.length > 1)
+                  Positioned(
+                    bottom: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainer
+                            .withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '${_currentIndex + 1} / ${widget.data.length}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            MilMetadataView(mil: mil),
+          ],
+        ));
+  }
+}
+
+class MilImage extends StatelessWidget {
+  const MilImage({super.key, required this.mil});
+  final MilDataData mil;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+      child: Image.asset(
+        'assets/mil-images/${mil.milId}.webp',
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) => const SizedBox(
+            height: 300,
+            child: Center(child: Icon(Icons.broken_image, size: 64))),
+      ),
+    );
+  }
+}
+
+class MilMetadataView extends StatelessWidget {
+  const MilMetadataView({super.key, required this.mil});
+  final MilDataData mil;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
+        borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MilMetadataRow(label: 'Location', value: mil.location),
+          MilMetadataRow(label: 'Date taken', value: mil.dateTaken),
+          MilMetadataRow(label: 'Description', value: mil.description),
+          MilMetadataRow(label: 'Distribution', value: mil.distribution),
+          const SizedBox(height: 12),
+          Text(
+            'Image courtesy of the ASM Mammal Images Library · MIL ID: ${mil.milId}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MilMetadataRow extends StatelessWidget {
+  const MilMetadataRow({super.key, required this.label, required this.value});
+  final String label;
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    if (value == null || value!.isEmpty || value!.toUpperCase() == 'NA') {
       return const SizedBox.shrink();
     }
     return Padding(
@@ -61,103 +188,6 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
           ],
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mil = widget.data[_currentIndex];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-              child: Image.asset(
-                'assets/mil-images/${mil.milId}.webp',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) => const SizedBox(
-                    height: 300,
-                    child: Center(child: Icon(Icons.broken_image, size: 64))),
-              ),
-            ),
-            if (widget.data.length > 1) ...[
-              Positioned(
-                left: 8,
-                child: CircleAvatar(
-                  backgroundColor: Colors.black54,
-                  child: IconButton(
-                    icon: const Icon(Icons.chevron_left, color: Colors.white),
-                    onPressed: _prevImage,
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 8,
-                child: CircleAvatar(
-                  backgroundColor: Colors.black54,
-                  child: IconButton(
-                    icon: const Icon(Icons.chevron_right, color: Colors.white),
-                    onPressed: _nextImage,
-                  ),
-                ),
-              ),
-            ],
-            if (widget.data.length > 1)
-              Positioned(
-                bottom: 12,
-                right: 12,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainer
-                        .withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    '${_currentIndex + 1} / ${widget.data.length}',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
-            borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildMetadataRow(context, 'Location', mil.location),
-              _buildMetadataRow(context, 'Date taken', mil.dateTaken),
-              _buildMetadataRow(context, 'Description', mil.description),
-              _buildMetadataRow(context, 'Distribution', mil.distribution),
-              const SizedBox(height: 12),
-              Text(
-                'Image courtesy of the ASM Mammal Images Library · MIL ID: ${mil.milId}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

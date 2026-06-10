@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mdd/screens/shared/card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DistributionMap extends StatefulWidget {
@@ -130,85 +131,68 @@ class _DistributionMapState extends State<DistributionMap> {
 
     final bounds = getBounds();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Text(
-              'Distribution Map',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 300,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : FlutterMap(
-                      options: MapOptions(
-                        initialCenter: const LatLng(0, 0),
-                        initialZoom: 1,
-                        initialCameraFit: bounds != null
-                            ? CameraFit.bounds(
-                                bounds: bounds,
-                                padding: const EdgeInsets.all(16),
-                              )
-                            : null,
+    return CommonCard(
+      title: 'Distribution Map',
+      child: SizedBox(
+        height: 300,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : FlutterMap(
+                  options: MapOptions(
+                    initialCenter: const LatLng(0, 0),
+                    initialZoom: 1,
+                    initialCameraFit: bounds != null
+                        ? CameraFit.bounds(
+                            bounds: bounds,
+                            padding: const EdgeInsets.all(16),
+                          )
+                        : null,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: mapUrl,
+                      subdomains: const ['a', 'b', 'c'],
+                      userAgentPackageName: 'org.mammaldiversity.mdd',
+                    ),
+                    if (_polygons.isNotEmpty)
+                      PolygonLayer(
+                        polygons: _polygons,
                       ),
-                      children: [
-                        TileLayer(
-                          urlTemplate: mapUrl,
-                          subdomains: const ['a', 'b', 'c'],
-                          userAgentPackageName: 'org.mammaldiversity.mdd',
+                    RichAttributionWidget(
+                      alignment: AttributionAlignment.bottomLeft,
+                      openButton: (context, open) => IconButton(
+                        onPressed: open,
+                        tooltip: 'Attributions',
+                        icon: Icon(
+                          Icons.info_outlined,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
-                        if (_polygons.isNotEmpty)
-                          PolygonLayer(
-                            polygons: _polygons,
-                          ),
-                        RichAttributionWidget(
-                          alignment: AttributionAlignment.bottomLeft,
-                          openButton: (context, open) => IconButton(
-                            onPressed: open,
-                            tooltip: 'Attributions',
-                            icon: Icon(
-                              Icons.info_outlined,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          closeButton: (context, close) => IconButton(
-                            onPressed: close,
-                            icon: Icon(
-                              Icons.cancel_outlined,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          attributions: [
-                            TextSourceAttribution(
-                              'OpenStreetMap contributors, © CARTO',
-                              onTap: () => launchUrl(
-                                  Uri.parse('https://carto.com/attributions')),
-                            ),
-                            TextSourceAttribution(
-                              'Country Boundaries: Natural Earth',
-                              onTap: () => launchUrl(Uri.parse(
-                                  'https://www.naturalearthdata.com/')),
-                            ),
-                          ],
+                      ),
+                      closeButton: (context, close) => IconButton(
+                        onPressed: close,
+                        icon: Icon(
+                          Icons.cancel_outlined,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      attributions: [
+                        TextSourceAttribution(
+                          'OpenStreetMap contributors, © CARTO',
+                          onTap: () => launchUrl(
+                              Uri.parse('https://carto.com/attributions')),
+                        ),
+                        TextSourceAttribution(
+                          'Country Boundaries: Natural Earth',
+                          onTap: () => launchUrl(
+                              Uri.parse('https://www.naturalearthdata.com/')),
                         ),
                       ],
                     ),
-            ),
-          ),
-        ],
+                  ],
+                ),
+        ),
       ),
     );
   }

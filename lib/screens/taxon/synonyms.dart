@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/database/database.dart' as db;
@@ -45,47 +46,50 @@ class _SynonymContainerState extends State<SynonymContainer> {
         _showAll || !hasMore ? widget.data : widget.data.take(10).toList();
 
     return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Divider(),
-          const SizedBox(height: 8),
-          Text('Synonyms', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          screenType != ScreenType.small
-              ? Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: displayData
-                      .map(
-                        (synonymData) => SynonymCard(data: synonymData),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: CommonCard(
+          title: 'Synonyms',
+          child: Container(
+            width: double.infinity,
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                screenType != ScreenType.small
+                    ? Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: displayData
+                            .map(
+                              (synonymData) => SynonymCard(data: synonymData),
+                            )
+                            .toList(),
                       )
-                      .toList(),
-                )
-              : Column(
-                  children: displayData
-                      .map(
-                        (synonymData) => SynonymCard(data: synonymData),
-                      )
-                      .toList(),
-                ),
-          if (hasMore && !_showAll) ...[
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _showAll = true;
-                });
-              },
-              child: Text('Show all (${widget.data.length}) synonyms'),
+                    : Column(
+                        children: displayData
+                            .map(
+                              (synonymData) => SynonymCard(data: synonymData),
+                            )
+                            .toList(),
+                      ),
+                if (hasMore && !_showAll) ...[
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _showAll = true;
+                      });
+                    },
+                    child: Text('Show all (${widget.data.length}) synonyms'),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ],
-      ),
-    );
+          ),
+        ));
   }
 }
 

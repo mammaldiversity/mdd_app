@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/system.dart';
 
@@ -10,41 +11,30 @@ class ClassificationContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            'Taxonomy',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          screenType == ScreenType.small
-              ? Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SubOrderAndHigherTaxa(taxonData: taxonData),
-                    LowerInfraOrderTaxa(taxonData: taxonData),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: SubOrderAndHigherTaxa(taxonData: taxonData)),
-                    Expanded(child: LowerInfraOrderTaxa(taxonData: taxonData)),
-                  ],
-                ),
-        ],
+    return CommonCard(
+      title: 'Taxonomy',
+      child: Container(
+        width: double.infinity,
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: screenType == ScreenType.small
+            ? Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SubOrderAndHigherTaxa(taxonData: taxonData),
+                  LowerInfraOrderTaxa(taxonData: taxonData),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: SubOrderAndHigherTaxa(taxonData: taxonData)),
+                  Expanded(child: LowerInfraOrderTaxa(taxonData: taxonData)),
+                ],
+              ),
       ),
     );
   }
