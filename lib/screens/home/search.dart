@@ -97,7 +97,7 @@ class DatabaseInfo extends ConsumerWidget {
     return ref.watch(mddInfoProvider).when(
           data: (MddInfoData mddInfo) {
             return Text(
-                'Database version\nv${mddInfo.version}, '
+                'Database version\n${mddInfo.version}, '
                 'released ${mddInfo.releaseDate}.',
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center);

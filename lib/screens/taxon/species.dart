@@ -42,28 +42,27 @@ class TaxonForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SpeciesDetails(taxonData: taxonData),
-            Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: Center(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 1600,
-                      ),
-                      child: OtherDetailsResponsive(taxonData: taxonData)),
-                ),
-              ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 1600,
             ),
-            const SizedBox(height: 16),
-            const CorrectionRequest(),
-          ],
-        ));
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SpeciesDetails(taxonData: taxonData),
+                OtherDetailsResponsive(taxonData: taxonData),
+                const SizedBox(height: 16),
+                const CorrectionRequest(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -110,8 +109,8 @@ class OtherDetailsResponsive extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: ListView(
-                  shrinkWrap: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const MilImagesWidget(),
                     const SizedBox(height: 8),
@@ -123,8 +122,8 @@ class OtherDetailsResponsive extends StatelessWidget {
               ),
               const SizedBox(width: 24),
               Expanded(
-                child: ListView(
-                  shrinkWrap: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     DistributionMap(
                         countryDistribution: taxonData.countryDistribution),
@@ -135,8 +134,8 @@ class OtherDetailsResponsive extends StatelessWidget {
             ],
           );
         } else {
-          return ListView(
-            shrinkWrap: true,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               const MilImagesWidget(),
               const SizedBox(height: 8),
@@ -147,8 +146,6 @@ class OtherDetailsResponsive extends StatelessWidget {
               const SizedBox(height: 8),
               SpeciesInfoList(taxonData: taxonData),
               const SynonymList(),
-              const SizedBox(height: 8),
-              const CorrectionRequest(),
             ],
           );
         }
