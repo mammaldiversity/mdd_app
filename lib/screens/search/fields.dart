@@ -4,7 +4,6 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
-import 'package:mdd/services/utils.dart';
 
 class CommonSearchField extends StatefulWidget {
   const CommonSearchField({
@@ -75,23 +74,93 @@ class SearchFilterOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(2, 0, 16, 24),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 24),
         child: RadioGroup<SearchFilter>(
           groupValue: selectedOption,
           onChanged: onSelected,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: SearchFilter.values
-                .map(
-                  (option) => RadioListTile<SearchFilter>(
-                    title: Text(option.name.enumToSentenceCase()),
-                    value: option,
-                  ),
-                )
-                .toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FilterGroupWidget(
+                title: 'General',
+                group: FilterGroup.general,
+                selectedOption: selectedOption,
+                onSelected: onSelected,
+              ),
+              const Divider(),
+              FilterGroupWidget(
+                title: 'Taxonomy',
+                group: FilterGroup.taxonomy,
+                selectedOption: selectedOption,
+                onSelected: onSelected,
+              ),
+              const Divider(),
+              FilterGroupWidget(
+                title: 'Synonyms',
+                group: FilterGroup.synonym,
+                selectedOption: selectedOption,
+                onSelected: onSelected,
+              ),
+              const Divider(),
+              FilterGroupWidget(
+                title: 'Images Data',
+                group: FilterGroup.milData,
+                selectedOption: selectedOption,
+                onSelected: onSelected,
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
+  }
+}
+
+class FilterGroupWidget extends StatelessWidget {
+  const FilterGroupWidget({
+    super.key,
+    required this.title,
+    required this.group,
+    required this.selectedOption,
+    required this.onSelected,
+  });
+
+  final String title;
+  final FilterGroup group;
+  final SearchFilter selectedOption;
+  final void Function(SearchFilter?) onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final options = SearchFilter.values.where((e) => e.group == group).toList();
+    if (options.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ),
+        ...options.map(
+          (option) => RadioListTile<SearchFilter>(
+            title: Text(option.displayName),
+            value: option,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+            visualDensity: VisualDensity.compact,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -260,9 +329,18 @@ class SearchFilterView {
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
       showDragHandle: true,
-      builder: (context) => SearchFilterOptions(
-        selectedOption: selectedOption,
-        onSelected: onSelected,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.6,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) {
+          return SearchFilterOptions(
+            selectedOption: selectedOption,
+            onSelected: onSelected,
+          );
+        },
       ),
     );
   }
@@ -272,9 +350,12 @@ class SearchFilterView {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Search Filter'),
-        content: SearchFilterOptions(
-          selectedOption: selectedOption,
-          onSelected: onSelected,
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SearchFilterOptions(
+            selectedOption: selectedOption,
+            onSelected: onSelected,
+          ),
         ),
         actions: [
           TextButton(

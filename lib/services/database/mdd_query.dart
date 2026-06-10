@@ -72,7 +72,91 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   }
 }
 
-enum SearchFilter { all, family, genus, species, countryDistribution }
+enum SearchFilter {
+  all,
+  // Taxonomy
+  order,
+  family,
+  genus,
+  species,
+  commonName,
+  authority,
+  countryDistribution,
+  
+  // Synonym
+  synonymRootName,
+  synonymOriginalCombination,
+  synonymAuthorYear,
+  synonymTypeLocality,
+
+  // MilData
+  milDataDescription,
+  milDataPhotographer,
+  milDataLocation,
+}
+
+enum FilterGroup { general, taxonomy, synonym, milData }
+
+extension SearchFilterExtension on SearchFilter {
+  FilterGroup get group {
+    switch (this) {
+      case SearchFilter.all:
+        return FilterGroup.general;
+      case SearchFilter.order:
+      case SearchFilter.family:
+      case SearchFilter.genus:
+      case SearchFilter.species:
+      case SearchFilter.commonName:
+      case SearchFilter.authority:
+      case SearchFilter.countryDistribution:
+        return FilterGroup.taxonomy;
+      case SearchFilter.synonymRootName:
+      case SearchFilter.synonymOriginalCombination:
+      case SearchFilter.synonymAuthorYear:
+      case SearchFilter.synonymTypeLocality:
+        return FilterGroup.synonym;
+      case SearchFilter.milDataDescription:
+      case SearchFilter.milDataPhotographer:
+      case SearchFilter.milDataLocation:
+        return FilterGroup.milData;
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case SearchFilter.all:
+        return 'All Fields';
+      case SearchFilter.order:
+        return 'Order';
+      case SearchFilter.family:
+        return 'Family';
+      case SearchFilter.genus:
+        return 'Genus';
+      case SearchFilter.species:
+        return 'Species';
+      case SearchFilter.commonName:
+        return 'Common Name';
+      case SearchFilter.authority:
+        return 'Authority & Year';
+      case SearchFilter.countryDistribution:
+        return 'Country Distribution';
+      case SearchFilter.synonymRootName:
+        return 'Root Name';
+      case SearchFilter.synonymOriginalCombination:
+        return 'Original Combination';
+      case SearchFilter.synonymAuthorYear:
+        return 'Author & Year';
+      case SearchFilter.synonymTypeLocality:
+        return 'Type Locality';
+      case SearchFilter.milDataDescription:
+        return 'Description';
+      case SearchFilter.milDataPhotographer:
+        return 'Photographer';
+      case SearchFilter.milDataLocation:
+        return 'Location';
+    }
+  }
+}
 
 class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   MDDSearch(super.db);
@@ -106,19 +190,62 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return data;
   }
 
-  Future<List<TaxonomyData>> _search(String rawQuery, SearchFilter filterBy) {
+  Future<List<TaxonomyData>> _search(String rawQuery, SearchFilter filterBy) async {
     switch (filterBy) {
       case SearchFilter.all:
         return _searchAll(rawQuery);
+      case SearchFilter.order:
+        return (select(taxonomy)..where((tbl) => tbl.taxonOrder.like('%$rawQuery%'))).get();
       case SearchFilter.family:
         return _searchByFamily(rawQuery);
       case SearchFilter.genus:
         return _searchByGenus(rawQuery);
       case SearchFilter.species:
         return _searchBySpecies(rawQuery);
+      case SearchFilter.commonName:
+        return (select(taxonomy)..where((tbl) => tbl.mainCommonName.like('%$rawQuery%') | tbl.otherCommonNames.like('%$rawQuery%'))).get();
+      case SearchFilter.authority:
+        return (select(taxonomy)..where((tbl) => tbl.authoritySpeciesAuthor.like('%$rawQuery%'))).get();
       case SearchFilter.countryDistribution:
         return _searchByCountry(rawQuery);
+      
+      // Synonym searches
+      case SearchFilter.synonymRootName:
+        return _queryTaxonomyFromSynonymIds(
+            await (select(synonym)..where((tbl) => tbl.rootName.like('%$rawQuery%'))).get());
+      case SearchFilter.synonymOriginalCombination:
+        return _queryTaxonomyFromSynonymIds(
+            await (select(synonym)..where((tbl) => tbl.originalCombination.like('%$rawQuery%'))).get());
+      case SearchFilter.synonymAuthorYear:
+        return _queryTaxonomyFromSynonymIds(
+            await (select(synonym)..where((tbl) => tbl.author.like('%$rawQuery%') | tbl.year.like('%$rawQuery%'))).get());
+      case SearchFilter.synonymTypeLocality:
+        return _queryTaxonomyFromSynonymIds(
+            await (select(synonym)..where((tbl) => tbl.oldTypeLocality.like('%$rawQuery%') | tbl.originalTypeLocality.like('%$rawQuery%'))).get());
+
+      // MilData searches
+      case SearchFilter.milDataDescription:
+        return _queryTaxonomyFromMilDataIds(
+            await (select(milData)..where((tbl) => tbl.description.like('%$rawQuery%'))).get());
+      case SearchFilter.milDataPhotographer:
+        return _queryTaxonomyFromMilDataIds(
+            await (select(milData)..where((tbl) => tbl.photographer.like('%$rawQuery%'))).get());
+      case SearchFilter.milDataLocation:
+        return _queryTaxonomyFromMilDataIds(
+            await (select(milData)..where((tbl) => tbl.location.like('%$rawQuery%'))).get());
     }
+  }
+
+  Future<List<TaxonomyData>> _queryTaxonomyFromSynonymIds(List<SynonymData> syns) async {
+    final ids = syns.map((e) => e.speciesId).whereType<int>().toSet().toList();
+    if (ids.isEmpty) return [];
+    return (select(taxonomy)..where((tbl) => tbl.id.isIn(ids))).get();
+  }
+
+  Future<List<TaxonomyData>> _queryTaxonomyFromMilDataIds(List<MilDataData> mils) async {
+    final ids = mils.map((e) => e.mddId).whereType<int>().toSet().toList();
+    if (ids.isEmpty) return [];
+    return (select(taxonomy)..where((tbl) => tbl.id.isIn(ids))).get();
   }
 
   Future<List<TaxonomyData>> _searchAll(String query) {
@@ -131,7 +258,6 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.specificEpithet.like('%$query%') |
                 tbl.sciName.like('%$query%') |
                 tbl.originalNameCombination.like('%$query%') |
-                tbl.specificEpithet.like('%$query%') |
                 tbl.mainCommonName.like('%$query%') |
                 tbl.otherCommonNames.like('%$query%') |
                 tbl.countryDistribution.like('%$query%') |
