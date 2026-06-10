@@ -54,21 +54,26 @@ jobs:
 
       - name: Extract MIL data
         working-directory: assets/data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          MIL_URL=$(curl -s https://api.github.com/repos/mammaldiversity/asm-mil/releases/latest \
-            | grep -o '"browser_download_url": *"[^"]*\.tar\.gz"' \
-            | grep -o 'https://[^"]*')
-          MIL_FILENAME=$(basename "$MIL_URL")
+          echo "Downloading latest .tar.gz from asm-mil release"
+          gh release download -R mammaldiversity/asm-mil -p "*.tar.gz" --clobber
+          
+          # Grab the downloaded filename
+          MIL_FILENAME=$(ls *.tar.gz | head -n 1)
           MIL_DIRNAME="${MIL_FILENAME%.tar.gz}"
-          echo "Downloading MIL data from $MIL_URL"
-          curl -L -o "$MIL_FILENAME" "$MIL_URL"
+          
           echo "Extracting $MIL_FILENAME to $MIL_DIRNAME"
           tar -xzf "$MIL_FILENAME"
+          
           MDD_FILE=$(ls MDD/MDD_v*.csv)
           MIL_DATE="${MIL_DIRNAME#mil-v}"
           MIL_BASE_DATE=$(echo "$MIL_DATE" | sed 's/\.[0-9]*$//')
+          
           echo "MIL_DIRNAME=$MIL_DIRNAME" >> $GITHUB_ENV
           echo "Processing MIL data using MDD file $MDD_FILE"
+          
           mil-kit mdd \
             --mil-file "$MIL_DIRNAME/metadata/mil-$MIL_BASE_DATE.xlsx" \
             --mdd-file "$MDD_FILE" \
