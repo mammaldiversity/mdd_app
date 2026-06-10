@@ -15,10 +15,20 @@ class FamilyBarChart extends StatelessWidget {
     double maxY = data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: maxY * 1.1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final requiredWidth = data.length * (16.0 + 10.0) + 50.0;
+        final chartWidth = requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: chartWidth,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.center,
+                groupsSpace: 10,
+                maxY: maxY * 1.1,
         barTouchData: BarTouchData(
           enabled: true,
           touchTooltipData: BarTouchTooltipData(
@@ -77,7 +87,13 @@ class FamilyBarChart extends StatelessWidget {
               },
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 24,
+              getTitlesWidget: (value, meta) => const SizedBox.shrink(),
+            ),
+          ),
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         gridData: const FlGridData(show: false),
@@ -96,6 +112,10 @@ class FamilyBarChart extends StatelessWidget {
           );
         }).toList(),
       ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
