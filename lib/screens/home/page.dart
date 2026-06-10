@@ -117,8 +117,16 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             Text(
-              "ASM's Mammal Diversity Database",
+              "The Mammal Diversity Database",
               style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "By the American Society of Mammalogists",
+              style: const TextStyle(
+                fontSize: 12,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
