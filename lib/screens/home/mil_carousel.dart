@@ -111,55 +111,58 @@ class CarouselItemWidget extends ConsumerWidget {
           ),
         );
       },
-      child: GestureDetector(
-        onTap: () {
-          ref.read(currentMddIDProvider.notifier).setMddID(item.mddId);
-          Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => const SpeciesPage(),
-            ),
-          );
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  'assets/mil-images/${item.milId}.webp',
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    child:
-                        const Center(child: Icon(Icons.broken_image, size: 64)),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            ref.read(currentMddIDProvider.notifier).setMddID(item.mddId);
+            Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => const SpeciesPage(),
+              ),
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/mil-images/${item.milId}.webp',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child:
+                          const Center(child: Icon(Icons.broken_image, size: 64)),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${item.genus} ${item.specificEpithet}',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                fontStyle: FontStyle.italic,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (item.mainCommonName != null && item.mainCommonName!.isNotEmpty)
+              const SizedBox(height: 8),
               Text(
-                item.mainCommonName!,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                '${item.genus} ${item.specificEpithet}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
               ),
-          ],
+              if (item.mainCommonName != null && item.mainCommonName!.isNotEmpty)
+                Text(
+                  item.mainCommonName!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+            ],
+          ),
         ),
       ),
     );
