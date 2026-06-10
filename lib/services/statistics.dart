@@ -3,8 +3,10 @@ import 'package:mdd/services/database/mdd_query.dart';
 class MddStatistics {
   final List<StatSpeciesPerOrderResult> speciesPerOrder;
   final List<StatSpeciesPerFamilyResult> speciesPerFamily;
+  final List<StatSpeciesPerGenusResult> speciesPerGenus;
   final List<MapEntry<String, int>> iucnStatus;
   final List<StatSpeciesByDiscoveryDecadeResult> discoveryDecade;
+  final List<StatSpeciesByDiscoveryYearResult> discoveryYear;
   final List<StatExtinctSpeciesResult> extinctSpecies;
   final List<StatDomesticSpeciesResult> domesticSpecies;
   final List<MapEntry<String, int>> biogeographicRealm;
@@ -13,8 +15,10 @@ class MddStatistics {
   MddStatistics({
     required this.speciesPerOrder,
     required this.speciesPerFamily,
+    required this.speciesPerGenus,
     required this.iucnStatus,
     required this.discoveryDecade,
+    required this.discoveryYear,
     required this.extinctSpecies,
     required this.domesticSpecies,
     required this.biogeographicRealm,
@@ -30,10 +34,12 @@ class StatisticsService {
   Future<MddStatistics> getStatistics() async {
     final speciesPerOrder = await mddQuery.statSpeciesPerOrder().get();
     final speciesPerFamily = await mddQuery.statSpeciesPerFamily().get();
+    final speciesPerGenus = await mddQuery.statSpeciesPerGenus().get();
     final rawIucn = await mddQuery.statSpeciesByIucnStatus().get();
     final cleanedIucn = cleanIucnStatusData(rawIucn);
 
     final discoveryDecade = await mddQuery.statSpeciesByDiscoveryDecade().get();
+    final discoveryYear = await mddQuery.statSpeciesByDiscoveryYear().get();
     final extinctSpecies = await mddQuery.statExtinctSpecies().get();
     final domesticSpecies = await mddQuery.statDomesticSpecies().get();
     
@@ -55,13 +61,15 @@ class StatisticsService {
 
     final sortedCountries = countryCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final topCountries = sortedCountries.take(10).toList();
+    final topCountries = sortedCountries.take(15).toList();
 
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,
       speciesPerFamily: speciesPerFamily,
+      speciesPerGenus: speciesPerGenus,
       iucnStatus: cleanedIucn,
       discoveryDecade: discoveryDecade,
+      discoveryYear: discoveryYear,
       extinctSpecies: extinctSpecies,
       domesticSpecies: domesticSpecies,
       biogeographicRealm: cleanedRealm,

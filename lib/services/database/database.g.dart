@@ -5324,6 +5324,30 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         (QueryRow row) => row.readNullable<String>('countryDistribution'));
   }
 
+  Selectable<StatSpeciesPerGenusResult> statSpeciesPerGenus() {
+    return customSelect(
+        'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerGenusResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatSpeciesByDiscoveryYearResult> statSpeciesByDiscoveryYear() {
+    return customSelect(
+        'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByDiscoveryYearResult(
+          year: row.readNullable<int>('year'),
+          count: row.read<int>('count'),
+        ));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7408,6 +7432,24 @@ class StatSpeciesByBiogeographicRealmResult {
   final int count;
   StatSpeciesByBiogeographicRealmResult({
     this.name,
+    required this.count,
+  });
+}
+
+class StatSpeciesPerGenusResult {
+  final String? name;
+  final int count;
+  StatSpeciesPerGenusResult({
+    this.name,
+    required this.count,
+  });
+}
+
+class StatSpeciesByDiscoveryYearResult {
+  final int? year;
+  final int count;
+  StatSpeciesByDiscoveryYearResult({
+    this.year,
     required this.count,
   });
 }

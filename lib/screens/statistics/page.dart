@@ -6,9 +6,11 @@ import 'package:mdd/screens/statistics/decade_bar_chart.dart';
 import 'package:mdd/screens/statistics/domestic_pie_chart.dart';
 import 'package:mdd/screens/statistics/extinct_pie_chart.dart';
 import 'package:mdd/screens/statistics/family_bar_chart.dart';
+import 'package:mdd/screens/statistics/genus_bar_chart.dart';
 import 'package:mdd/screens/statistics/iucn_pie_chart.dart';
 import 'package:mdd/screens/statistics/order_bar_chart.dart';
 import 'package:mdd/screens/statistics/realm_pie_chart.dart';
+import 'package:mdd/screens/statistics/year_bar_chart.dart';
 import 'package:mdd/services/providers/statistics.dart';
 
 class MddStats extends ConsumerStatefulWidget {
@@ -67,12 +69,23 @@ class _MddStatsState extends ConsumerState<MddStats> {
                   const SizedBox(height: 16),
                   buildRow(
                     ChartCard(
-                      title: 'Species Richness by Country (Top 10)',
+                      title: 'Species Diversity by Genus (Top 15)',
+                      chart: GenusBarChart(stats: stats),
+                    ),
+                    ChartCard(
+                      title: 'Species Richness by Country (Top 15)',
                       chart: CountryBarChart(stats: stats),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  buildRow(
                     ChartCard(
                       title: 'Species Descriptions by Decade',
                       chart: DecadeBarChart(stats: stats),
+                    ),
+                    ChartCard(
+                      title: 'Species Descriptions by Year (Top 15)',
+                      chart: YearBarChart(stats: stats),
                     ),
                   ),
                   const SizedBox(height: 16),

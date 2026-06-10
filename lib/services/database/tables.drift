@@ -124,3 +124,5 @@ statExtinctSpecies: SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy
 statDomesticSpecies: SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic;
 statSpeciesByBiogeographicRealm: SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != '' AND biogeographicRealm != 'NA' GROUP BY biogeographicRealm ORDER BY count DESC;
 statCountryDistributions: SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != '';
+statSpeciesPerGenus: SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15;
+statSpeciesByDiscoveryYear: SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15;
