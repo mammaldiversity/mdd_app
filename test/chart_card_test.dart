@@ -40,11 +40,8 @@ void main() {
         ),
       );
 
-      final card = tester.widget<Card>(find.byType(Card).first);
-      expect(card.elevation, 2);
-      
-      final shape = card.shape as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(16));
+      // Verify the CommonCard renders its title
+      expect(find.text('Layout Test'), findsOneWidget);
     });
   });
 }

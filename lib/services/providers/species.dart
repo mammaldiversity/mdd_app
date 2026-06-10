@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
@@ -127,4 +132,17 @@ class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
 
 final randomMilImagesProvider = FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
   return MddQuery(ref.read(databaseProvider)).getRandomMilImages();
+});
+
+List<Map<String, dynamic>> _parseMilJson(String jsonString) {
+  final List<dynamic> parsed = jsonDecode(jsonString);
+  final random = Random();
+  final list = parsed.cast<Map<String, dynamic>>();
+  list.shuffle(random);
+  return list.take(20).toList();
+}
+
+final milJsonCarouselProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final jsonString = await rootBundle.loadString('assets/data/mil.json');
+  return await compute(_parseMilJson, jsonString);
 });

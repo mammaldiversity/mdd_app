@@ -96,7 +96,6 @@ flutter:
   assets:
     - assets/data/
     - assets/icons/
-    - assets/animations/
     - assets/mil-images/
     - assets/order-icons/
 
