@@ -18,15 +18,17 @@ class DecadeBarChart extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final requiredWidth = data.length * (8.0 + 4.0) + 50.0;
-        final chartWidth = requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: chartWidth,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.center,
+          child: Container(
+            width: requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: requiredWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.center,
                 groupsSpace: 4,
                 maxY: maxY * 1.1,
         barTouchData: BarTouchData(
@@ -109,6 +111,7 @@ class DecadeBarChart extends StatelessWidget {
           );
         }).toList(),
       ),
+              ),
             ),
           ),
         );

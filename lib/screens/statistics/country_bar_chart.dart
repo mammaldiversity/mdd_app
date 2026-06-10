@@ -17,15 +17,17 @@ class CountryBarChart extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final requiredWidth = data.length * (20.0 + 12.0) + 50.0;
-        final chartWidth = requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: chartWidth,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.center,
+          child: Container(
+            width: requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: requiredWidth,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.center,
                 groupsSpace: 12,
                 maxY: maxY * 1.1,
         barTouchData: BarTouchData(
@@ -115,6 +117,7 @@ class CountryBarChart extends StatelessWidget {
           );
         }).toList(),
       ),
+              ),
             ),
           ),
         );
