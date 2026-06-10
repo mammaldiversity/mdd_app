@@ -130,3 +130,7 @@ randomMilImagesWithTaxonomy: SELECT milData.*, taxonomy.genus, taxonomy.specific
 statSpeciesWithMostImages: SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15;
 statSpeciesWithImagesCount: SELECT COUNT(DISTINCT mddId) AS count FROM milData;
 statTotalSpeciesCount: SELECT COUNT(id) AS count FROM taxonomy;
+statTotalOrdersCount: SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy;
+statTotalFamiliesCount: SELECT COUNT(DISTINCT family) AS count FROM taxonomy;
+statTotalGeneraCount: SELECT COUNT(DISTINCT genus) AS count FROM taxonomy;
+statLivingWildSpeciesCount: SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0;

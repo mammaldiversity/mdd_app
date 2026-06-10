@@ -103,38 +103,36 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-              child: Image.asset(
-                'assets/icons/favicon512.png',
-                width: 120,
-                height: 120,
-              ),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Image.asset(
+              'assets/icons/favicon512.png',
+              width: 120,
+              height: 120,
             ),
-            Text(
-              "The Mammal Diversity Database",
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
+          ),
+          Text(
+            "The Mammal Diversity Database",
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "By the American Society of Mammalogists",
+            style: const TextStyle(
+              fontSize: 12,
             ),
-            const SizedBox(height: 8),
-            Text(
-              "By the American Society of Mammalogists",
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            const Welcome(),
-            const SizedBox(height: 16),
-            const DatabaseSearch(),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Welcome(),
+          const SizedBox(height: 16),
+          const DatabaseSearch(),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

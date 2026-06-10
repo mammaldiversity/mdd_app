@@ -19,7 +19,7 @@ class DatabaseSearch extends ConsumerWidget {
         SizedBox(height: 24),
         HomeSearchBar(),
         SizedBox(height: 16),
-        SpeciesCount(),
+        MddStatistics(),
         SizedBox(height: 16),
         DatabaseInfo(),
       ],
@@ -55,12 +55,11 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
         ),
         elevation: WidgetStateProperty.all(0),
         backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.primaryContainer.withAlpha(24),
+          Theme.of(context).colorScheme.primary.withAlpha(24),
         ),
         side: WidgetStateProperty.all(
           BorderSide(
-            color:
-                Theme.of(context).colorScheme.primaryContainer.withAlpha(180),
+            color: Theme.of(context).colorScheme.primary.withAlpha(180),
             width: 2,
           ),
         ),

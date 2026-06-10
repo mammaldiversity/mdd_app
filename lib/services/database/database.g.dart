@@ -5402,6 +5402,40 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
+  Selectable<int> statTotalOrdersCount() {
+    return customSelect(
+        'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statTotalFamiliesCount() {
+    return customSelect('SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statTotalGeneraCount() {
+    return customSelect('SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statLivingWildSpeciesCount() {
+    return customSelect(
+        'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

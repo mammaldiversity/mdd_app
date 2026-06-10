@@ -13,6 +13,10 @@ class MddStatistics {
   final List<MapEntry<String, int>> topCountries;
   final List<StatSpeciesWithMostImagesResult> speciesWithMostImages;
   final int speciesWithImagesCount;
+  final int totalOrdersCount;
+  final int totalFamiliesCount;
+  final int totalGeneraCount;
+  final int livingWildSpeciesCount;
   final int totalSpeciesCount;
 
   MddStatistics({
@@ -28,6 +32,10 @@ class MddStatistics {
     required this.topCountries,
     required this.speciesWithMostImages,
     required this.speciesWithImagesCount,
+    required this.totalOrdersCount,
+    required this.totalFamiliesCount,
+    required this.totalGeneraCount,
+    required this.livingWildSpeciesCount,
     required this.totalSpeciesCount,
   });
 }
@@ -80,6 +88,11 @@ class StatisticsService {
     final totalSpeciesRow = await mddQuery.statTotalSpeciesCount().getSingle();
     final totalSpeciesCount = totalSpeciesRow;
 
+    final totalOrdersCount = await mddQuery.statTotalOrdersCount().getSingle();
+    final totalFamiliesCount = await mddQuery.statTotalFamiliesCount().getSingle();
+    final totalGeneraCount = await mddQuery.statTotalGeneraCount().getSingle();
+    final livingWildSpeciesCount = await mddQuery.statLivingWildSpeciesCount().getSingle();
+
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,
       speciesPerFamily: speciesPerFamily,
@@ -93,6 +106,10 @@ class StatisticsService {
       topCountries: topCountries,
       speciesWithMostImages: speciesWithMostImages,
       speciesWithImagesCount: speciesWithImagesCount,
+      totalOrdersCount: totalOrdersCount,
+      totalFamiliesCount: totalFamiliesCount,
+      totalGeneraCount: totalGeneraCount,
+      livingWildSpeciesCount: livingWildSpeciesCount,
       totalSpeciesCount: totalSpeciesCount,
     );
   }
