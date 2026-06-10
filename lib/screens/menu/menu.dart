@@ -16,30 +16,45 @@ class MoreMenu extends StatefulWidget {
 class _MoreMenuState extends State<MoreMenu> {
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = getPlatformType() == PlatformType.desktop;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ListView(
         children: <Widget>[
+          const SizedBox(height: 8),
+          const SettingSection(),
+          const SizedBox(height: 16),
           const EssentialUrls(),
           const SizedBox(height: 16),
-          Text(
-            'Settings',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const Divider(thickness: 2.4),
-          const AppearanceSetting(),
-          const SizedBox(height: 16),
-          Visibility(
-            // Show only on desktop because mobile database
-            // Cannot be changed
-            visible: isDesktop,
-            child: const DatabaseLocationSetting(),
-          ),
-          const SizedBox(height: 32),
           const AppVersionView(),
         ],
       ),
+    );
+  }
+}
+
+class SettingSection extends StatelessWidget {
+  const SettingSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDesktop = getPlatformType() == PlatformType.desktop;
+    return CommonCard(
+      title: 'Settings',
+      child: Container(
+          padding: const EdgeInsets.all(16),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+          child: Column(
+            children: [
+              const AppearanceSetting(),
+              const SizedBox(height: 16),
+              Visibility(
+                // Show only on desktop because mobile database
+                // Cannot be changed
+                visible: isDesktop,
+                child: const DatabaseLocationSetting(),
+              ),
+            ],
+          )),
     );
   }
 }
@@ -59,12 +74,13 @@ class EssentialUrls extends StatelessWidget {
           child: Column(
             children: [
               const UrlTile(
-                title: 'About the Mammal Diversity Database (MDD)',
-                url: mddAboutUrl,
+                title: 'American Society of Mammalogists (ASM)',
+                url: asmUrl,
+                icon: Icons.public,
               ),
               const SizedBox(height: 8),
               const UrlTile(
-                title: 'MDD website',
+                title: 'The Mammal Diversity Database (MDD)',
                 url: mddWebsiteUrl,
               ),
               const SizedBox(height: 8),
@@ -75,9 +91,15 @@ class EssentialUrls extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const UrlTile(
-                title: 'American Society of Mammalogists',
-                url: asmUrl,
-                icon: Icons.public,
+                title: 'MDD on GitHub',
+                url: mddGitHub,
+                icon: Icons.code,
+              ),
+              const SizedBox(height: 8),
+              const UrlTile(
+                title: 'MDD App Source Code',
+                url: appSourceCode,
+                icon: Icons.code,
               ),
             ],
           ),
