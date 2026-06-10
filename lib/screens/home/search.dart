@@ -6,6 +6,8 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/database.dart';
 
+import 'package:mdd/screens/home/mil_carousel.dart';
+
 class DatabaseSearch extends ConsumerWidget {
   const DatabaseSearch({super.key});
 
@@ -13,8 +15,10 @@ class DatabaseSearch extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return const Column(
       children: [
+        RandomMilCarousel(),
+        SizedBox(height: 24),
         HomeSearchBar(),
-        SizedBox(height: 8),
+        SizedBox(height: 16),
         SpeciesCount(),
         SizedBox(height: 16),
         DatabaseInfo(),

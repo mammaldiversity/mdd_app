@@ -126,3 +126,4 @@ statSpeciesByBiogeographicRealm: SELECT biogeographicRealm AS name, COUNT(*) AS 
 statCountryDistributions: SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != '';
 statSpeciesPerGenus: SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15;
 statSpeciesByDiscoveryYear: SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15;
+randomMilImagesWithTaxonomy: SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15;

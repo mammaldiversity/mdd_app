@@ -141,6 +141,30 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         ));
   }
 
+  Selectable<RandomMilImagesWithTaxonomyResult> randomMilImagesWithTaxonomy() {
+    return customSelect(
+        'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          milData,
+        }).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
+          milId: row.read<String>('milId'),
+          mddId: row.read<int>('mddId'),
+          description: row.readNullable<String>('description'),
+          photographer: row.readNullable<String>('photographer'),
+          location: row.readNullable<String>('location'),
+          distribution: row.readNullable<String>('distribution'),
+          dateTaken: row.readNullable<String>('dateTaken'),
+          orientation: row.readNullable<String>('orientation'),
+          isUncertainIdentification:
+              row.readNullable<int>('isUncertainIdentification'),
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          mainCommonName: row.readNullable<String>('mainCommonName'),
+        ));
+  }
+
   MddQueryManager get managers => MddQueryManager(this);
 }
 
@@ -248,5 +272,34 @@ class StatSpeciesByDiscoveryYearResult {
   StatSpeciesByDiscoveryYearResult({
     this.year,
     required this.count,
+  });
+}
+
+class RandomMilImagesWithTaxonomyResult {
+  final String milId;
+  final int mddId;
+  final String? description;
+  final String? photographer;
+  final String? location;
+  final String? distribution;
+  final String? dateTaken;
+  final String? orientation;
+  final int? isUncertainIdentification;
+  final String? genus;
+  final String? specificEpithet;
+  final String? mainCommonName;
+  RandomMilImagesWithTaxonomyResult({
+    required this.milId,
+    required this.mddId,
+    this.description,
+    this.photographer,
+    this.location,
+    this.distribution,
+    this.dateTaken,
+    this.orientation,
+    this.isUncertainIdentification,
+    this.genus,
+    this.specificEpithet,
+    this.mainCommonName,
   });
 }

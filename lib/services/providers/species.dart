@@ -124,3 +124,7 @@ class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
     return await _fetch();
   }
 }
+
+final randomMilImagesProvider = FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
+  return MddQuery(ref.read(databaseProvider)).getRandomMilImages();
+});
