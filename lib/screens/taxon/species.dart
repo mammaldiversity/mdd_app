@@ -141,10 +141,10 @@ class OtherDetailsResponsive extends StatelessWidget {
               const MilImagesWidget(),
               const SizedBox(height: 8),
               ClassificationContainer(taxonData: taxonData),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               DistributionMap(
                   countryDistribution: taxonData.countryDistribution),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               SpeciesInfoList(taxonData: taxonData),
               const SynonymList(),
               const SizedBox(height: 8),
