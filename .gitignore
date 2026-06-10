@@ -67,4 +67,4 @@ MDD
 *.sqlite
 
 # MIL Images
-assets/mil-images/
+mil-images/
