@@ -1,4 +1,5 @@
-use mdd_api::parser::ReleasedMddData;
+#![allow(unexpected_cfgs)]
+use mdd_api::mdd::ReleasedMddData;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {

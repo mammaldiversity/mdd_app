@@ -75,12 +75,21 @@ jobs:
             --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
             --output mil
 
-      - name: Copy MIL images to assets
+      - name: Move MIL to assets
         working-directory: assets/data
         run: |
           IMAGES_DIR="$MIL_DIRNAME/images-540px-webp"
           mkdir -p ../mil-images
           find "$IMAGES_DIR" -name "*.webp" -exec mv {} ../mil-images/ \;
+          find . -name "mil.json" -exec mv {} mil.json \;
+
+      - name: Verify mil.json exists
+        run: |
+          if [ ! -f assets/data/mil.json ]; then
+            echo "Error: mil.json not found in assets/data"
+            exit 1
+          fi
+          echo "mil.json found in assets/data"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

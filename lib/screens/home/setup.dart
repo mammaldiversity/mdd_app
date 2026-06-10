@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mdd/screens/shared/loadings.dart';
@@ -66,9 +65,9 @@ class _SetupImageState extends State<SetupImage> {
 
   Future<void> _loadImages() async {
     try {
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-      final allImages = manifestMap.keys
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final allImages = manifest
+          .listAssets()
           .where((path) => path.startsWith('assets/mil-images/'))
           .toList();
       allImages.shuffle();
@@ -133,8 +132,9 @@ class _SetupImageState extends State<SetupImage> {
                   _imagePaths[_currentIndex],
                   key: ValueKey<String>(_imagePaths[_currentIndex]),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const SizedBox(height: 300, child: Center(child: Icon(Icons.broken_image, size: 64))),
+                  errorBuilder: (context, error, stackTrace) => const SizedBox(
+                      height: 300,
+                      child: Center(child: Icon(Icons.broken_image, size: 64))),
                 ),
               ),
       ),
@@ -161,15 +161,18 @@ class SetupContent extends StatelessWidget {
         Text(
           '⏳ Setting up MDD...',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .secondaryContainer
+                .withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -206,7 +209,10 @@ class OtherFeatures extends StatelessWidget {
       children: [
         Text(
           'App Features:',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Text(
