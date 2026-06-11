@@ -11,8 +11,10 @@ class FamilyBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.speciesPerFamily.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerFamilyResult> data = stats.speciesPerFamily.take(15).toList();
-    double maxY = data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerFamilyResult> data =
+        stats.speciesPerFamily.take(15).toList();
+    double maxY =
+        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(
@@ -22,98 +24,114 @@ class FamilyBarChart extends StatelessWidget {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Container(
-            width: requiredWidth > constraints.maxWidth ? requiredWidth : constraints.maxWidth,
+            width: requiredWidth > constraints.maxWidth
+                ? requiredWidth
+                : constraints.maxWidth,
             alignment: Alignment.center,
             child: SizedBox(
               width: requiredWidth,
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.center,
-                groupsSpace: 10,
-                maxY: maxY * 1.1,
-        barTouchData: BarTouchData(
-          enabled: true,
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (group) => Colors.blueGrey.shade800,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final xAxisLabel = data[group.x.toInt()].name ?? '';
-              return BarTooltipItem(
-                '$xAxisLabel\n',
-                const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.normal),
-                children: [
-                  TextSpan(
-                    text: '${rod.toY.toInt()}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  groupsSpace: 10,
+                  maxY: maxY * 1.1,
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (group) => Colors.blueGrey.shade800,
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final xAxisLabel = data[group.x.toInt()].name ?? '';
+                        return BarTooltipItem(
+                          '$xAxisLabel\n',
+                          const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal),
+                          children: [
+                            TextSpan(
+                              text: '${rod.toY.toInt()}',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
-                ],
-              );
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                final int index = value.toInt();
-                if (index < 0 || index >= data.length) return const SizedBox.shrink();
-                
-                String text = data[index].name ?? '';
-                if (text.length > 11) text = '${text.substring(0, 9)}...';
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          final int index = value.toInt();
+                          if (index < 0 || index >= data.length)
+                            return const SizedBox.shrink();
 
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Transform.rotate(
-                    angle: -1.0,
-                    child: Text(text, style: TextStyle(fontSize: 10, color: textColor)),
+                          String text = data[index].name ?? '';
+                          if (text.length > 11)
+                            text = '${text.substring(0, 9)}...';
+
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Transform.rotate(
+                              angle: -1.0,
+                              child: Text(text,
+                                  style: TextStyle(
+                                      fontSize: 10, color: textColor)),
+                            ),
+                          );
+                        },
+                        reservedSize: 80,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 50,
+                        interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                        getTitlesWidget: (value, meta) {
+                          return SideTitleWidget(
+                            meta: meta,
+                            child: Text(
+                              value.toInt().toString(),
+                              style: TextStyle(fontSize: 10, color: textColor),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 24,
+                        getTitlesWidget: (value, meta) =>
+                            const SizedBox.shrink(),
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                   ),
-                );
-              },
-              reservedSize: 80,
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 50,
-              interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
-              getTitlesWidget: (value, meta) {
-                return SideTitleWidget(
-                  meta: meta,
-                  child: Text(
-                    value.toInt().toString(),
-                    style: TextStyle(fontSize: 10, color: textColor),
-                  ),
-                );
-              },
-            ),
-          ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 24,
-              getTitlesWidget: (value, meta) => const SizedBox.shrink(),
-            ),
-          ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
-        barGroups: data.asMap().entries.map((e) {
-          return BarChartGroupData(
-            x: e.key,
-            barRods: [
-              BarChartRodData(
-                toY: e.value.count.toDouble(),
-                color: Colors.blueAccent,
-                width: 16,
-                borderRadius: BorderRadius.circular(4),
-              )
-            ],
-          );
-        }).toList(),
-      ),
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  barGroups: data.asMap().entries.map((e) {
+                    return BarChartGroupData(
+                      x: e.key,
+                      barRods: [
+                        BarChartRodData(
+                          toY: e.value.count.toDouble(),
+                          color: Colors.blueAccent,
+                          width: 16,
+                          borderRadius: BorderRadius.circular(4),
+                        )
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),

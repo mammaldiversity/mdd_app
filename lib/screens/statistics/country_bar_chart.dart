@@ -37,6 +37,8 @@ class CountryBarChart extends StatelessWidget {
                     enabled: true,
                     touchTooltipData: BarTouchTooltipData(
                       getTooltipColor: (group) => Colors.blueGrey.shade800,
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final xAxisLabel = data[group.x.toInt()].key;
                         return BarTooltipItem(

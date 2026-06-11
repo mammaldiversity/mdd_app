@@ -65,7 +65,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
                   const SizedBox(height: 16),
                   buildRow(
                     ChartCard(
-                      title: 'Species Diversity by Order',
+                      title: 'Species Diversity by Order (Top 15)',
                       chart: OrderBarChart(stats: stats),
                     ),
                     ChartCard(

@@ -39,7 +39,8 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
                           touchedIndex = -1;
                           return;
                         }
-                        touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),
@@ -72,7 +73,8 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
     );
   }
 
-  List<PieChartSectionData> showingSections(List<StatDomesticSpeciesResult> data) {
+  List<PieChartSectionData> showingSections(
+      List<StatDomesticSpeciesResult> data) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;

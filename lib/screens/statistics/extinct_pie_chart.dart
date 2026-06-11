@@ -39,7 +39,8 @@ class _ExtinctPieChartState extends State<ExtinctPieChart> {
                           touchedIndex = -1;
                           return;
                         }
-                        touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),
@@ -72,7 +73,8 @@ class _ExtinctPieChartState extends State<ExtinctPieChart> {
     );
   }
 
-  List<PieChartSectionData> showingSections(List<StatExtinctSpeciesResult> data) {
+  List<PieChartSectionData> showingSections(
+      List<StatExtinctSpeciesResult> data) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
