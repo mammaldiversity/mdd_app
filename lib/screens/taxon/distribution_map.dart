@@ -164,35 +164,42 @@ class _DistributionMapState extends State<DistributionMap> {
                       PolygonLayer(
                         polygons: _polygons,
                       ),
-                    RichAttributionWidget(
-                      alignment: AttributionAlignment.bottomLeft,
-                      openButton: (context, open) => IconButton(
-                        onPressed: open,
-                        tooltip: 'Attributions',
-                        icon: Icon(
-                          Icons.info_outlined,
-                          color: Theme.of(context).colorScheme.onSurface,
+                    MediaQuery.removePadding(
+                      context: context,
+                      removeBottom: true,
+                      removeLeft: true,
+                      removeRight: true,
+                      removeTop: true,
+                      child: RichAttributionWidget(
+                        alignment: AttributionAlignment.bottomLeft,
+                        openButton: (context, open) => IconButton(
+                          onPressed: open,
+                          tooltip: 'Attributions',
+                          icon: Icon(
+                            Icons.info_outlined,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
+                        closeButton: (context, close) => IconButton(
+                          onPressed: close,
+                          icon: Icon(
+                            Icons.cancel_outlined,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        attributions: [
+                          TextSourceAttribution(
+                            'OpenStreetMap contributors, © CARTO',
+                            onTap: () => launchUrl(
+                                Uri.parse('https://carto.com/attributions')),
+                          ),
+                          TextSourceAttribution(
+                            'Country Boundaries: Natural Earth',
+                            onTap: () => launchUrl(
+                                Uri.parse('https://www.naturalearthdata.com/')),
+                          ),
+                        ],
                       ),
-                      closeButton: (context, close) => IconButton(
-                        onPressed: close,
-                        icon: Icon(
-                          Icons.cancel_outlined,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      attributions: [
-                        TextSourceAttribution(
-                          'OpenStreetMap contributors, © CARTO',
-                          onTap: () => launchUrl(
-                              Uri.parse('https://carto.com/attributions')),
-                        ),
-                        TextSourceAttribution(
-                          'Country Boundaries: Natural Earth',
-                          onTap: () => launchUrl(
-                              Uri.parse('https://www.naturalearthdata.com/')),
-                        ),
-                      ],
                     ),
                   ],
                 ),

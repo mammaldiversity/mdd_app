@@ -1,18 +1,15 @@
 #![allow(unexpected_cfgs)]
-use flate2::read::GzDecoder;
+use mdd_api::mdd::metadata::ReleaseToml;
 use mdd_api::mdd::ReleasedMddData;
 use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData};
+use serde::Serialize;
 use std::fs::File;
 use std::io::Read;
-use tar::Archive;
-use toml::Value;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
-
-use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct MddHelper {
@@ -56,15 +53,9 @@ impl MddHelper {
             if file_name.ends_with("release.toml") && !file_name.contains("__MACOSX") {
                 let mut contents = String::new();
                 if file.read_to_string(&mut contents).is_ok() {
-                    if let Ok(toml_val) = contents.parse::<Value>() {
-                        if let Some(metadata) = toml_val.get("metadata") {
-                            if let Some(v) = metadata.get("version").and_then(|v| v.as_str()) {
-                                version = v.to_string();
-                            }
-                            if let Some(d) = metadata.get("release_date").and_then(|d| d.as_str()) {
-                                release_date = d.to_string();
-                            }
-                        }
+                    if let Ok(release_toml) = ReleaseToml::from_toml(&contents) {
+                        version = release_toml.metadata.version;
+                        release_date = release_toml.metadata.release_date;
                     }
                 }
             } else if file_name.contains("MDD_v")
@@ -105,7 +96,7 @@ pub struct MilHelper {
 }
 
 impl MilHelper {
-    pub fn parse_mil_data(tar_path: String) -> Self {
+    pub fn parse_mil_data(tar_path: String, db_path: String) -> Self {
         let mut json_content = String::new();
 
         if tar_path.ends_with(".json") {
@@ -114,22 +105,44 @@ impl MilHelper {
                 .read_to_string(&mut json_content)
                 .unwrap_or_default();
         } else {
-            let file = File::open(&tar_path).expect("Failed to open tar.gz file");
-            let tar = GzDecoder::new(file);
-            let mut archive = Archive::new(tar);
+            // Create a temporary directory
+            if let Ok(temp_dir) = tempdir::TempDir::new("mil_update") {
+                let temp_csv_path = temp_dir.path().join("temp_mdd.csv");
+                let temp_json_path = temp_dir.path().join("temp_mil.json");
 
-            if let Ok(entries) = archive.entries() {
-                for file in entries.flatten() {
-                    let path = file.path().unwrap_or_default();
-                    let path_str = path.to_string_lossy();
-
-                    if (path_str.ends_with("mil.json") || path_str.ends_with(".json"))
-                        && !path_str.contains("__MACOSX")
-                    {
-                        let mut f = file;
-                        if f.read_to_string(&mut json_content).is_ok() {
-                            break;
+                // Query SQLite DB to build temp_mdd.csv
+                if let Ok(conn) = rusqlite::Connection::open(&db_path) {
+                    if let Ok(mut stmt) = conn.prepare("SELECT id, genus, specificEpithet FROM taxonomy") {
+                        if let Ok(mut writer) = std::fs::File::create(&temp_csv_path) {
+                            use std::io::Write;
+                            // Write CSV header
+                            let _ = writeln!(writer, "id,genus,specificEpithet");
+                            // Query rows and write
+                            if let Ok(mut rows) = stmt.query([]) {
+                                while let Ok(Some(row)) = rows.next() {
+                                    if let (Ok(id), Ok(genus), Ok(specific_epithet)) = (
+                                        row.get::<_, u32>(0),
+                                        row.get::<_, String>(1),
+                                        row.get::<_, String>(2),
+                                    ) {
+                                        let _ = writeln!(writer, "{},{},{}", id, genus, specific_epithet);
+                                    }
+                                }
+                            }
                         }
+                    }
+                }
+
+                // Call mdd_api::mil::prepare_metadata
+                let mil_file_path = std::path::Path::new(&tar_path);
+                if mdd_api::mil::prepare_metadata(
+                    mil_file_path,
+                    &temp_csv_path,
+                    None,
+                    &temp_json_path,
+                ).is_ok() {
+                    if let Ok(mut json_file) = std::fs::File::open(&temp_json_path) {
+                        let _ = json_file.read_to_string(&mut json_content);
                     }
                 }
             }
@@ -149,3 +162,63 @@ impl MilHelper {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::Write;
+    use zip::write::SimpleFileOptions;
+    use zip::ZipWriter;
+
+    fn get_mock_mdd_csv() -> &'static str {
+        "id,sciName,mainCommonName,otherCommonNames,phylosort,subclass,infraclass,magnorder,superorder,order,suborder,infraorder,parvorder,superfamily,family,subfamily,tribe,genus,subgenus,specificEpithet,authoritySpeciesAuthor,authoritySpeciesYear,authorityParentheses,originalNameCombination,authoritySpeciesCitation,authoritySpeciesLink,typeVoucher,typeKind,typeVoucherURIs,typeLocality,typeLocalityLatitude,typeLocalityLongitude,nominalNames,taxonomyNotes,taxonomyNotesCitation,distributionNotes,distributionNotesCitation,subregionDistribution,countryDistribution,continentDistribution,biogeographicRealm,iucnStatus,extinct,domestic,flagged,CMW_sciName,diffSinceCMW,MSW3_matchtype,MSW3_sciName,diffSinceMSW3\n\
+        100,Mus musculus,,,1,,,,,,,,,,,,,Mus,,musculus,,0,0,,,,,,,,,,,,,,,,,,,,0,0,0,,0,,,\n"
+    }
+
+    fn get_mock_syn_csv() -> &'static str {
+        "MDD_syn_id,hesp_id,species_id,species,root_name,author,year,authority_parentheses,nomenclature_status,validity,original_combination,original_rank,authority_citation,unchecked_authority_citation,sourced_unverified_citations,citation_group,citation_kind,authority_page,authority_link,authority_page_link,unchecked_authority_page_link,old_type_locality,original_type_locality,unchecked_type_locality,emended_type_locality,type_latitude,type_longitude,type_country,type_subregion,type_subregion2,holotype,type_kind,type_specimen_link,order,family,genus,specific_epithet,subspecific_epithet,variant_of,senior_homonym,variant_name_citations,name_usages,comments\n\
+        1,0,100,Mus musculus,Mus musculus,Linnaeus,1758,0,,valid,,species,citation,,,,,,link,,,loc,loc2,,loc3,0,0,Country,Sub,Sub2,Holotype,Kind,SpecLink,Rodentia,Muridae,Mus,musculus,,,,,,\n"
+    }
+
+    #[test]
+    fn test_parse_mdd_zip_with_release_toml() {
+        let temp_dir = std::env::temp_dir();
+        let zip_path = temp_dir.join("test_mdd_release.zip");
+
+        let file = File::create(&zip_path).unwrap();
+        let mut zip = ZipWriter::new(file);
+        let options = SimpleFileOptions::default();
+
+        zip.start_file("MDD/release.toml", options).unwrap();
+        zip.write_all(
+            br#"[metadata]
+name = "The Mammal Diversity Database"
+version = "v2.4"
+release_date = "2026-01-02"
+mdd_file = "MDD_v2.4_6871species.csv"
+synonym_file = "Species_Syn_v2.4.csv"
+zenodo_citation = "test citation"
+remarks = "test remarks"
+"#,
+        )
+        .unwrap();
+
+        zip.start_file("MDD/MDD_v2.4_6871species.csv", options).unwrap();
+        zip.write_all(get_mock_mdd_csv().as_bytes()).unwrap();
+
+        zip.start_file("MDD/Species_Syn_v2.4.csv", options).unwrap();
+        zip.write_all(get_mock_syn_csv().as_bytes()).unwrap();
+
+        zip.finish().unwrap();
+
+        let helper = MddHelper::parse_mdd_zip(zip_path.to_str().unwrap().to_string());
+        assert_eq!(helper.version, "v2.4");
+        assert_eq!(helper.release_date, "2026-01-02");
+        assert_eq!(helper.mdd_data.len(), 1);
+        assert_eq!(helper.syn_data.len(), 0);
+
+        let _ = std::fs::remove_file(zip_path);
+    }
+}
+

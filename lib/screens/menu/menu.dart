@@ -49,12 +49,11 @@ class SettingSection extends StatelessWidget {
               const SizedBox(height: 16),
               const DisplaySetting(),
               const SizedBox(height: 16),
-              Visibility(
-                // Show only on desktop because mobile database
-                // Cannot be changed
-                visible: isDesktop,
-                child: const DatabaseLocationSetting(),
-              ),
+              const DataUpdatesSetting(),
+              if (isDesktop) ...[
+                const SizedBox(height: 16),
+                const DatabaseLocationSetting(),
+              ],
             ],
           )),
     );

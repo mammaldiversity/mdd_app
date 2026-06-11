@@ -247,11 +247,12 @@ fn wire__crate__api__parser__mil_helper_parse_mil_data_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_tar_path = <String>::sse_decode(&mut deserializer);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(
-                        crate::api::parser::MilHelper::parse_mil_data(api_tar_path),
+                        crate::api::parser::MilHelper::parse_mil_data(api_tar_path, api_db_path),
                     )?;
                     Ok(output_ok)
                 })())

@@ -16,6 +16,7 @@ final searchDatabaseProvider =
 class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
   @override
   FutureOr<List<MainTaxonomyData>> build() async {
+    ref.watch(databaseProvider);
     return [];
   }
 
@@ -30,7 +31,7 @@ class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
 }
 
 final totalRecordsProvider = FutureProvider<int>((ref) async {
-  return await MddQuery(ref.read(databaseProvider)).totalRecords();
+  return await MddQuery(ref.watch(databaseProvider)).totalRecords();
 });
 
 final speciesListProvider =
@@ -39,7 +40,7 @@ final speciesListProvider =
 
 class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   Future<List<MddGroupListResult>> _fetchSpeciesList() async {
-    return MddQuery(ref.read(databaseProvider)).retrieveGroupList();
+    return MddQuery(ref.watch(databaseProvider)).retrieveGroupList();
   }
 
   @override
@@ -77,7 +78,7 @@ final taxonDataProvider =
 class TaxonData extends AsyncNotifier<db.TaxonomyData> {
   Future<db.TaxonomyData> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.read(databaseProvider)).retrieveTaxonData(mddID);
+    return await MddQuery(ref.watch(databaseProvider)).retrieveTaxonData(mddID);
   }
 
   @override
@@ -93,7 +94,7 @@ final synonymDataProvider =
 class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   Future<List<db.SynonymData>> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.read(databaseProvider))
+    return await MddQuery(ref.watch(databaseProvider))
         .retrieveSynonymData(mddID);
   }
 
@@ -106,12 +107,12 @@ class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
 final mainTaxonomyDataProvider =
     FutureProvider.family<List<MainTaxonomyData>, List<int>>(
         (ref, mddIDList) async {
-  return MddQuery(ref.read(databaseProvider)).retrieveSpeciesList(mddIDList);
+  return MddQuery(ref.watch(databaseProvider)).retrieveSpeciesList(mddIDList);
 });
 
 final milDataFamilyProvider =
     FutureProvider.family<List<db.MilDataData>, int>((ref, mddID) async {
-  return MddQuery(ref.read(databaseProvider)).retrieveMilData(mddID);
+  return MddQuery(ref.watch(databaseProvider)).retrieveMilData(mddID);
 });
 
 final milDataProvider =
@@ -121,7 +122,7 @@ final milDataProvider =
 class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
   Future<List<db.MilDataData>> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.read(databaseProvider)).retrieveMilData(mddID);
+    return await MddQuery(ref.watch(databaseProvider)).retrieveMilData(mddID);
   }
 
   @override
@@ -131,7 +132,7 @@ class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
 }
 
 final randomMilImagesProvider = FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
-  return MddQuery(ref.read(databaseProvider)).getRandomMilImages();
+  return MddQuery(ref.watch(databaseProvider)).getRandomMilImages();
 });
 
 List<Map<String, dynamic>> _parseMilJson(String jsonString) {

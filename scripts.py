@@ -17,7 +17,7 @@ FRB_FILES = [DART_FRB, DART_FRB_IO, DART_FRB_WEB, RUST_FRB_IO, RUST_FRB, RUST_FR
 DMG_CONFIG = "packages/config.json"
 OUTPUT_DMG = "packages/mdd.dmg"
 
-FRB_INSTALL_NAME = "flutter_rust_bridge_codegen@^2.0.0-dev.0"
+FRB_INSTALL_NAME = "flutter_rust_bridge_codegen"
 
 IOS_PODS_FILES = "ios/Podfile ios/Podfile.lock ios/Pods/"
 MACOS_PODS_FILES = "macos/Podfile macos/Podfile.lock macos/Pods/"
@@ -140,7 +140,7 @@ class BuildRust:
     def install_frb_executable(self) -> None:
         print("Installing frb executable...")
         try:
-            subprocess.run(["cargo", "install", FRB_INSTALL_NAME])
+            subprocess.run(["cargo", "install", "flutter_rust_bridge_codegen", "--version", "2.12.0"])
             print("Frb executable installed successfully\n")
         except Exception as e:
             print("Error installing frb executable:", str(e))
@@ -162,7 +162,6 @@ class BuildRust:
         try:
             self.remove_old_frb_code()
             subprocess.run(["rm", "-rf", "rust_builder"])
-            subprocess.run(["rm", "-rf", "flutter_rust_bridge.yaml"])
             subprocess.run(["rm", "-rf", "integration_test"])
             print("Frb code cleaned successfully\n")
         except Exception as e:
@@ -172,7 +171,7 @@ class BuildRust:
     def update_frb_executable(self) -> None:
         print("Updating frb executable...")
         try:
-            subprocess.run(["cargo", "install", FRB_INSTALL_NAME])
+            subprocess.run(["cargo", "install", "flutter_rust_bridge_codegen", "--version", "2.12.0"])
             self.update_rust_dependencies()
             print("Frb executable updated successfully\n")
         except Exception as e:

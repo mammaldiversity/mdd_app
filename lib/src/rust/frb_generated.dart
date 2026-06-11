@@ -100,7 +100,7 @@ abstract class RustLibApi extends BaseApi {
       {required String zipPath});
 
   Future<MilHelper> crateApiParserMilHelperParseMilData(
-      {required String tarPath});
+      {required String tarPath, required String dbPath});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -245,11 +245,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<MilHelper> crateApiParserMilHelperParseMilData(
-      {required String tarPath}) {
+      {required String tarPath, required String dbPath}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(tarPath, serializer);
+        sse_encode_String(dbPath, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 6, port: port_);
       },
@@ -258,7 +259,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeErrorData: null,
       ),
       constMeta: kCrateApiParserMilHelperParseMilDataConstMeta,
-      argValues: [tarPath],
+      argValues: [tarPath, dbPath],
       apiImpl: this,
     ));
   }
@@ -266,7 +267,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiParserMilHelperParseMilDataConstMeta =>
       const TaskConstMeta(
         debugName: "mil_helper_parse_mil_data",
-        argNames: ["tarPath"],
+        argNames: ["tarPath", "dbPath"],
       );
 
   @protected

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:file_selector/file_selector.dart';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/model.dart';
 import 'package:mdd/src/rust/api/parser.dart';
@@ -203,7 +204,11 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
   Future<void> _processMilFile(String filePath) async {
     state = UpdateStatus(state: UpdateState.extracting, message: 'Parsing MIL data...', progress: 0.5);
     try {
-      final milDataObj = await MilHelper.parseMilData(tarPath: filePath);
+      final dbFile = await dBPath;
+      final milDataObj = await MilHelper.parseMilData(
+        tarPath: filePath,
+        dbPath: dbFile.path,
+      );
       
       state = UpdateStatus(state: UpdateState.updating, message: 'Updating database...', progress: 0.8);
       final db = ref.read(databaseProvider);
@@ -235,6 +240,53 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
       state = UpdateStatus(state: UpdateState.success, message: 'Successfully updated MIL data', progress: 1.0);
     } catch (e) {
       state = UpdateStatus(state: UpdateState.error, message: 'Extraction error: $e');
+    }
+  }
+
+  Future<void> resetToDefaultDatabase() async {
+    state = UpdateStatus(
+      state: UpdateState.updating,
+      message: 'Resetting database to default...',
+      progress: 0.1,
+    );
+    try {
+      final db = ref.read(databaseProvider);
+      
+      // 1. Close current connection
+      await db.close();
+      
+      // 2. Delete active mdd.db file
+      final file = await dBPath;
+      if (await file.exists()) {
+        await file.delete();
+      }
+      
+      // 3. Copy default database from assets/rootBundle
+      state = UpdateStatus(
+        state: UpdateState.updating,
+        message: 'Copying default database...',
+        progress: 0.5,
+      );
+      final byteData = await rootBundle.load('assets/data/mdd.db');
+      final bytes = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+      await file.writeAsBytes(bytes, flush: true);
+      
+      // 4. Update the state of databaseProvider
+      ref.read(databaseProvider.notifier).setDatabase(AppDatabase());
+      
+      // 5. Invalidate dependent providers
+      ref.invalidate(mddInfoProvider);
+      
+      state = UpdateStatus(
+        state: UpdateState.success,
+        message: 'Database successfully reset to default bundle version.',
+        progress: 1.0,
+      );
+    } catch (e) {
+      state = UpdateStatus(
+        state: UpdateState.error,
+        message: 'Reset error: $e',
+      );
     }
   }
 }

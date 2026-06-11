@@ -41,9 +41,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install Python tools
-        run: uv pip install mil-kit --system
-
       - name: Setup Rust & Cache
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -63,43 +60,32 @@ jobs:
       - name: Install MDD CLI
         run: cargo install mdd_api
 
-      - name: Extract MDD data
-        run: |
-          mkdir -p tmp_data
-          cd tmp_data
-          curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
-          mdd unpack -i MDD.zip
-
-      - name: Extract MIL data
-        working-directory: tmp_data
+      - name: Prepare MDD and MIL data
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          mkdir -p tmp_data
+          cd tmp_data
+          
+          # Download MDD.zip
+          curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
+          
+          # Download latest MIL tar.gz from github releases
           echo "Downloading latest .tar.gz from asm-mil release"
           gh release download -R mammaldiversity/asm-mil -p "*.tar.gz" --clobber
           
-          # Grab the downloaded filename
           MIL_FILENAME=$(ls *.tar.gz | head -n 1)
           MIL_DIRNAME="${MIL_FILENAME%.tar.gz}"
-          
-          echo "Extraction info:"
-          echo "FILENAME: $MIL_FILENAME"
-          echo "DIRNAME: $MIL_DIRNAME"
-          
-          tar -xzf "$MIL_FILENAME"
-          
-          MDD_FILE=$(ls MDD/MDD_v*.csv)
-          MIL_DATE="${MIL_DIRNAME#mil-v}"
-          MIL_BASE_DATE=$(echo "$MIL_DATE" | sed 's/\.[0-9]*$//')
-          
-          echo "Processing MIL data using MDD file $MDD_FILE"
-          mil-kit mdd \
-            --mil-file "$MIL_DIRNAME/metadata/mil-$MIL_BASE_DATE.xlsx" \
-            --mdd-file "$MDD_FILE" \
-            --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
-            --output mil
-
           echo "MIL_DIRNAME=$MIL_DIRNAME" >> $GITHUB_ENV
+          
+          # Run the new prepare subcommand to unpack MDD and merge with MIL data
+          mdd prepare -z MDD.zip -m "$MIL_FILENAME" -o .
+          
+          # Move prepared output to expected mil.json
+          mv mil_mdd.json mil.json
+          
+          # Extract images so they can be moved/verified downstream
+          tar -xzf "$MIL_FILENAME"
 
       - name: Move MIL to assets
         working-directory: tmp_data

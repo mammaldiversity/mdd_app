@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 use regex::Regex;
 use serde_json::Value;
-use rust_lib_mdd::api::parser::{MddHelper, MilHelper};
+use crate::api::parser::{MddHelper, MilHelper};
 
 pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str, drift_path: &str) -> Result<()> {
     if Path::new(db_path).exists() {

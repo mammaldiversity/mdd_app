@@ -189,10 +189,6 @@ class DatabaseLocationSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      return const SizedBox.shrink();
-    }
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +239,20 @@ class DatabaseLocationSetting extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+class DataUpdatesSetting extends StatelessWidget {
+  const DataUpdatesSetting({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Text(
           'Data Updates',
           style: Theme.of(context).textTheme.bodyMedium,
