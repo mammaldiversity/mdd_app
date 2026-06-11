@@ -59,7 +59,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
               return ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  const InfoCard(text: 'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
+                  const InfoCard(
+                      text:
+                          'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
                   const SizedBox(height: 16),
                   buildRow(
                     ChartCard(
@@ -120,12 +122,10 @@ class _MddStatsState extends ConsumerState<MddStats> {
                     ChartCard(
                       title: 'Extinct vs. Extant Species',
                       chart: ExtinctPieChart(stats: stats),
-                      height: 200,
                     ),
                     ChartCard(
                       title: 'Domesticated vs. Wild Species',
                       chart: DomesticPieChart(stats: stats),
-                      height: 200,
                     ),
                   ),
                   const SizedBox(height: 32),

@@ -60,7 +60,7 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Indicator(
                   color: Colors.blue.shade700,
-                  text: 'With Images (${widget.stats.speciesWithImagesCount})',
+                  text: 'With (${widget.stats.speciesWithImagesCount})',
                   isSquare: true,
                 ),
               ),
@@ -69,7 +69,7 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
                 child: Indicator(
                   color: Colors.grey.shade400,
                   text:
-                      'Without Images (${widget.stats.totalSpeciesCount - widget.stats.speciesWithImagesCount})',
+                      'Without (${widget.stats.totalSpeciesCount - widget.stats.speciesWithImagesCount})',
                   isSquare: true,
                 ),
               ),
