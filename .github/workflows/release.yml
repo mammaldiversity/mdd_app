@@ -103,7 +103,9 @@ jobs:
           # Copy to expected 'data/' folder for the script
           mkdir -p data
           cp tmp_data/MDD.zip data/MDD.zip
-          cp tmp_data/mil/mil.json data/mil.json || true
+          cp tmp_data/mil.json data/mil.json || true
+          mkdir -p assets/data
+          cp tmp_data/mil.json assets/data/mil.json || true
           ./tools/generate_prefilled_db.sh
 
       - name: Cleanup temporary data
