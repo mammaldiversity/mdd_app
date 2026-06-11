@@ -79,20 +79,38 @@ class MddPagesState extends ConsumerState<MddPages> {
             : [],
       ),
       body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: _pages.elementAt(_selectedPage),
+          child: Row(
+        children: [
+          if (screenType != ScreenType.small)
+            NavRail(
+              selectedIndex: _selectedPage,
+              onNavigationSelected: (int index) {
+                ref.invalidate(speciesListProvider);
+                setState(() {
+                  _selectedPage = index;
+                });
+              },
+            ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: _pages.elementAt(_selectedPage),
+            ),
+          ),
+        ],
       )),
-      bottomNavigationBar: NavBar(
-        selectedIndex: _selectedPage,
-        screenType: screenType,
-        onNavigationSelected: (int index) {
-          ref.invalidate(speciesListProvider);
-          setState(() {
-            _selectedPage = index;
-          });
-        },
-      ),
+      bottomNavigationBar: screenType == ScreenType.small
+          ? NavBar(
+              selectedIndex: _selectedPage,
+              screenType: screenType,
+              onNavigationSelected: (int index) {
+                ref.invalidate(speciesListProvider);
+                setState(() {
+                  _selectedPage = index;
+                });
+              },
+            )
+          : null,
     );
   }
 }

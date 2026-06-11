@@ -31,8 +31,8 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
   ),
   NavigationProperties(
     label: 'More',
-    icon: Icon(Icons.menu_outlined),
-    selectedIcon: Icon(Icons.menu_rounded),
+    icon: Icon(Icons.apps_outlined),
+    selectedIcon: Icon(Icons.apps_rounded),
   ),
 ];
 
@@ -57,13 +57,59 @@ class NavBar extends StatelessWidget {
       labelBehavior: isSmallScreen
           ? NavigationDestinationLabelBehavior.alwaysHide
           : NavigationDestinationLabelBehavior.alwaysShow,
-      indicatorColor: Theme.of(context).colorScheme.secondary.withAlpha(120),
+      indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
       destinations: navigationProperties
           .map((NavigationProperties nav) => NavigationDestination(
                 icon: nav.icon,
                 selectedIcon: nav.selectedIcon,
                 label: nav.label,
                 tooltip: isSmallScreen ? nav.label : null,
+              ))
+          .toList(),
+    );
+  }
+}
+
+class NavRail extends StatefulWidget {
+  const NavRail({
+    super.key,
+    required this.selectedIndex,
+    required this.onNavigationSelected,
+  });
+
+  final int selectedIndex;
+  final void Function(int) onNavigationSelected;
+
+  @override
+  State<NavRail> createState() => _NavRailState();
+}
+
+class _NavRailState extends State<NavRail> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationRail(
+      selectedIndex: widget.selectedIndex,
+      onDestinationSelected: widget.onNavigationSelected,
+      extended: _isExpanded,
+      labelType: _isExpanded
+          ? NavigationRailLabelType.none
+          : NavigationRailLabelType.all,
+      leading: IconButton(
+        icon: Icon(_isExpanded ? Icons.menu_open : Icons.menu),
+        onPressed: () {
+          setState(() {
+            _isExpanded = !_isExpanded;
+          });
+        },
+      ),
+      indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
+      destinations: navigationProperties
+          .map((NavigationProperties nav) => NavigationRailDestination(
+                icon: nav.icon,
+                selectedIcon: nav.selectedIcon,
+                label: Text(nav.label),
               ))
           .toList(),
     );
