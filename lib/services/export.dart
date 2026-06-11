@@ -95,9 +95,11 @@ class FileExport {
       fileName: '$fileName.${format.name}',
       format: format,
     ).toFile(mddIDs);
-    await Share.shareXFiles(
-      [file],
-      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [file],
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+      ),
     );
     return file.path;
   }

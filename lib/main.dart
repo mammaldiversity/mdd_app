@@ -53,86 +53,106 @@ class MyApp extends ConsumerWidget {
             return Builder(
               builder: (context) {
                 return Scaffold(
-              body: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                      const SizedBox(height: 16),
-                      Text(
-                        'An error occurred',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: SingleChildScrollView(
-                            child: SelectableText(
-                              'Error: $error\n\nStack trace:\n$stackTrace',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontFamily: 'monospace',
-                                    color: Theme.of(context).colorScheme.onErrorContainer,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
+                  body: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.copy_rounded),
-                            label: const Text('Copy'),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: 'Error: $error\n\nStack trace:\n$stackTrace'),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Error copied to clipboard')),
-                              );
-                            },
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            'An error occurred',
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          const SizedBox(width: 16),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.save_alt_rounded),
-                            label: const Text('Export'),
-                            onPressed: () async {
-                              try {
-                                final String content = 'Error: $error\n\nStack trace:\n$stackTrace';
-                                final Directory tempDir = await getTemporaryDirectory();
-                                final File file = File('${tempDir.path}/mdd_error_log.txt');
-                                await file.writeAsString(content);
-                                await Share.shareXFiles(
-                                  [XFile(file.path)],
-                                  text: 'MDD Error Log',
-                                );
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Failed to export: $e')),
+                          const SizedBox(height: 16),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .errorContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: SingleChildScrollView(
+                                child: SelectableText(
+                                  'Error: $error\n\nStack trace:\n$stackTrace',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontFamily: 'monospace',
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onErrorContainer,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.copy_rounded),
+                                label: const Text('Copy'),
+                                onPressed: () {
+                                  Clipboard.setData(
+                                    ClipboardData(
+                                        text:
+                                            'Error: $error\n\nStack trace:\n$stackTrace'),
                                   );
-                                }
-                              }
-                            },
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Error copied to clipboard')),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.save_alt_rounded),
+                                label: const Text('Export'),
+                                onPressed: () async {
+                                  try {
+                                    final String content =
+                                        'Error: $error\n\nStack trace:\n$stackTrace';
+                                    final Directory tempDir =
+                                        await getTemporaryDirectory();
+                                    final File file = File(
+                                        '${tempDir.path}/mdd_error_log.txt');
+                                    await file.writeAsString(content);
+                                    await SharePlus.instance.share(
+                                      ShareParams(
+                                        files: [XFile(file.path)],
+                                        text: 'MDD Error Log',
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text('Failed to export: $e')),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
-          },
-        );
-      }),
+          }),
     );
   }
 }
