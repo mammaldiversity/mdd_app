@@ -15,7 +15,7 @@ class IucnPieChart extends StatefulWidget {
 
 class _IucnPieChartState extends State<IucnPieChart> {
   int touchedIndex = -1;
-  
+
   final Map<String, Color> iucnColors = {
     'EX': Colors.black87,
     'EW': Colors.purple.shade900,
@@ -102,7 +102,8 @@ class _IucnPieChartState extends State<IucnPieChart> {
                             padding: const EdgeInsets.only(bottom: 4.0),
                             child: Indicator(
                               color: iucnColors[e.value.key] ?? Colors.grey,
-                              text: '${_getFullIucnName(e.value.key)} (${e.value.value})',
+                              text:
+                                  '${_getFullIucnName(e.value.key)} (${e.value.value})',
                               isSquare: true,
                             ),
                           );
@@ -120,7 +121,7 @@ class _IucnPieChartState extends State<IucnPieChart> {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            "Note: Species with specific taxonomic caveats (e.g. 'VU (as ...)') have been aggregated into their primary status category.",
+            "Note: Species with taxonomic caveats (e.g. 'VU (as Species A)') are aggregated into their primary status category.",
             style: TextStyle(
                 fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
           ),
@@ -136,21 +137,22 @@ class _IucnPieChartState extends State<IucnPieChart> {
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 16.0 : 10.0;
       final radius = isTouched ? 70.0 : 60.0;
-      const shadows = [Shadow(color: Colors.black87, blurRadius: 4)];
 
       final count = e.value;
       final isLarge = count > 300 || isTouched;
+      final color = iucnColors[e.key] ?? Colors.grey;
+      final textColor =
+          color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
       return PieChartSectionData(
-        color: iucnColors[e.key] ?? Colors.grey,
+        color: color,
         value: count.toDouble(),
         title: isLarge ? '$count' : '',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
-          shadows: shadows,
+          color: textColor,
         ),
       );
     }).toList();
