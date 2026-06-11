@@ -18,7 +18,7 @@ fn get_mock_syn_csv() -> &'static str {
 #[test]
 fn test_database_generation_end_to_end() {
     let temp_dir = std::env::temp_dir();
-    
+
     // 1. Create a mock MDD zip file
     let zip_path = temp_dir.join("test_integration_mdd.zip");
     let file = File::create(&zip_path).unwrap();
@@ -42,7 +42,8 @@ remarks = "some remarks"
     zip.start_file("MDD/MDD_v9.9.9.csv", options).unwrap();
     zip.write_all(get_mock_mdd_csv().as_bytes()).unwrap();
 
-    zip.start_file("MDD/Species_Syn_v9.9.9.csv", options).unwrap();
+    zip.start_file("MDD/Species_Syn_v9.9.9.csv", options)
+        .unwrap();
     zip.write_all(get_mock_syn_csv().as_bytes()).unwrap();
     zip.finish().unwrap();
 
@@ -61,7 +62,8 @@ remarks = "some remarks"
 
     // 3. Parse data using Helpers
     let mdd_helper = MddHelper::parse_mdd_zip(zip_path.to_str().unwrap().to_string());
-    let mil_helper = MilHelper::parse_mil_data(mil_json_path.to_str().unwrap().to_string());
+    let mil_helper =
+        MilHelper::parse_mil_data(mil_json_path.to_str().unwrap().to_string(), String::new());
 
     // 4. Generate SQLite DB
     let db_path = temp_dir.join("test_integration_mdd.db");
@@ -69,13 +71,19 @@ remarks = "some remarks"
     let drift_path = "../lib/services/database/tables.drift";
 
     let gen_res = generate_db(&mdd_helper, &mil_helper, db_path_str, drift_path);
-    assert!(gen_res.is_ok(), "Database generation failed: {:?}", gen_res.err());
+    assert!(
+        gen_res.is_ok(),
+        "Database generation failed: {:?}",
+        gen_res.err()
+    );
 
     // 5. Verify database contents
     let conn = rusqlite::Connection::open(&db_path).unwrap();
-    
+
     // Check mddInfo
-    let mut stmt = conn.prepare("SELECT version, releaseDate FROM mddInfo").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT version, releaseDate FROM mddInfo")
+        .unwrap();
     let mut rows = stmt.query([]).unwrap();
     let row = rows.next().unwrap().unwrap();
     let version: String = row.get(0).unwrap();
@@ -84,7 +92,9 @@ remarks = "some remarks"
     assert_eq!(release_date, "2099-12-31");
 
     // Check taxonomy
-    let mut stmt = conn.prepare("SELECT id, genus, specificEpithet, sciName FROM taxonomy").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, genus, specificEpithet, sciName FROM taxonomy")
+        .unwrap();
     let mut rows = stmt.query([]).unwrap();
     let row = rows.next().unwrap().unwrap();
     let id: i64 = row.get(0).unwrap();
@@ -97,7 +107,9 @@ remarks = "some remarks"
     assert_eq!(sci_name, "Mus musculus");
 
     // Check milData
-    let mut stmt = conn.prepare("SELECT milId, mddId, orientation, isUncertainIdentification FROM milData").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT milId, mddId, orientation, isUncertainIdentification FROM milData")
+        .unwrap();
     let mut rows = stmt.query([]).unwrap();
     let row = rows.next().unwrap().unwrap();
     let mil_id: String = row.get(0).unwrap();

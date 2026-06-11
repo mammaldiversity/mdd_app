@@ -36,12 +36,8 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   /// Initialize flutter_rust_bridge in mock mode.
   /// No libraries for FFI are loaded.
-  static void initMock({
-    required RustLibApi api,
-  }) {
-    instance.initMockImpl(
-      api: api,
-    );
+  static void initMock({required RustLibApi api}) {
+    instance.initMockImpl(api: api);
   }
 
   /// Dispose flutter_rust_bridge
@@ -75,32 +71,37 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-    stem: 'rust_lib_mdd',
-    ioDirectory: 'rust/target/release/',
-    webPrefix: 'pkg/',
-    wasmBindgenName: 'wasm_bindgen',
-  );
+        stem: 'rust_lib_mdd',
+        ioDirectory: 'rust/target/release/',
+        webPrefix: 'pkg/',
+        wasmBindgenName: 'wasm_bindgen',
+      );
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew(
-      {required String jsonData,
-      required String outputDir,
-      required String outputFilename,
-      required bool toCsv});
+  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew({
+    required String jsonData,
+    required String outputDir,
+    required String outputFilename,
+    required bool toCsv,
+  });
 
-  Future<String> crateApiWriterDatabaseWriterWrite(
-      {required DatabaseWriter that});
+  Future<String> crateApiWriterDatabaseWriterWrite({
+    required DatabaseWriter that,
+  });
 
   Future<void> crateApiParserInitApp();
 
   Future<MddHelper> crateApiParserMddHelperParse({required List<int> bytes});
 
-  Future<MddHelper> crateApiParserMddHelperParseMddZip(
-      {required String zipPath});
+  Future<MddHelper> crateApiParserMddHelperParseMddZip({
+    required String zipPath,
+  });
 
-  Future<MilHelper> crateApiParserMilHelperParseMilData(
-      {required String tarPath, required String dbPath});
+  Future<MilHelper> crateApiParserMilHelperParseMilData({
+    required String tarPath,
+    required String dbPath,
+  });
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -112,29 +113,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew(
-      {required String jsonData,
-      required String outputDir,
-      required String outputFilename,
-      required bool toCsv}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(jsonData, serializer);
-        sse_encode_String(outputDir, serializer);
-        sse_encode_String(outputFilename, serializer);
-        sse_encode_bool(toCsv, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 1, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_database_writer,
-        decodeErrorData: null,
+  Future<DatabaseWriter> crateApiWriterDatabaseWriterNew({
+    required String jsonData,
+    required String outputDir,
+    required String outputFilename,
+    required bool toCsv,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(jsonData, serializer);
+          sse_encode_String(outputDir, serializer);
+          sse_encode_String(outputFilename, serializer);
+          sse_encode_bool(toCsv, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_database_writer,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWriterDatabaseWriterNewConstMeta,
+        argValues: [jsonData, outputDir, outputFilename, toCsv],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiWriterDatabaseWriterNewConstMeta,
-      argValues: [jsonData, outputDir, outputFilename, toCsv],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiWriterDatabaseWriterNewConstMeta =>
@@ -144,23 +152,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiWriterDatabaseWriterWrite(
-      {required DatabaseWriter that}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_database_writer(that, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: null,
+  Future<String> crateApiWriterDatabaseWriterWrite({
+    required DatabaseWriter that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_database_writer(that, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWriterDatabaseWriterWriteConstMeta,
+        argValues: [that],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiWriterDatabaseWriterWriteConstMeta,
-      argValues: [that],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiWriterDatabaseWriterWriteConstMeta =>
@@ -171,70 +186,84 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> crateApiParserInitApp() {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: null,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiParserInitAppConstMeta,
+        argValues: [],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiParserInitAppConstMeta,
-      argValues: [],
-      apiImpl: this,
-    ));
+    );
   }
 
-  TaskConstMeta get kCrateApiParserInitAppConstMeta => const TaskConstMeta(
-        debugName: "init_app",
-        argNames: [],
-      );
+  TaskConstMeta get kCrateApiParserInitAppConstMeta =>
+      const TaskConstMeta(debugName: "init_app", argNames: []);
 
   @override
   Future<MddHelper> crateApiParserMddHelperParse({required List<int> bytes}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_list_prim_u_8_loose(bytes, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_mdd_helper,
-        decodeErrorData: null,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_prim_u_8_loose(bytes, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 4,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_mdd_helper,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiParserMddHelperParseConstMeta,
+        argValues: [bytes],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiParserMddHelperParseConstMeta,
-      argValues: [bytes],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiParserMddHelperParseConstMeta =>
-      const TaskConstMeta(
-        debugName: "mdd_helper_parse",
-        argNames: ["bytes"],
-      );
+      const TaskConstMeta(debugName: "mdd_helper_parse", argNames: ["bytes"]);
 
   @override
-  Future<MddHelper> crateApiParserMddHelperParseMddZip(
-      {required String zipPath}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(zipPath, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_mdd_helper,
-        decodeErrorData: null,
+  Future<MddHelper> crateApiParserMddHelperParseMddZip({
+    required String zipPath,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(zipPath, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 5,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_mdd_helper,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiParserMddHelperParseMddZipConstMeta,
+        argValues: [zipPath],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiParserMddHelperParseMddZipConstMeta,
-      argValues: [zipPath],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiParserMddHelperParseMddZipConstMeta =>
@@ -244,24 +273,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<MilHelper> crateApiParserMilHelperParseMilData(
-      {required String tarPath, required String dbPath}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(tarPath, serializer);
-        sse_encode_String(dbPath, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_mil_helper,
-        decodeErrorData: null,
+  Future<MilHelper> crateApiParserMilHelperParseMilData({
+    required String tarPath,
+    required String dbPath,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(tarPath, serializer);
+          sse_encode_String(dbPath, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 6,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_mil_helper,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiParserMilHelperParseMilDataConstMeta,
+        argValues: [tarPath, dbPath],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiParserMilHelperParseMilDataConstMeta,
-      argValues: [tarPath, dbPath],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiParserMilHelperParseMilDataConstMeta =>
@@ -340,9 +377,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final arr = raw as List<dynamic>;
     if (arr.length != 1)
       throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
-    return MilHelper(
-      milData: dco_decode_String(arr[0]),
-    );
+    return MilHelper(milData: dco_decode_String(arr[0]));
   }
 
   @protected
@@ -372,7 +407,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   DatabaseWriter sse_decode_box_autoadd_database_writer(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_database_writer(deserializer));
   }
@@ -385,10 +421,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_outputFilename = sse_decode_String(deserializer);
     var var_toCsv = sse_decode_bool(deserializer);
     return DatabaseWriter(
-        jsonData: var_jsonData,
-        outputDir: var_outputDir,
-        outputFilename: var_outputFilename,
-        toCsv: var_toCsv);
+      jsonData: var_jsonData,
+      outputDir: var_outputDir,
+      outputFilename: var_outputFilename,
+      toCsv: var_toCsv,
+    );
   }
 
   @protected
@@ -425,10 +462,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_mddData = sse_decode_list_String(deserializer);
     var var_synData = sse_decode_list_String(deserializer);
     return MddHelper(
-        version: var_version,
-        releaseDate: var_releaseDate,
-        mddData: var_mddData,
-        synData: var_synData);
+      version: var_version,
+      releaseDate: var_releaseDate,
+      mddData: var_mddData,
+      synData: var_synData,
+    );
   }
 
   @protected
@@ -469,14 +507,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_box_autoadd_database_writer(
-      DatabaseWriter self, SseSerializer serializer) {
+    DatabaseWriter self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_database_writer(self, serializer);
   }
 
   @protected
   void sse_encode_database_writer(
-      DatabaseWriter self, SseSerializer serializer) {
+    DatabaseWriter self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.jsonData, serializer);
     sse_encode_String(self.outputDir, serializer);
@@ -495,16 +537,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_prim_u_8_loose(
-      List<int> self, SseSerializer serializer) {
+    List<int> self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
-    serializer.buffer
-        .putUint8List(self is Uint8List ? self : Uint8List.fromList(self));
+    serializer.buffer.putUint8List(
+      self is Uint8List ? self : Uint8List.fromList(self),
+    );
   }
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer) {
+    Uint8List self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);

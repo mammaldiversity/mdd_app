@@ -2,9 +2,12 @@
 use mdd_api::mdd::metadata::ReleaseToml;
 use mdd_api::mdd::ReleasedMddData;
 use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData};
+use mdd_api::mil::prep::MilParser;
 use serde::Serialize;
 use std::fs::File;
 use std::io::Read;
+use std::io::Write;
+use tempdir::TempDir;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -100,21 +103,22 @@ impl MilHelper {
         let mut json_content = String::new();
 
         if tar_path.ends_with(".json") {
-            let mut raw_file = std::fs::File::open(&tar_path).expect("Failed to open JSON file");
+            let mut raw_file = File::open(&tar_path).expect("Failed to open JSON file");
             raw_file
                 .read_to_string(&mut json_content)
                 .unwrap_or_default();
         } else {
             // Create a temporary directory
-            if let Ok(temp_dir) = tempdir::TempDir::new("mil_update") {
+            if let Ok(temp_dir) = TempDir::new("mil_update") {
                 let temp_csv_path = temp_dir.path().join("temp_mdd.csv");
                 let temp_json_path = temp_dir.path().join("temp_mil.json");
 
                 // Query SQLite DB to build temp_mdd.csv
                 if let Ok(conn) = rusqlite::Connection::open(&db_path) {
-                    if let Ok(mut stmt) = conn.prepare("SELECT id, genus, specificEpithet FROM taxonomy") {
+                    if let Ok(mut stmt) =
+                        conn.prepare("SELECT id, genus, specificEpithet FROM taxonomy")
+                    {
                         if let Ok(mut writer) = std::fs::File::create(&temp_csv_path) {
-                            use std::io::Write;
                             // Write CSV header
                             let _ = writeln!(writer, "id,genus,specificEpithet");
                             // Query rows and write
@@ -125,7 +129,11 @@ impl MilHelper {
                                         row.get::<_, String>(1),
                                         row.get::<_, String>(2),
                                     ) {
-                                        let _ = writeln!(writer, "{},{},{}", id, genus, specific_epithet);
+                                        let _ = writeln!(
+                                            writer,
+                                            "{},{},{}",
+                                            id, genus, specific_epithet
+                                        );
                                     }
                                 }
                             }
@@ -133,14 +141,10 @@ impl MilHelper {
                     }
                 }
 
-                // Call mdd_api::mil::prepare_metadata
                 let mil_file_path = std::path::Path::new(&tar_path);
-                if mdd_api::mil::prepare_metadata(
-                    mil_file_path,
-                    &temp_csv_path,
-                    None,
-                    &temp_json_path,
-                ).is_ok() {
+                let mil_parser =
+                    MilParser::new(mil_file_path, &temp_csv_path, None, &temp_json_path);
+                if mil_parser.prepare_metadata().is_ok() {
                     if let Ok(mut json_file) = std::fs::File::open(&temp_json_path) {
                         let _ = json_file.read_to_string(&mut json_content);
                     }
@@ -204,7 +208,8 @@ remarks = "test remarks"
         )
         .unwrap();
 
-        zip.start_file("MDD/MDD_v2.4_6871species.csv", options).unwrap();
+        zip.start_file("MDD/MDD_v2.4_6871species.csv", options)
+            .unwrap();
         zip.write_all(get_mock_mdd_csv().as_bytes()).unwrap();
 
         zip.start_file("MDD/Species_Syn_v2.4.csv", options).unwrap();
@@ -221,4 +226,3 @@ remarks = "test remarks"
         let _ = std::fs::remove_file(zip_path);
     }
 }
-

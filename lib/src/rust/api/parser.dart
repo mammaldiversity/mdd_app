@@ -53,14 +53,15 @@ class MddHelper {
 class MilHelper {
   final String milData;
 
-  const MilHelper({
-    required this.milData,
-  });
+  const MilHelper({required this.milData});
 
-  static Future<MilHelper> parseMilData(
-          {required String tarPath, required String dbPath}) =>
-      RustLib.instance.api.crateApiParserMilHelperParseMilData(
-          tarPath: tarPath, dbPath: dbPath);
+  static Future<MilHelper> parseMilData({
+    required String tarPath,
+    required String dbPath,
+  }) => RustLib.instance.api.crateApiParserMilHelperParseMilData(
+    tarPath: tarPath,
+    dbPath: dbPath,
+  );
 
   @override
   int get hashCode => milData.hashCode;

@@ -21,21 +21,20 @@ class DatabaseWriter {
   });
 
   // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<DatabaseWriter> newInstance(
-          {required String jsonData,
-          required String outputDir,
-          required String outputFilename,
-          required bool toCsv}) =>
-      RustLib.instance.api.crateApiWriterDatabaseWriterNew(
-          jsonData: jsonData,
-          outputDir: outputDir,
-          outputFilename: outputFilename,
-          toCsv: toCsv);
+  static Future<DatabaseWriter> newInstance({
+    required String jsonData,
+    required String outputDir,
+    required String outputFilename,
+    required bool toCsv,
+  }) => RustLib.instance.api.crateApiWriterDatabaseWriterNew(
+    jsonData: jsonData,
+    outputDir: outputDir,
+    outputFilename: outputFilename,
+    toCsv: toCsv,
+  );
 
   Future<String> write() =>
-      RustLib.instance.api.crateApiWriterDatabaseWriterWrite(
-        that: this,
-      );
+      RustLib.instance.api.crateApiWriterDatabaseWriterWrite(that: this);
 
   @override
   int get hashCode =>
