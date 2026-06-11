@@ -2,15 +2,19 @@
 
 A cross-platform application to access the Mammal Diversity Database. It includes offline access and support to export a subset of the data to a Comma-Separated Values (CSV) file.
 
-## Try it out 🚀
+## Installation
 
-### Android, Linux, and Windows
+### Android
+Download the appropriate `.apk` file (`arm64-v8a`, `armeabi-v7a`, or `x86_64`) from the [releases page](https://github.com/mammaldiversity/mdd_app/releases) and open it to install the app on your device.
 
-You can download the beta release from the [releases page](https://github.com/mammaldiversity/mdd_app/releases).
+### Linux
+Download the `mdd-Linux-x86_64.tar.gz` archive from the releases page, extract the downloaded file, and run the `mdd` executable.
+
+### Windows
+Download the `mdd-Windows-x86_64.zip` archive from the releases page, extract it, and run `mdd.exe`.
 
 ### iOS, iPadOS, and macOS
-
-You will need to install the Apple TestFlight app and follow [installation instruction](https://testflight.apple.com/join/FXGXyw5e).
+You will need to install the Apple TestFlight app and follow the [installation instructions](https://testflight.apple.com/join/FXGXyw5e).
 
 ## Development Status
 
@@ -25,7 +29,7 @@ We develop the app using cross-platform, widely use technologies for mobile app 
 - [Fluter Rust Bridge](https://cjycode.com/flutter_rust_bridge/): Core package to simplify the communication between Rust and Flutter.
 - [SQLite](https://www.sqlite.org/index.html): Used to store the MDD data locally and to provide offline access.
 
-## Contributing
+## Development
 
 ### Prerequisites
 
