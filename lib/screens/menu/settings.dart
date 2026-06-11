@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/settings.dart';
-// import 'package:mdd/screens/menu/data_update.dart';
+import 'package:mdd/screens/menu/data_update.dart';
 
 const Map<String, ThemeMode> _themeMode = {
   'System': ThemeMode.system,
@@ -248,26 +248,26 @@ class DatabaseLocationSetting extends StatelessWidget {
           'Data Updates',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        // Padding(
-        //   padding: const EdgeInsets.only(top: 4),
-        //   child: Material(
-        //     color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-        //     borderRadius: BorderRadius.circular(16),
-        //     clipBehavior: Clip.antiAlias,
-        //     child: ListTile(
-        //       visualDensity: VisualDensity.compact,
-        //       leading: const Icon(Icons.system_update_alt_rounded),
-        //       title: const Text('Update MDD and MIL data'),
-        //       trailing: const Icon(Icons.chevron_right_rounded),
-        //       onTap: () {
-        //         Navigator.of(context).push(
-        //           MaterialPageRoute(
-        //               builder: (context) => const DataUpdatePage()),
-        //         );
-        //       },
-        //     ),
-        //   ),
-        // ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Material(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              visualDensity: VisualDensity.compact,
+              leading: const Icon(Icons.system_update_alt_rounded),
+              title: const Text('Update MDD and MIL data'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => const DataUpdatePage()),
+                );
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

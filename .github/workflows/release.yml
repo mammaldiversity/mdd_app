@@ -44,13 +44,14 @@ jobs:
         run: cargo install mdd_api
 
       - name: Extract MDD data
-        working-directory: assets/data
         run: |
+          mkdir -p tmp_data
+          cd tmp_data
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
           mdd unpack -i MDD.zip
 
       - name: Extract MIL data
-        working-directory: assets/data
+        working-directory: tmp_data
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -77,14 +78,16 @@ jobs:
             --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
             --output mil
       
-      - name: Verify extracted files
-        working-directory: assets/data
+      - name: Move MIL images and verify
+        working-directory: tmp_data
         run: |
-          if [ ! -d ../mil-images ]; then
+          mkdir -p ../assets/mil-images
+          find "$MIL_DIRNAME/images-540px-webp" -name "*.webp" -exec mv {} ../assets/mil-images/ \;
+          if [ ! -d ../assets/mil-images ]; then
             echo "Error: assets/mil-images not found"
             exit 1
           fi
-          echo "Images found"
+          echo "Images moved successfully"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -97,23 +100,17 @@ jobs:
 
       - name: Generate SQLite Database
         run: |
+          # Copy to expected 'data/' folder for the script
           mkdir -p data
-          cp assets/data/MDD.zip data/MDD.zip
-          cp assets/data/*.tar.gz data/MIL.tar.gz || true
-          # Note: If mil-kit still generates mil.json, generate_db.dart expects MIL.tar.gz or mil.json. 
-          # Our generate_db.dart reads data/MDD.zip and data/MIL.tar.gz
-          dart run tool/generate_db.dart
+          cp tmp_data/MDD.zip data/MDD.zip
+          cp tmp_data/mil/mil.json data/mil.json || true
+          ./tools/generate_prefilled_db.sh
 
-      - name: Cleanup raw data
-        working-directory: assets/data
+      - name: Cleanup temporary data
         run: |
           echo "Removing unneeded source files to reduce app size"
-          rm -f MDD.zip
-          rm -f *.tar.gz
-          rm -rf MDD
-          rm -rf ${{ env.MIL_DIRNAME }} || true
-          rm -f data.json.gz
-          rm -f mil.json
+          rm -rf tmp_data
+          rm -rf data
           
       - run: |
           flutter pub get

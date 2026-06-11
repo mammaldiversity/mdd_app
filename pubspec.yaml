@@ -54,6 +54,7 @@ dependencies:
   latlong2: ^0.9.1
   flutter_svg: ^2.3.0
   http: ^1.6.0
+  sqlite3: ^3.3.2
 
 dev_dependencies:
   flutter_test:

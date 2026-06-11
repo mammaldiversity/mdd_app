@@ -56,11 +56,24 @@ gh repo clone mammaldiversity/mdd_app
 cd mdd_app
 ```
 
-- Create a `data` directory in the root of the project and place the latest `MDD.zip` and `MIL.tar.gz` (or `MIL.zip`) inside it. This data is required to pre-generate the local SQLite database.
+- Create a `data` directory in the root of the project and place the latest `MDD.zip` and `MIL.tar.gz` inside it. This data is required to pre-generate the local SQLite database.
 
 ```bash
 mkdir data
 # Download MDD.zip and MIL data into the data/ directory
+```
+
+- Generate the SQLite database and run a build:
+
+We provide a convenient bash script that builds the Rust parser, generates `assets/data/mdd.db`, and compiles Flutter for supported platforms.
+
+```bash
+./tools/build.sh
+```
+
+Alternatively, if you only want to generate the database manually without compiling Flutter release builds:
+```bash
+./tools/generate_prefilled_db.sh
 ```
 
 - Try to run the app:

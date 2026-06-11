@@ -19,84 +19,83 @@ class DataUpdatePage extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _DataUpdateSection(
-              title: 'Mammal Diversity Database (MDD)',
-              description:
-                  'Download the latest MDD taxonomy data or import it from a local file. This process replaces the current local database.',
-              downloadLabel: 'Download MDD.zip',
-              importLabel: 'Import local MDD.zip',
-              isLoading: isLoading,
-              onDownload: () {
-                ref.read(dataUpdateProvider.notifier).downloadAndUpdateMdd();
-              },
-              onImport: () {
-                ref.read(dataUpdateProvider.notifier).importLocalMdd();
-              },
-            ),
-            const SizedBox(height: 24),
-            _DataUpdateSection(
-              title: 'Mammal Images Library (MIL)',
-              description:
-                  'Download the latest MIL photo dataset or import it from a local file.',
-              downloadLabel: 'Download MIL.tar.gz',
-              importLabel: 'Import local MIL file',
-              isLoading: isLoading,
-              onDownload: () {
-                ref.read(dataUpdateProvider.notifier).downloadAndUpdateMil();
-              },
-              onImport: () {
-                ref.read(dataUpdateProvider.notifier).importLocalMil();
-              },
-            ),
-            const SizedBox(height: 32),
-            if (status.state != UpdateState.idle) ...[
-              LinearProgressIndicator(
-                  value: status.progress > 0 ? status.progress : null),
-              const SizedBox(height: 16),
-              SelectableText(
-                status.message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: status.state == UpdateState.error
-                      ? Theme.of(context).colorScheme.error
-                      : null,
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _DataUpdateSection(
+            title: 'Mammal Diversity Database (MDD)',
+            description:
+                'Download the latest MDD taxonomy data or import it from a local file. This process replaces the current local database.',
+            downloadLabel: 'Download MDD.zip',
+            importLabel: 'Import local MDD.zip',
+            isLoading: isLoading,
+            onDownload: () {
+              ref.read(dataUpdateProvider.notifier).downloadAndUpdateMdd();
+            },
+            onImport: () {
+              ref.read(dataUpdateProvider.notifier).importLocalMdd();
+            },
+          ),
+          // const SizedBox(height: 24),
+          // _DataUpdateSection(
+          //   title: 'Mammal Images Library (MIL)',
+          //   description:
+          //       'Download the latest MIL photo dataset or import it from a local file.',
+          //   downloadLabel: 'Download MIL.tar.gz',
+          //   importLabel: 'Import local MIL file',
+          //   isLoading: isLoading,
+          //   onDownload: () {
+          //     ref.read(dataUpdateProvider.notifier).downloadAndUpdateMil();
+          //   },
+          //   onImport: () {
+          //     ref.read(dataUpdateProvider.notifier).importLocalMil();
+          //   },
+          // ),
+          // const SizedBox(height: 32),
+          // if (status.state != UpdateState.idle) ...[
+          //   LinearProgressIndicator(
+          //       value: status.progress > 0 ? status.progress : null),
+          //   const SizedBox(height: 16),
+          //   SelectableText(
+          //     status.message,
+          //     textAlign: TextAlign.center,
+          //     style: TextStyle(
+          //       color: status.state == UpdateState.error
+          //           ? Theme.of(context).colorScheme.error
+          //           : null,
+          //     ),
+          //   ),
+          //   if (status.state == UpdateState.downloading) ...[
+          //     const SizedBox(height: 16),
+          //     Center(
+          //       child: FilledButton.icon(
+          //         icon: const Icon(Icons.cancel),
+          //         label: const Text('Cancel Download'),
+          //         onPressed: () {
+          //           ref.read(dataUpdateProvider.notifier).cancel();
+          //         },
+          //         style: FilledButton.styleFrom(
+          //           backgroundColor: Theme.of(context).colorScheme.error,
+          //           foregroundColor: Theme.of(context).colorScheme.onError,
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          //   if (status.state == UpdateState.error ||
+          //       status.state == UpdateState.success) ...[
+          //     const SizedBox(height: 16),
+          //     Center(
+          //       child: TextButton.icon(
+          //         icon: const Icon(Icons.clear),
+          //         label: const Text('Dismiss'),
+          //         onPressed: () {
+          //           ref.read(dataUpdateProvider.notifier).reset();
+          //         },
+          //       ),
+          //     ),
+          // ],
+        ]
+                // ],
                 ),
-              ),
-              if (status.state == UpdateState.downloading) ...[
-                const SizedBox(height: 16),
-                Center(
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.cancel),
-                    label: const Text('Cancel Download'),
-                    onPressed: () {
-                      ref.read(dataUpdateProvider.notifier).cancel();
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      foregroundColor: Theme.of(context).colorScheme.onError,
-                    ),
-                  ),
-                ),
-              ],
-              if (status.state == UpdateState.error ||
-                  status.state == UpdateState.success) ...[
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.clear),
-                    label: const Text('Dismiss'),
-                    onPressed: () {
-                      ref.read(dataUpdateProvider.notifier).reset();
-                    },
-                  ),
-                ),
-              ],
-            ]
-          ],
-        ),
       ),
     );
   }

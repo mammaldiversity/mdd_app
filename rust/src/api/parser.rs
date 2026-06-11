@@ -7,6 +7,9 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
+use serde::Serialize;
+
+#[derive(Serialize)]
 pub struct MddHelper {
     /// MDD file version
     pub version: String,
@@ -89,6 +92,7 @@ impl MddHelper {
     }
 }
 
+#[derive(Serialize)]
 pub struct MilHelper {
     pub mil_data: String,
 }
@@ -100,20 +104,27 @@ impl MilHelper {
         use flate2::read::GzDecoder;
         use tar::Archive;
 
-        let file = File::open(&tar_path).expect("Failed to open tar.gz file");
-        let tar = GzDecoder::new(file);
-        let mut archive = Archive::new(tar);
-        
         let mut json_content = String::new();
 
-        for file in archive.entries().expect("Failed to read tar entries") {
-            let mut file = file.expect("Failed to get tar entry");
-            let path = file.path().expect("Failed to get tar path");
-            let path_str = path.to_string_lossy();
+        if tar_path.ends_with(".json") {
+            let mut raw_file = std::fs::File::open(&tar_path).expect("Failed to open JSON file");
+            raw_file.read_to_string(&mut json_content).unwrap_or_default();
+        } else {
+            let file = File::open(&tar_path).expect("Failed to open tar.gz file");
+            let tar = GzDecoder::new(file);
+            let mut archive = Archive::new(tar);
+            
+            if let Ok(entries) = archive.entries() {
+                for file in entries.flatten() {
+                    let path = file.path().unwrap_or_default();
+                    let path_str = path.to_string_lossy();
 
-            if (path_str.ends_with("mil.json") || path_str.ends_with(".json")) && !path_str.contains("__MACOSX") {
-                if file.read_to_string(&mut json_content).is_ok() {
-                    break;
+                    if (path_str.ends_with("mil.json") || path_str.ends_with(".json")) && !path_str.contains("__MACOSX") {
+                        let mut f = file;
+                        if f.read_to_string(&mut json_content).is_ok() {
+                            break;
+                        }
+                    }
                 }
             }
         }

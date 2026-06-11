@@ -121,13 +121,11 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
       allSynonyms.addAll(extraSynonyms);
 
       await db.transaction(() async {
-        await db.delete(db.taxonomy).go();
-        await db.delete(db.synonym).go();
         await db.delete(db.mddInfo).go();
 
         await db.batch((batch) {
-          batch.insertAll(db.taxonomy, allTaxonomy);
-          batch.insertAll(db.synonym, allSynonyms);
+          batch.insertAll(db.taxonomy, allTaxonomy, mode: InsertMode.insertOrReplace);
+          batch.insertAll(db.synonym, allSynonyms, mode: InsertMode.insertOrReplace);
         });
 
         final MddInfoCompanion infoData = MddInfoCompanion(
@@ -229,9 +227,8 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
       }).toList();
 
       await db.transaction(() async {
-        await db.delete(db.milData).go();
         await db.batch((batch) {
-          batch.insertAll(db.milData, allMilData);
+          batch.insertAll(db.milData, allMilData, mode: InsertMode.insertOrReplace);
         });
       });
 

@@ -64,13 +64,14 @@ jobs:
         run: cargo install mdd_api
 
       - name: Extract MDD data
-        working-directory: assets/data
         run: |
+          mkdir -p tmp_data
+          cd tmp_data
           curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
           mdd unpack -i MDD.zip
 
       - name: Extract MIL data
-        working-directory: assets/data
+        working-directory: tmp_data
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -101,12 +102,13 @@ jobs:
           echo "MIL_DIRNAME=$MIL_DIRNAME" >> $GITHUB_ENV
 
       - name: Move MIL to assets
-        working-directory: assets/data
+        working-directory: tmp_data
         run: |
           IMAGES_DIR="$MIL_DIRNAME/images-540px-webp"
-          mkdir -p ../mil-images
-          find "$IMAGES_DIR" -name "*.webp" -exec mv {} ../mil-images/ \;
-          find . -name "mil.json" -exec mv {} mil.json \;
+          mkdir -p ../assets/mil-images
+          find "$IMAGES_DIR" -name "*.webp" -exec mv {} ../assets/mil-images/ \;
+          mkdir -p ../assets/data
+          find . -name "mil.json" -exec mv {} ../assets/data/mil.json \;
 
       - name: Verify mil.json exists
         run: |
@@ -115,6 +117,9 @@ jobs:
             exit 1
           fi
           echo "mil.json found in assets/data"
+          
+      - name: Cleanup temporary data
+        run: rm -rf tmp_data
 
       - name: Flutter lint & test
         run: |
