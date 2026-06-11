@@ -150,9 +150,14 @@ jobs:
           mv build/windows/x64/runner/Release/* mdd
           powershell Compress-Archive -Path mdd -DestinationPath mdd-Windows-x86_64.zip
 
+      - name: Extract Release Notes
+        run: |
+          awk '/^## Installation/{flag=1; next} /^## /{flag=0} flag' README.md > release_notes.md
+
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@v3
         with:
+          body_path: release_notes.md
           files: |
             mdd-Linux-x86_64.tar.gz
             mdd-Windows-x86_64.zip
