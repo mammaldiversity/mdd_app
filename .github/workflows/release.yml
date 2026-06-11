@@ -163,6 +163,8 @@ jobs:
             VERSION="1.0.0"
           fi
           
+          RPM_VERSION=$(echo "$VERSION" | tr '-' '_')
+          
           sudo apt-get update && sudo apt-get install -y rpm
           
           # Structure rpmbuild directory
@@ -173,8 +175,8 @@ jobs:
           cp assets/icons/favicon512.png rpmbuild/SOURCES/
           
           # Build RPM package
-          rpmbuild --define "_topdir $(pwd)/rpmbuild" --define "pkg_version ${VERSION}" -bb packaging/mdd.spec
-          cp rpmbuild/RPMS/x86_64/mdd-${VERSION}-1.x86_64.rpm ./mdd-${VERSION}-1.x86_64.rpm
+          rpmbuild --define "_topdir $(pwd)/rpmbuild" --define "pkg_version ${RPM_VERSION}" -bb packaging/mdd.spec
+          cp rpmbuild/RPMS/x86_64/mdd-${RPM_VERSION}-1.x86_64.rpm ./mdd-${VERSION}-1.x86_64.rpm
 
       - name: Update Snapcraft version
         if: ${{ matrix.os == 'ubuntu-latest' }}
