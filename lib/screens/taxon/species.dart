@@ -158,6 +158,77 @@ class OtherDetailsResponsive extends StatelessWidget {
   }
 }
 
+class SpeciesStatus extends StatelessWidget {
+  const SpeciesStatus({super.key, required this.taxonData});
+
+  final TaxonomyData taxonData;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isLiving = taxonData.extinct == 0;
+    final bool isExtinct = taxonData.extinct == 1;
+    final bool isDomesticated = taxonData.domestic == 1;
+    final bool isInTheWild = taxonData.domestic == 0;
+    final bool isMSW3 = taxonData.diffSinceMSW3 == '0';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Species status',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (isLiving)
+              _StatusChip(text: 'Living', color: Colors.teal.shade700),
+            if (isExtinct)
+              _StatusChip(text: 'Extinct', color: Colors.blueGrey.shade700),
+            if (isDomesticated)
+              _StatusChip(text: 'Domesticated', color: Colors.amber.shade700),
+            if (isInTheWild)
+              _StatusChip(
+                  text: 'Found in the wild', color: Colors.blue.shade700),
+            if (isMSW3)
+              _StatusChip(
+                  text: 'Listed in MSW3 2005',
+                  color: Colors.deepPurple.shade700),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.text, required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
 class SpeciesInfoList extends StatelessWidget {
   const SpeciesInfoList({super.key, required this.taxonData});
 
@@ -168,6 +239,7 @@ class SpeciesInfoList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SpeciesStatus(taxonData: taxonData),
         ContentText(
           title: 'Authority citation',
           content: taxonData.authoritySpeciesCitation,
