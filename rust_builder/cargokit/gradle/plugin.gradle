@@ -13,7 +13,13 @@ class CargoKitExtension {
     String libname; // Library name within Cargo.toml. Must be a cdylib
 }
 
+import javax.inject.Inject
+import org.gradle.process.ExecOperations
+
 abstract class CargoKitBuildTask extends DefaultTask {
+
+    @Inject
+    abstract ExecOperations getExecOperations()
 
     @Input
     String buildMode
@@ -60,12 +66,12 @@ abstract class CargoKitBuildTask extends DefaultTask {
         def rootProjectDir = project.rootProject.projectDir
         
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-            project.exec {
+            getExecOperations().exec {
                 commandLine 'chmod', '+x', path
             }
         }
         
-        project.exec {
+        getExecOperations().exec {
             executable path
             args "build-gradle"
             environment "CARGOKIT_ROOT_PROJECT_DIR", rootProjectDir
