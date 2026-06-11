@@ -69,12 +69,14 @@ class FamilyBarChart extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (double value, TitleMeta meta) {
                           final int index = value.toInt();
-                          if (index < 0 || index >= data.length)
+                          if (index < 0 || index >= data.length) {
                             return const SizedBox.shrink();
+                          }
 
                           String text = data[index].name ?? '';
-                          if (text.length > 11)
+                          if (text.length > 11) {
                             text = '${text.substring(0, 9)}...';
+                          }
 
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),

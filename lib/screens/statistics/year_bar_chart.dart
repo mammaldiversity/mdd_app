@@ -69,8 +69,9 @@ class YearBarChart extends StatelessWidget {
                         showTitles: true,
                         getTitlesWidget: (double value, TitleMeta meta) {
                           final int index = value.toInt();
-                          if (index < 0 || index >= data.length)
+                          if (index < 0 || index >= data.length) {
                             return const SizedBox.shrink();
+                          }
 
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
