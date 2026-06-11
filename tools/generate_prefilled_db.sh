@@ -8,9 +8,9 @@ echo "========================================="
 # Ensure we're in the project root
 cd "$(dirname "$0")/.."
 
-echo "--> Compiling Rust CLI (rust_lib_mdd)..."
+echo "--> Installing Rust CLI (rust_lib_mdd)..."
 cd rust
-cargo build --release
+cargo install --path . --force
 cd ..
 
 if [ -f "data/mil.json" ]; then
@@ -30,7 +30,7 @@ fi
 
 echo "--> Generating mdd.db using Rust CLI..."
 # The Rust CLI will automatically spawn the generator subprocess
-./target/release/rust_lib_mdd data/MDD.zip "$MIL_PATH"
+rust_lib_mdd data/MDD.zip "$MIL_PATH"
 
 # Verify generation
 if [ ! -f "assets/data/mdd.db" ]; then
