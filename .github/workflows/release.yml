@@ -149,17 +149,9 @@ jobs:
           # Create wrapper/symlink
           ln -sf /opt/mdd/mdd debian-pkg/usr/bin/mdd
           
-          # Write control file
-          cat <<EOF > debian-pkg/DEBIAN/control
-Package: mdd
-Version: ${VERSION}
-Section: utils
-Priority: optional
-Architecture: amd64
-Depends: libc6, libglib2.0-0, libgtk-3-0, liblzma5, libstdc++6
-Maintainer: Mammal Diversity Database <contact@mammaldiversity.org>
-Description: Mammal Diversity Database desktop application.
-EOF
+          # Write control file from template
+          cp packaging/control.template debian-pkg/DEBIAN/control
+          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" debian-pkg/DEBIAN/control
           
           dpkg-deb --build --root-owner-group debian-pkg mdd_${VERSION}_amd64.deb
 
@@ -180,44 +172,8 @@ EOF
           cp packaging/mdd.desktop rpmbuild/SOURCES/
           cp assets/icons/favicon512.png rpmbuild/SOURCES/
           
-          # Write RPM SPEC file
-          cat <<EOF > rpmbuild/SPECS/mdd.spec
-Name:           mdd
-Version:        ${VERSION}
-Release:        1%{?dist}
-Summary:        Mammal Diversity Database desktop application
-License:        MIT
-URL:            https://github.com/mammaldiversity/mdd_app
-
-%description
-Mammal Diversity Database desktop application.
-
-%prep
-# Prebuilt bundle, no prep needed
-
-%install
-rm -rf \$RPM_BUILD_ROOT
-mkdir -p \$RPM_BUILD_ROOT/opt/mdd
-mkdir -p \$RPM_BUILD_ROOT/usr/bin
-mkdir -p \$RPM_BUILD_ROOT/usr/share/applications
-mkdir -p \$RPM_BUILD_ROOT/usr/share/icons/hicolor/512x512/apps
-
-cp -r %{_sourcedir}/bundle/* \$RPM_BUILD_ROOT/opt/mdd/
-cp %{_sourcedir}/favicon512.png \$RPM_BUILD_ROOT/usr/share/icons/hicolor/512x512/apps/mdd.png
-cp %{_sourcedir}/mdd.desktop \$RPM_BUILD_ROOT/usr/share/applications/mdd.desktop
-
-ln -sf /opt/mdd/mdd \$RPM_BUILD_ROOT/usr/bin/mdd
-
-%files
-/opt/mdd/
-/usr/bin/mdd
-/usr/share/applications/mdd.desktop
-/usr/share/icons/hicolor/512x512/apps/mdd.png
-
-%changelog
-EOF
-          
-          rpmbuild --define "_topdir $(pwd)/rpmbuild" -bb rpmbuild/SPECS/mdd.spec
+          # Build RPM package
+          rpmbuild --define "_topdir $(pwd)/rpmbuild" --define "pkg_version ${VERSION}" -bb packaging/mdd.spec
           cp rpmbuild/RPMS/x86_64/mdd-${VERSION}-1.x86_64.rpm ./mdd-${VERSION}-1.x86_64.rpm
 
       - name: Update Snapcraft version

@@ -5,7 +5,18 @@ A cross-platform application to access the Mammal Diversity Database. It include
 ## Installation
 
 ### Android
-Download the appropriate `.apk` file (`arm64-v8a`, `armeabi-v7a`, or `x86_64`) from the [releases page](https://github.com/mammaldiversity/mdd_app/releases) and open it to install the app on your device.
+
+Go to the [releases page](https://github.com/mammaldiversity/mdd_app/releases) and download the file ending in the appropriate name for your device:
+
+*   **`arm64-v8a` (Recommended)**: Download this if you have a modern Android phone or tablet (released in 2016 or later). This includes almost all modern Samsung Galaxy, Google Pixel, OnePlus, Xiaomi, and other devices.
+*   **`armeabi-v7a`**: Download this if you have an older or budget Android device (32-bit).
+*   **`x86_64`**: This is for Android emulators running on a computer. Do not download this for a physical phone.
+
+Once downloaded, open the `.apk` file on your device to install the app.
+
+> [!TIP]
+> **If you see "App not installed" or installation fails:**
+> This usually happens if you already have a version of the app installed that was built/signed differently (e.g. from local development). To fix this, **completely uninstall the existing app** from your device first (ensuring it is removed for all user profiles, work profiles, or secure folders), then try installing the new file again.
 
 ### Linux
 Download the `mdd-Linux-x86_64.tar.gz` archive from the releases page, extract the downloaded file, and run the `mdd` executable.

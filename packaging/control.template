@@ -1,0 +1,8 @@
+Package: mdd
+Version: VERSION_PLACEHOLDER
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libc6, libglib2.0-0, libgtk-3-0, liblzma5, libstdc++6
+Maintainer: Mammal Diversity Database <contact@mammaldiversity.org>
+Description: Mammal Diversity Database desktop application.
