@@ -31,8 +31,8 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
   ),
   NavigationProperties(
     label: 'More',
-    icon: Icon(Icons.apps_outlined),
-    selectedIcon: Icon(Icons.apps_rounded),
+    icon: Icon(Icons.grid_view_outlined),
+    selectedIcon: Icon(Icons.grid_view_rounded),
   ),
 ];
 
