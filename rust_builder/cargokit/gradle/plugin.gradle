@@ -95,7 +95,7 @@ class CargoKitPlugin implements Plugin<Project> {
    private Plugin _findFlutterPlugin(Map projects) {
         for (project in projects) {
             for (plugin in project.value.getPlugins()) {
-                if (plugin.class.name == "FlutterPlugin") {
+                if (plugin.class.name.endsWith("FlutterPlugin")) {
                     return plugin;
                 }
             }
@@ -132,7 +132,12 @@ class CargoKitPlugin implements Plugin<Project> {
             def jniLibs = project.android.sourceSets.maybeCreate(buildType).jniLibs;
             jniLibs.srcDir(new File(cargoOutputDir))
 
-            def platforms = plugin.getTargetPlatforms().collect()
+            def platforms
+            try {
+                platforms = plugin.getTargetPlatforms().collect()
+            } catch (Exception e) {
+                platforms = ["android-arm", "android-arm64", "android-x64"]
+            }
 
             // Same thing addFlutterDependencies does in flutter.gradle
             if (buildType == "debug") {
