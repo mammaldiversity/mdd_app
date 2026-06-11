@@ -19,8 +19,14 @@ class UpdateStatus {
   final UpdateState state;
   final String message;
   final double progress;
+  final bool isReset;
 
-  UpdateStatus({required this.state, this.message = '', this.progress = 0.0});
+  UpdateStatus({
+    required this.state,
+    this.message = '',
+    this.progress = 0.0,
+    this.isReset = false,
+  });
 }
 
 class DataUpdateNotifier extends Notifier<UpdateStatus> {
@@ -248,6 +254,7 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
       state: UpdateState.updating,
       message: 'Resetting database to default...',
       progress: 0.1,
+      isReset: true,
     );
     try {
       final db = ref.read(databaseProvider);
@@ -266,6 +273,7 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
         state: UpdateState.updating,
         message: 'Copying default database...',
         progress: 0.5,
+        isReset: true,
       );
       final byteData = await rootBundle.load('assets/data/mdd.db');
       final bytes = byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
@@ -281,11 +289,13 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
         state: UpdateState.success,
         message: 'Database successfully reset to default bundle version.',
         progress: 1.0,
+        isReset: true,
       );
     } catch (e) {
       state = UpdateStatus(
         state: UpdateState.error,
         message: 'Reset error: $e',
+        isReset: true,
       );
     }
   }
