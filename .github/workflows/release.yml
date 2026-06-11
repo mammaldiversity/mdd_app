@@ -129,7 +129,12 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           flutter build apk --release --split-per-abi
-          find build/app/outputs/apk/release -name "*.apk" -exec mv {} build/app/outputs/apk/release/mdd_{} \;
+          cd build/app/outputs/apk/release
+          for f in app-*.apk; do
+            if [ -f "$f" ]; then
+              mv "$f" "${f/app/mdd}"
+            fi
+          done
           
       - if: ${{ matrix.os == 'windows-latest' }}
         run: |
