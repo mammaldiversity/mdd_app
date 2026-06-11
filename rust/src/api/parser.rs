@@ -31,4 +31,101 @@ impl MddHelper {
             syn_data: syn,
         }
     }
+
+    pub fn parse_mdd_zip(zip_path: String) -> Self {
+        use std::fs::File;
+        use std::io::Read;
+        use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData, ReleasedMddData};
+        use toml::Value;
+
+        let file = File::open(&zip_path).expect("Failed to open zip file");
+        let mut archive = zip::ZipArchive::new(file).expect("Failed to read zip file");
+
+        let mut mdd_csv = String::new();
+        let mut syn_csv = String::new();
+        let mut version = String::from("Unknown");
+        let mut release_date = String::from("Unknown");
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i).expect("Failed to read zip entry");
+            let file_name = file.name().to_string();
+
+            if file_name.ends_with("release.toml") && !file_name.contains("__MACOSX") {
+                let mut contents = String::new();
+                if file.read_to_string(&mut contents).is_ok() {
+                    if let Ok(toml_val) = contents.parse::<Value>() {
+                        if let Some(metadata) = toml_val.get("metadata") {
+                            if let Some(v) = metadata.get("version").and_then(|v| v.as_str()) {
+                                version = v.to_string();
+                            }
+                            if let Some(d) = metadata.get("release_date").and_then(|d| d.as_str()) {
+                                release_date = d.to_string();
+                            }
+                        }
+                    }
+                }
+            } else if file_name.contains("MDD_v") && file_name.ends_with(".csv") && !file_name.contains("__MACOSX") {
+                let _ = file.read_to_string(&mut mdd_csv);
+            } else if file_name.contains("Species_Syn_v") && file_name.ends_with(".csv") && !file_name.contains("__MACOSX") {
+                let _ = file.read_to_string(&mut syn_csv);
+            }
+        }
+
+        let mdd_parser = SpeciesData::new();
+        let syn_parser = SynonymData::new();
+        
+        let parsed_mdd = mdd_parser.from_csv(&mdd_csv);
+        let parsed_syn = syn_parser.from_csv(&syn_csv);
+
+        let released_data = ReleasedMddData::from_parser(parsed_mdd, parsed_syn, &version, &release_date);
+        let (mdd, syn) = released_data.get_data();
+
+        Self {
+            version: version,
+            release_date: release_date,
+            mdd_data: mdd,
+            syn_data: syn,
+        }
+    }
+}
+
+pub struct MilHelper {
+    pub mil_data: String,
+}
+
+impl MilHelper {
+    pub fn parse_mil_data(tar_path: String) -> Self {
+        use std::fs::File;
+        use std::io::Read;
+        use flate2::read::GzDecoder;
+        use tar::Archive;
+
+        let file = File::open(&tar_path).expect("Failed to open tar.gz file");
+        let tar = GzDecoder::new(file);
+        let mut archive = Archive::new(tar);
+        
+        let mut json_content = String::new();
+
+        for file in archive.entries().expect("Failed to read tar entries") {
+            let mut file = file.expect("Failed to get tar entry");
+            let path = file.path().expect("Failed to get tar path");
+            let path_str = path.to_string_lossy();
+
+            if (path_str.ends_with("mil.json") || path_str.ends_with(".json")) && !path_str.contains("__MACOSX") {
+                if file.read_to_string(&mut json_content).is_ok() {
+                    break;
+                }
+            }
+        }
+
+        if json_content.is_empty() {
+            // fallback if it wasn't a tar.gz or just a raw json
+            let mut raw_file = std::fs::File::open(&tar_path).expect("Failed to open fallback file");
+            raw_file.read_to_string(&mut json_content).unwrap_or_default();
+        }
+
+        Self {
+            mil_data: json_content,
+        }
+    }
 }

@@ -56,6 +56,13 @@ gh repo clone mammaldiversity/mdd_app
 cd mdd_app
 ```
 
+- Create a `data` directory in the root of the project and place the latest `MDD.zip` and `MIL.tar.gz` (or `MIL.zip`) inside it. This data is required to pre-generate the local SQLite database.
+
+```bash
+mkdir data
+# Download MDD.zip and MIL data into the data/ directory
+```
+
 - Try to run the app:
 
 ```bash

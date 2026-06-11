@@ -77,42 +77,43 @@ jobs:
             --mil-img-dir "$MIL_DIRNAME/images-540px-webp" \
             --output mil
       
-      - name: Move MDD data to assets
+      - name: Verify extracted files
         working-directory: assets/data
         run: |
-          echo "Moving MDD data to assets/data/data.json.gz"
-          find . -type f -name "mdd.json.gz" -exec mv {} data.json.gz \;
-
-      - name: Move MIL to assets
-        working-directory: assets/data
-        run: |
-          IMAGES_DIR="$MIL_DIRNAME/images-540px-webp"
-          mkdir -p ../mil-images
-          echo "Moving MIL images to assets/mil-images/"
-          find "$IMAGES_DIR" -name "*.webp" -exec mv {} ../mil-images/ \;
-          echo "Moving mil.json to assets/data/mil.json"
-          find . -name "mil.json" -exec mv {} mil.json \;
-
-      - name: Verify all data exist
-        run: |
-          if [ ! -f assets/data/mil.json ]; then
-            echo "Error: mil.json not found in assets/data"
+          if [ ! -d ../mil-images ]; then
+            echo "Error: assets/mil-images not found"
             exit 1
           fi
-          if [ ! -f assets/data/data.json.gz ]; then
-            echo "Error: data.json.gz not found in assets/data"
-            exit 1
-          fi
-          if [ ! -d assets/mil-images ]; then
-            echo "Error: assets/mil-images not found in assets"
-            exit 1
-          fi
-          echo "All data found in assets"
+          echo "Images found"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          
+      - run: |
+          flutter pub get
+          flutter analyze
+
+      - name: Generate SQLite Database
+        run: |
+          mkdir -p data
+          cp assets/data/MDD.zip data/MDD.zip
+          cp assets/data/*.tar.gz data/MIL.tar.gz || true
+          # Note: If mil-kit still generates mil.json, generate_db.dart expects MIL.tar.gz or mil.json. 
+          # Our generate_db.dart reads data/MDD.zip and data/MIL.tar.gz
+          dart run tool/generate_db.dart
+
+      - name: Cleanup raw data
+        working-directory: assets/data
+        run: |
+          echo "Removing unneeded source files to reduce app size"
+          rm -f MDD.zip
+          rm -f *.tar.gz
+          rm -rf MDD
+          rm -rf ${{ env.MIL_DIRNAME }} || true
+          rm -f data.json.gz
+          rm -f mil.json
           
       - run: |
           flutter pub get

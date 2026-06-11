@@ -44,6 +44,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   MddHelper dco_decode_mdd_helper(dynamic raw);
 
   @protected
+  MilHelper dco_decode_mil_helper(dynamic raw);
+
+  @protected
   int dco_decode_u_8(dynamic raw);
 
   @protected
@@ -73,6 +76,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MddHelper sse_decode_mdd_helper(SseDeserializer deserializer);
+
+  @protected
+  MilHelper sse_decode_mil_helper(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -109,6 +115,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_mil_helper(MilHelper self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

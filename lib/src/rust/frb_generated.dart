@@ -71,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 1875179592;
+  int get rustContentHash => -1330265473;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -95,6 +95,12 @@ abstract class RustLibApi extends BaseApi {
   Future<void> crateApiParserInitApp();
 
   Future<MddHelper> crateApiParserMddHelperParse({required List<int> bytes});
+
+  Future<MddHelper> crateApiParserMddHelperParseMddZip(
+      {required String zipPath});
+
+  Future<MilHelper> crateApiParserMilHelperParseMilData(
+      {required String tarPath});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -211,6 +217,58 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         argNames: ["bytes"],
       );
 
+  @override
+  Future<MddHelper> crateApiParserMddHelperParseMddZip(
+      {required String zipPath}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(zipPath, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_mdd_helper,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiParserMddHelperParseMddZipConstMeta,
+      argValues: [zipPath],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiParserMddHelperParseMddZipConstMeta =>
+      const TaskConstMeta(
+        debugName: "mdd_helper_parse_mdd_zip",
+        argNames: ["zipPath"],
+      );
+
+  @override
+  Future<MilHelper> crateApiParserMilHelperParseMilData(
+      {required String tarPath}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(tarPath, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 6, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_mil_helper,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiParserMilHelperParseMilDataConstMeta,
+      argValues: [tarPath],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiParserMilHelperParseMilDataConstMeta =>
+      const TaskConstMeta(
+        debugName: "mil_helper_parse_mil_data",
+        argNames: ["tarPath"],
+      );
+
   @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -272,6 +330,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       releaseDate: dco_decode_String(arr[1]),
       mddData: dco_decode_list_String(arr[2]),
       synData: dco_decode_list_String(arr[3]),
+    );
+  }
+
+  @protected
+  MilHelper dco_decode_mil_helper(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return MilHelper(
+      milData: dco_decode_String(arr[0]),
     );
   }
 
@@ -362,6 +431,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MilHelper sse_decode_mil_helper(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_milData = sse_decode_String(deserializer);
+    return MilHelper(milData: var_milData);
+  }
+
+  @protected
   int sse_decode_u_8(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8();
@@ -440,6 +516,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.releaseDate, serializer);
     sse_encode_list_String(self.mddData, serializer);
     sse_encode_list_String(self.synData, serializer);
+  }
+
+  @protected
+  void sse_encode_mil_helper(MilHelper self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.milData, serializer);
   }
 
   @protected

@@ -29,6 +29,9 @@ class MddHelper {
   static Future<MddHelper> parse({required List<int> bytes}) =>
       RustLib.instance.api.crateApiParserMddHelperParse(bytes: bytes);
 
+  static Future<MddHelper> parseMddZip({required String zipPath}) =>
+      RustLib.instance.api.crateApiParserMddHelperParseMddZip(zipPath: zipPath);
+
   @override
   int get hashCode =>
       version.hashCode ^
@@ -45,4 +48,26 @@ class MddHelper {
           releaseDate == other.releaseDate &&
           mddData == other.mddData &&
           synData == other.synData;
+}
+
+class MilHelper {
+  final String milData;
+
+  const MilHelper({
+    required this.milData,
+  });
+
+  static Future<MilHelper> parseMilData({required String tarPath}) =>
+      RustLib.instance.api
+          .crateApiParserMilHelperParseMilData(tarPath: tarPath);
+
+  @override
+  int get hashCode => milData.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MilHelper &&
+          runtimeType == other.runtimeType &&
+          milData == other.milData;
 }
