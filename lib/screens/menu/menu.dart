@@ -17,7 +17,7 @@ class _MoreMenuState extends State<MoreMenu> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
       child: ListView(
         children: <Widget>[
           const SizedBox(height: 8),

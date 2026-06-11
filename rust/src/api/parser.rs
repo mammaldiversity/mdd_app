@@ -1,9 +1,14 @@
 #![allow(unexpected_cfgs)]
+use flate2::read::GzDecoder;
 use mdd_api::mdd::ReleasedMddData;
+use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData};
+use std::fs::File;
+use std::io::Read;
+use tar::Archive;
+use toml::Value;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
-    // Default utilities - feel free to customize
     flutter_rust_bridge::setup_default_user_utils();
 }
 
@@ -36,11 +41,6 @@ impl MddHelper {
     }
 
     pub fn parse_mdd_zip(zip_path: String) -> Self {
-        use std::fs::File;
-        use std::io::Read;
-        use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData, ReleasedMddData};
-        use toml::Value;
-
         let file = File::open(&zip_path).expect("Failed to open zip file");
         let mut archive = zip::ZipArchive::new(file).expect("Failed to read zip file");
 
@@ -67,20 +67,27 @@ impl MddHelper {
                         }
                     }
                 }
-            } else if file_name.contains("MDD_v") && file_name.ends_with(".csv") && !file_name.contains("__MACOSX") {
+            } else if file_name.contains("MDD_v")
+                && file_name.ends_with(".csv")
+                && !file_name.contains("__MACOSX")
+            {
                 let _ = file.read_to_string(&mut mdd_csv);
-            } else if file_name.contains("Species_Syn_v") && file_name.ends_with(".csv") && !file_name.contains("__MACOSX") {
+            } else if file_name.contains("Species_Syn_v")
+                && file_name.ends_with(".csv")
+                && !file_name.contains("__MACOSX")
+            {
                 let _ = file.read_to_string(&mut syn_csv);
             }
         }
 
         let mdd_parser = SpeciesData::new();
         let syn_parser = SynonymData::new();
-        
+
         let parsed_mdd = mdd_parser.from_csv(&mdd_csv);
         let parsed_syn = syn_parser.from_csv(&syn_csv);
 
-        let released_data = ReleasedMddData::from_parser(parsed_mdd, parsed_syn, &version, &release_date);
+        let released_data =
+            ReleasedMddData::from_parser(parsed_mdd, parsed_syn, &version, &release_date);
         let (mdd, syn) = released_data.get_data();
 
         Self {
@@ -99,27 +106,26 @@ pub struct MilHelper {
 
 impl MilHelper {
     pub fn parse_mil_data(tar_path: String) -> Self {
-        use std::fs::File;
-        use std::io::Read;
-        use flate2::read::GzDecoder;
-        use tar::Archive;
-
         let mut json_content = String::new();
 
         if tar_path.ends_with(".json") {
             let mut raw_file = std::fs::File::open(&tar_path).expect("Failed to open JSON file");
-            raw_file.read_to_string(&mut json_content).unwrap_or_default();
+            raw_file
+                .read_to_string(&mut json_content)
+                .unwrap_or_default();
         } else {
             let file = File::open(&tar_path).expect("Failed to open tar.gz file");
             let tar = GzDecoder::new(file);
             let mut archive = Archive::new(tar);
-            
+
             if let Ok(entries) = archive.entries() {
                 for file in entries.flatten() {
                     let path = file.path().unwrap_or_default();
                     let path_str = path.to_string_lossy();
 
-                    if (path_str.ends_with("mil.json") || path_str.ends_with(".json")) && !path_str.contains("__MACOSX") {
+                    if (path_str.ends_with("mil.json") || path_str.ends_with(".json"))
+                        && !path_str.contains("__MACOSX")
+                    {
                         let mut f = file;
                         if f.read_to_string(&mut json_content).is_ok() {
                             break;
@@ -131,8 +137,11 @@ impl MilHelper {
 
         if json_content.is_empty() {
             // fallback if it wasn't a tar.gz or just a raw json
-            let mut raw_file = std::fs::File::open(&tar_path).expect("Failed to open fallback file");
-            raw_file.read_to_string(&mut json_content).unwrap_or_default();
+            let mut raw_file =
+                std::fs::File::open(&tar_path).expect("Failed to open fallback file");
+            raw_file
+                .read_to_string(&mut json_content)
+                .unwrap_or_default();
         }
 
         Self {

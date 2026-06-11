@@ -85,33 +85,39 @@ class NavRail extends StatefulWidget {
 }
 
 class _NavRailState extends State<NavRail> {
-  bool _isExpanded = false;
+  bool? _userExpandedToggle;
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isWideScreen = screenWidth >= 840;
+    final bool isExpanded = _userExpandedToggle ?? isWideScreen;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return NavigationRail(
       selectedIndex: widget.selectedIndex,
       onDestinationSelected: widget.onNavigationSelected,
-      extended: _isExpanded,
-      labelType: _isExpanded
+      extended: isExpanded,
+      labelType: isExpanded
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
       leading: IconButton(
-        icon: Icon(_isExpanded ? Icons.menu_open : Icons.menu),
+        icon: Icon(isExpanded ? Icons.menu_open : Icons.menu),
         onPressed: () {
           setState(() {
-            _isExpanded = !_isExpanded;
+            _userExpandedToggle = !isExpanded;
           });
         },
       ),
-      indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
-      destinations: navigationProperties
-          .map((NavigationProperties nav) => NavigationRailDestination(
-                icon: nav.icon,
-                selectedIcon: nav.selectedIcon,
-                label: Text(nav.label),
-              ))
-          .toList(),
+      indicatorColor: colorScheme.secondaryContainer,
+      destinations: [
+        for (final nav in navigationProperties)
+          NavigationRailDestination(
+            icon: nav.icon,
+            selectedIcon: nav.selectedIcon,
+            label: Text(nav.label),
+          ),
+      ],
     );
   }
 }
