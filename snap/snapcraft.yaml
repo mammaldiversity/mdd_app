@@ -1,0 +1,30 @@
+name: mdd
+base: core22
+version: '1.0.0'
+summary: Mammal Diversity Database App
+description: |
+  Desktop application for the Mammal Diversity Database.
+confinement: strict
+grade: stable
+icon: assets/icons/favicon512.png
+
+apps:
+  mdd:
+    command: mdd
+    extensions: [gnome]
+    plugs:
+      - network
+      - home
+    desktop: usr/share/applications/mdd.desktop
+
+parts:
+  mdd:
+    plugin: dump
+    source: build/linux/x64/release/bundle
+  desktop:
+    plugin: nil
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/icons/hicolor/512x512/apps
+      cp $CRAFT_PROJECT_DIR/packaging/mdd.desktop $CRAFT_PART_INSTALL/usr/share/applications/
+      cp $CRAFT_PROJECT_DIR/assets/icons/favicon512.png $CRAFT_PART_INSTALL/usr/share/icons/hicolor/512x512/apps/mdd.png

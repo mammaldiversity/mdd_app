@@ -124,6 +124,123 @@ jobs:
           sudo apt-get update
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --release
+
+      - name: Build Debian Package
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -z "$VERSION" ] || [ "$VERSION" = "master" ] || [ "$VERSION" = "main" ]; then
+            VERSION="1.0.0"
+          fi
+          echo "Packaging Version: $VERSION"
+          
+          # Structure Debian package
+          mkdir -p debian-pkg/DEBIAN
+          mkdir -p debian-pkg/opt/mdd
+          mkdir -p debian-pkg/usr/bin
+          mkdir -p debian-pkg/usr/share/applications
+          mkdir -p debian-pkg/usr/share/icons/hicolor/512x512/apps
+          
+          # Copy bundle, desktop launcher and icon files
+          cp -r build/linux/x64/release/bundle/* debian-pkg/opt/mdd/
+          cp packaging/mdd.desktop debian-pkg/usr/share/applications/
+          cp assets/icons/favicon512.png debian-pkg/usr/share/icons/hicolor/512x512/apps/mdd.png
+          
+          # Create wrapper/symlink
+          ln -sf /opt/mdd/mdd debian-pkg/usr/bin/mdd
+          
+          # Write control file
+          cat <<EOF > debian-pkg/DEBIAN/control
+Package: mdd
+Version: ${VERSION}
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libc6, libglib2.0-0, libgtk-3-0, liblzma5, libstdc++6
+Maintainer: Mammal Diversity Database <contact@mammaldiversity.org>
+Description: Mammal Diversity Database desktop application.
+EOF
+          
+          dpkg-deb --build --root-owner-group debian-pkg mdd_${VERSION}_amd64.deb
+
+      - name: Build RPM Package
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -z "$VERSION" ] || [ "$VERSION" = "master" ] || [ "$VERSION" = "main" ]; then
+            VERSION="1.0.0"
+          fi
+          
+          sudo apt-get update && sudo apt-get install -y rpm
+          
+          # Structure rpmbuild directory
+          mkdir -p rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          mkdir -p rpmbuild/SOURCES/bundle
+          cp -r build/linux/x64/release/bundle/* rpmbuild/SOURCES/bundle/
+          cp packaging/mdd.desktop rpmbuild/SOURCES/
+          cp assets/icons/favicon512.png rpmbuild/SOURCES/
+          
+          # Write RPM SPEC file
+          cat <<EOF > rpmbuild/SPECS/mdd.spec
+Name:           mdd
+Version:        ${VERSION}
+Release:        1%{?dist}
+Summary:        Mammal Diversity Database desktop application
+License:        MIT
+URL:            https://github.com/mammaldiversity/mdd_app
+
+%description
+Mammal Diversity Database desktop application.
+
+%prep
+# Prebuilt bundle, no prep needed
+
+%install
+rm -rf \$RPM_BUILD_ROOT
+mkdir -p \$RPM_BUILD_ROOT/opt/mdd
+mkdir -p \$RPM_BUILD_ROOT/usr/bin
+mkdir -p \$RPM_BUILD_ROOT/usr/share/applications
+mkdir -p \$RPM_BUILD_ROOT/usr/share/icons/hicolor/512x512/apps
+
+cp -r %{_sourcedir}/bundle/* \$RPM_BUILD_ROOT/opt/mdd/
+cp %{_sourcedir}/favicon512.png \$RPM_BUILD_ROOT/usr/share/icons/hicolor/512x512/apps/mdd.png
+cp %{_sourcedir}/mdd.desktop \$RPM_BUILD_ROOT/usr/share/applications/mdd.desktop
+
+ln -sf /opt/mdd/mdd \$RPM_BUILD_ROOT/usr/bin/mdd
+
+%files
+/opt/mdd/
+/usr/bin/mdd
+/usr/share/applications/mdd.desktop
+/usr/share/icons/hicolor/512x512/apps/mdd.png
+
+%changelog
+EOF
+          
+          rpmbuild --define "_topdir $(pwd)/rpmbuild" -bb rpmbuild/SPECS/mdd.spec
+          cp rpmbuild/RPMS/x86_64/mdd-${VERSION}-1.x86_64.rpm ./mdd-${VERSION}-1.x86_64.rpm
+
+      - name: Update Snapcraft version
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -z "$VERSION" ] || [ "$VERSION" = "master" ] || [ "$VERSION" = "main" ]; then
+            VERSION="1.0.0"
+          fi
+          sed -i "s/version: '1.0.0'/version: '$VERSION'/g" snap/snapcraft.yaml
+
+      - name: Build Snap
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: snapcore/action-build@v1
+        id: build-snap
+
+      - name: Upload Snap Artifact
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdd-snap
+          path: ${{ steps.build-snap.outputs.snap }}
+
       
       - name: Build Android
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -169,4 +286,6 @@ jobs:
             mdd-Linux-x86_64.tar.gz
             mdd-Windows-x86_64.zip
             build/app/outputs/apk/release/*.apk
+            *.deb
+            *.rpm
           fail_on_unmatched_files: false

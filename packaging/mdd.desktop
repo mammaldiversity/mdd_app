@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mammal Diversity Database
+Comment=Explore mammal diversity data
+Exec=mdd
+Icon=mdd
+Terminal=false
+Categories=Science;Education;Biology;
