@@ -1,5 +1,9 @@
 # mdd_app
 
+![Test](https://github.com/mammaldiversity/mdd_app/actions/workflows/test.yml/badge.svg)
+
+![Screenshot](/static/android-feature.png)
+
 A cross-platform application to access the Mammal Diversity Database. It includes offline access and support to export a subset of the data to a Comma-Separated Values (CSV) file.
 
 ## Installation
