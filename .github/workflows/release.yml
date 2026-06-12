@@ -212,7 +212,6 @@ jobs:
           files: |
             mdd-Linux-x86_64.tar.gz
             mdd-Windows-x86_64.zip
-            build/app/outputs/apk/release/*.apk
             *.deb
             *.rpm
           fail_on_unmatched_files: false
