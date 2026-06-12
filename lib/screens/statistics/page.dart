@@ -80,7 +80,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart: GenusBarChart(stats: stats),
                     ),
                     ChartCard(
-                      title: 'Species Richness by Country (Top 15)',
+                      title: 'Species Diversity by Country (Top 15)',
                       chart: CountryBarChart(stats: stats),
                     ),
                   ),

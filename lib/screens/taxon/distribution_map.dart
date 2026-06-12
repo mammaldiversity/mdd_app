@@ -7,7 +7,7 @@ import 'package:mdd/screens/shared/card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const String mapDescription = 'The map below provides a general overview. '
-    'Most species inhabit only specific regions within countries.';
+    'Some species inhabit only specific regions within countries.';
 
 class DistributionMap extends StatefulWidget {
   const DistributionMap({super.key, required this.countryDistribution});

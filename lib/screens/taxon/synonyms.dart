@@ -19,7 +19,8 @@ class SynonymList extends ConsumerWidget {
           data: (synonymData) {
             return synonymData.isNotEmpty
                 ? SynonymContainer(data: synonymData)
-                : const Center(child: Text('No synonyms found.'));
+                : const Center(
+                    child: Text('No associated names and synonyms found.'));
           },
           loading: () => const SizedBox.shrink(),
           error: (Object error, StackTrace stackTrace) {
@@ -51,7 +52,7 @@ class _SynonymContainerState extends State<SynonymContainer> {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: CommonCard(
-          title: 'Synonyms',
+          title: 'Names and synonyms',
           description: synonymDescription,
           child: Container(
             width: double.infinity,
