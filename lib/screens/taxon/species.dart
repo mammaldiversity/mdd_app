@@ -314,6 +314,7 @@ class SpeciesInfoList extends StatelessWidget {
           content: generatePermanentLink(taxonData.id),
           isUrl: true,
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
