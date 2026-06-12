@@ -180,18 +180,6 @@ jobs:
           name: mdd-snap
           path: ${{ steps.build-snap.outputs.snap }}
 
-      
-      - name: Build Android
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          flutter build apk --release --split-per-abi
-          cd build/app/outputs/apk/release
-          for f in app-*.apk; do
-            if [ -f "$f" ]; then
-              mv "$f" "${f/app/mdd}"
-            fi
-          done
-          
       - if: ${{ matrix.os == 'windows-latest' }}
         run: |
           flutter build windows --release
