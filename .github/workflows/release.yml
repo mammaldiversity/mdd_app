@@ -56,9 +56,6 @@ jobs:
           # Run the new prepare subcommand to unpack MDD and merge with MIL data
           mdd prepare -z MDD.zip -m "$MIL_FILENAME" -o .
           
-          # Move prepared output to expected mil.json
-          mv mil_mdd.json mil.json
-          
           # Extract images so they can be moved/verified downstream
           tar -xzf "$MIL_FILENAME"
       
