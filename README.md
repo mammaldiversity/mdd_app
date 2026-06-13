@@ -32,10 +32,6 @@ The app is currently under review on Apple App Store.
 
 In the meantime, you can install the app using [TestFlight](https://testflight.apple.com/join/FXGXyw5e).
 
-## Development Status
-
-The app status is experimental. Expect bugs and incomplete features.
-
 ## Technologies
 
 We develop the app using cross-platform, widely use technologies for mobile app development. The core technologies are:
