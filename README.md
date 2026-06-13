@@ -27,7 +27,10 @@ Download your preferred package format from the [releases page](https://github.c
 Download the `mdd-Windows-x86_64.zip` archive from the releases page, extract it, and run `mdd.exe`.
 
 ### iOS, iPadOS, and macOS
-You will need to install the Apple TestFlight app and follow the [installation instructions](https://testflight.apple.com/join/FXGXyw5e).
+
+The app is currently under review on Apple App Store. 
+
+In the meantime, you can install the app using [TestFlight](https://testflight.apple.com/join/FXGXyw5e).
 
 ## Development Status
 
