@@ -10,7 +10,7 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ### Android
 
-You can download the app on [Google Play Store](https://play.google.com/store/apps/details?id=com.hhandika.mdd). Click the badge below or scan the QR code.
+You can download the app on [Google Play](https://play.google.com/store/apps/details?id=com.hhandika.mdd). Click the badge below or scan the QR code.
 
 <a href="https://play.google.com/store/apps/details?id=com.hhandika.mdd"><img alt="Get it on Google Play" src="static/GooglePlayBadge.svg" width="200" /></a>
 
