@@ -4,26 +4,24 @@
 
 ![Screenshot](/static/android-feature.png)
 
-A cross-platform application to access the Mammal Diversity Database. It includes offline access and support to export a subset of the data to a Comma-Separated Values (CSV) file.
+A cross-platform application to access the Mammal Diversity Database. It features offline access, advance search with data filtering, and support to export a subset of the data to a Comma-Separated Values (CSV) or JSON file.
 
 ## Installation
 
 ### Android
 
-Go to the [releases page](https://github.com/mammaldiversity/mdd_app/releases) and download the file ending in the appropriate name for your device:
+You can download the app on [Google Play Store](https://play.google.com/store/apps/details?id=com.hhandika.mdd). Click the badge below or scan the QR code.
 
-*   **`arm64-v8a` (Recommended)**: Download this if you have a modern Android phone or tablet (released in 2016 or later). This includes almost all modern Samsung Galaxy, Google Pixel, OnePlus, Xiaomi, and other devices.
-*   **`armeabi-v7a`**: Download this if you have an older or budget Android device (32-bit).
-*   **`x86_64`**: This is for Android emulators running on a computer. Do not download this for a physical phone.
+<a href="https://play.google.com/store/apps/details?id=com.hhandika.mdd"><img alt="Get it on Google Play" src="static/GooglePlayBadge.svg" width="200" /></a>
 
-Once downloaded, open the `.apk` file on your device to install the app.
-
-> [!TIP]
-> **If you see "App not installed" or installation fails:**
-> This usually happens if you already have a version of the app installed that was built/signed differently (e.g. from local development). To fix this, **completely uninstall the existing app** from your device first (ensuring it is removed for all user profiles, work profiles, or secure folders), then try installing the new file again.
+<img src="static/playstore-url.png" width="200" height="200" alt="Android QR Code" />
 
 ### Linux
-Download the `mdd-Linux-x86_64.tar.gz` archive from the releases page, extract the downloaded file, and run the `mdd` executable.
+Download your preferred package format from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
+
+- **Debian/Ubuntu (`.deb`)**: Install using `sudo apt install ./mdd_<version>_amd64.deb`
+- **Fedora/openSUSE (`.rpm`)**: Install using `sudo dnf install ./mdd-<version>-1.x86_64.rpm`
+- **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly.
 
 ### Windows
 Download the `mdd-Windows-x86_64.zip` archive from the releases page, extract it, and run `mdd.exe`.
