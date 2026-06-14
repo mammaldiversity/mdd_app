@@ -192,7 +192,7 @@ class SearchResultInfo extends ConsumerWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondaryContainer
-                                .withValues(alpha: 0.6),
+                                .withValues(alpha: 0.8),
                             child: Text(
                               'Found $foundRecordCount of $totalRecords records',
                               style: Theme.of(context).textTheme.bodyMedium,
@@ -205,7 +205,7 @@ class SearchResultInfo extends ConsumerWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .primaryContainer
-                                .withValues(alpha: 0.6),
+                                .withValues(alpha: 0.8),
                             child: SearchExportButton(mddIDs: foundRecords),
                           ),
                         ],
