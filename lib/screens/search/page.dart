@@ -68,18 +68,20 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
           )
         ],
       ),
-      body: const Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: InfoCard(
-                text: 'Search for a species using the search bar above. '
-                    'You can also filter search results, '
-                    'update your search settings, '
-                    'and export your findings.'),
-          ),
-          Expanded(child: SpeciesListView()),
-        ],
+      body: const SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: InfoCard(
+                  text: 'Search for a species using the search bar above. '
+                      'You can also filter search results, '
+                      'update your search settings, '
+                      'and export your findings.'),
+            ),
+            Expanded(child: SpeciesListView()),
+          ],
+        ),
       ),
       bottomSheet: const SearchDatabaseInfo(),
     );

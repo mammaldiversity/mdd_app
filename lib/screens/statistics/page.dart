@@ -29,113 +29,115 @@ class _MddStatsState extends ConsumerState<MddStats> {
     final statsAsync = ref.watch(statisticsProvider);
 
     return Scaffold(
-      body: statsAsync.when(
-        data: (stats) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 600;
-
-              Widget buildRow(Widget chart1, Widget chart2) {
-                if (isWide) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: chart1),
-                      const SizedBox(width: 16),
-                      Expanded(child: chart2),
-                    ],
-                  );
-                } else {
-                  return Column(
-                    children: [
-                      chart1,
-                      const SizedBox(height: 16),
-                      chart2,
-                    ],
-                  );
+      body: SafeArea(
+        child: statsAsync.when(
+          data: (stats) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 600;
+  
+                Widget buildRow(Widget chart1, Widget chart2) {
+                  if (isWide) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: chart1),
+                        const SizedBox(width: 16),
+                        Expanded(child: chart2),
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        chart1,
+                        const SizedBox(height: 16),
+                        chart2,
+                      ],
+                    );
+                  }
                 }
-              }
-
-              return ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-                  const InfoCard(
-                      text:
-                          'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'Species Diversity by Order (Top 15)',
-                      chart: OrderBarChart(stats: stats),
+  
+                return ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    const InfoCard(
+                        text:
+                            'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Species Diversity by Order (Top 15)',
+                        chart: OrderBarChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Species Diversity by Family (Top 15)',
+                        chart: FamilyBarChart(stats: stats),
+                      ),
                     ),
-                    ChartCard(
-                      title: 'Species Diversity by Family (Top 15)',
-                      chart: FamilyBarChart(stats: stats),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Species Diversity by Genus (Top 15)',
+                        chart: GenusBarChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Species Diversity by Country (Top 15)',
+                        chart: CountryBarChart(stats: stats),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'Species Diversity by Genus (Top 15)',
-                      chart: GenusBarChart(stats: stats),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Species Descriptions by Decade',
+                        chart: DecadeBarChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Species Descriptions by Year (Top 15)',
+                        chart: YearBarChart(stats: stats),
+                      ),
                     ),
-                    ChartCard(
-                      title: 'Species Diversity by Country (Top 15)',
-                      chart: CountryBarChart(stats: stats),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Species with Most Images (Top 15)',
+                        chart: ImagesBarChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Proportion of Species with Images',
+                        chart: ImagesPieChart(stats: stats),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'Species Descriptions by Decade',
-                      chart: DecadeBarChart(stats: stats),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'IUCN Red List Conservation Status',
+                        chart: IucnPieChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Distribution by Biogeographic Realm',
+                        chart: RealmPieChart(stats: stats),
+                      ),
                     ),
-                    ChartCard(
-                      title: 'Species Descriptions by Year (Top 15)',
-                      chart: YearBarChart(stats: stats),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Extinct vs. Extant Species',
+                        chart: ExtinctPieChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Domesticated vs. Wild Species',
+                        chart: DomesticPieChart(stats: stats),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'Species with Most Images (Top 15)',
-                      chart: ImagesBarChart(stats: stats),
-                    ),
-                    ChartCard(
-                      title: 'Proportion of Species with Images',
-                      chart: ImagesPieChart(stats: stats),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'IUCN Red List Conservation Status',
-                      chart: IucnPieChart(stats: stats),
-                    ),
-                    ChartCard(
-                      title: 'Distribution by Biogeographic Realm',
-                      chart: RealmPieChart(stats: stats),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  buildRow(
-                    ChartCard(
-                      title: 'Extinct vs. Extant Species',
-                      chart: ExtinctPieChart(stats: stats),
-                    ),
-                    ChartCard(
-                      title: 'Domesticated vs. Wild Species',
-                      chart: DomesticPieChart(stats: stats),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+                    const SizedBox(height: 32),
+                  ],
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Center(child: Text('Error: $err')),
+        ),
       ),
     );
   }

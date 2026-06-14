@@ -20,16 +20,20 @@ class SpeciesPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Taxon Information'),
       ),
-      body: Center(
-        child: ref.watch(taxonDataProvider).when(
-              data: (TaxonomyData taxonData) {
-                return TaxonForm(taxonData: taxonData);
-              },
-              loading: () => const SimpleLoadingOnly(),
-              error: (Object error, StackTrace stackTrace) {
-                return Text('Error: $error');
-              },
-            ),
+      body: SafeArea(
+        child: Center(
+          child: ref.watch(taxonDataProvider).when(
+                data: (TaxonomyData taxonData) {
+                  return SelectionArea(
+                    child: TaxonForm(taxonData: taxonData),
+                  );
+                },
+                loading: () => const SimpleLoadingOnly(),
+                error: (Object error, StackTrace stackTrace) {
+                  return Text('Error: $error');
+                },
+              ),
+        ),
       ),
     );
   }

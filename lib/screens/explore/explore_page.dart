@@ -20,49 +20,51 @@ class ExploreSpecies extends ConsumerStatefulWidget {
 class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
   @override
   Widget build(BuildContext context) {
-    return ref.watch(speciesListProvider).when(
-          data: (List<MddGroupListResult> speciesList) {
-            return ListView(children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: InfoCard(text: 'Browse the taxonomy of mammals, from order down to species. Click on a species to view its details or use the search bar to find a specific species.'),
-              ),
-              ..._groupByOrder(speciesList).entries.map(
-                (MapEntry<String, List<MddGroupListResult>> entry) {
-                  return ExpansionTile(
-                    iconColor: Theme.of(context).colorScheme.secondary,
-                    leading: SvgPicture.asset(
-                      'assets/order-icons/${entry.key.toLowerCase()}.svg',
-                      width: 32,
-                      height: 32,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.secondary,
-                        BlendMode.srcIn,
+    return SafeArea(
+      child: ref.watch(speciesListProvider).when(
+            data: (List<MddGroupListResult> speciesList) {
+              return ListView(children: <Widget>[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: InfoCard(text: 'Browse the taxonomy of mammals, from order down to species. Click on a species to view its details or use the search bar to find a specific species.'),
+                ),
+                ..._groupByOrder(speciesList).entries.map(
+                  (MapEntry<String, List<MddGroupListResult>> entry) {
+                    return ExpansionTile(
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                      leading: SvgPicture.asset(
+                        'assets/order-icons/${entry.key.toLowerCase()}.svg',
+                        width: 32,
+                        height: 32,
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.secondary,
+                          BlendMode.srcIn,
+                        ),
+                        placeholderBuilder: (BuildContext context) =>
+                            const Icon(Icons.pets, size: 24),
                       ),
-                      placeholderBuilder: (BuildContext context) =>
-                          const Icon(Icons.pets, size: 24),
-                    ),
-                    title: Text(
-                      entry.key,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(
-                      MammalianOrders().getCommonName(entry.key),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    children: <Widget>[FamilyGroups(taxonList: entry.value)],
-                  );
-                },
-              ),
-            ]);
-          },
-          loading: () => const DataLoadingMessages(isSimple: false),
-          error: (Object error, StackTrace stackTrace) => Center(
-            child: Text('Error: $error. Stack trace: $stackTrace'),
+                      title: Text(
+                        entry.key,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        MammalianOrders().getCommonName(entry.key),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      children: <Widget>[FamilyGroups(taxonList: entry.value)],
+                    );
+                  },
+                ),
+              ]);
+            },
+            loading: () => const DataLoadingMessages(isSimple: false),
+            error: (Object error, StackTrace stackTrace) => Center(
+              child: Text('Error: $error. Stack trace: $stackTrace'),
+            ),
           ),
-        );
+    );
   }
 
   Map<String, List<MddGroupListResult>> _groupByOrder(
