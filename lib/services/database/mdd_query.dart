@@ -59,7 +59,11 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         data.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList();
     return taxonData
       ..sort((a, b) {
-        return a.specificEpithet.compareTo(b.specificEpithet);
+        int result = a.genus.compareTo(b.genus);
+        if (result == 0) {
+          result = a.specificEpithet.compareTo(b.specificEpithet);
+        }
+        return result;
       });
   }
 
@@ -168,7 +172,11 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     final data =
         results.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList()
           ..sort((a, b) {
-            return a.specificEpithet.compareTo(b.specificEpithet);
+            int result = a.genus.compareTo(b.genus);
+            if (result == 0) {
+              result = a.specificEpithet.compareTo(b.specificEpithet);
+            }
+            return result;
           });
     return data;
   }
@@ -214,8 +222,9 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         return _queryTaxonomyFromSynonymIds(
             await (select(synonym)..where((tbl) => tbl.rootName.like('%$rawQuery%'))).get());
       case SearchFilter.synonymOriginalCombination:
+        final queryWithUnderscore = rawQuery.replaceAll(' ', '_');
         return _queryTaxonomyFromSynonymIds(
-            await (select(synonym)..where((tbl) => tbl.originalCombination.like('%$rawQuery%'))).get());
+            await (select(synonym)..where((tbl) => tbl.originalCombination.like('%$rawQuery%') | tbl.originalCombination.like('%$queryWithUnderscore%'))).get());
       case SearchFilter.synonymAuthorYear:
         return _queryTaxonomyFromSynonymIds(
             await (select(synonym)..where((tbl) => tbl.author.like('%$rawQuery%') | tbl.year.like('%$rawQuery%'))).get());
@@ -249,6 +258,7 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   }
 
   Future<List<TaxonomyData>> _searchAll(String query) {
+    final queryWithUnderscore = query.replaceAll(' ', '_');
     return (select(taxonomy)
           ..where(
             (tbl) =>
@@ -256,8 +266,8 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.taxonOrder.like('%$query%') |
                 tbl.genus.like('%$query%') |
                 tbl.specificEpithet.like('%$query%') |
-                tbl.sciName.like('%$query%') |
-                tbl.originalNameCombination.like('%$query%') |
+                tbl.sciName.like('%$queryWithUnderscore%') |
+                tbl.originalNameCombination.like('%$queryWithUnderscore%') |
                 tbl.mainCommonName.like('%$query%') |
                 tbl.otherCommonNames.like('%$query%') |
                 tbl.countryDistribution.like('%$query%') |
