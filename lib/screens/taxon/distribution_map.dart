@@ -5,9 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mdd/screens/shared/card.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-const String mapDescription = 'The map below provides a general overview. '
-    'Some species inhabit only specific regions within countries.';
+import 'package:mdd/services/topojson_parser.dart';
 
 class DistributionMap extends StatefulWidget {
   const DistributionMap({super.key, required this.countryDistribution});
@@ -20,6 +18,7 @@ class DistributionMap extends StatefulWidget {
 class _DistributionMapState extends State<DistributionMap> {
   List<Polygon> _polygons = [];
   bool _isLoading = true;
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
@@ -41,44 +40,32 @@ class _DistributionMapState extends State<DistributionMap> {
       final String geoJsonData =
           await rootBundle.loadString('assets/data/countries.geojson');
       final Map<String, dynamic> json = jsonDecode(geoJsonData);
-      final features = json['features'] as List;
 
-      final Set<String> targetCountries = widget.countryDistribution!
-          .split(',')
-          .map((e) => e.trim().toLowerCase())
-          .toSet();
+      final Set<String> knownCountries = {};
+      final Set<String> predictedCountries = {};
 
-      bool isTargetCountry(String name) {
-        final lowerName = name.toLowerCase();
-        return targetCountries.any((target) =>
-            target.contains(lowerName) || lowerName.contains(target));
-      }
+      final parts = widget.countryDistribution!.split(RegExp(r'[|,]'));
+      for (var p in parts) {
+        final country = p.trim();
+        if (country.isEmpty) continue;
 
-      List<Polygon> loadedPolygons = [];
+        bool isPredicted = country.endsWith('?');
+        final rawName = isPredicted
+            ? country.substring(0, country.length - 1).trim()
+            : country;
 
-      for (var feature in features) {
-        final properties = feature['properties'] ?? {};
-        final name = properties['name'] as String?;
-        if (name != null && isTargetCountry(name)) {
-          final geometry = feature['geometry'];
-          if (geometry == null) continue;
-
-          final type = geometry['type'];
-          if (type == 'Polygon') {
-            final coords = geometry['coordinates'] as List;
-            if (coords.isNotEmpty) {
-              loadedPolygons.add(_createPolygon(coords[0]));
-            }
-          } else if (type == 'MultiPolygon') {
-            final coords = geometry['coordinates'] as List;
-            for (var polyCoords in coords) {
-              if ((polyCoords as List).isNotEmpty) {
-                loadedPolygons.add(_createPolygon(polyCoords[0]));
-              }
-            }
+        final isoCode = TopoJsonParser.normalizeToIso(rawName);
+        if (isoCode != null) {
+          if (isPredicted) {
+            predictedCountries.add(isoCode);
+          } else {
+            knownCountries.add(isoCode);
           }
         }
       }
+
+      final loadedPolygons = TopoJsonParser.parsePolygons(
+          json, knownCountries, predictedCountries);
 
       if (mounted) {
         setState(() {
@@ -87,29 +74,13 @@ class _DistributionMapState extends State<DistributionMap> {
         });
       }
     } catch (e) {
-      debugPrint('Error loading GeoJSON: $e');
+      debugPrint('Error loading Map: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
     }
-  }
-
-  Polygon _createPolygon(List coordinates) {
-    List<LatLng> points = [];
-    for (var coord in coordinates) {
-      final lon = (coord[0] as num).toDouble();
-      final lat = (coord[1] as num).toDouble();
-      points.add(LatLng(lat, lon));
-    }
-    return Polygon(
-      points: points,
-      color: const Color(0xFF117554)
-          .withValues(alpha: 0.5), // Known color from website
-      borderColor: const Color(0xFF117554),
-      borderStrokeWidth: 1,
-    );
   }
 
   @override
@@ -119,6 +90,10 @@ class _DistributionMapState extends State<DistributionMap> {
         widget.countryDistribution == 'NA') {
       return const SizedBox.shrink();
     }
+
+    final hasPredicted = widget.countryDistribution!.contains('?');
+    final String mapDescription = 'The map below provides a general overview. '
+        'Some species inhabit only specific regions within countries.';
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final mapUrl = isDarkMode
@@ -137,74 +112,156 @@ class _DistributionMapState extends State<DistributionMap> {
     return CommonCard(
       title: 'Distribution Map',
       description: mapDescription,
-      child: SizedBox(
-        height: 300,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : FlutterMap(
-                  options: MapOptions(
-                    initialCenter: const LatLng(0, 0),
-                    initialZoom: 1,
-                    initialCameraFit: bounds != null
-                        ? CameraFit.bounds(
-                            bounds: bounds,
-                            padding: const EdgeInsets.all(16),
-                          )
-                        : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasPredicted) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildLegendItem(context,
+                      color: const Color(0xFF117554), text: 'Known'),
+                  const SizedBox(width: 16),
+                  _buildLegendItem(
+                    context,
+                    color: const Color(0xFFFFEB00),
+                    text: 'Predicted distribution',
+                    borderColor: const Color(0xFFB5A600),
                   ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: mapUrl,
-                      subdomains: const ['a', 'b', 'c'],
-                      userAgentPackageName: 'org.mammaldiversity.mdd',
-                    ),
-                    if (_polygons.isNotEmpty)
-                      PolygonLayer(
-                        polygons: _polygons,
-                      ),
-                    MediaQuery.removePadding(
-                      context: context,
-                      removeBottom: true,
-                      removeLeft: true,
-                      removeRight: true,
-                      removeTop: true,
-                      child: RichAttributionWidget(
-                        alignment: AttributionAlignment.bottomLeft,
-                        openButton: (context, open) => IconButton(
-                          onPressed: open,
-                          tooltip: 'Attributions',
-                          icon: Icon(
-                            Icons.info_outlined,
-                            color: Theme.of(context).colorScheme.onSurface,
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          SizedBox(
+            height: 300,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Stack(
+                      children: [
+                        FlutterMap(
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: const LatLng(0, 0),
+                            initialZoom: 1,
+                            initialCameraFit: bounds != null
+                                ? CameraFit.bounds(
+                                    bounds: bounds,
+                                    padding: const EdgeInsets.all(16),
+                                  )
+                                : null,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate: mapUrl,
+                              subdomains: const ['a', 'b', 'c'],
+                              userAgentPackageName: 'org.mammaldiversity.mdd',
+                            ),
+                            if (_polygons.isNotEmpty)
+                              PolygonLayer(
+                                polygons: _polygons,
+                              ),
+                            MediaQuery.removePadding(
+                              context: context,
+                              removeBottom: true,
+                              removeLeft: true,
+                              removeRight: true,
+                              removeTop: true,
+                              child: RichAttributionWidget(
+                                alignment: AttributionAlignment.bottomLeft,
+                                openButton: (context, open) => IconButton(
+                                  onPressed: open,
+                                  tooltip: 'Attributions',
+                                  icon: Icon(
+                                    Icons.info_outlined,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                                closeButton: (context, close) => IconButton(
+                                  onPressed: close,
+                                  icon: Icon(
+                                    Icons.cancel_outlined,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                                attributions: [
+                                  TextSourceAttribution(
+                                    'OpenStreetMap contributors, © CARTO',
+                                    onTap: () => launchUrl(Uri.parse(
+                                        'https://carto.com/attributions')),
+                                  ),
+                                  TextSourceAttribution(
+                                    'Country Boundaries: Natural Earth',
+                                    onTap: () => launchUrl(Uri.parse(
+                                        'https://www.naturalearthdata.com/')),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          right: 8,
+                          bottom: 8,
+                          child: FloatingActionButton.small(
+                            heroTag: null,
+                            onPressed: () {
+                              if (bounds != null) {
+                                _mapController.fitCamera(
+                                  CameraFit.bounds(
+                                    bounds: bounds,
+                                    padding: const EdgeInsets.all(16),
+                                  ),
+                                );
+                              } else {
+                                _mapController.move(const LatLng(0, 0), 1);
+                              }
+                            },
+                            tooltip: 'Recenter Map',
+                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            elevation: 4,
+                            child: Icon(
+                              Icons.center_focus_strong,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                         ),
-                        closeButton: (context, close) => IconButton(
-                          onPressed: close,
-                          icon: Icon(
-                            Icons.cancel_outlined,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        attributions: [
-                          TextSourceAttribution(
-                            'OpenStreetMap contributors, © CARTO',
-                            onTap: () => launchUrl(
-                                Uri.parse('https://carto.com/attributions')),
-                          ),
-                          TextSourceAttribution(
-                            'Country Boundaries: Natural Earth',
-                            onTap: () => launchUrl(
-                                Uri.parse('https://www.naturalearthdata.com/')),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-        ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(BuildContext context,
+      {required Color color, required String text, Color? borderColor}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: borderColor != null
+                ? Border.all(color: borderColor, width: 1)
+                : null,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
     );
   }
 }
