@@ -59,9 +59,8 @@ class RichTextContent extends StatelessWidget {
         ? baseStyle.apply(fontStyle: FontStyle.italic, letterSpacingDelta: 0.8)
         : baseStyle;
 
-    return RichText(
-      textAlign: TextAlign.left,
-      text: TextSpan(
+    return Text.rich(
+      TextSpan(
         children: tokens.map((token) {
           switch (token.type) {
             case TextTokenType.standard:
@@ -93,6 +92,7 @@ class RichTextContent extends StatelessWidget {
           }
         }).toList(),
       ),
+      textAlign: TextAlign.left,
     );
   }
 }

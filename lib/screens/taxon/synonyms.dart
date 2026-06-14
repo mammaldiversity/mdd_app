@@ -201,19 +201,21 @@ class SynonymSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ({String authorYear, String name}) synName =
         SynonymName(data: data).getSynonym();
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        SynonymTitle(
-          synName: synName.name,
-          authorYear: synName.authorYear,
-        ),
-        Flexible(
-          child: OtherSynonymData(data: data),
-        ),
-      ],
+    return SelectionArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SynonymTitle(
+            synName: synName.name,
+            authorYear: synName.authorYear,
+          ),
+          Flexible(
+            child: OtherSynonymData(data: data),
+          ),
+        ],
+      ),
     );
   }
 }

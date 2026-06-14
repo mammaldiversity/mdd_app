@@ -332,26 +332,27 @@ class SpeciesTextView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SpeciesText speciesText = SpeciesText(taxonData: taxonData);
-    return RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: <TextSpan>[
-            TextSpan(
-              text: speciesText.speciesName,
-              style: Theme.of(context).textTheme.titleLarge?.apply(
-                    fontFamily: 'Libre Baskerville',
-                    fontStyle: FontStyle.italic,
-                    fontWeightDelta: 1,
-                    fontSizeDelta: 4,
-                    letterSpacingDelta: 0.8,
-                  ),
-            ),
-            const TextSpan(text: '\n'),
-            TextSpan(
-              text: speciesText.speciesAuthorCitation,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ],
-        ));
+    return Text.rich(
+      TextSpan(
+        children: <TextSpan>[
+          TextSpan(
+            text: speciesText.speciesName,
+            style: Theme.of(context).textTheme.titleLarge?.apply(
+                  fontFamily: 'Libre Baskerville',
+                  fontStyle: FontStyle.italic,
+                  fontWeightDelta: 1,
+                  fontSizeDelta: 4,
+                  letterSpacingDelta: 0.8,
+                ),
+          ),
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: speciesText.speciesAuthorCitation,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
+    );
   }
 }
