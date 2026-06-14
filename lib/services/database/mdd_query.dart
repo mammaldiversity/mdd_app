@@ -86,6 +86,7 @@ enum SearchFilter {
   commonName,
   authority,
   countryDistribution,
+  typeLocality,
   
   // Synonym
   synonymRootName,
@@ -113,6 +114,7 @@ extension SearchFilterExtension on SearchFilter {
       case SearchFilter.commonName:
       case SearchFilter.authority:
       case SearchFilter.countryDistribution:
+      case SearchFilter.typeLocality:
         return FilterGroup.taxonomy;
       case SearchFilter.synonymRootName:
       case SearchFilter.synonymOriginalCombination:
@@ -144,6 +146,8 @@ extension SearchFilterExtension on SearchFilter {
         return 'Authority & Year';
       case SearchFilter.countryDistribution:
         return 'Country Distribution';
+      case SearchFilter.typeLocality:
+        return 'Type Locality';
       case SearchFilter.synonymRootName:
         return 'Root Name';
       case SearchFilter.synonymOriginalCombination:
@@ -216,6 +220,8 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         return (select(taxonomy)..where((tbl) => tbl.authoritySpeciesAuthor.like('%$rawQuery%'))).get();
       case SearchFilter.countryDistribution:
         return _searchByCountry(rawQuery);
+      case SearchFilter.typeLocality:
+        return (select(taxonomy)..where((tbl) => tbl.typeLocality.like('%$rawQuery%'))).get();
       
       // Synonym searches
       case SearchFilter.synonymRootName:
@@ -272,7 +278,8 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
                 tbl.otherCommonNames.like('%$query%') |
                 tbl.countryDistribution.like('%$query%') |
                 tbl.authoritySpeciesAuthor.like('%$query%') |
-                tbl.distributionNotes.like('%$query%'),
+                tbl.distributionNotes.like('%$query%') |
+                tbl.typeLocality.like('%$query%'),
           ))
         .get();
   }
