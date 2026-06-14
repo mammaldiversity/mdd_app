@@ -6,6 +6,14 @@
 
 A cross-platform application to access the Mammal Diversity Database. It features offline access, advance search with data filtering, and support to export a subset of the data to a Comma-Separated Values (CSV) or JSON file.
 
+## What's new
+
+- Allow text selection for taxonomy and synonym sections.
+- Display proportion of type kind and identify species with the most names and synonyms.
+- Implement type locality search.
+- Add known and predicted distribution to the map and allow users to center the map.
+- Include various bug fixes and UI improvements (transparency, padding, and query ordering).
+
 ## Installation
 
 ### Android
