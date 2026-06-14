@@ -18,6 +18,8 @@ class MddStatistics {
   final int totalGeneraCount;
   final int livingWildSpeciesCount;
   final int totalSpeciesCount;
+  final List<StatSpeciesWithMostSynonymsResult> speciesWithMostSynonyms;
+  final List<MapEntry<String, int>> typeKindProportion;
 
   MddStatistics({
     required this.speciesPerOrder,
@@ -37,6 +39,8 @@ class MddStatistics {
     required this.totalGeneraCount,
     required this.livingWildSpeciesCount,
     required this.totalSpeciesCount,
+    required this.speciesWithMostSynonyms,
+    required this.typeKindProportion,
   });
 }
 
@@ -80,6 +84,12 @@ class StatisticsService {
     final speciesWithMostImages =
         await mddQuery.statSpeciesWithMostImages().get();
 
+    final speciesWithMostSynonyms =
+        await mddQuery.statSpeciesWithMostSynonyms().get();
+
+    final rawTypeKind = await mddQuery.statTypeKindProportion().get();
+    final cleanedTypeKind = cleanTypeKindData(rawTypeKind);
+
     // count might be 0, so fallback to 0
     final speciesWithImagesRow =
         await mddQuery.statSpeciesWithImagesCount().getSingle();
@@ -111,6 +121,8 @@ class StatisticsService {
       totalGeneraCount: totalGeneraCount,
       livingWildSpeciesCount: livingWildSpeciesCount,
       totalSpeciesCount: totalSpeciesCount,
+      speciesWithMostSynonyms: speciesWithMostSynonyms,
+      typeKindProportion: cleanedTypeKind,
     );
   }
 
@@ -148,6 +160,24 @@ class StatisticsService {
       }
     }
     return realmCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  static List<MapEntry<String, int>> cleanTypeKindData(
+      List<StatTypeKindProportionResult> rawTypeKind) {
+    final Map<String, int> typeKindCounts = {};
+    for (var row in rawTypeKind) {
+      String tkStr = row.name ?? '';
+      final tks = tkStr.split('|');
+      for (var t in tks) {
+        t = t.trim();
+        if (t.isNotEmpty && t != 'NA') {
+          t = t[0].toUpperCase() + t.substring(1).toLowerCase();
+          typeKindCounts[t] = (typeKindCounts[t] ?? 0) + row.count;
+        }
+      }
+    }
+    return typeKindCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
   }
 }

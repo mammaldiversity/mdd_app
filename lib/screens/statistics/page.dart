@@ -13,6 +13,8 @@ import 'package:mdd/screens/statistics/realm_pie_chart.dart';
 import 'package:mdd/screens/statistics/year_bar_chart.dart';
 import 'package:mdd/screens/statistics/images_bar_chart.dart';
 import 'package:mdd/screens/statistics/images_pie_chart.dart';
+import 'package:mdd/screens/statistics/synonyms_bar_chart.dart';
+import 'package:mdd/screens/statistics/type_kind_pie_chart.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/screens/shared/info_card.dart';
 
@@ -105,6 +107,17 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       ChartCard(
                         title: 'Proportion of Species with Images',
                         chart: ImagesPieChart(stats: stats),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    buildRow(
+                      ChartCard(
+                        title: 'Species with the Most Names and Synonyms (Top 15)',
+                        chart: SynonymsBarChart(stats: stats),
+                      ),
+                      ChartCard(
+                        title: 'Proportion of Type Kind',
+                        chart: TypeKindPieChart(stats: stats),
                       ),
                     ),
                     const SizedBox(height: 16),

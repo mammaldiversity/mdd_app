@@ -5436,6 +5436,32 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
+  Selectable<StatSpeciesWithMostSynonymsResult> statSpeciesWithMostSynonyms() {
+    return customSelect(
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          synonym,
+        }).map((QueryRow row) => StatSpeciesWithMostSynonymsResult(
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          count: row.read<int>('count'),
+        ));
+  }
+
+  Selectable<StatTypeKindProportionResult> statTypeKindProportion() {
+    return customSelect(
+        'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatTypeKindProportionResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7579,5 +7605,25 @@ class StatSpeciesWithMostImagesResult {
     this.genus,
     this.specificEpithet,
     required this.imageCount,
+  });
+}
+
+class StatSpeciesWithMostSynonymsResult {
+  final String? genus;
+  final String? specificEpithet;
+  final int count;
+  StatSpeciesWithMostSynonymsResult({
+    this.genus,
+    this.specificEpithet,
+    required this.count,
+  });
+}
+
+class StatTypeKindProportionResult {
+  final String? name;
+  final int count;
+  StatTypeKindProportionResult({
+    this.name,
+    required this.count,
   });
 }

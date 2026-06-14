@@ -134,3 +134,5 @@ statTotalOrdersCount: SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy;
 statTotalFamiliesCount: SELECT COUNT(DISTINCT family) AS count FROM taxonomy;
 statTotalGeneraCount: SELECT COUNT(DISTINCT genus) AS count FROM taxonomy;
 statLivingWildSpeciesCount: SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0;
+statSpeciesWithMostSynonyms: SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15;
+statTypeKindProportion: SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != '' AND typeKind != 'NA' GROUP BY typeKind ORDER BY count DESC;
