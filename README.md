@@ -24,7 +24,16 @@ You can download the app on [Google Play](https://play.google.com/store/apps/det
 
 <img src="static/playstore-url.png" width="200" height="200" alt="Android QR Code" />
 
+### Apple Devices
+
+You can download the app on the [App Store](https://apple.co/4vlBaxa). Click the badge below or scan the QR code.
+
+<a href="https://apple.co/4vlBaxa"><img alt="Download on the App Store" src="static/appstore-black.svg" width="200" /></a>
+
+<img src="static/appstore-url.png" width="200" height="200" alt="iOS QR Code" />
+
 ### Linux
+
 Download your preferred package format from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
 
 - **Debian/Ubuntu (`.deb`)**: Install using `sudo apt install ./mdd_<version>_amd64.deb`
@@ -32,13 +41,8 @@ Download your preferred package format from the [releases page](https://github.c
 - **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly.
 
 ### Windows
+
 Download the `mdd-Windows-x86_64.zip` archive from the releases page, extract it, and run `mdd.exe`.
-
-### iOS, iPadOS, and macOS
-
-The app is currently under review on Apple App Store. 
-
-In the meantime, you can install the app using [TestFlight](https://testflight.apple.com/join/FXGXyw5e).
 
 ## Technologies
 
@@ -96,6 +100,7 @@ We provide a convenient bash script that builds the Rust parser, generates `asse
 ```
 
 Alternatively, if you only want to generate the database manually without compiling Flutter release builds:
+
 ```bash
 ./tools/generate_prefilled_db.sh
 ```
