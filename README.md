@@ -8,11 +8,8 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Allow text selection for taxonomy and synonym sections.
-- Display proportion of type kind and identify species with the most names and synonyms.
-- Implement type locality search.
-- Add known and predicted distribution to the map and allow users to center the map.
-- Include various bug fixes and UI improvements (transparency, padding, and query ordering).
+- Visual Alignment: The synonym section formatting and the app's overall color scheme now closely match the website.
+- Cleaner Layout: We’ve streamlined the "Name Usages" display under synonyms to remove clutter and make it easier to read.
 
 ## Installation
 
