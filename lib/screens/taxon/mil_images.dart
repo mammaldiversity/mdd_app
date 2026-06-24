@@ -197,7 +197,7 @@ class _MilMetadataViewState extends State<MilMetadataView> {
                 TextSpan(
                   text: 'ASM Mammal Images Library',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   recognizer: _tapGestureRecognizer,
                 ),

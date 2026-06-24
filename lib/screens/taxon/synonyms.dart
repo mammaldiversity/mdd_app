@@ -80,12 +80,17 @@ class _SynonymContainerState extends State<SynonymContainer> {
               if (hasMore && !_showAll) ...[
                 const SizedBox(height: 8),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     setState(() {
                       _showAll = true;
                     });
                   },
-                  child: Text('Show all (${widget.data.length}) synonyms'),
+                  child: Text(
+                    'Show all (${widget.data.length}) synonyms',
+                  ),
                 ),
               ],
             ],
