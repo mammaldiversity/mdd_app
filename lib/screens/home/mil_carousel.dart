@@ -70,17 +70,19 @@ class _RandomMilCarouselState extends ConsumerState<RandomMilCarousel> {
         );
       },
       loading: () => const SizedBox(
-          height: 250, child: Center(child: SimpleLoadingOnly())),
+        height: 250,
+        child: Center(child: SimpleLoadingOnly()),
+      ),
       error: (e, s) => const SizedBox.shrink(),
     );
   }
 
   Widget _buildCarouselItem(
-      BuildContext context, RandomMilImagesWithTaxonomyResult item, int index) {
-    return CarouselItemWidget(
-      item: item,
-      isCenter: _currentPage == index,
-    );
+    BuildContext context,
+    RandomMilImagesWithTaxonomyResult item,
+    int index,
+  ) {
+    return CarouselItemWidget(item: item, isCenter: _currentPage == index);
   }
 }
 
@@ -105,10 +107,7 @@ class CarouselItemWidget extends ConsumerWidget {
       builder: (context, double value, child) {
         return Transform.scale(
           scale: value,
-          child: Opacity(
-            opacity: opacity,
-            child: child,
-          ),
+          child: Opacity(opacity: opacity, child: child),
         );
       },
       child: MouseRegion(
@@ -133,10 +132,12 @@ class CarouselItemWidget extends ConsumerWidget {
                     'assets/mil-images/${item.milId}.webp',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child:
-                          const Center(child: Icon(Icons.broken_image, size: 64)),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      child: const Center(
+                        child: Icon(Icons.broken_image, size: 64),
+                      ),
                     ),
                   ),
                 ),
@@ -151,7 +152,8 @@ class CarouselItemWidget extends ConsumerWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (item.mainCommonName != null && item.mainCommonName!.isNotEmpty)
+              if (item.mainCommonName != null &&
+                  item.mainCommonName!.isNotEmpty)
                 Text(
                   item.mainCommonName!,
                   style: TextStyle(

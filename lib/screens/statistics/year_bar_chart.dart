@@ -12,8 +12,10 @@ class YearBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (stats.discoveryYear.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryYearResult> data = stats.discoveryYear;
-    double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(
@@ -46,16 +48,18 @@ class YearBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal),
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()}',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         );
@@ -77,9 +81,13 @@ class YearBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
                               angle: -1.0,
-                              child: Text('${data[index].year?.toInt() ?? 0}',
-                                  style: TextStyle(
-                                      fontSize: 10, color: textColor)),
+                              child: Text(
+                                '${data[index].year?.toInt() ?? 0}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColor,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -111,7 +119,8 @@ class YearBarChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
@@ -124,7 +133,7 @@ class YearBarChart extends StatelessWidget {
                           color: Colors.deepPurpleAccent,
                           width: 16,
                           borderRadius: BorderRadius.circular(4),
-                        )
+                        ),
                       ],
                     );
                   }).toList(),

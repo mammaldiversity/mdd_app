@@ -37,8 +37,9 @@ class _DistributionMapState extends State<DistributionMap> {
     }
 
     try {
-      final String geoJsonData =
-          await rootBundle.loadString('assets/data/countries.geojson');
+      final String geoJsonData = await rootBundle.loadString(
+        'assets/data/countries.geojson',
+      );
       final Map<String, dynamic> json = jsonDecode(geoJsonData);
 
       final Set<String> knownCountries = {};
@@ -65,7 +66,10 @@ class _DistributionMapState extends State<DistributionMap> {
       }
 
       final loadedPolygons = TopoJsonParser.parsePolygons(
-          json, knownCountries, predictedCountries);
+        json,
+        knownCountries,
+        predictedCountries,
+      );
 
       if (mounted) {
         setState(() {
@@ -92,7 +96,8 @@ class _DistributionMapState extends State<DistributionMap> {
     }
 
     final hasPredicted = widget.countryDistribution!.contains('?');
-    final String mapDescription = 'The map below provides a general overview. '
+    final String mapDescription =
+        'The map below provides a general overview. '
         'Some species inhabit only specific regions within countries.';
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -120,8 +125,11 @@ class _DistributionMapState extends State<DistributionMap> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  _buildLegendItem(context,
-                      color: const Color(0xFF117554), text: 'Known'),
+                  _buildLegendItem(
+                    context,
+                    color: const Color(0xFF117554),
+                    text: 'Known',
+                  ),
                   const SizedBox(width: 16),
                   _buildLegendItem(
                     context,
@@ -161,9 +169,7 @@ class _DistributionMapState extends State<DistributionMap> {
                               userAgentPackageName: 'org.mammaldiversity.mdd',
                             ),
                             if (_polygons.isNotEmpty)
-                              PolygonLayer(
-                                polygons: _polygons,
-                              ),
+                              PolygonLayer(polygons: _polygons),
                             MediaQuery.removePadding(
                               context: context,
                               removeBottom: true,
@@ -177,28 +183,36 @@ class _DistributionMapState extends State<DistributionMap> {
                                   tooltip: 'Attributions',
                                   icon: Icon(
                                     Icons.info_outlined,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                                 closeButton: (context, close) => IconButton(
                                   onPressed: close,
                                   icon: Icon(
                                     Icons.cancel_outlined,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                                 attributions: [
                                   TextSourceAttribution(
                                     'OpenStreetMap contributors, © CARTO',
-                                    onTap: () => launchUrl(Uri.parse(
-                                        'https://carto.com/attributions')),
+                                    onTap: () => launchUrl(
+                                      Uri.parse(
+                                        'https://carto.com/attributions',
+                                      ),
+                                    ),
                                   ),
                                   TextSourceAttribution(
                                     'Country Boundaries: Natural Earth',
-                                    onTap: () => launchUrl(Uri.parse(
-                                        'https://www.naturalearthdata.com/')),
+                                    onTap: () => launchUrl(
+                                      Uri.parse(
+                                        'https://www.naturalearthdata.com/',
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -223,7 +237,9 @@ class _DistributionMapState extends State<DistributionMap> {
                               }
                             },
                             tooltip: 'Recenter Map',
-                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surface,
                             elevation: 4,
                             child: Icon(
                               Icons.center_focus_strong,
@@ -240,8 +256,12 @@ class _DistributionMapState extends State<DistributionMap> {
     );
   }
 
-  Widget _buildLegendItem(BuildContext context,
-      {required Color color, required String text, Color? borderColor}) {
+  Widget _buildLegendItem(
+    BuildContext context, {
+    required Color color,
+    required String text,
+    Color? borderColor,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -257,10 +277,7 @@ class _DistributionMapState extends State<DistributionMap> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(text, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

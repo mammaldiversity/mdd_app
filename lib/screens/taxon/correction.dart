@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mdd/services/app_services.dart';
 
-const _kCorrectionRequest = 'Please send any edits, corrections, '
+const _kCorrectionRequest =
+    'Please send any edits, corrections, '
     'or unfilled data (including full citations) to ';
 
 const _kMammalDiversityEmail = 'mammaldiversity@gmail.com';
@@ -26,11 +27,11 @@ class CorrectionRequest extends StatelessWidget {
                 child: Text(
                   _kMammalDiversityEmail,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

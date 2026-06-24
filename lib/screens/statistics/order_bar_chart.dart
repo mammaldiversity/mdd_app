@@ -11,10 +11,13 @@ class OrderBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.speciesPerOrder.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerOrderResult> data =
-        stats.speciesPerOrder.take(15).toList();
-    double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerOrderResult> data = stats.speciesPerOrder
+        .take(15)
+        .toList();
+    double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(
@@ -46,16 +49,18 @@ class OrderBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal),
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()}',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         );
@@ -81,9 +86,13 @@ class OrderBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
                               angle: -1.0,
-                              child: Text(text,
-                                  style: TextStyle(
-                                      fontSize: 10, color: textColor)),
+                              child: Text(
+                                text,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColor,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -115,7 +124,8 @@ class OrderBarChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
@@ -128,7 +138,7 @@ class OrderBarChart extends StatelessWidget {
                           color: Colors.deepPurpleAccent,
                           width: 20,
                           borderRadius: BorderRadius.circular(4),
-                        )
+                        ),
                       ],
                     );
                   }).toList(),

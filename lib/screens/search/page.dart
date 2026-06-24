@@ -40,32 +40,34 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
         automaticallyImplyLeading: false,
         actions: [
           Expanded(
-              child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: CommonSearchField(
-              focusNode: _focusNode,
-              controller: widget.controller,
-              onChanged: _searchDatabase,
-              onClear: () {
-                widget.controller.clear();
-                ref.invalidate(searchDatabaseProvider);
-                setState(() {});
-              },
-              onFiltering: () {
-                _showFilteringOptions();
-              },
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              child: CommonSearchField(
+                focusNode: _focusNode,
+                controller: widget.controller,
+                onChanged: _searchDatabase,
+                onClear: () {
+                  widget.controller.clear();
+                  ref.invalidate(searchDatabaseProvider);
+                  setState(() {});
+                },
+                onFiltering: () {
+                  _showFilteringOptions();
+                },
+              ),
             ),
-          )),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
             child: TextButton(
-                child: const Text('Done'),
-                onPressed: () {
-                  _focusNode.unfocus();
-                  widget.controller.clear();
-                  Navigator.pop(context);
-                }),
-          )
+              child: const Text('Done'),
+              onPressed: () {
+                _focusNode.unfocus();
+                widget.controller.clear();
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ],
       ),
       body: const SafeArea(
@@ -74,10 +76,12 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
             Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: InfoCard(
-                  text: 'Search for a species using the search bar above. '
-                      'You can also filter search results, '
-                      'update your search settings, '
-                      'and export your findings.'),
+                text:
+                    'Search for a species using the search bar above. '
+                    'You can also filter search results, '
+                    'update your search settings, '
+                    'and export your findings.',
+              ),
             ),
             Expanded(child: SpeciesListView()),
           ],
@@ -120,27 +124,27 @@ class SpeciesListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(searchDatabaseProvider).when(
-      data: (List<MainTaxonomyData> speciesList) {
-        return ListView.builder(
-          itemCount: speciesList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return SpeciesTile(
-              taxonData: speciesList[index],
-              isOddIndex: index.isOdd,
+    return ref
+        .watch(searchDatabaseProvider)
+        .when(
+          data: (List<MainTaxonomyData> speciesList) {
+            return ListView.builder(
+              itemCount: speciesList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return SpeciesTile(
+                  taxonData: speciesList[index],
+                  isOddIndex: index.isOdd,
+                );
+              },
             );
           },
+          loading: () {
+            return const Center(child: SimpleLoadingOnly());
+          },
+          error: (Object error, StackTrace stackTrace) {
+            return Text('Error: $error');
+          },
         );
-      },
-      loading: () {
-        return const Center(
-          child: SimpleLoadingOnly(),
-        );
-      },
-      error: (Object error, StackTrace stackTrace) {
-        return Text('Error: $error');
-      },
-    );
   }
 }
 
@@ -149,7 +153,9 @@ class SearchDatabaseInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(searchDatabaseProvider).when(
+    return ref
+        .watch(searchDatabaseProvider)
+        .when(
           data: (List<MainTaxonomyData> speciesList) {
             return Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
@@ -175,15 +181,8 @@ class EmptyData extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search,
-            size: 64,
-            color: Colors.grey,
-          ),
-          Text(
-            'No results found',
-            style: TextStyle(color: Colors.grey),
-          ),
+          Icon(Icons.search, size: 64, color: Colors.grey),
+          Text('No results found', style: TextStyle(color: Colors.grey)),
         ],
       ),
     );

@@ -74,31 +74,32 @@ class MddPagesState extends ConsumerState<MddPages> {
                     );
                     _focusNode.requestFocus();
                   },
-                )
+                ),
               ]
             : [],
       ),
       body: SafeArea(
-          child: Row(
-        children: [
-          if (screenType != ScreenType.small)
-            NavRail(
-              selectedIndex: _selectedPage,
-              onNavigationSelected: (int index) {
-                ref.invalidate(speciesListProvider);
-                setState(() {
-                  _selectedPage = index;
-                });
-              },
+        child: Row(
+          children: [
+            if (screenType != ScreenType.small)
+              NavRail(
+                selectedIndex: _selectedPage,
+                onNavigationSelected: (int index) {
+                  ref.invalidate(speciesListProvider);
+                  setState(() {
+                    _selectedPage = index;
+                  });
+                },
+              ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: _pages.elementAt(_selectedPage),
+              ),
             ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: _pages.elementAt(_selectedPage),
-            ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
       bottomNavigationBar: screenType == ScreenType.small
           ? NavBar(
               selectedIndex: _selectedPage,
@@ -140,9 +141,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             "By the American Society of Mammalogists",
-            style: const TextStyle(
-              fontSize: 12,
-            ),
+            style: const TextStyle(fontSize: 12),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -161,10 +160,13 @@ class SearchInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(speciesListProvider).when(
+    return ref
+        .watch(speciesListProvider)
+        .when(
           data: (List<MddGroupListResult> speciesList) {
             return SearchResultInfo(
-                foundRecords: speciesList.map((e) => e.id).toList());
+              foundRecords: speciesList.map((e) => e.id).toList(),
+            );
           },
           loading: () => const CircularProgressIndicator(),
           error: (Object error, StackTrace? stackTrace) {

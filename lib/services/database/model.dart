@@ -1,10 +1,7 @@
 import 'package:mdd/services/database/database.dart';
 
 class MddData {
-  const MddData({
-    required this.speciesData,
-    required this.synonyms,
-  });
+  const MddData({required this.speciesData, required this.synonyms});
 
   final TaxonomyData speciesData;
   final List<SynonymData> synonyms;
@@ -14,7 +11,8 @@ class MddData {
       speciesData: TaxonomyData.fromJson(json['speciesData']),
       synonyms: json['synonyms'] != null && json['synonyms'].isNotEmpty
           ? List<SynonymData>.from(
-              json['synonyms']?.map((data) => SynonymData.fromJson(data)) ?? [])
+              json['synonyms']?.map((data) => SynonymData.fromJson(data)) ?? [],
+            )
           : [],
     );
   }

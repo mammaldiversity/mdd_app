@@ -38,9 +38,7 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
           Theme.of(context).colorScheme.onSurface.withAlpha(32),
         ),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         elevation: const WidgetStatePropertyAll(0), // Convert int to double
         hintText: 'Search database',
@@ -146,9 +144,9 @@ class FilterGroupWidget extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         ...options.map(
@@ -165,17 +163,16 @@ class FilterGroupWidget extends StatelessWidget {
 }
 
 class SearchResultInfo extends ConsumerWidget {
-  const SearchResultInfo({
-    super.key,
-    required this.foundRecords,
-  });
+  const SearchResultInfo({super.key, required this.foundRecords});
 
   final List<int> foundRecords;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int foundRecordCount = foundRecords.length;
-    return ref.watch(totalRecordsProvider).when(
+    return ref
+        .watch(totalRecordsProvider)
+        .when(
           data: (int totalRecords) {
             return totalRecords == foundRecordCount || foundRecordCount == 0
                 ? const SizedBox.shrink()
@@ -222,8 +219,12 @@ class SearchResultInfo extends ConsumerWidget {
 }
 
 class SearchInfoBox extends StatelessWidget {
-  const SearchInfoBox(
-      {super.key, required this.child, this.color, this.padding = 16});
+  const SearchInfoBox({
+    super.key,
+    required this.child,
+    this.color,
+    this.padding = 16,
+  });
 
   final double padding;
   final Color? color;
@@ -232,13 +233,14 @@ class SearchInfoBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 48,
-        padding: EdgeInsets.symmetric(horizontal: padding),
-        decoration: BoxDecoration(
-          color: color ?? Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(child: child));
+      height: 48,
+      padding: EdgeInsets.symmetric(horizontal: padding),
+      decoration: BoxDecoration(
+        color: color ?? Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(child: child),
+    );
   }
 }
 
@@ -298,10 +300,7 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
 
   void _showSnackBar(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 10),
-        content: Text(msg),
-      ),
+      SnackBar(duration: const Duration(seconds: 10), content: Text(msg)),
     );
   }
 }

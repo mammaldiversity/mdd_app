@@ -11,7 +11,8 @@ import 'package:mdd/services/providers/database.dart';
 
 final searchDatabaseProvider =
     AsyncNotifierProvider<SearchDatabase, List<MainTaxonomyData>>(
-        () => SearchDatabase());
+      () => SearchDatabase(),
+    );
 
 class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
   @override
@@ -24,8 +25,9 @@ class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      return await MDDSearch(ref.read(databaseProvider))
-          .searchSpecies(query, filterBy: filterBy);
+      return await MDDSearch(
+        ref.read(databaseProvider),
+      ).searchSpecies(query, filterBy: filterBy);
     });
   }
 }
@@ -36,7 +38,8 @@ final totalRecordsProvider = FutureProvider<int>((ref) async {
 
 final speciesListProvider =
     AsyncNotifierProvider<SpeciesList, List<MddGroupListResult>>(
-        () => SpeciesList());
+      () => SpeciesList(),
+    );
 
 class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   Future<List<MddGroupListResult>> _fetchSpeciesList() async {
@@ -52,14 +55,16 @@ class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
-      return await MDDSearch(ref.read(databaseProvider))
-          .searchTable(query, filterBy: filterBy);
+      return await MDDSearch(
+        ref.read(databaseProvider),
+      ).searchTable(query, filterBy: filterBy);
     });
   }
 }
 
-final currentMddIDProvider =
-    NotifierProvider<CurrentMddID, int>(() => CurrentMddID());
+final currentMddIDProvider = NotifierProvider<CurrentMddID, int>(
+  () => CurrentMddID(),
+);
 
 class CurrentMddID extends Notifier<int> {
   @override
@@ -72,8 +77,9 @@ class CurrentMddID extends Notifier<int> {
   }
 }
 
-final taxonDataProvider =
-    AsyncNotifierProvider<TaxonData, db.TaxonomyData>(() => TaxonData());
+final taxonDataProvider = AsyncNotifierProvider<TaxonData, db.TaxonomyData>(
+  () => TaxonData(),
+);
 
 class TaxonData extends AsyncNotifier<db.TaxonomyData> {
   Future<db.TaxonomyData> _fetch() async {
@@ -89,13 +95,15 @@ class TaxonData extends AsyncNotifier<db.TaxonomyData> {
 
 final synonymDataProvider =
     AsyncNotifierProvider<SynonymData, List<db.SynonymData>>(
-        () => SynonymData());
+      () => SynonymData(),
+    );
 
 class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   Future<List<db.SynonymData>> _fetch() async {
     final int mddID = ref.watch(currentMddIDProvider);
-    return await MddQuery(ref.watch(databaseProvider))
-        .retrieveSynonymData(mddID);
+    return await MddQuery(
+      ref.watch(databaseProvider),
+    ).retrieveSynonymData(mddID);
   }
 
   @override
@@ -105,19 +113,26 @@ class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
 }
 
 final mainTaxonomyDataProvider =
-    FutureProvider.family<List<MainTaxonomyData>, List<int>>(
-        (ref, mddIDList) async {
-  return MddQuery(ref.watch(databaseProvider)).retrieveSpeciesList(mddIDList);
-});
+    FutureProvider.family<List<MainTaxonomyData>, List<int>>((
+      ref,
+      mddIDList,
+    ) async {
+      return MddQuery(
+        ref.watch(databaseProvider),
+      ).retrieveSpeciesList(mddIDList);
+    });
 
-final milDataFamilyProvider =
-    FutureProvider.family<List<db.MilDataData>, int>((ref, mddID) async {
+final milDataFamilyProvider = FutureProvider.family<List<db.MilDataData>, int>((
+  ref,
+  mddID,
+) async {
   return MddQuery(ref.watch(databaseProvider)).retrieveMilData(mddID);
 });
 
 final milDataProvider =
     AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
-        () => MilDataNotifier());
+      () => MilDataNotifier(),
+    );
 
 class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
   Future<List<db.MilDataData>> _fetch() async {
@@ -131,9 +146,10 @@ class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
   }
 }
 
-final randomMilImagesProvider = FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
-  return MddQuery(ref.watch(databaseProvider)).getRandomMilImages();
-});
+final randomMilImagesProvider =
+    FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
+      return MddQuery(ref.watch(databaseProvider)).getRandomMilImages();
+    });
 
 List<Map<String, dynamic>> _parseMilJson(String jsonString) {
   final List<dynamic> parsed = jsonDecode(jsonString);
@@ -143,7 +159,9 @@ List<Map<String, dynamic>> _parseMilJson(String jsonString) {
   return list.take(20).toList();
 }
 
-final milJsonCarouselProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final milJsonCarouselProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
   final jsonString = await rootBundle.loadString('assets/data/mil.json');
   return await compute(_parseMilJson, jsonString);
 });

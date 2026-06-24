@@ -12,7 +12,9 @@ class MilImagesWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(milDataProvider).when(
+    return ref
+        .watch(milDataProvider)
+        .when(
           data: (List<MilDataData> data) {
             if (data.isEmpty) return const SizedBox.shrink();
             return MilImagesViewer(data: data);
@@ -52,66 +54,70 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
     final mil = widget.data[_currentIndex];
 
     return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                MilImage(mil: mil),
-                if (widget.data.length > 1) ...[
-                  Positioned(
-                    left: 8,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black54,
-                      child: IconButton(
-                        icon:
-                            const Icon(Icons.chevron_left, color: Colors.white),
-                        onPressed: _prevImage,
-                      ),
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              MilImage(mil: mil),
+              if (widget.data.length > 1) ...[
+                Positioned(
+                  left: 8,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black54,
+                    child: IconButton(
+                      icon: const Icon(Icons.chevron_left, color: Colors.white),
+                      onPressed: _prevImage,
                     ),
                   ),
-                  Positioned(
-                    right: 8,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black54,
-                      child: IconButton(
-                        icon: const Icon(Icons.chevron_right,
-                            color: Colors.white),
-                        onPressed: _nextImage,
+                ),
+                Positioned(
+                  right: 8,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.black54,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white,
                       ),
+                      onPressed: _nextImage,
                     ),
                   ),
-                ],
-                if (widget.data.length > 1)
-                  Positioned(
-                    bottom: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainer
-                            .withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        '${_currentIndex + 1} / ${widget.data.length}',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
-                      ),
-                    ),
-                  ),
+                ),
               ],
-            ),
-            MilMetadataView(mil: mil),
-          ],
-        ));
+              if (widget.data.length > 1)
+                Positioned(
+                  bottom: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainer.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      '${_currentIndex + 1} / ${widget.data.length}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          MilMetadataView(mil: mil),
+        ],
+      ),
+    );
   }
 }
 
@@ -123,14 +129,17 @@ class MilImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
       child: Image.asset(
         'assets/mil-images/${mil.milId}.webp',
         fit: BoxFit.cover,
         width: double.infinity,
         errorBuilder: (context, error, stackTrace) => const SizedBox(
-            height: 300,
-            child: Center(child: Icon(Icons.broken_image, size: 64))),
+          height: 300,
+          child: Center(child: Icon(Icons.broken_image, size: 64)),
+        ),
       ),
     );
   }
@@ -170,7 +179,9 @@ class _MilMetadataViewState extends State<MilMetadataView> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary.withAlpha(32),
         borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,8 +230,9 @@ class MilMetadataRow extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
           children: [
             TextSpan(
-                text: '$label : ',
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+              text: '$label : ',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             TextSpan(text: value),
           ],
         ),

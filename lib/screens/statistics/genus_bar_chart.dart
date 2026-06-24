@@ -11,10 +11,13 @@ class GenusBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.speciesPerGenus.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerGenusResult> data =
-        stats.speciesPerGenus.take(15).toList();
-    double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerGenusResult> data = stats.speciesPerGenus
+        .take(15)
+        .toList();
+    double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(
@@ -46,16 +49,18 @@ class GenusBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal),
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()}',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         );
@@ -82,9 +87,13 @@ class GenusBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
                               angle: -1.0,
-                              child: Text(text,
-                                  style: TextStyle(
-                                      fontSize: 10, color: textColor)),
+                              child: Text(
+                                text,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColor,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -116,7 +125,8 @@ class GenusBarChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
@@ -129,7 +139,7 @@ class GenusBarChart extends StatelessWidget {
                           color: Colors.teal,
                           width: 16,
                           borderRadius: BorderRadius.circular(4),
-                        )
+                        ),
                       ],
                     );
                   }).toList(),

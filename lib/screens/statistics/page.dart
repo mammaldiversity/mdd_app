@@ -37,7 +37,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final isWide = constraints.maxWidth >= 600;
-  
+
                 Widget buildRow(Widget chart1, Widget chart2) {
                   if (isWide) {
                     return Row(
@@ -50,21 +50,18 @@ class _MddStatsState extends ConsumerState<MddStats> {
                     );
                   } else {
                     return Column(
-                      children: [
-                        chart1,
-                        const SizedBox(height: 16),
-                        chart2,
-                      ],
+                      children: [chart1, const SizedBox(height: 16), chart2],
                     );
                   }
                 }
-  
+
                 return ListView(
                   padding: const EdgeInsets.all(16.0),
                   children: [
                     const InfoCard(
-                        text:
-                            'View visual summaries and metrics on mammalian diversity, geography, and conservation.'),
+                      text:
+                          'View visual summaries and metrics on mammalian diversity, geography, and conservation.',
+                    ),
                     const SizedBox(height: 16),
                     buildRow(
                       ChartCard(
@@ -112,7 +109,8 @@ class _MddStatsState extends ConsumerState<MddStats> {
                     const SizedBox(height: 16),
                     buildRow(
                       ChartCard(
-                        title: 'Species with the Most Names and Synonyms (Top 15)',
+                        title:
+                            'Species with the Most Names and Synonyms (Top 15)',
                         chart: SynonymsBarChart(stats: stats),
                       ),
                       ChartCard(

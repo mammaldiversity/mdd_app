@@ -9,7 +9,9 @@ class InfoCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(showInfoTextProvider).when(
+    return ref
+        .watch(showInfoTextProvider)
+        .when(
           data: (showInfo) {
             if (!showInfo) return const SizedBox.shrink();
             return Material(
@@ -21,15 +23,17 @@ class InfoCard extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.info_outline,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         text,
                         style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -37,9 +41,11 @@ class InfoCard extends ConsumerWidget {
                       onTap: () {
                         ref.read(showInfoTextProvider.notifier).toggle(false);
                       },
-                      child: Icon(Icons.close,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          size: 20),
+                      child: Icon(
+                        Icons.close,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),

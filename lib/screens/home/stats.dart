@@ -9,17 +9,23 @@ class MddStatistics extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(statisticsProvider).when(
+    return ref
+        .watch(statisticsProvider)
+        .when(
           data: (stats) {
             final recentlyExtinctCount = stats.extinctSpecies
-                .firstWhere((e) => e.isExtinct == 1,
-                    orElse: () =>
-                        StatExtinctSpeciesResult(isExtinct: 1, count: 0))
+                .firstWhere(
+                  (e) => e.isExtinct == 1,
+                  orElse: () =>
+                      StatExtinctSpeciesResult(isExtinct: 1, count: 0),
+                )
                 .count;
             final domesticCount = stats.domesticSpecies
-                .firstWhere((e) => e.isDomestic == 1,
-                    orElse: () =>
-                        StatDomesticSpeciesResult(isDomestic: 1, count: 0))
+                .firstWhere(
+                  (e) => e.isDomestic == 1,
+                  orElse: () =>
+                      StatDomesticSpeciesResult(isDomestic: 1, count: 0),
+                )
                 .count;
 
             final livingCount = stats.totalSpeciesCount - recentlyExtinctCount;
@@ -39,17 +45,25 @@ class MddStatistics extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                          child: StatCard(
-                              title: 'Orders', count: stats.totalOrdersCount)),
+                        child: StatCard(
+                          title: 'Orders',
+                          count: stats.totalOrdersCount,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
-                          child: StatCard(
-                              title: 'Families',
-                              count: stats.totalFamiliesCount)),
+                        child: StatCard(
+                          title: 'Families',
+                          count: stats.totalFamiliesCount,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
-                          child: StatCard(
-                              title: 'Genera', count: stats.totalGeneraCount)),
+                        child: StatCard(
+                          title: 'Genera',
+                          count: stats.totalGeneraCount,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -80,8 +94,9 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color:
-          Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(150),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withAlpha(150),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -90,16 +105,16 @@ class StatCard extends StatelessWidget {
             Text(
               count.toString(),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -128,8 +143,9 @@ class SpeciesDetailedStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      color:
-          Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(150),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withAlpha(150),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -137,17 +153,17 @@ class SpeciesDetailedStatCard extends StatelessWidget {
           children: [
             Text(
               'Species',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
               total.toString(),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -158,7 +174,9 @@ class SpeciesDetailedStatCard extends StatelessWidget {
                 SpeciesSubStats(label: 'Living', value: living),
                 SpeciesSubStats(label: 'Living Wild', value: livingWild),
                 SpeciesSubStats(
-                    label: 'Recently Extinct', value: recentlyExtinct),
+                  label: 'Recently Extinct',
+                  value: recentlyExtinct,
+                ),
                 SpeciesSubStats(label: 'Domestic', value: domestic),
               ],
             ),
@@ -170,11 +188,7 @@ class SpeciesDetailedStatCard extends StatelessWidget {
 }
 
 class SpeciesSubStats extends StatelessWidget {
-  const SpeciesSubStats({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const SpeciesSubStats({super.key, required this.label, required this.value});
 
   final String label;
   final int value;
@@ -186,15 +200,15 @@ class SpeciesSubStats extends StatelessWidget {
         Text(
           value.toString(),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

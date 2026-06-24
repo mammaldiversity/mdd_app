@@ -41,21 +41,22 @@ class SettingSection extends StatelessWidget {
     return CommonCard(
       title: 'Settings',
       child: Container(
-          padding: const EdgeInsets.all(16),
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
-          child: Column(
-            children: [
-              const AppearanceSetting(),
+        padding: const EdgeInsets.all(16),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        child: Column(
+          children: [
+            const AppearanceSetting(),
+            const SizedBox(height: 16),
+            const DisplaySetting(),
+            const SizedBox(height: 16),
+            const DataUpdatesSetting(),
+            if (isDesktop) ...[
               const SizedBox(height: 16),
-              const DisplaySetting(),
-              const SizedBox(height: 16),
-              const DataUpdatesSetting(),
-              if (isDesktop) ...[
-                const SizedBox(height: 16),
-                const DatabaseLocationSetting(),
-              ],
+              const DatabaseLocationSetting(),
             ],
-          )),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -120,15 +121,16 @@ class UrlTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        leading: Icon(icon ?? Icons.public),
-        title: Text(title),
-        trailing: const Icon(Icons.open_in_new),
-        onTap: () {
-          launchURL(url);
-        });
+      tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      leading: Icon(icon ?? Icons.public),
+      title: Text(title),
+      trailing: const Icon(Icons.open_in_new),
+      onTap: () {
+        launchURL(url);
+      },
+    );
   }
 }

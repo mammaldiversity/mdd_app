@@ -81,27 +81,34 @@ class StatisticsService {
       ..sort((a, b) => b.value.compareTo(a.value));
     final topCountries = sortedCountries.take(15).toList();
 
-    final speciesWithMostImages =
-        await mddQuery.statSpeciesWithMostImages().get();
+    final speciesWithMostImages = await mddQuery
+        .statSpeciesWithMostImages()
+        .get();
 
-    final speciesWithMostSynonyms =
-        await mddQuery.statSpeciesWithMostSynonyms().get();
+    final speciesWithMostSynonyms = await mddQuery
+        .statSpeciesWithMostSynonyms()
+        .get();
 
     final rawTypeKind = await mddQuery.statTypeKindProportion().get();
     final cleanedTypeKind = cleanTypeKindData(rawTypeKind);
 
     // count might be 0, so fallback to 0
-    final speciesWithImagesRow =
-        await mddQuery.statSpeciesWithImagesCount().getSingle();
+    final speciesWithImagesRow = await mddQuery
+        .statSpeciesWithImagesCount()
+        .getSingle();
     final speciesWithImagesCount = speciesWithImagesRow;
 
     final totalSpeciesRow = await mddQuery.statTotalSpeciesCount().getSingle();
     final totalSpeciesCount = totalSpeciesRow;
 
     final totalOrdersCount = await mddQuery.statTotalOrdersCount().getSingle();
-    final totalFamiliesCount = await mddQuery.statTotalFamiliesCount().getSingle();
+    final totalFamiliesCount = await mddQuery
+        .statTotalFamiliesCount()
+        .getSingle();
     final totalGeneraCount = await mddQuery.statTotalGeneraCount().getSingle();
-    final livingWildSpeciesCount = await mddQuery.statLivingWildSpeciesCount().getSingle();
+    final livingWildSpeciesCount = await mddQuery
+        .statLivingWildSpeciesCount()
+        .getSingle();
 
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,
@@ -127,7 +134,8 @@ class StatisticsService {
   }
 
   static List<MapEntry<String, int>> cleanIucnStatusData(
-      List<StatSpeciesByIucnStatusResult> rawIucn) {
+    List<StatSpeciesByIucnStatusResult> rawIucn,
+  ) {
     final Map<String, int> iucnCounts = {};
     for (var row in rawIucn) {
       String status = row.name ?? '';
@@ -144,7 +152,8 @@ class StatisticsService {
   }
 
   static List<MapEntry<String, int>> cleanBiogeographicRealmData(
-      List<StatSpeciesByBiogeographicRealmResult> rawRealm) {
+    List<StatSpeciesByBiogeographicRealmResult> rawRealm,
+  ) {
     final Map<String, int> realmCounts = {};
     for (var row in rawRealm) {
       String realmStr = row.name ?? '';
@@ -164,7 +173,8 @@ class StatisticsService {
   }
 
   static List<MapEntry<String, int>> cleanTypeKindData(
-      List<StatTypeKindProportionResult> rawTypeKind) {
+    List<StatTypeKindProportionResult> rawTypeKind,
+  ) {
     final Map<String, int> typeKindCounts = {};
     for (var row in rawTypeKind) {
       String tkStr = row.name ?? '';

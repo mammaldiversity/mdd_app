@@ -10,10 +10,7 @@ class AppVersionView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'App version',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
+        Text('App version', style: Theme.of(context).textTheme.labelLarge),
         const VersionText(),
       ],
     );

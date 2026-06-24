@@ -40,7 +40,8 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
                           return;
                         }
                         touchedIndex = pieTouchResponse
-                            .touchedSection!.touchedSectionIndex;
+                            .touchedSection!
+                            .touchedSectionIndex;
                       });
                     },
                   ),

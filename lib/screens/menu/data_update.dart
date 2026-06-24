@@ -12,9 +12,7 @@ class DataUpdatePage extends StatelessWidget {
     final isWide = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Data Update'),
-      ),
+      appBar: AppBar(title: const Text('Data Update')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -53,7 +51,8 @@ class _MddUpdateSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading = status.state == UpdateState.downloading ||
+    final isLoading =
+        status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
     final isWide = MediaQuery.of(context).size.width > 600;
@@ -89,7 +88,8 @@ class _MilUpdateSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading = status.state == UpdateState.downloading ||
+    final isLoading =
+        status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
     final isWide = MediaQuery.of(context).size.width > 600;
@@ -130,7 +130,8 @@ class _UpdateProgress extends ConsumerWidget {
       children: [
         const SizedBox(height: 32),
         LinearProgressIndicator(
-            value: status.progress > 0 ? status.progress : null),
+          value: status.progress > 0 ? status.progress : null,
+        ),
         const SizedBox(height: 16),
         SelectableText(
           status.message,
@@ -205,8 +206,9 @@ class _DataUpdateSection extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment:
-            height != null ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: height != null
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         mainAxisSize: height != null ? MainAxisSize.max : MainAxisSize.min,
         children: [
           if (content != null) ...[
@@ -237,10 +239,7 @@ class _DataUpdateSection extends StatelessWidget {
     );
 
     if (height != null) {
-      return SizedBox(
-        height: height,
-        child: card,
-      );
+      return SizedBox(height: height, child: card);
     }
     return card;
   }
@@ -252,7 +251,8 @@ class _ResetDatabaseSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading = status.state == UpdateState.downloading ||
+    final isLoading =
+        status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
 
@@ -277,7 +277,8 @@ class _ResetDatabaseSection extends ConsumerWidget {
                         builder: (context) => AlertDialog(
                           title: const Text('Reset Database'),
                           content: const Text(
-                              'Are you sure you want to reset the database to the default bundle version? This will discard all downloaded/imported updates.'),
+                            'Are you sure you want to reset the database to the default bundle version? This will discard all downloaded/imported updates.',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
@@ -286,8 +287,9 @@ class _ResetDatabaseSection extends ConsumerWidget {
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
                               style: TextButton.styleFrom(
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                               child: const Text('Reset'),
                             ),
@@ -312,7 +314,6 @@ class _ResetDatabaseSection extends ConsumerWidget {
   }
 }
 
-
 class MilUpdatePreview extends ConsumerWidget {
   const MilUpdatePreview({super.key});
 
@@ -325,9 +326,7 @@ class MilUpdatePreview extends ConsumerWidget {
         if (data.isEmpty) {
           return const SizedBox(
             height: 120,
-            child: Center(
-              child: Icon(Icons.image_not_supported, size: 48),
-            ),
+            child: Center(child: Icon(Icons.image_not_supported, size: 48)),
           );
         }
 
@@ -361,13 +360,13 @@ class MilUpdatePreview extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            child: const Center(
-                              child: Icon(Icons.broken_image, size: 32),
-                            ),
-                          ),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
+                                child: const Center(
+                                  child: Icon(Icons.broken_image, size: 32),
+                                ),
+                              ),
                         ),
                       ),
                     ),
@@ -379,15 +378,11 @@ class MilUpdatePreview extends ConsumerWidget {
       },
       loading: () => const SizedBox(
         height: 120,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       ),
       error: (e, s) => const SizedBox(
         height: 120,
-        child: Center(
-          child: Icon(Icons.broken_image, size: 48),
-        ),
+        child: Center(child: Icon(Icons.broken_image, size: 48)),
       ),
     );
   }
