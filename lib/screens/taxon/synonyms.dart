@@ -176,6 +176,9 @@ class SynonymDialogs extends StatelessWidget {
       ),
       actions: <Widget>[
         TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.secondary,
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -300,7 +303,53 @@ class OtherSynonymData extends StatelessWidget {
             title: "Authority publication",
             content: data.citationGroup,
           ),
-          ContentText(title: "Name usages", content: data.nameUsages),
+          NameUsageList(content: data.nameUsages),
+        ],
+      ),
+    );
+  }
+}
+
+class NameUsageList extends StatelessWidget {
+  const NameUsageList({super.key, required this.content});
+
+  final String? content;
+
+  @override
+  Widget build(BuildContext context) {
+    if (content == null || content!.isEmpty || content == 'NA') {
+      return const SizedBox.shrink();
+    }
+
+    final usages = content!
+        .split(RegExp(r'[·|]'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            "Name usages",
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.left,
+          ),
+          const SizedBox(height: 4),
+          ...usages.map(
+            (usage) => Padding(
+              padding: const EdgeInsets.only(bottom: 2, left: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('• '),
+                  Expanded(child: RichTextContent(content: usage)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
