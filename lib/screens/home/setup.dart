@@ -11,9 +11,7 @@ class SetupPage extends StatelessWidget {
     final isDesktop = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Welcome'),
-      ),
+      appBar: AppBar(title: const Text('Welcome')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -113,7 +111,7 @@ class _SetupImageState extends State<SetupImage> {
             color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: ClipRRect(
@@ -133,8 +131,9 @@ class _SetupImageState extends State<SetupImage> {
                   key: ValueKey<String>(_imagePaths[_currentIndex]),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => const SizedBox(
-                      height: 300,
-                      child: Center(child: Icon(Icons.broken_image, size: 64))),
+                    height: 300,
+                    child: Center(child: Icon(Icons.broken_image, size: 64)),
+                  ),
                 ),
               ),
       ),
@@ -160,19 +159,18 @@ class SetupContent extends StatelessWidget {
         const SizedBox(height: 24),
         Text(
           '⏳ Setting up MDD...',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .secondaryContainer
-                .withValues(alpha: 0.5),
+            color: Theme.of(
+              context,
+            ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -209,10 +207,9 @@ class OtherFeatures extends StatelessWidget {
       children: [
         Text(
           'App Features:',
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Text(

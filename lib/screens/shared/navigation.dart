@@ -59,12 +59,14 @@ class NavBar extends StatelessWidget {
           : NavigationDestinationLabelBehavior.alwaysShow,
       indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
       destinations: navigationProperties
-          .map((NavigationProperties nav) => NavigationDestination(
-                icon: nav.icon,
-                selectedIcon: nav.selectedIcon,
-                label: nav.label,
-                tooltip: isSmallScreen ? nav.label : null,
-              ))
+          .map(
+            (NavigationProperties nav) => NavigationDestination(
+              icon: nav.icon,
+              selectedIcon: nav.selectedIcon,
+              label: nav.label,
+              tooltip: isSmallScreen ? nav.label : null,
+            ),
+          )
           .toList(),
     );
   }

@@ -26,11 +26,11 @@ class CorrectionRequest extends StatelessWidget {
                 child: Text(
                   _kMammalDiversityEmail,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

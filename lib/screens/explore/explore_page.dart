@@ -23,13 +23,18 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
     return SafeArea(
       child: ref.watch(speciesListProvider).when(
             data: (List<MddGroupListResult> speciesList) {
-              return ListView(children: <Widget>[
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: InfoCard(text: 'Browse the taxonomy of mammals, from order down to species. Click on a species to view its details or use the search bar to find a specific species.'),
-                ),
-                ..._groupByOrder(speciesList).entries.map(
-                  (MapEntry<String, List<MddGroupListResult>> entry) {
+              return ListView(
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: InfoCard(
+                      text:
+                          'Browse the taxonomy of mammals, from order down to species. Click on a species to view its details or use the search bar to find a specific species.',
+                    ),
+                  ),
+                  ..._groupByOrder(speciesList).entries.map((
+                    MapEntry<String, List<MddGroupListResult>> entry,
+                  ) {
                     return ExpansionTile(
                       iconColor: Theme.of(context).colorScheme.secondary,
                       leading: SvgPicture.asset(
@@ -55,20 +60,20 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
                       ),
                       children: <Widget>[FamilyGroups(taxonList: entry.value)],
                     );
-                  },
-                ),
-              ]);
+                  }),
+                ],
+              );
             },
             loading: () => const DataLoadingMessages(isSimple: false),
-            error: (Object error, StackTrace stackTrace) => Center(
-              child: Text('Error: $error. Stack trace: $stackTrace'),
-            ),
+            error: (Object error, StackTrace stackTrace) =>
+                Center(child: Text('Error: $error. Stack trace: $stackTrace')),
           ),
     );
   }
 
   Map<String, List<MddGroupListResult>> _groupByOrder(
-      List<MddGroupListResult> taxonList) {
+    List<MddGroupListResult> taxonList,
+  ) {
     return TaxonGroupService(taxonList: taxonList).groupByOrder();
   }
 }
@@ -82,28 +87,30 @@ class FamilyGroups extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        ..._groupByFamily(taxonList).entries.map(
-          (MapEntry<String, List<MddGroupListResult>> entry) {
-            return ExpansionTile(
-              iconColor: Theme.of(context).colorScheme.secondary,
-              leading: Icon(Icons.view_list_rounded,
-                  color:
-                      Theme.of(context).colorScheme.secondary.withAlpha(200)),
-              title: Text(entry.key,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  overflow: TextOverflow.ellipsis),
-              children: <Widget>[
-                GenusGroup(taxonList: entry.value),
-              ],
-            );
-          },
-        ),
+        ..._groupByFamily(taxonList).entries.map((
+          MapEntry<String, List<MddGroupListResult>> entry,
+        ) {
+          return ExpansionTile(
+            iconColor: Theme.of(context).colorScheme.secondary,
+            leading: Icon(
+              Icons.view_list_rounded,
+              color: Theme.of(context).colorScheme.secondary.withAlpha(200),
+            ),
+            title: Text(
+              entry.key,
+              style: Theme.of(context).textTheme.titleMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+            children: <Widget>[GenusGroup(taxonList: entry.value)],
+          );
+        }),
       ],
     );
   }
 
   Map<String, List<MddGroupListResult>> _groupByFamily(
-      List<MddGroupListResult> taxonList) {
+    List<MddGroupListResult> taxonList,
+  ) {
     return TaxonGroupService(taxonList: taxonList).groupByFamily();
   }
 }
@@ -117,31 +124,32 @@ class GenusGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        ..._groupByGenus(taxonList).entries.map(
-          (MapEntry<String, List<MddGroupListResult>> entry) {
-            return ExpansionTile(
-              iconColor: Theme.of(context).colorScheme.secondary,
-              backgroundColor:
-                  Theme.of(context).colorScheme.secondary.withAlpha(40),
-              title: Text(
-                entry.key,
-                style: Theme.of(context).textTheme.titleMedium?.apply(
-                      fontStyle: FontStyle.italic,
-                    ),
-              ),
-              children: <Widget>[
-                SpeciesGroups(
-                    taxonIDList: entry.value.map((e) => e.id).toList()),
-              ],
-            );
-          },
-        ),
+        ..._groupByGenus(taxonList).entries.map((
+          MapEntry<String, List<MddGroupListResult>> entry,
+        ) {
+          return ExpansionTile(
+            iconColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.secondary.withAlpha(40),
+            title: Text(
+              entry.key,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.apply(fontStyle: FontStyle.italic),
+            ),
+            children: <Widget>[
+              SpeciesGroups(taxonIDList: entry.value.map((e) => e.id).toList()),
+            ],
+          );
+        }),
       ],
     );
   }
 
   Map<String, List<MddGroupListResult>> _groupByGenus(
-      List<MddGroupListResult> taxonList) {
+    List<MddGroupListResult> taxonList,
+  ) {
     return TaxonGroupService(taxonList: taxonList).groupByGenus();
   }
 }
@@ -173,12 +181,13 @@ class SpeciesGroups extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                    padding: EdgeInsets.all(8),
-                    child: SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: CircularProgressIndicator(),
-                    )),
+                  padding: EdgeInsets.all(8),
+                  child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
                 Text('Retrieving species list...'),
               ],
             ),
@@ -232,8 +241,9 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
         if (landscapeImages.isEmpty) {
           return Container(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child:
-                const Center(child: Icon(Icons.image_not_supported, size: 24)),
+            child: const Center(
+              child: Icon(Icons.image_not_supported, size: 24),
+            ),
           );
         }
 
@@ -316,12 +326,16 @@ class SpeciesTile extends ConsumerWidget {
                 type: MaterialType.transparency,
                 child: ListTile(
                   contentPadding: const EdgeInsets.only(
-                      left: 116, right: 16, top: 8, bottom: 8),
+                    left: 116,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                  ),
                   title: Text(
                     '${taxonData.genus} ${taxonData.specificEpithet}',
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontStyle: FontStyle.italic,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.apply(fontStyle: FontStyle.italic),
                   ),
                   subtitle: Text(
                     taxonData.mainCommonName,

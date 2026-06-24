@@ -22,8 +22,9 @@ class ChartCard extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
         ),
         child: SizedBox(height: height, child: chart),
       ),

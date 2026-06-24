@@ -21,31 +21,41 @@ void main() {
             "geometries": [
               {
                 "type": "Polygon",
-                "arcs": [[0]],
-                "properties": {
-                  "ISO_A2": "US"
-                }
+                "arcs": [
+                  [0],
+                ],
+                "properties": {"ISO_A2": "US"},
               },
               {
                 "type": "Polygon",
-                "arcs": [[1]],
-                "properties": {
-                  "ISO_A2": "MX"
-                }
-              }
-            ]
-          }
+                "arcs": [
+                  [1],
+                ],
+                "properties": {"ISO_A2": "MX"},
+              },
+            ],
+          },
         },
         "arcs": [
-          [[1.0, 1.0], [2.0, 2.0]],
-          [[3.0, 3.0], [4.0, 4.0]]
-        ]
+          [
+            [1.0, 1.0],
+            [2.0, 2.0],
+          ],
+          [
+            [3.0, 3.0],
+            [4.0, 4.0],
+          ],
+        ],
       };
 
       final knownCountries = {'US'};
       final predictedCountries = {'MX'};
 
-      final polygons = TopoJsonParser.parsePolygons(json, knownCountries, predictedCountries);
+      final polygons = TopoJsonParser.parsePolygons(
+        json,
+        knownCountries,
+        predictedCountries,
+      );
       expect(polygons.length, 2);
 
       // Verify colors
@@ -53,7 +63,10 @@ void main() {
       final predictedPoly = polygons[1];
 
       expect(knownPoly.color, const Color(0xFF117554).withValues(alpha: 0.5));
-      expect(predictedPoly.color, const Color(0xFFFFEB00).withValues(alpha: 0.5));
+      expect(
+        predictedPoly.color,
+        const Color(0xFFFFEB00).withValues(alpha: 0.5),
+      );
     });
   });
 }

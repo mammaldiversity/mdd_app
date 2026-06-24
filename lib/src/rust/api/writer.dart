@@ -26,12 +26,13 @@ class DatabaseWriter {
     required String outputDir,
     required String outputFilename,
     required bool toCsv,
-  }) => RustLib.instance.api.crateApiWriterDatabaseWriterNew(
-    jsonData: jsonData,
-    outputDir: outputDir,
-    outputFilename: outputFilename,
-    toCsv: toCsv,
-  );
+  }) =>
+      RustLib.instance.api.crateApiWriterDatabaseWriterNew(
+        jsonData: jsonData,
+        outputDir: outputDir,
+        outputFilename: outputFilename,
+        toCsv: toCsv,
+      );
 
   Future<String> write() =>
       RustLib.instance.api.crateApiWriterDatabaseWriterWrite(that: this);

@@ -13,10 +13,8 @@ class SynonymsBarChart extends StatelessWidget {
     if (stats.speciesWithMostSynonyms.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesWithMostSynonymsResult> data =
         stats.speciesWithMostSynonyms;
-    double maxY = data
-        .map((e) => e.count)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    double maxY =
+        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(
@@ -50,18 +48,20 @@ class SynonymsBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                              fontStyle: FontStyle.italic),
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                            fontStyle: FontStyle.italic,
+                          ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()}',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.normal),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.normal,
+                              ),
                             ),
                           ],
                         );
@@ -88,11 +88,14 @@ class SynonymsBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
                               angle: -1.0,
-                              child: Text(text,
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: textColor,
-                                      fontStyle: FontStyle.italic)),
+                              child: Text(
+                                text,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColor,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -124,7 +127,8 @@ class SynonymsBarChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
@@ -137,7 +141,7 @@ class SynonymsBarChart extends StatelessWidget {
                           color: Colors.purple,
                           width: 16,
                           borderRadius: BorderRadius.circular(4),
-                        )
+                        ),
                       ],
                     );
                   }).toList(),

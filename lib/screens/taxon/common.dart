@@ -53,8 +53,9 @@ class RichTextContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = TextParser.parse(content);
-    final baseStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
-    
+    final baseStyle =
+        Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
+
     final defaultStyle = isItalic
         ? baseStyle.apply(fontStyle: FontStyle.italic, letterSpacingDelta: 0.8)
         : baseStyle;
@@ -64,10 +65,7 @@ class RichTextContent extends StatelessWidget {
         children: tokens.map((token) {
           switch (token.type) {
             case TextTokenType.standard:
-              return TextSpan(
-                text: token.text,
-                style: defaultStyle,
-              );
+              return TextSpan(text: token.text, style: defaultStyle);
             case TextTokenType.italic:
               return TextSpan(
                 text: token.text,
@@ -79,9 +77,7 @@ class RichTextContent extends StatelessWidget {
             case TextTokenType.url:
               return TextSpan(
                 text: token.text,
-                style: defaultStyle.apply(
-                  decoration: TextDecoration.underline,
-                ),
+                style: defaultStyle.apply(decoration: TextDecoration.underline),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
                     if (token.url != null) {

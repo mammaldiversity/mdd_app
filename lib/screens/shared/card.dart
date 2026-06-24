@@ -30,12 +30,14 @@ class CommonCard extends StatelessWidget {
           if (description != null && description!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: 16),
-              child: Text(description!,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  )),
+              child: Text(
+                description!,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
           const SizedBox(height: 8),
           child,

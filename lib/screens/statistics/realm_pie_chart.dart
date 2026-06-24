@@ -101,7 +101,10 @@ class _RealmPieChartState extends State<RealmPieChart> {
           child: Text(
             "Note: Predicted occurrences ('?') are included in the aggregated count.",
             style: TextStyle(
-                fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: Colors.grey,
+            ),
           ),
         ),
       ],

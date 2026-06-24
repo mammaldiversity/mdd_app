@@ -249,7 +249,11 @@ class TopoJsonParser {
     return mddToIsoMap[mddName];
   }
 
-  static List<Polygon> parsePolygons(Map<String, dynamic> json, Set<String> knownCountries, Set<String> predictedCountries) {
+  static List<Polygon> parsePolygons(
+    Map<String, dynamic> json,
+    Set<String> knownCountries,
+    Set<String> predictedCountries,
+  ) {
     if (json['type'] != 'Topology') {
       return [];
     }
@@ -289,10 +293,14 @@ class TopoJsonParser {
         final type = feature['type'];
         final color = isKnown
             ? const Color(0xFF117554).withValues(alpha: 0.5) // Known green
-            : const Color(0xFFFFEB00).withValues(alpha: 0.5); // Predicted yellow
+            : const Color(
+                0xFFFFEB00,
+              ).withValues(alpha: 0.5); // Predicted yellow
         final borderColor = isKnown
             ? const Color(0xFF117554)
-            : const Color(0xFFB5A600); // Darker border for predicted for accessibility
+            : const Color(
+                0xFFB5A600,
+              ); // Darker border for predicted for accessibility
 
         if (type == 'Polygon') {
           final arcs = feature['arcs'] as List;
@@ -325,7 +333,11 @@ class TopoJsonParser {
     return loadedPolygons;
   }
 
-  static Polygon _createPolygon(List<LatLng> points, Color color, Color borderColor) {
+  static Polygon _createPolygon(
+    List<LatLng> points,
+    Color color,
+    Color borderColor,
+  ) {
     return Polygon(
       points: points,
       color: color,

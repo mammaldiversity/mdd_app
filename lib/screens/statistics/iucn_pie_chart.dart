@@ -123,7 +123,10 @@ class _IucnPieChartState extends State<IucnPieChart> {
           child: Text(
             "Note: Species with taxonomic caveats (e.g. 'VU (as Species A)') are aggregated into their primary status category.",
             style: TextStyle(
-                fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: Colors.grey,
+            ),
           ),
         ),
       ],

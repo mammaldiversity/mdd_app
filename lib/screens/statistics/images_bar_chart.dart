@@ -50,18 +50,20 @@ class ImagesBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                              fontStyle: FontStyle.italic),
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                            fontStyle: FontStyle.italic,
+                          ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()}',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.normal),
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.normal,
+                              ),
                             ),
                           ],
                         );
@@ -88,11 +90,14 @@ class ImagesBarChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
                               angle: -1.0,
-                              child: Text(text,
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: textColor,
-                                      fontStyle: FontStyle.italic)),
+                              child: Text(
+                                text,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: textColor,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -124,7 +129,8 @@ class ImagesBarChart extends StatelessWidget {
                       ),
                     ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
@@ -137,7 +143,7 @@ class ImagesBarChart extends StatelessWidget {
                           color: Colors.teal,
                           width: 16,
                           borderRadius: BorderRadius.circular(4),
-                        )
+                        ),
                       ],
                     );
                   }).toList(),

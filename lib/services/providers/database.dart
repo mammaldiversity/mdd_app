@@ -2,8 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 
-final databaseProvider =
-    NotifierProvider<DatabaseNotifier, AppDatabase>(() => DatabaseNotifier());
+final databaseProvider = NotifierProvider<DatabaseNotifier, AppDatabase>(
+  () => DatabaseNotifier(),
+);
 
 class DatabaseNotifier extends Notifier<AppDatabase> {
   @override
@@ -23,4 +24,3 @@ class DatabaseNotifier extends Notifier<AppDatabase> {
 final mddInfoProvider = FutureProvider<MddInfoData>((ref) {
   return MddQuery(ref.watch(databaseProvider)).retrieveMddInfo();
 });
-

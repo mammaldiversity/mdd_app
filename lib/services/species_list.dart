@@ -28,10 +28,7 @@ class TaxonGroupService {
     Map<String, List<MddGroupListResult>> taxonGroups = {};
     for (final MddGroupListResult taxon in taxonList) {
       if (taxon.family != null && taxonGroups.containsKey(taxon.family)) {
-        taxonGroups[taxon.family!] = [
-          ...taxonGroups[taxon.family!]!,
-          taxon,
-        ];
+        taxonGroups[taxon.family!] = [...taxonGroups[taxon.family!]!, taxon];
       } else {
         taxonGroups[taxon.family ?? ''] = [taxon];
       }
@@ -43,10 +40,7 @@ class TaxonGroupService {
     Map<String, List<MddGroupListResult>> taxonGroups = {};
     for (final MddGroupListResult taxon in taxonList) {
       if (taxon.genus != null && taxonGroups.containsKey(taxon.genus)) {
-        taxonGroups[taxon.genus!] = [
-          ...taxonGroups[taxon.genus!]!,
-          taxon,
-        ];
+        taxonGroups[taxon.genus!] = [...taxonGroups[taxon.genus!]!, taxon];
       } else {
         taxonGroups[taxon.genus ?? ''] = [taxon];
       }

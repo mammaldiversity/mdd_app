@@ -12,9 +12,7 @@ class DataUpdatePage extends StatelessWidget {
     final isWide = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Data Update'),
-      ),
+      appBar: AppBar(title: const Text('Data Update')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -130,7 +128,8 @@ class _UpdateProgress extends ConsumerWidget {
       children: [
         const SizedBox(height: 32),
         LinearProgressIndicator(
-            value: status.progress > 0 ? status.progress : null),
+          value: status.progress > 0 ? status.progress : null,
+        ),
         const SizedBox(height: 16),
         SelectableText(
           status.message,
@@ -237,10 +236,7 @@ class _DataUpdateSection extends StatelessWidget {
     );
 
     if (height != null) {
-      return SizedBox(
-        height: height,
-        child: card,
-      );
+      return SizedBox(height: height, child: card);
     }
     return card;
   }
@@ -277,7 +273,8 @@ class _ResetDatabaseSection extends ConsumerWidget {
                         builder: (context) => AlertDialog(
                           title: const Text('Reset Database'),
                           content: const Text(
-                              'Are you sure you want to reset the database to the default bundle version? This will discard all downloaded/imported updates.'),
+                            'Are you sure you want to reset the database to the default bundle version? This will discard all downloaded/imported updates.',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
@@ -286,8 +283,9 @@ class _ResetDatabaseSection extends ConsumerWidget {
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(true),
                               style: TextButton.styleFrom(
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                               child: const Text('Reset'),
                             ),
@@ -312,7 +310,6 @@ class _ResetDatabaseSection extends ConsumerWidget {
   }
 }
 
-
 class MilUpdatePreview extends ConsumerWidget {
   const MilUpdatePreview({super.key});
 
@@ -325,9 +322,7 @@ class MilUpdatePreview extends ConsumerWidget {
         if (data.isEmpty) {
           return const SizedBox(
             height: 120,
-            child: Center(
-              child: Icon(Icons.image_not_supported, size: 48),
-            ),
+            child: Center(child: Icon(Icons.image_not_supported, size: 48)),
           );
         }
 
@@ -361,9 +356,9 @@ class MilUpdatePreview extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             child: const Center(
                               child: Icon(Icons.broken_image, size: 32),
                             ),
@@ -379,15 +374,11 @@ class MilUpdatePreview extends ConsumerWidget {
       },
       loading: () => const SizedBox(
         height: 120,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       ),
       error: (e, s) => const SizedBox(
         height: 120,
-        child: Center(
-          child: Icon(Icons.broken_image, size: 48),
-        ),
+        child: Center(child: Icon(Icons.broken_image, size: 48)),
       ),
     );
   }

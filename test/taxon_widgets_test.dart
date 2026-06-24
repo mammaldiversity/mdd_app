@@ -6,24 +6,44 @@ import 'package:mdd/services/database/database.dart';
 
 void main() {
   group('DistributionMap widget tests', () {
-    testWidgets('Renders empty when countryDistribution is null', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: DistributionMap(countryDistribution: null))));
+    testWidgets('Renders empty when countryDistribution is null', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: DistributionMap(countryDistribution: null)),
+        ),
+      );
       expect(find.text('Distribution Map'), findsNothing);
     });
 
-    testWidgets('Renders empty when countryDistribution is NA', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: DistributionMap(countryDistribution: 'NA'))));
+    testWidgets('Renders empty when countryDistribution is NA', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: DistributionMap(countryDistribution: 'NA')),
+        ),
+      );
       expect(find.text('Distribution Map'), findsNothing);
     });
 
-    testWidgets('Renders map when countryDistribution has value', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: DistributionMap(countryDistribution: 'USA'))));
+    testWidgets('Renders map when countryDistribution has value', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: DistributionMap(countryDistribution: 'USA')),
+        ),
+      );
       expect(find.text('Distribution Map'), findsOneWidget);
     });
   });
 
   group('SynonymContainer widget tests', () {
-    testWidgets('Shows all synonyms when 10 or fewer', (WidgetTester tester) async {
+    testWidgets('Shows all synonyms when 10 or fewer', (
+      WidgetTester tester,
+    ) async {
       final data = List.generate(
         5,
         (index) => SynonymData(
@@ -38,14 +58,20 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SynonymContainer(data: data))));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: SynonymContainer(data: data)),
+        ),
+      );
 
       // "Show all" should not be visible
       expect(find.textContaining('Show all'), findsNothing);
       expect(find.byType(SynonymCard), findsNWidgets(5));
     });
 
-    testWidgets('Shows 10 synonyms and button when more than 10', (WidgetTester tester) async {
+    testWidgets('Shows 10 synonyms and button when more than 10', (
+      WidgetTester tester,
+    ) async {
       final data = List.generate(
         15,
         (index) => SynonymData(
@@ -60,7 +86,11 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: SynonymContainer(data: data))));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: SynonymContainer(data: data)),
+        ),
+      );
 
       // Only 10 should be visible initially
       expect(find.byType(SynonymCard), findsNWidgets(10));

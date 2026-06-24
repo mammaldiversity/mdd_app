@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [v1.1.1] - 2026-06-23
+
+### Fixed
+- Match the display and formatting of synonyms with the website.
+- Match the app color scheme with the website.
+- Clean up the "Name Usages" display on synonym section.
+
 ## [v1.1.0] - 2026-06-14
 
 ### Added

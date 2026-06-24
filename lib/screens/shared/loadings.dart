@@ -62,7 +62,7 @@ class _LoadingCarouselState extends ConsumerState<LoadingCarousel> {
             final dataIndex = index % data.length;
             final item = data[dataIndex];
             final milId = item['milId'] as String;
-            
+
             double scale = _currentPage == index ? 1.0 : 0.8;
             double opacity = _currentPage == index ? 1.0 : 0.5;
 
@@ -72,10 +72,7 @@ class _LoadingCarouselState extends ConsumerState<LoadingCarousel> {
               builder: (context, double value, child) {
                 return Transform.scale(
                   scale: value,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: child,
-                  ),
+                  child: Opacity(opacity: opacity, child: child),
                 );
               },
               child: ClipRRect(
@@ -84,8 +81,12 @@ class _LoadingCarouselState extends ConsumerState<LoadingCarousel> {
                   'assets/mil-images/$milId.webp',
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    child: const Center(child: Icon(Icons.broken_image, size: 64)),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    child: const Center(
+                      child: Icon(Icons.broken_image, size: 64),
+                    ),
                   ),
                 ),
               ),
@@ -136,9 +137,7 @@ class FirstRunLoadingMessages extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Expanded(
-              child: LoadingCarousel(),
-            ),
+            const Expanded(child: LoadingCarousel()),
             const SizedBox(height: 16),
             const Text(
               'Retrieving and parsing MDD data... ⏳',
@@ -180,9 +179,7 @@ class SimpleLoadingMessages extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Expanded(
-              child: LoadingCarousel(),
-            ),
+            const Expanded(child: LoadingCarousel()),
             const SizedBox(height: 16),
             const Text(
               'Retrieving MDD data... ⏳',

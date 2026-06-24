@@ -33,18 +33,16 @@ class DisplaySetting extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Display',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text('Display', style: Theme.of(context).textTheme.bodyMedium),
         Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Material(
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: const DisplayList(),
-            )),
+          padding: const EdgeInsets.only(top: 4),
+          child: Material(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: const DisplayList(),
+          ),
+        ),
       ],
     );
   }
@@ -101,18 +99,16 @@ class AppearanceSetting extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Appearance',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text('Appearance', style: Theme.of(context).textTheme.bodyMedium),
         Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Material(
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: const AppearanceList(),
-            )),
+          padding: const EdgeInsets.only(top: 4),
+          child: Material(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: const AppearanceList(),
+          ),
+        ),
       ],
     );
   }
@@ -144,12 +140,9 @@ class AppearanceList extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (Object error, StackTrace stackTrace) => Center(
-            child: Text('Error: $error'),
-          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (Object error, StackTrace stackTrace) =>
+              Center(child: Text('Error: $error')),
         );
   }
 
@@ -222,8 +215,9 @@ class DatabaseLocationSetting extends StatelessWidget {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Database location copied to clipboard'),
+                            content: Text(
+                              'Database location copied to clipboard',
+                            ),
                           ),
                         );
                       },
@@ -253,10 +247,7 @@ class DataUpdatesSetting extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Data Updates',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text('Data Updates', style: Theme.of(context).textTheme.bodyMedium),
         Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Material(
@@ -271,7 +262,8 @@ class DataUpdatesSetting extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) => const DataUpdatePage()),
+                    builder: (context) => const DataUpdatePage(),
+                  ),
                 );
               },
             ),

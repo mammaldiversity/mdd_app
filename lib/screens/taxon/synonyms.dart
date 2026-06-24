@@ -20,7 +20,8 @@ class SynonymList extends ConsumerWidget {
             return synonymData.isNotEmpty
                 ? SynonymContainer(data: synonymData)
                 : const Center(
-                    child: Text('No associated names and synonyms found.'));
+                    child: Text('No associated names and synonyms found.'),
+                  );
           },
           loading: () => const SizedBox.shrink(),
           error: (Object error, StackTrace stackTrace) {
@@ -50,51 +51,53 @@ class _SynonymContainerState extends State<SynonymContainer> {
         _showAll || !hasMore ? widget.data : widget.data.take(10).toList();
 
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: CommonCard(
-          title: 'Names and synonyms',
-          description: synonymDescription,
-          child: Container(
-            width: double.infinity,
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                screenType != ScreenType.small
-                    ? Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: displayData
-                            .map(
-                              (synonymData) => SynonymCard(data: synonymData),
-                            )
-                            .toList(),
-                      )
-                    : Column(
-                        children: displayData
-                            .map(
-                              (synonymData) => SynonymCard(data: synonymData),
-                            )
-                            .toList(),
-                      ),
-                if (hasMore && !_showAll) ...[
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _showAll = true;
-                      });
-                    },
-                    child: Text('Show all (${widget.data.length}) synonyms'),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: CommonCard(
+        title: 'Names and synonyms',
+        description: synonymDescription,
+        child: Container(
+          width: double.infinity,
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              screenType != ScreenType.small
+                  ? Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: displayData
+                          .map((synonymData) => SynonymCard(data: synonymData))
+                          .toList(),
+                    )
+                  : Column(
+                      children: displayData
+                          .map((synonymData) => SynonymCard(data: synonymData))
+                          .toList(),
+                    ),
+              if (hasMore && !_showAll) ...[
+                const SizedBox(height: 8),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
                   ),
-                ],
+                  onPressed: () {
+                    setState(() {
+                      _showAll = true;
+                    });
+                  },
+                  child: Text(
+                    'Show all (${widget.data.length}) synonyms',
+                  ),
+                ),
               ],
-            ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -127,9 +130,10 @@ class _SynonymCardState extends State<SynonymCard> {
   }
 
   String _createSynName() {
-    final ({String authorYear, String name}) synName =
-        SynonymName(data: widget.data).getSynonym();
-    return '${synName.name} ${synName.authorYear}';
+    final SynonymName synonymObj = SynonymName(data: widget.data);
+    final ({String authorYear, String name}) synName = synonymObj.getSynonym();
+    final String separator = synonymObj.getAuthoritySeparator();
+    return '${synName.name}$separator${synName.authorYear}';
   }
 
   // Show modal sheet on mobile and alert dialog on desktop
@@ -144,18 +148,14 @@ class _SynonymCardState extends State<SynonymCard> {
           maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
         builder: (BuildContext context) {
-          return SynonymSheet(
-            data: widget.data,
-          );
+          return SynonymSheet(data: widget.data);
         },
       );
     } else {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SynonymDialogs(
-            data: widget.data,
-          );
+          return SynonymDialogs(data: widget.data);
         },
       );
     }
@@ -163,10 +163,7 @@ class _SynonymCardState extends State<SynonymCard> {
 }
 
 class SynonymDialogs extends StatelessWidget {
-  const SynonymDialogs({
-    super.key,
-    required this.data,
-  });
+  const SynonymDialogs({super.key, required this.data});
 
   final db.SynonymData data;
 
@@ -179,6 +176,9 @@ class SynonymDialogs extends StatelessWidget {
       ),
       actions: <Widget>[
         TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.secondary,
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -190,17 +190,14 @@ class SynonymDialogs extends StatelessWidget {
 }
 
 class SynonymSheet extends StatelessWidget {
-  const SynonymSheet({
-    super.key,
-    required this.data,
-  });
+  const SynonymSheet({super.key, required this.data});
 
   final db.SynonymData data;
 
   @override
   Widget build(BuildContext context) {
-    final ({String authorYear, String name}) synName =
-        SynonymName(data: data).getSynonym();
+    final SynonymName synonymObj = SynonymName(data: data);
+    final ({String authorYear, String name}) synName = synonymObj.getSynonym();
     return SelectionArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -210,10 +207,9 @@ class SynonymSheet extends StatelessWidget {
           SynonymTitle(
             synName: synName.name,
             authorYear: synName.authorYear,
+            separator: synonymObj.getAuthoritySeparator(),
           ),
-          Flexible(
-            child: OtherSynonymData(data: data),
-          ),
+          Flexible(child: OtherSynonymData(data: data)),
         ],
       ),
     );
@@ -221,11 +217,16 @@ class SynonymSheet extends StatelessWidget {
 }
 
 class SynonymTitle extends StatelessWidget {
-  const SynonymTitle(
-      {super.key, required this.synName, required this.authorYear});
+  const SynonymTitle({
+    super.key,
+    required this.synName,
+    required this.authorYear,
+    required this.separator,
+  });
 
   final String synName;
   final String authorYear;
+  final String separator;
 
   @override
   Widget build(BuildContext context) {
@@ -234,10 +235,10 @@ class SynonymTitle extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            synName,
-            style: Theme.of(context).textTheme.titleLarge?.apply(
-                  fontStyle: FontStyle.italic,
-                ),
+            '$synName${separator.trimRight()}',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.apply(fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
           Text(
@@ -266,51 +267,35 @@ class OtherSynonymData extends StatelessWidget {
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
-          ContentText(
-            title: "Family",
-            content: data.family,
-          ),
+          ContentText(title: "Family", content: data.family),
           ContentText(
             title: "Root name",
             content: data.rootName,
             isItalic: true,
           ),
+          ContentText(title: "Validity status", content: data.validity),
           ContentText(
-            title: "Validity status",
-            content: data.validity,
-          ),
-          ContentText(
-            title: "Nomenclature status",
+            title: "Nomenclatural status",
             content: data.nomenclatureStatus,
           ),
+          ContentText(title: "Type", content: data.holotype),
+          ContentText(title: "Type kind", content: data.typeKind),
           ContentText(
-            title: "Type material",
-            content: data.holotype,
+            title: "Original type locality",
+            content: data.originalTypeLocality,
           ),
           ContentText(
-            title: "Type kind",
-            content: data.typeKind,
+            title: "Type locality",
+            content: SynonymName(data: data).createStructuredTypeLocality(),
           ),
           ContentText(
-            title: "Type specimen link",
+            title: "Type specimen URI",
             content: data.typeSpecimenLink,
             isUrl: true,
           ),
+          ContentText(title: "Authority page", content: data.authorityPage),
           ContentText(
-            title: "Authority Citation",
-            content: data.authorityCitation,
-          ),
-          ContentText(
-            title: "Authority link",
-            content: data.authorityLink,
-            isUrl: true,
-          ),
-          ContentText(
-            title: "Authority page",
-            content: data.authorityPage,
-          ),
-          ContentText(
-            title: "Authority page link",
+            title: "Authority page URI",
             content: data.authorityPageLink,
             isUrl: true,
           ),
@@ -318,13 +303,52 @@ class OtherSynonymData extends StatelessWidget {
             title: "Authority publication",
             content: data.citationGroup,
           ),
-          ContentText(
-            title: "Name usages",
-            content: data.nameUsages,
+          NameUsageList(content: data.nameUsages),
+        ],
+      ),
+    );
+  }
+}
+
+class NameUsageList extends StatelessWidget {
+  const NameUsageList({super.key, required this.content});
+
+  final String? content;
+
+  @override
+  Widget build(BuildContext context) {
+    if (content == null || content!.isEmpty || content == 'NA') {
+      return const SizedBox.shrink();
+    }
+
+    final usages = content!
+        .split(RegExp(r'[·|]'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            "Name usages",
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.left,
           ),
-          ContentText(
-            title: "Comments",
-            content: data.comments,
+          const SizedBox(height: 4),
+          ...usages.map(
+            (usage) => Padding(
+              padding: const EdgeInsets.only(bottom: 2, left: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('• '),
+                  Expanded(child: RichTextContent(content: usage)),
+                ],
+              ),
+            ),
           ),
         ],
       ),

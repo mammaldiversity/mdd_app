@@ -16,8 +16,9 @@ final isFirstRunProvider = FutureProvider<bool>((ref) async {
   return isFirstRun;
 });
 
-final themeSettingProvider =
-    AsyncNotifierProvider<ThemeSetting, ThemeMode>(() => ThemeSetting());
+final themeSettingProvider = AsyncNotifierProvider<ThemeSetting, ThemeMode>(
+  () => ThemeSetting(),
+);
 
 class ThemeSetting extends AsyncNotifier<ThemeMode> {
   Future<ThemeMode> _fetchSetting() async {
@@ -76,7 +77,8 @@ class ThemeSetting extends AsyncNotifier<ThemeMode> {
 
 final showWelcomeTextProvider =
     AsyncNotifierProvider<ShowWelcomeTextSetting, bool>(
-        () => ShowWelcomeTextSetting());
+  () => ShowWelcomeTextSetting(),
+);
 
 class ShowWelcomeTextSetting extends AsyncNotifier<bool> {
   Future<bool> _fetchSetting() async {
@@ -100,7 +102,8 @@ class ShowWelcomeTextSetting extends AsyncNotifier<bool> {
 }
 
 final showInfoTextProvider = AsyncNotifierProvider<ShowInfoTextSetting, bool>(
-    () => ShowInfoTextSetting());
+  () => ShowInfoTextSetting(),
+);
 
 class ShowInfoTextSetting extends AsyncNotifier<bool> {
   Future<bool> _fetchSetting() async {

@@ -4,7 +4,9 @@ import 'package:mdd/screens/statistics/chart_card.dart';
 
 void main() {
   group('ChartCard Widget Tests', () {
-    testWidgets('renders title and child chart correctly', (WidgetTester tester) async {
+    testWidgets('renders title and child chart correctly', (
+      WidgetTester tester,
+    ) async {
       const testTitle = 'My Test Chart';
       const testKey = Key('test_chart');
 
@@ -27,7 +29,9 @@ void main() {
       expect(find.byKey(testKey), findsOneWidget);
     });
 
-    testWidgets('Card has expected layout and styles', (WidgetTester tester) async {
+    testWidgets('Card has expected layout and styles', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

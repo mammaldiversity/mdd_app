@@ -68,9 +68,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (BuildContext context) {
-                  return SearchDatabasePage(
-                    controller: _searchController,
-                  );
+                  return SearchDatabasePage(controller: _searchController);
                 },
               ),
             );
@@ -80,9 +78,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
           Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) {
-                return SearchDatabasePage(
-                  controller: _searchController,
-                );
+                return SearchDatabasePage(controller: _searchController);
               },
             ),
           );
@@ -100,10 +96,11 @@ class DatabaseInfo extends ConsumerWidget {
     return ref.watch(mddInfoProvider).when(
           data: (MddInfoData mddInfo) {
             return Text(
-                'Database version\n${mddInfo.version}, '
-                'released ${mddInfo.releaseDate}.',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center);
+              'Database version\n${mddInfo.version}, '
+              'released ${mddInfo.releaseDate}.',
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            );
           },
           loading: () => const SimpleLoadingMessages(),
           error: (Object error, StackTrace? stackTrace) {

@@ -45,8 +45,9 @@ class FileWriter {
   }
 
   Future<String> _getData(List<int> mddIDs) async {
-    final List<TaxonomyData> data = await MddQuery(ref.read(databaseProvider))
-        .retrieveTaxonDataList(mddIDs);
+    final List<TaxonomyData> data = await MddQuery(
+      ref.read(databaseProvider),
+    ).retrieveTaxonDataList(mddIDs);
 
     return json.encode(data);
   }

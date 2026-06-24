@@ -55,11 +55,7 @@ class AppVersion {
   String buildNumber;
 
   factory AppVersion.empty() {
-    return AppVersion(
-      name: '',
-      version: '',
-      buildNumber: '',
-    );
+    return AppVersion(name: '', version: '', buildNumber: '');
   }
 
   Future<void> getVersions() async {

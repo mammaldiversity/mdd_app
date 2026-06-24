@@ -51,30 +51,12 @@ class SubOrderAndHigherTaxa extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClassificationData(
-          rank: 'Subclass',
-          name: taxonData.subclass,
-        ),
-        ClassificationData(
-          rank: 'Infraclass',
-          name: taxonData.infraclass,
-        ),
-        ClassificationData(
-          rank: 'Magnorder',
-          name: taxonData.magnorder,
-        ),
-        ClassificationData(
-          rank: 'Superorder',
-          name: taxonData.superorder,
-        ),
-        ClassificationData(
-          rank: 'Order',
-          name: taxonData.taxonOrder,
-        ),
-        ClassificationData(
-          rank: 'Suborder',
-          name: taxonData.suborder,
-        ),
+        ClassificationData(rank: 'Subclass', name: taxonData.subclass),
+        ClassificationData(rank: 'Infraclass', name: taxonData.infraclass),
+        ClassificationData(rank: 'Magnorder', name: taxonData.magnorder),
+        ClassificationData(rank: 'Superorder', name: taxonData.superorder),
+        ClassificationData(rank: 'Order', name: taxonData.taxonOrder),
+        ClassificationData(rank: 'Suborder', name: taxonData.suborder),
       ],
     );
   }
@@ -91,30 +73,12 @@ class LowerInfraOrderTaxa extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClassificationData(
-          rank: 'Infraorder',
-          name: taxonData.infraorder,
-        ),
-        ClassificationData(
-          rank: 'Parvorder',
-          name: taxonData.parvorder,
-        ),
-        ClassificationData(
-          rank: 'Superfamily',
-          name: taxonData.superfamily,
-        ),
-        ClassificationData(
-          rank: 'Family',
-          name: taxonData.family,
-        ),
-        ClassificationData(
-          rank: 'Subfamily',
-          name: taxonData.subfamily,
-        ),
-        ClassificationData(
-          rank: 'Tribe',
-          name: taxonData.tribe,
-        ),
+        ClassificationData(rank: 'Infraorder', name: taxonData.infraorder),
+        ClassificationData(rank: 'Parvorder', name: taxonData.parvorder),
+        ClassificationData(rank: 'Superfamily', name: taxonData.superfamily),
+        ClassificationData(rank: 'Family', name: taxonData.family),
+        ClassificationData(rank: 'Subfamily', name: taxonData.subfamily),
+        ClassificationData(rank: 'Tribe', name: taxonData.tribe),
         ClassificationData(
           rank: 'Genus',
           name: taxonData.genus,

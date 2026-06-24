@@ -9,250 +9,259 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   Synonym get synonym => attachedDatabase.synonym;
   MilData get milData => attachedDatabase.milData;
   Selectable<MddGroupListResult> mddGroupList() {
-    return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => MddGroupListResult(
-          id: row.read<int>('id'),
-          taxonOrder: row.readNullable<String>('taxonOrder'),
-          family: row.readNullable<String>('family'),
-          genus: row.readNullable<String>('genus'),
-        ));
+    return customSelect(
+      'SELECT id, taxonOrder, family, genus FROM taxonomy',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => MddGroupListResult(
+        id: row.read<int>('id'),
+        taxonOrder: row.readNullable<String>('taxonOrder'),
+        family: row.readNullable<String>('family'),
+        genus: row.readNullable<String>('genus'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesPerOrderResult> statSpeciesPerOrder() {
     return customSelect(
-        'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesPerOrderResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesPerOrderResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesPerFamilyResult> statSpeciesPerFamily() {
     return customSelect(
-        'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesPerFamilyResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesPerFamilyResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesByIucnStatusResult> statSpeciesByIucnStatus() {
     return customSelect(
-        'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesByIucnStatusResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesByIucnStatusResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesByDiscoveryDecadeResult>
       statSpeciesByDiscoveryDecade() {
     return customSelect(
-        'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
-          decade: row.readNullable<int>('decade'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
+        decade: row.readNullable<int>('decade'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatExtinctSpeciesResult> statExtinctSpecies() {
     return customSelect(
-        'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatExtinctSpeciesResult(
-          isExtinct: row.readNullable<int>('isExtinct'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatExtinctSpeciesResult(
+        isExtinct: row.readNullable<int>('isExtinct'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatDomesticSpeciesResult> statDomesticSpecies() {
     return customSelect(
-        'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatDomesticSpeciesResult(
-          isDomestic: row.readNullable<int>('isDomestic'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatDomesticSpeciesResult(
+        isDomestic: row.readNullable<int>('isDomestic'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesByBiogeographicRealmResult>
       statSpeciesByBiogeographicRealm() {
     return customSelect(
-        'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesByBiogeographicRealmResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesByBiogeographicRealmResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<String?> statCountryDistributions() {
     return customSelect(
-        'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map(
-        (QueryRow row) => row.readNullable<String>('countryDistribution'));
+      'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.readNullable<String>('countryDistribution'));
   }
 
   Selectable<StatSpeciesPerGenusResult> statSpeciesPerGenus() {
     return customSelect(
-        'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesPerGenusResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesPerGenusResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesByDiscoveryYearResult> statSpeciesByDiscoveryYear() {
     return customSelect(
-        'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatSpeciesByDiscoveryYearResult(
-          year: row.readNullable<int>('year'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatSpeciesByDiscoveryYearResult(
+        year: row.readNullable<int>('year'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<RandomMilImagesWithTaxonomyResult> randomMilImagesWithTaxonomy() {
     return customSelect(
-        'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-          milData,
-        }).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
-          milId: row.read<String>('milId'),
-          mddId: row.read<int>('mddId'),
-          description: row.readNullable<String>('description'),
-          photographer: row.readNullable<String>('photographer'),
-          location: row.readNullable<String>('location'),
-          distribution: row.readNullable<String>('distribution'),
-          dateTaken: row.readNullable<String>('dateTaken'),
-          orientation: row.readNullable<String>('orientation'),
-          isUncertainIdentification:
-              row.readNullable<int>('isUncertainIdentification'),
-          genus: row.readNullable<String>('genus'),
-          specificEpithet: row.readNullable<String>('specificEpithet'),
-          mainCommonName: row.readNullable<String>('mainCommonName'),
-        ));
+      'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy, milData},
+    ).map(
+      (QueryRow row) => RandomMilImagesWithTaxonomyResult(
+        milId: row.read<String>('milId'),
+        mddId: row.read<int>('mddId'),
+        description: row.readNullable<String>('description'),
+        photographer: row.readNullable<String>('photographer'),
+        location: row.readNullable<String>('location'),
+        distribution: row.readNullable<String>('distribution'),
+        dateTaken: row.readNullable<String>('dateTaken'),
+        orientation: row.readNullable<String>('orientation'),
+        isUncertainIdentification: row.readNullable<int>(
+          'isUncertainIdentification',
+        ),
+        genus: row.readNullable<String>('genus'),
+        specificEpithet: row.readNullable<String>('specificEpithet'),
+        mainCommonName: row.readNullable<String>('mainCommonName'),
+      ),
+    );
   }
 
   Selectable<StatSpeciesWithMostImagesResult> statSpeciesWithMostImages() {
     return customSelect(
-        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-          milData,
-        }).map((QueryRow row) => StatSpeciesWithMostImagesResult(
-          genus: row.readNullable<String>('genus'),
-          specificEpithet: row.readNullable<String>('specificEpithet'),
-          imageCount: row.read<int>('imageCount'),
-        ));
+      'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy, milData},
+    ).map(
+      (QueryRow row) => StatSpeciesWithMostImagesResult(
+        genus: row.readNullable<String>('genus'),
+        specificEpithet: row.readNullable<String>('specificEpithet'),
+        imageCount: row.read<int>('imageCount'),
+      ),
+    );
   }
 
   Selectable<int> statSpeciesWithImagesCount() {
-    return customSelect('SELECT COUNT(DISTINCT mddId) AS count FROM milData',
-        variables: [],
-        readsFrom: {
-          milData,
-        }).map((QueryRow row) => row.read<int>('count'));
+    return customSelect(
+      'SELECT COUNT(DISTINCT mddId) AS count FROM milData',
+      variables: [],
+      readsFrom: {milData},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalSpeciesCount() {
-    return customSelect('SELECT COUNT(id) AS count FROM taxonomy',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => row.read<int>('count'));
+    return customSelect(
+      'SELECT COUNT(id) AS count FROM taxonomy',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalOrdersCount() {
     return customSelect(
-        'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => row.read<int>('count'));
+      'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalFamiliesCount() {
-    return customSelect('SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => row.read<int>('count'));
+    return customSelect(
+      'SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalGeneraCount() {
-    return customSelect('SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => row.read<int>('count'));
+    return customSelect(
+      'SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statLivingWildSpeciesCount() {
     return customSelect(
-        'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => row.read<int>('count'));
+      'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<StatSpeciesWithMostSynonymsResult> statSpeciesWithMostSynonyms() {
     return customSelect(
-        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-          synonym,
-        }).map((QueryRow row) => StatSpeciesWithMostSynonymsResult(
-          genus: row.readNullable<String>('genus'),
-          specificEpithet: row.readNullable<String>('specificEpithet'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
+      variables: [],
+      readsFrom: {taxonomy, synonym},
+    ).map(
+      (QueryRow row) => StatSpeciesWithMostSynonymsResult(
+        genus: row.readNullable<String>('genus'),
+        specificEpithet: row.readNullable<String>('specificEpithet'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   Selectable<StatTypeKindProportionResult> statTypeKindProportion() {
     return customSelect(
-        'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
-        variables: [],
-        readsFrom: {
-          taxonomy,
-        }).map((QueryRow row) => StatTypeKindProportionResult(
-          name: row.readNullable<String>('name'),
-          count: row.read<int>('count'),
-        ));
+      'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
+      variables: [],
+      readsFrom: {taxonomy},
+    ).map(
+      (QueryRow row) => StatTypeKindProportionResult(
+        name: row.readNullable<String>('name'),
+        count: row.read<int>('count'),
+      ),
+    );
   }
 
   MddQueryManager get managers => MddQueryManager(this);
@@ -287,82 +296,55 @@ class MddGroupListResult {
 class StatSpeciesPerOrderResult {
   final String? name;
   final int count;
-  StatSpeciesPerOrderResult({
-    this.name,
-    required this.count,
-  });
+  StatSpeciesPerOrderResult({this.name, required this.count});
 }
 
 class StatSpeciesPerFamilyResult {
   final String? name;
   final int count;
-  StatSpeciesPerFamilyResult({
-    this.name,
-    required this.count,
-  });
+  StatSpeciesPerFamilyResult({this.name, required this.count});
 }
 
 class StatSpeciesByIucnStatusResult {
   final String? name;
   final int count;
-  StatSpeciesByIucnStatusResult({
-    this.name,
-    required this.count,
-  });
+  StatSpeciesByIucnStatusResult({this.name, required this.count});
 }
 
 class StatSpeciesByDiscoveryDecadeResult {
   final int? decade;
   final int count;
-  StatSpeciesByDiscoveryDecadeResult({
-    this.decade,
-    required this.count,
-  });
+  StatSpeciesByDiscoveryDecadeResult({this.decade, required this.count});
 }
 
 class StatExtinctSpeciesResult {
   final int? isExtinct;
   final int count;
-  StatExtinctSpeciesResult({
-    this.isExtinct,
-    required this.count,
-  });
+  StatExtinctSpeciesResult({this.isExtinct, required this.count});
 }
 
 class StatDomesticSpeciesResult {
   final int? isDomestic;
   final int count;
-  StatDomesticSpeciesResult({
-    this.isDomestic,
-    required this.count,
-  });
+  StatDomesticSpeciesResult({this.isDomestic, required this.count});
 }
 
 class StatSpeciesByBiogeographicRealmResult {
   final String? name;
   final int count;
-  StatSpeciesByBiogeographicRealmResult({
-    this.name,
-    required this.count,
-  });
+  StatSpeciesByBiogeographicRealmResult({this.name, required this.count});
 }
 
 class StatSpeciesPerGenusResult {
   final String? name;
   final int count;
-  StatSpeciesPerGenusResult({
-    this.name,
-    required this.count,
-  });
+  StatSpeciesPerGenusResult({this.name, required this.count});
 }
 
 class StatSpeciesByDiscoveryYearResult {
   final int? year;
   final int count;
-  StatSpeciesByDiscoveryYearResult({
-    this.year,
-    required this.count,
-  });
+  StatSpeciesByDiscoveryYearResult({this.year, required this.count});
 }
 
 class RandomMilImagesWithTaxonomyResult {
@@ -419,8 +401,5 @@ class StatSpeciesWithMostSynonymsResult {
 class StatTypeKindProportionResult {
   final String? name;
   final int count;
-  StatTypeKindProportionResult({
-    this.name,
-    required this.count,
-  });
+  StatTypeKindProportionResult({this.name, required this.count});
 }

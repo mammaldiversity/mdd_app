@@ -17,16 +17,12 @@ class SpeciesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Taxon Information'),
-      ),
+      appBar: AppBar(title: const Text('Taxon Information')),
       body: SafeArea(
         child: Center(
           child: ref.watch(taxonDataProvider).when(
                 data: (TaxonomyData taxonData) {
-                  return SelectionArea(
-                    child: TaxonForm(taxonData: taxonData),
-                  );
+                  return SelectionArea(child: TaxonForm(taxonData: taxonData));
                 },
                 loading: () => const SimpleLoadingOnly(),
                 error: (Object error, StackTrace stackTrace) {
@@ -50,9 +46,7 @@ class TaxonForm extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 1600,
-          ),
+          constraints: const BoxConstraints(maxWidth: 1600),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -135,7 +129,8 @@ class OtherDetailsResponsive extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DistributionMap(
-                        countryDistribution: taxonData.countryDistribution),
+                      countryDistribution: taxonData.countryDistribution,
+                    ),
                     const SynonymList(),
                   ],
                 ),
@@ -150,7 +145,8 @@ class OtherDetailsResponsive extends StatelessWidget {
               ClassificationContainer(taxonData: taxonData),
               const SizedBox(height: 8),
               DistributionMap(
-                  countryDistribution: taxonData.countryDistribution),
+                countryDistribution: taxonData.countryDistribution,
+              ),
               const SizedBox(height: 8),
               SpeciesInfoList(taxonData: taxonData),
               const SynonymList(),
@@ -178,10 +174,7 @@ class SpeciesStatus extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Species status',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text('Species status', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -195,11 +188,14 @@ class SpeciesStatus extends StatelessWidget {
               _StatusChip(text: 'Domesticated', color: Colors.amber.shade700),
             if (isInTheWild)
               _StatusChip(
-                  text: 'Found in the wild', color: Colors.blue.shade700),
+                text: 'Found in the wild',
+                color: Colors.blue.shade700,
+              ),
             if (isMSW3)
               _StatusChip(
-                  text: 'Listed in MSW3 2005',
-                  color: Colors.deepPurple.shade700),
+                text: 'Listed in MSW3 2005',
+                color: Colors.deepPurple.shade700,
+              ),
           ],
         ),
       ],
@@ -262,23 +258,14 @@ class SpeciesInfoList extends StatelessWidget {
           title: 'Other common names',
           content: taxonData.otherCommonNames,
         ),
-        ContentText(
-          title: 'Type material',
-          content: taxonData.typeVoucher,
-        ),
-        ContentText(
-          title: 'Type kind',
-          content: taxonData.typeKind,
-        ),
+        ContentText(title: 'Type material', content: taxonData.typeVoucher),
+        ContentText(title: 'Type kind', content: taxonData.typeKind),
         ContentText(
           title: 'Type specimen URI',
           content: taxonData.typeVoucherURIs,
           isUrl: true,
         ),
-        ContentText(
-          title: 'Type locality',
-          content: taxonData.typeLocality,
-        ),
+        ContentText(title: 'Type locality', content: taxonData.typeLocality),
         ContentText(
           title: 'Biogeographic realm',
           content: taxonData.biogeographicRealm,

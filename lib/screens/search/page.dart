@@ -40,32 +40,34 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
         automaticallyImplyLeading: false,
         actions: [
           Expanded(
-              child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: CommonSearchField(
-              focusNode: _focusNode,
-              controller: widget.controller,
-              onChanged: _searchDatabase,
-              onClear: () {
-                widget.controller.clear();
-                ref.invalidate(searchDatabaseProvider);
-                setState(() {});
-              },
-              onFiltering: () {
-                _showFilteringOptions();
-              },
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              child: CommonSearchField(
+                focusNode: _focusNode,
+                controller: widget.controller,
+                onChanged: _searchDatabase,
+                onClear: () {
+                  widget.controller.clear();
+                  ref.invalidate(searchDatabaseProvider);
+                  setState(() {});
+                },
+                onFiltering: () {
+                  _showFilteringOptions();
+                },
+              ),
             ),
-          )),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
             child: TextButton(
-                child: const Text('Done'),
-                onPressed: () {
-                  _focusNode.unfocus();
-                  widget.controller.clear();
-                  Navigator.pop(context);
-                }),
-          )
+              child: const Text('Done'),
+              onPressed: () {
+                _focusNode.unfocus();
+                widget.controller.clear();
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ],
       ),
       body: const SafeArea(
@@ -74,10 +76,14 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
             Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: InfoCard(
-                  text: 'Search for a species using the search bar above. '
-                      'You can also filter search results, '
-                      'update your search settings, '
-                      'and export your findings.'),
+                text: 'Search for a species using the search bar above. '
+                    'You can also filter search results, '
+                    'update your search settings, '
+                    'and export your findings. '
+                    'Please note that search results may not exactly match those on the website '
+                    'due to differences in the underlying architecture. '
+                    'The app provides more granular control over filtering your results.',
+              ),
             ),
             Expanded(child: SpeciesListView()),
           ],
@@ -133,9 +139,7 @@ class SpeciesListView extends ConsumerWidget {
         );
       },
       loading: () {
-        return const Center(
-          child: SimpleLoadingOnly(),
-        );
+        return const Center(child: SimpleLoadingOnly());
       },
       error: (Object error, StackTrace stackTrace) {
         return Text('Error: $error');
@@ -175,15 +179,8 @@ class EmptyData extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search,
-            size: 64,
-            color: Colors.grey,
-          ),
-          Text(
-            'No results found',
-            style: TextStyle(color: Colors.grey),
-          ),
+          Icon(Icons.search, size: 64, color: Colors.grey),
+          Text('No results found', style: TextStyle(color: Colors.grey)),
         ],
       ),
     );

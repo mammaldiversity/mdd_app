@@ -2,11 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 class MddTheme {
-  static final _defaultLightColorScheme =
-      FlexThemeData.light(scheme: FlexScheme.amber).colorScheme;
+  // Define custom colors based on the MDD website's tailwind config
+  static const FlexSchemeColor _customLightColors = FlexSchemeColor(
+    primary: Color(0xFF65453B),
+    secondary: Color(0xFF2C4243),
+    tertiary: Color(0xFFB9D6D2),
+    appBarColor: Color(0xFF273A39),
+  );
 
-  static final _defaultDarkColorScheme =
-      FlexThemeData.dark(scheme: FlexScheme.amber).colorScheme;
+  static const FlexSchemeColor _customDarkColors = FlexSchemeColor(
+    primary: Color(0xFF65453B),
+    secondary: Color(0xFF679A98),
+    tertiary: Color(0xFF2C4243),
+    appBarColor: Color(0xFF273A39),
+  );
+
+  static final _defaultLightColorScheme = FlexThemeData.light(
+    colors: _customLightColors,
+  ).colorScheme;
+
+  static final _defaultDarkColorScheme = FlexThemeData.dark(
+    colors: _customDarkColors,
+  ).colorScheme;
 
   static ThemeData lightTheme() {
     return ThemeData(

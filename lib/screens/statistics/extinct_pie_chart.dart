@@ -74,7 +74,8 @@ class _ExtinctPieChartState extends State<ExtinctPieChart> {
   }
 
   List<PieChartSectionData> showingSections(
-      List<StatExtinctSpeciesResult> data) {
+    List<StatExtinctSpeciesResult> data,
+  ) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
