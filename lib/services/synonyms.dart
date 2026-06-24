@@ -13,22 +13,37 @@ class SynonymName {
     return (name: name, authorYear: authorYear);
   }
 
-  String _getNames() {
-    if (data.originalCombination != null &&
-        data.originalCombination!.isNotEmpty) {
-      return data.originalCombination!;
-    } else {
-      final String species = data.species ?? '';
-      final String rootName = data.rootName ?? '';
-      return '$species $rootName';
-    }
-  }
-
   String getAuthorityCitation() {
     final String author = data.author ?? '';
     final String year = data.year ?? '';
     // Synonym authority citations do not use parentheses
     return '$author, $year';
+  }
+
+  String createStructuredTypeLocality() {
+    final List<String?> localityFields = [
+      data.typeCountry,
+      data.typeSubregion,
+      data.typeSubregion2,
+    ];
+    final List<String> localityParts = localityFields
+        .where((part) => _isPresent(part))
+        .cast<String>()
+        .toList();
+
+    final List<String?> coordinateFields = [
+      _formatCoordinate(data.typeLatitude, 'N', 'S'),
+      _formatCoordinate(data.typeLongitude, 'E', 'W'),
+    ];
+    final List<String> coordinateParts =
+        coordinateFields.where((part) => part != null).cast<String>().toList();
+
+    final List<String> parts = [
+      ...localityParts,
+      if (coordinateParts.isNotEmpty) coordinateParts.join(', '),
+    ].where((part) => part.isNotEmpty).toList();
+
+    return parts.isNotEmpty ? '${parts.join(': ')}.' : '';
   }
 
   bool shouldSeparateSynonymAuthorityWithColon() {
@@ -91,29 +106,14 @@ class SynonymName {
     return '$degrees°$direction';
   }
 
-  String createStructuredTypeLocality() {
-    final List<String?> localityFields = [
-      data.typeCountry,
-      data.typeSubregion,
-      data.typeSubregion2,
-    ];
-    final List<String> localityParts = localityFields
-        .where((part) => _isPresent(part))
-        .cast<String>()
-        .toList();
-
-    final List<String?> coordinateFields = [
-      _formatCoordinate(data.typeLatitude, 'N', 'S'),
-      _formatCoordinate(data.typeLongitude, 'E', 'W'),
-    ];
-    final List<String> coordinateParts =
-        coordinateFields.where((part) => part != null).cast<String>().toList();
-
-    final List<String> parts = [
-      ...localityParts,
-      if (coordinateParts.isNotEmpty) coordinateParts.join(', '),
-    ].where((part) => part.isNotEmpty).toList();
-
-    return parts.isNotEmpty ? '${parts.join(': ')}.' : '';
+  String _getNames() {
+    if (data.originalCombination != null &&
+        data.originalCombination!.isNotEmpty) {
+      return data.originalCombination!;
+    } else {
+      final String species = data.species ?? '';
+      final String rootName = data.rootName ?? '';
+      return '$species $rootName';
+    }
   }
 }
