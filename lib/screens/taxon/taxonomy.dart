@@ -112,16 +112,16 @@ class ClassificationData extends StatelessWidget {
                   TextSpan(
                     text: '$rank: ',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                   TextSpan(
                     text: name!,
                     style: isItalic
                         ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontStyle: FontStyle.italic,
-                            letterSpacing: 0.8,
-                          )
+                              fontStyle: FontStyle.italic,
+                              letterSpacing: 0.8,
+                            )
                         : Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],

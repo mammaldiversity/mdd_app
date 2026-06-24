@@ -11,13 +11,10 @@ class FamilyBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.speciesPerFamily.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerFamilyResult> data = stats.speciesPerFamily
-        .take(15)
-        .toList();
-    double maxY = data
-        .map((e) => e.count)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    final List<StatSpeciesPerFamilyResult> data =
+        stats.speciesPerFamily.take(15).toList();
+    double maxY =
+        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(

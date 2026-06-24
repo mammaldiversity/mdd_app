@@ -40,8 +40,7 @@ class _ExtinctPieChartState extends State<ExtinctPieChart> {
                           return;
                         }
                         touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
+                            .touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),

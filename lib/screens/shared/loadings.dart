@@ -108,9 +108,7 @@ class DataLoadingMessages extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
-      child: ref
-          .watch(isFirstRunProvider)
-          .when(
+      child: ref.watch(isFirstRunProvider).when(
             data: (isFirstRun) {
               if (isFirstRun) {
                 return isSimple

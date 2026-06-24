@@ -11,10 +11,8 @@ class CountryBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (stats.topCountries.isEmpty) return const SizedBox.shrink();
     final data = stats.topCountries;
-    double maxY = data
-        .map((e) => e.value)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    double maxY =
+        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(

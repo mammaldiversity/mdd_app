@@ -96,8 +96,7 @@ class _DistributionMapState extends State<DistributionMap> {
     }
 
     final hasPredicted = widget.countryDistribution!.contains('?');
-    final String mapDescription =
-        'The map below provides a general overview. '
+    final String mapDescription = 'The map below provides a general overview. '
         'Some species inhabit only specific regions within countries.';
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;

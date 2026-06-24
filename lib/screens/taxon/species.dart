@@ -20,9 +20,7 @@ class SpeciesPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Taxon Information')),
       body: SafeArea(
         child: Center(
-          child: ref
-              .watch(taxonDataProvider)
-              .when(
+          child: ref.watch(taxonDataProvider).when(
                 data: (TaxonomyData taxonData) {
                   return SelectionArea(child: TaxonForm(taxonData: taxonData));
                 },
@@ -89,8 +87,8 @@ class SpeciesDetails extends StatelessWidget {
           Text(
             taxonData.mainCommonName ?? '',
             style: Theme.of(context).textTheme.titleMedium?.apply(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
             textAlign: TextAlign.left,
           ),
           const SizedBox(height: 4),
@@ -327,12 +325,12 @@ class SpeciesTextView extends StatelessWidget {
           TextSpan(
             text: speciesText.speciesName,
             style: Theme.of(context).textTheme.titleLarge?.apply(
-              fontFamily: 'Libre Baskerville',
-              fontStyle: FontStyle.italic,
-              fontWeightDelta: 1,
-              fontSizeDelta: 4,
-              letterSpacingDelta: 0.8,
-            ),
+                  fontFamily: 'Libre Baskerville',
+                  fontStyle: FontStyle.italic,
+                  fontWeightDelta: 1,
+                  fontSizeDelta: 4,
+                  letterSpacingDelta: 0.8,
+                ),
           ),
           const TextSpan(text: '\n'),
           TextSpan(

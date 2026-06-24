@@ -13,10 +13,8 @@ class SynonymsBarChart extends StatelessWidget {
     if (stats.speciesWithMostSynonyms.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesWithMostSynonymsResult> data =
         stats.speciesWithMostSynonyms;
-    double maxY = data
-        .map((e) => e.count)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    double maxY =
+        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(

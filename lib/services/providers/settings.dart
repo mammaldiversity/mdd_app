@@ -77,8 +77,8 @@ class ThemeSetting extends AsyncNotifier<ThemeMode> {
 
 final showWelcomeTextProvider =
     AsyncNotifierProvider<ShowWelcomeTextSetting, bool>(
-      () => ShowWelcomeTextSetting(),
-    );
+  () => ShowWelcomeTextSetting(),
+);
 
 class ShowWelcomeTextSetting extends AsyncNotifier<bool> {
   Future<bool> _fetchSetting() async {

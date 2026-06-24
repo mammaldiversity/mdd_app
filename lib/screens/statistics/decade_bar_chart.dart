@@ -12,10 +12,8 @@ class DecadeBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (stats.discoveryDecade.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryDecadeResult> data = stats.discoveryDecade;
-    double maxY = data
-        .map((e) => e.count)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    double maxY =
+        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return LayoutBuilder(

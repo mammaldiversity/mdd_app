@@ -68,18 +68,17 @@ class _IucnPieChartState extends State<IucnPieChart> {
                         pieTouchData: PieTouchData(
                           touchCallback:
                               (FlTouchEvent event, pieTouchResponse) {
-                                setState(() {
-                                  if (!event.isInterestedForInteractions ||
-                                      pieTouchResponse == null ||
-                                      pieTouchResponse.touchedSection == null) {
-                                    touchedIndex = -1;
-                                    return;
-                                  }
-                                  touchedIndex = pieTouchResponse
-                                      .touchedSection!
-                                      .touchedSectionIndex;
-                                });
-                              },
+                            setState(() {
+                              if (!event.isInterestedForInteractions ||
+                                  pieTouchResponse == null ||
+                                  pieTouchResponse.touchedSection == null) {
+                                touchedIndex = -1;
+                                return;
+                              }
+                              touchedIndex = pieTouchResponse
+                                  .touchedSection!.touchedSectionIndex;
+                            });
+                          },
                         ),
                         borderData: FlBorderData(show: false),
                         sectionsSpace: 0,
@@ -145,9 +144,8 @@ class _IucnPieChartState extends State<IucnPieChart> {
       final count = e.value;
       final isLarge = count > 300 || isTouched;
       final color = iucnColors[e.key] ?? Colors.grey;
-      final textColor = color.computeLuminance() > 0.5
-          ? Colors.black
-          : Colors.white;
+      final textColor =
+          color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 
       return PieChartSectionData(
         color: color,

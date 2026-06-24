@@ -18,21 +18,21 @@ const int _kDatabaseVersion = 3;
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.forFile(File file)
-    : super(NativeDatabase.createInBackground(file, logStatements: true));
+      : super(NativeDatabase.createInBackground(file, logStatements: true));
 
   @override
   int get schemaVersion => _kDatabaseVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
-      // Pre-generated database should already have all tables and data.
-      // This onCreate will only be called if the database file didn't exist.
-    },
-    onUpgrade: (Migrator m, int from, int to) async {
-      // Add upgrade logic here if needed
-    },
-  );
+        onCreate: (Migrator m) async {
+          // Pre-generated database should already have all tables and data.
+          // This onCreate will only be called if the database file didn't exist.
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          // Add upgrade logic here if needed
+        },
+      );
 
   // Removed createMddDefault and createMilData since they are now in generate_db.dart
 }

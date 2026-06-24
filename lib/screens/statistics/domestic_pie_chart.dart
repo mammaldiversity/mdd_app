@@ -40,8 +40,7 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
                           return;
                         }
                         touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
+                            .touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),

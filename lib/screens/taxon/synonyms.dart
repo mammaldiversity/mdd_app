@@ -15,9 +15,7 @@ class SynonymList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(synonymDataProvider)
-        .when(
+    return ref.watch(synonymDataProvider).when(
           data: (synonymData) {
             return synonymData.isNotEmpty
                 ? SynonymContainer(data: synonymData)
@@ -49,9 +47,8 @@ class _SynonymContainerState extends State<SynonymContainer> {
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
     final bool hasMore = widget.data.length > 10;
-    final List<db.SynonymData> displayData = _showAll || !hasMore
-        ? widget.data
-        : widget.data.take(10).toList();
+    final List<db.SynonymData> displayData =
+        _showAll || !hasMore ? widget.data : widget.data.take(10).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

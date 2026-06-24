@@ -58,10 +58,11 @@ class MilHelper {
   static Future<MilHelper> parseMilData({
     required String tarPath,
     required String dbPath,
-  }) => RustLib.instance.api.crateApiParserMilHelperParseMilData(
-    tarPath: tarPath,
-    dbPath: dbPath,
-  );
+  }) =>
+      RustLib.instance.api.crateApiParserMilHelperParseMilData(
+        tarPath: tarPath,
+        dbPath: dbPath,
+      );
 
   @override
   int get hashCode => milData.hashCode;

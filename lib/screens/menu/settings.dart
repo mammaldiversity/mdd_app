@@ -119,9 +119,7 @@ class AppearanceList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(themeSettingProvider)
-        .when(
+    return ref.watch(themeSettingProvider).when(
           data: (ThemeMode themeMode) {
             return ListView.separated(
               shrinkWrap: true,

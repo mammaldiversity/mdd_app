@@ -12,9 +12,7 @@ class MilImagesWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(milDataProvider)
-        .when(
+    return ref.watch(milDataProvider).when(
           data: (List<MilDataData> data) {
             if (data.isEmpty) return const SizedBox.shrink();
             return MilImagesViewer(data: data);

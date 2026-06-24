@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/providers/settings.dart';
 
-const String _welcomeText =
-    'The Mammal Diversity Database (MDD) '
+const String _welcomeText = 'The Mammal Diversity Database (MDD) '
     'is a comprehensive, constantly updated resource for '
     'the classification and nomenclature of living and recently extinct '
     '(i.e., since ~1500 CE) species and higher taxa of mammals.';
@@ -14,9 +13,7 @@ class Welcome extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(showWelcomeTextProvider)
-        .when(
+    return ref.watch(showWelcomeTextProvider).when(
           data: (showWelcome) {
             if (showWelcome) {
               return Padding(

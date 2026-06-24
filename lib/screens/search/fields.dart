@@ -144,9 +144,9 @@ class FilterGroupWidget extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ),
         ...options.map(
@@ -170,9 +170,7 @@ class SearchResultInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int foundRecordCount = foundRecords.length;
-    return ref
-        .watch(totalRecordsProvider)
-        .when(
+    return ref.watch(totalRecordsProvider).when(
           data: (int totalRecords) {
             return totalRecords == foundRecordCount || foundRecordCount == 0
                 ? const SizedBox.shrink()

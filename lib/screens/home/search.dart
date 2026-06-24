@@ -93,9 +93,7 @@ class DatabaseInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(mddInfoProvider)
-        .when(
+    return ref.watch(mddInfoProvider).when(
           data: (MddInfoData mddInfo) {
             return Text(
               'Database version\n${mddInfo.version}, '

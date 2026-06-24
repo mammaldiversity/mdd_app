@@ -21,9 +21,7 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: ref
-          .watch(speciesListProvider)
-          .when(
+      child: ref.watch(speciesListProvider).when(
             data: (List<MddGroupListResult> speciesList) {
               return ListView(
                 children: <Widget>[
@@ -163,9 +161,7 @@ class SpeciesGroups extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(mainTaxonomyDataProvider(taxonIDList))
-        .when(
+    return ref.watch(mainTaxonomyDataProvider(taxonIDList)).when(
           data: (List<MainTaxonomyData> speciesList) {
             return Column(
               children: <Widget>[
@@ -240,9 +236,8 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
 
     return milDataAsync.when(
       data: (data) {
-        final landscapeImages = data
-            .where((e) => e.orientation == 'landscape')
-            .toList();
+        final landscapeImages =
+            data.where((e) => e.orientation == 'landscape').toList();
         if (landscapeImages.isEmpty) {
           return Container(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,

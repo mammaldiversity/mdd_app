@@ -63,7 +63,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   }
 
   Selectable<StatSpeciesByDiscoveryDecadeResult>
-  statSpeciesByDiscoveryDecade() {
+      statSpeciesByDiscoveryDecade() {
     return customSelect(
       'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
       variables: [],
@@ -103,7 +103,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
   }
 
   Selectable<StatSpeciesByBiogeographicRealmResult>
-  statSpeciesByBiogeographicRealm() {
+      statSpeciesByBiogeographicRealm() {
     return customSelect(
       'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
       variables: [],

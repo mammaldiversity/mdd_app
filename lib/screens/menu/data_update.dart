@@ -51,8 +51,7 @@ class _MddUpdateSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading =
-        status.state == UpdateState.downloading ||
+    final isLoading = status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
     final isWide = MediaQuery.of(context).size.width > 600;
@@ -88,8 +87,7 @@ class _MilUpdateSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading =
-        status.state == UpdateState.downloading ||
+    final isLoading = status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
     final isWide = MediaQuery.of(context).size.width > 600;
@@ -206,9 +204,8 @@ class _DataUpdateSection extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: height != null
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        mainAxisAlignment:
+            height != null ? MainAxisAlignment.end : MainAxisAlignment.start,
         mainAxisSize: height != null ? MainAxisSize.max : MainAxisSize.min,
         children: [
           if (content != null) ...[
@@ -251,8 +248,7 @@ class _ResetDatabaseSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(dataUpdateProvider);
-    final isLoading =
-        status.state == UpdateState.downloading ||
+    final isLoading = status.state == UpdateState.downloading ||
         status.state == UpdateState.extracting ||
         status.state == UpdateState.updating;
 
@@ -360,13 +356,13 @@ class MilUpdatePreview extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                                child: const Center(
-                                  child: Icon(Icons.broken_image, size: 32),
-                                ),
-                              ),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            child: const Center(
+                              child: Icon(Icons.broken_image, size: 32),
+                            ),
+                          ),
                         ),
                       ),
                     ),

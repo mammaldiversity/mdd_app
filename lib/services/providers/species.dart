@@ -11,8 +11,8 @@ import 'package:mdd/services/providers/database.dart';
 
 final searchDatabaseProvider =
     AsyncNotifierProvider<SearchDatabase, List<MainTaxonomyData>>(
-      () => SearchDatabase(),
-    );
+  () => SearchDatabase(),
+);
 
 class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
   @override
@@ -38,8 +38,8 @@ final totalRecordsProvider = FutureProvider<int>((ref) async {
 
 final speciesListProvider =
     AsyncNotifierProvider<SpeciesList, List<MddGroupListResult>>(
-      () => SpeciesList(),
-    );
+  () => SpeciesList(),
+);
 
 class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   Future<List<MddGroupListResult>> _fetchSpeciesList() async {
@@ -95,8 +95,8 @@ class TaxonData extends AsyncNotifier<db.TaxonomyData> {
 
 final synonymDataProvider =
     AsyncNotifierProvider<SynonymData, List<db.SynonymData>>(
-      () => SynonymData(),
-    );
+  () => SynonymData(),
+);
 
 class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
   Future<List<db.SynonymData>> _fetch() async {
@@ -114,13 +114,13 @@ class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
 
 final mainTaxonomyDataProvider =
     FutureProvider.family<List<MainTaxonomyData>, List<int>>((
-      ref,
-      mddIDList,
-    ) async {
-      return MddQuery(
-        ref.watch(databaseProvider),
-      ).retrieveSpeciesList(mddIDList);
-    });
+  ref,
+  mddIDList,
+) async {
+  return MddQuery(
+    ref.watch(databaseProvider),
+  ).retrieveSpeciesList(mddIDList);
+});
 
 final milDataFamilyProvider = FutureProvider.family<List<db.MilDataData>, int>((
   ref,
@@ -131,8 +131,8 @@ final milDataFamilyProvider = FutureProvider.family<List<db.MilDataData>, int>((
 
 final milDataProvider =
     AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
-      () => MilDataNotifier(),
-    );
+  () => MilDataNotifier(),
+);
 
 class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
   Future<List<db.MilDataData>> _fetch() async {
@@ -148,8 +148,8 @@ class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
 
 final randomMilImagesProvider =
     FutureProvider<List<RandomMilImagesWithTaxonomyResult>>((ref) async {
-      return MddQuery(ref.watch(databaseProvider)).getRandomMilImages();
-    });
+  return MddQuery(ref.watch(databaseProvider)).getRandomMilImages();
+});
 
 List<Map<String, dynamic>> _parseMilJson(String jsonString) {
   final List<dynamic> parsed = jsonDecode(jsonString);
