@@ -8,8 +8,9 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Visual Alignment: The synonym section formatting and the app's overall color scheme now closely match the website.
-- Cleaner Layout: We’ve streamlined the "Name Usages" display under synonyms to remove clutter and make it easier to read.
+- More MIL Photos: Added new photos to the Mammal Images Library collection.
+- Country Tables: Introduced country distribution tables for regional species data.
+- Minor performance improvements.
 
 ## Installation
 
@@ -31,10 +32,8 @@ You can download the app on the [App Store](https://apple.co/4vlBaxa). Click the
 
 ### Linux
 
-Download your preferred package format from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
+Download the portable tarball from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
 
-- **Debian/Ubuntu (`.deb`)**: Install using `sudo apt install ./mdd_<version>_amd64.deb`
-- **Fedora/openSUSE (`.rpm`)**: Install using `sudo dnf install ./mdd-<version>-1.x86_64.rpm`
 - **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly.
 
 ### Windows
