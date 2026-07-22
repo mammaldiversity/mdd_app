@@ -52,8 +52,8 @@ pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str
 
     // Insert mddInfo
     tx.execute(
-        "INSERT INTO mddInfo (version, releaseDate) VALUES (?1, ?2)",
-        [&mdd_helper.version, &mdd_helper.release_date],
+        "INSERT INTO mddInfo (version, releaseDate, milVersion) VALUES (?1, ?2, ?3)",
+        [&mdd_helper.version, &mdd_helper.release_date, &mil_helper.mil_version],
     )?;
 
     // Prepare taxonomy and synonym statements

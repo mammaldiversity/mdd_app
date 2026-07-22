@@ -82,14 +82,16 @@ remarks = "some remarks"
 
     // Check mddInfo
     let mut stmt = conn
-        .prepare("SELECT version, releaseDate FROM mddInfo")
+        .prepare("SELECT version, releaseDate, milVersion FROM mddInfo")
         .unwrap();
     let mut rows = stmt.query([]).unwrap();
     let row = rows.next().unwrap().unwrap();
     let version: String = row.get(0).unwrap();
     let release_date: String = row.get(1).unwrap();
+    let mil_version: String = row.get(2).unwrap();
     assert_eq!(version, "v9.9.9");
     assert_eq!(release_date, "2099-12-31");
+    assert!(!mil_version.is_empty());
 
     // Check taxonomy
     let mut stmt = conn

@@ -95,9 +95,12 @@ class DatabaseInfo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(mddInfoProvider).when(
           data: (MddInfoData mddInfo) {
+            final milText = (mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty)
+                ? '\nMIL release: ${mddInfo.milVersion}'
+                : '';
             return Text(
               'Database version\n${mddInfo.version}, '
-              'released ${mddInfo.releaseDate}.',
+              'released ${mddInfo.releaseDate}.$milText',
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.center,
             );

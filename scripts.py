@@ -7,12 +7,10 @@ from typing import List
 
 DART_FRB = "lib/src/rust/frb_generated.dart"
 DART_FRB_IO = "lib/src/rust/frb_generated.io.dart"
-DART_FRB_WEB = "lib/src/rust/frb_generated.web.dart"
 RUST_FRB_IO = "rust/src/frb_generated.io.rs"
 RUST_FRB = "rust/src/frb_generated.rs"
-RUST_FRB_WEB = "rust/src/frb_generated.web.rs"
 
-FRB_FILES = [DART_FRB, DART_FRB_IO, DART_FRB_WEB, RUST_FRB_IO, RUST_FRB, RUST_FRB_WEB]
+FRB_FILES = [DART_FRB, DART_FRB_IO, RUST_FRB_IO, RUST_FRB]
 
 DMG_CONFIG = "packages/config.json"
 OUTPUT_DMG = "packages/mdd.dmg"

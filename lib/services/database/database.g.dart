@@ -8,56 +8,54 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   MddInfo(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _versionMeta = const VerificationMeta(
-    'version',
-  );
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
   late final GeneratedColumn<String> version = GeneratedColumn<String>(
-    'version',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _releaseDateMeta = const VerificationMeta(
-    'releaseDate',
-  );
+      'version', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _releaseDateMeta =
+      const VerificationMeta('releaseDate');
   late final GeneratedColumn<String> releaseDate = GeneratedColumn<String>(
-    'releaseDate',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'releaseDate', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _milVersionMeta =
+      const VerificationMeta('milVersion');
+  late final GeneratedColumn<String> milVersion = GeneratedColumn<String>(
+      'milVersion', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
-  List<GeneratedColumn> get $columns => [version, releaseDate];
+  List<GeneratedColumn> get $columns => [version, releaseDate, milVersion];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'mddInfo';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<MddInfoData> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<MddInfoData> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('version')) {
-      context.handle(
-        _versionMeta,
-        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
-      );
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
     }
     if (data.containsKey('releaseDate')) {
       context.handle(
-        _releaseDateMeta,
-        releaseDate.isAcceptableOrUnknown(
-          data['releaseDate']!,
           _releaseDateMeta,
-        ),
-      );
+          releaseDate.isAcceptableOrUnknown(
+              data['releaseDate']!, _releaseDateMeta));
+    }
+    if (data.containsKey('milVersion')) {
+      context.handle(
+          _milVersionMeta,
+          milVersion.isAcceptableOrUnknown(
+              data['milVersion']!, _milVersionMeta));
     }
     return context;
   }
@@ -68,14 +66,12 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
   MddInfoData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return MddInfoData(
-      version: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}version'],
-      ),
-      releaseDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}releaseDate'],
-      ),
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}version']),
+      releaseDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}releaseDate']),
+      milVersion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}milVersion']),
     );
   }
 
@@ -91,7 +87,8 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
 class MddInfoData extends DataClass implements Insertable<MddInfoData> {
   final String? version;
   final String? releaseDate;
-  const MddInfoData({this.version, this.releaseDate});
+  final String? milVersion;
+  const MddInfoData({this.version, this.releaseDate, this.milVersion});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -100,6 +97,9 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     }
     if (!nullToAbsent || releaseDate != null) {
       map['releaseDate'] = Variable<String>(releaseDate);
+    }
+    if (!nullToAbsent || milVersion != null) {
+      map['milVersion'] = Variable<String>(milVersion);
     }
     return map;
   }
@@ -112,17 +112,19 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
       releaseDate: releaseDate == null && nullToAbsent
           ? const Value.absent()
           : Value(releaseDate),
+      milVersion: milVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(milVersion),
     );
   }
 
-  factory MddInfoData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory MddInfoData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MddInfoData(
       version: serializer.fromJson<String?>(json['version']),
       releaseDate: serializer.fromJson<String?>(json['releaseDate']),
+      milVersion: serializer.fromJson<String?>(json['milVersion']),
     );
   }
   @override
@@ -131,22 +133,26 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     return <String, dynamic>{
       'version': serializer.toJson<String?>(version),
       'releaseDate': serializer.toJson<String?>(releaseDate),
+      'milVersion': serializer.toJson<String?>(milVersion),
     };
   }
 
-  MddInfoData copyWith({
-    Value<String?> version = const Value.absent(),
-    Value<String?> releaseDate = const Value.absent(),
-  }) =>
+  MddInfoData copyWith(
+          {Value<String?> version = const Value.absent(),
+          Value<String?> releaseDate = const Value.absent(),
+          Value<String?> milVersion = const Value.absent()}) =>
       MddInfoData(
         version: version.present ? version.value : this.version,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+        milVersion: milVersion.present ? milVersion.value : this.milVersion,
       );
   MddInfoData copyWithCompanion(MddInfoCompanion data) {
     return MddInfoData(
       version: data.version.present ? data.version.value : this.version,
       releaseDate:
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
+      milVersion:
+          data.milVersion.present ? data.milVersion.value : this.milVersion,
     );
   }
 
@@ -154,55 +160,63 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
   String toString() {
     return (StringBuffer('MddInfoData(')
           ..write('version: $version, ')
-          ..write('releaseDate: $releaseDate')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('milVersion: $milVersion')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(version, releaseDate);
+  int get hashCode => Object.hash(version, releaseDate, milVersion);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MddInfoData &&
           other.version == this.version &&
-          other.releaseDate == this.releaseDate);
+          other.releaseDate == this.releaseDate &&
+          other.milVersion == this.milVersion);
 }
 
 class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
   final Value<String?> version;
   final Value<String?> releaseDate;
+  final Value<String?> milVersion;
   final Value<int> rowid;
   const MddInfoCompanion({
     this.version = const Value.absent(),
     this.releaseDate = const Value.absent(),
+    this.milVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MddInfoCompanion.insert({
     this.version = const Value.absent(),
     this.releaseDate = const Value.absent(),
+    this.milVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   static Insertable<MddInfoData> custom({
     Expression<String>? version,
     Expression<String>? releaseDate,
+    Expression<String>? milVersion,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (version != null) 'version': version,
       if (releaseDate != null) 'releaseDate': releaseDate,
+      if (milVersion != null) 'milVersion': milVersion,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  MddInfoCompanion copyWith({
-    Value<String?>? version,
-    Value<String?>? releaseDate,
-    Value<int>? rowid,
-  }) {
+  MddInfoCompanion copyWith(
+      {Value<String?>? version,
+      Value<String?>? releaseDate,
+      Value<String?>? milVersion,
+      Value<int>? rowid}) {
     return MddInfoCompanion(
       version: version ?? this.version,
       releaseDate: releaseDate ?? this.releaseDate,
+      milVersion: milVersion ?? this.milVersion,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -216,6 +230,9 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
     if (releaseDate.present) {
       map['releaseDate'] = Variable<String>(releaseDate.value);
     }
+    if (milVersion.present) {
+      map['milVersion'] = Variable<String>(milVersion.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -227,6 +244,7 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
     return (StringBuffer('MddInfoCompanion(')
           ..write('version: $version, ')
           ..write('releaseDate: $releaseDate, ')
+          ..write('milVersion: $milVersion, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -240,545 +258,350 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
   Taxonomy(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL PRIMARY KEY',
-  );
-  static const VerificationMeta _phylosortMeta = const VerificationMeta(
-    'phylosort',
-  );
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  static const VerificationMeta _phylosortMeta =
+      const VerificationMeta('phylosort');
   late final GeneratedColumn<int> phylosort = GeneratedColumn<int>(
-    'phylosort',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _subclassMeta = const VerificationMeta(
-    'subclass',
-  );
+      'phylosort', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _subclassMeta =
+      const VerificationMeta('subclass');
   late final GeneratedColumn<String> subclass = GeneratedColumn<String>(
-    'subclass',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _infraclassMeta = const VerificationMeta(
-    'infraclass',
-  );
+      'subclass', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _infraclassMeta =
+      const VerificationMeta('infraclass');
   late final GeneratedColumn<String> infraclass = GeneratedColumn<String>(
-    'infraclass',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _magnorderMeta = const VerificationMeta(
-    'magnorder',
-  );
+      'infraclass', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _magnorderMeta =
+      const VerificationMeta('magnorder');
   late final GeneratedColumn<String> magnorder = GeneratedColumn<String>(
-    'magnorder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _superorderMeta = const VerificationMeta(
-    'superorder',
-  );
+      'magnorder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _superorderMeta =
+      const VerificationMeta('superorder');
   late final GeneratedColumn<String> superorder = GeneratedColumn<String>(
-    'superorder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _taxonOrderMeta = const VerificationMeta(
-    'taxonOrder',
-  );
+      'superorder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _taxonOrderMeta =
+      const VerificationMeta('taxonOrder');
   late final GeneratedColumn<String> taxonOrder = GeneratedColumn<String>(
-    'taxonOrder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _suborderMeta = const VerificationMeta(
-    'suborder',
-  );
+      'taxonOrder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _suborderMeta =
+      const VerificationMeta('suborder');
   late final GeneratedColumn<String> suborder = GeneratedColumn<String>(
-    'suborder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _infraorderMeta = const VerificationMeta(
-    'infraorder',
-  );
+      'suborder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _infraorderMeta =
+      const VerificationMeta('infraorder');
   late final GeneratedColumn<String> infraorder = GeneratedColumn<String>(
-    'infraorder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _parvorderMeta = const VerificationMeta(
-    'parvorder',
-  );
+      'infraorder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _parvorderMeta =
+      const VerificationMeta('parvorder');
   late final GeneratedColumn<String> parvorder = GeneratedColumn<String>(
-    'parvorder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _superfamilyMeta = const VerificationMeta(
-    'superfamily',
-  );
+      'parvorder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _superfamilyMeta =
+      const VerificationMeta('superfamily');
   late final GeneratedColumn<String> superfamily = GeneratedColumn<String>(
-    'superfamily',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'superfamily', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _familyMeta = const VerificationMeta('family');
   late final GeneratedColumn<String> family = GeneratedColumn<String>(
-    'family',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _subfamilyMeta = const VerificationMeta(
-    'subfamily',
-  );
+      'family', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _subfamilyMeta =
+      const VerificationMeta('subfamily');
   late final GeneratedColumn<String> subfamily = GeneratedColumn<String>(
-    'subfamily',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'subfamily', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _tribeMeta = const VerificationMeta('tribe');
   late final GeneratedColumn<String> tribe = GeneratedColumn<String>(
-    'tribe',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'tribe', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _genusMeta = const VerificationMeta('genus');
   late final GeneratedColumn<String> genus = GeneratedColumn<String>(
-    'genus',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _subgenusMeta = const VerificationMeta(
-    'subgenus',
-  );
+      'genus', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _subgenusMeta =
+      const VerificationMeta('subgenus');
   late final GeneratedColumn<String> subgenus = GeneratedColumn<String>(
-    'subgenus',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _specificEpithetMeta = const VerificationMeta(
-    'specificEpithet',
-  );
+      'subgenus', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _specificEpithetMeta =
+      const VerificationMeta('specificEpithet');
   late final GeneratedColumn<String> specificEpithet = GeneratedColumn<String>(
-    'specificEpithet',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _sciNameMeta = const VerificationMeta(
-    'sciName',
-  );
+      'specificEpithet', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _sciNameMeta =
+      const VerificationMeta('sciName');
   late final GeneratedColumn<String> sciName = GeneratedColumn<String>(
-    'sciName',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'sciName', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _authoritySpeciesAuthorMeta =
       const VerificationMeta('authoritySpeciesAuthor');
   late final GeneratedColumn<String> authoritySpeciesAuthor =
-      GeneratedColumn<String>(
-    'authoritySpeciesAuthor',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('authoritySpeciesAuthor', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _authoritySpeciesYearMeta =
       const VerificationMeta('authoritySpeciesYear');
   late final GeneratedColumn<int> authoritySpeciesYear = GeneratedColumn<int>(
-    'authoritySpeciesYear',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'authoritySpeciesYear', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _authorityParenthesesMeta =
       const VerificationMeta('authorityParentheses');
   late final GeneratedColumn<int> authorityParentheses = GeneratedColumn<int>(
-    'authorityParentheses',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _mainCommonNameMeta = const VerificationMeta(
-    'mainCommonName',
-  );
+      'authorityParentheses', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _mainCommonNameMeta =
+      const VerificationMeta('mainCommonName');
   late final GeneratedColumn<String> mainCommonName = GeneratedColumn<String>(
-    'mainCommonName',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _otherCommonNamesMeta = const VerificationMeta(
-    'otherCommonNames',
-  );
+      'mainCommonName', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _otherCommonNamesMeta =
+      const VerificationMeta('otherCommonNames');
   late final GeneratedColumn<String> otherCommonNames = GeneratedColumn<String>(
-    'otherCommonNames',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'otherCommonNames', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _originalNameCombinationMeta =
       const VerificationMeta('originalNameCombination');
   late final GeneratedColumn<String> originalNameCombination =
-      GeneratedColumn<String>(
-    'originalNameCombination',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('originalNameCombination', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _authoritySpeciesCitationMeta =
       const VerificationMeta('authoritySpeciesCitation');
   late final GeneratedColumn<String> authoritySpeciesCitation =
-      GeneratedColumn<String>(
-    'authoritySpeciesCitation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('authoritySpeciesCitation', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _authoritySpeciesLinkMeta =
       const VerificationMeta('authoritySpeciesLink');
   late final GeneratedColumn<String> authoritySpeciesLink =
-      GeneratedColumn<String>(
-    'authoritySpeciesLink',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeVoucherMeta = const VerificationMeta(
-    'typeVoucher',
-  );
+      GeneratedColumn<String>('authoritySpeciesLink', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _typeVoucherMeta =
+      const VerificationMeta('typeVoucher');
   late final GeneratedColumn<String> typeVoucher = GeneratedColumn<String>(
-    'typeVoucher',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeKindMeta = const VerificationMeta(
-    'typeKind',
-  );
+      'typeVoucher', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeKindMeta =
+      const VerificationMeta('typeKind');
   late final GeneratedColumn<String> typeKind = GeneratedColumn<String>(
-    'typeKind',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeVoucherURIsMeta = const VerificationMeta(
-    'typeVoucherURIs',
-  );
+      'typeKind', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeVoucherURIsMeta =
+      const VerificationMeta('typeVoucherURIs');
   late final GeneratedColumn<String> typeVoucherURIs = GeneratedColumn<String>(
-    'typeVoucherURIs',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeLocalityMeta = const VerificationMeta(
-    'typeLocality',
-  );
+      'typeVoucherURIs', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeLocalityMeta =
+      const VerificationMeta('typeLocality');
   late final GeneratedColumn<String> typeLocality = GeneratedColumn<String>(
-    'typeLocality',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'typeLocality', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _typeLocalityLatitudeMeta =
       const VerificationMeta('typeLocalityLatitude');
   late final GeneratedColumn<String> typeLocalityLatitude =
-      GeneratedColumn<String>(
-    'typeLocalityLatitude',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('typeLocalityLatitude', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _typeLocalityLongitudeMeta =
       const VerificationMeta('typeLocalityLongitude');
   late final GeneratedColumn<String> typeLocalityLongitude =
-      GeneratedColumn<String>(
-    'typeLocalityLongitude',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _nominalNamesMeta = const VerificationMeta(
-    'nominalNames',
-  );
+      GeneratedColumn<String>('typeLocalityLongitude', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _nominalNamesMeta =
+      const VerificationMeta('nominalNames');
   late final GeneratedColumn<String> nominalNames = GeneratedColumn<String>(
-    'nominalNames',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _taxonomyNotesMeta = const VerificationMeta(
-    'taxonomyNotes',
-  );
+      'nominalNames', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _taxonomyNotesMeta =
+      const VerificationMeta('taxonomyNotes');
   late final GeneratedColumn<String> taxonomyNotes = GeneratedColumn<String>(
-    'taxonomyNotes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'taxonomyNotes', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _taxonomyNotesCitationMeta =
       const VerificationMeta('taxonomyNotesCitation');
   late final GeneratedColumn<String> taxonomyNotesCitation =
-      GeneratedColumn<String>(
-    'taxonomyNotesCitation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _distributionNotesMeta = const VerificationMeta(
-    'distributionNotes',
-  );
+      GeneratedColumn<String>('taxonomyNotesCitation', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _distributionNotesMeta =
+      const VerificationMeta('distributionNotes');
   late final GeneratedColumn<String> distributionNotes =
-      GeneratedColumn<String>(
-    'distributionNotes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('distributionNotes', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _distributionNotesCitationMeta =
       const VerificationMeta('distributionNotesCitation');
   late final GeneratedColumn<String> distributionNotesCitation =
-      GeneratedColumn<String>(
-    'distributionNotesCitation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('distributionNotesCitation', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _subregionDistributionMeta =
       const VerificationMeta('subregionDistribution');
   late final GeneratedColumn<String> subregionDistribution =
-      GeneratedColumn<String>(
-    'subregionDistribution',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('subregionDistribution', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _countryDistributionMeta =
       const VerificationMeta('countryDistribution');
   late final GeneratedColumn<String> countryDistribution =
-      GeneratedColumn<String>(
-    'countryDistribution',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('countryDistribution', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _continentDistributionMeta =
       const VerificationMeta('continentDistribution');
   late final GeneratedColumn<String> continentDistribution =
-      GeneratedColumn<String>(
-    'continentDistribution',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('continentDistribution', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _biogeographicRealmMeta =
       const VerificationMeta('biogeographicRealm');
   late final GeneratedColumn<String> biogeographicRealm =
-      GeneratedColumn<String>(
-    'biogeographicRealm',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _iucnStatusMeta = const VerificationMeta(
-    'iucnStatus',
-  );
+      GeneratedColumn<String>('biogeographicRealm', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _iucnStatusMeta =
+      const VerificationMeta('iucnStatus');
   late final GeneratedColumn<String> iucnStatus = GeneratedColumn<String>(
-    'iucnStatus',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _extinctMeta = const VerificationMeta(
-    'extinct',
-  );
+      'iucnStatus', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _extinctMeta =
+      const VerificationMeta('extinct');
   late final GeneratedColumn<int> extinct = GeneratedColumn<int>(
-    'extinct',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _domesticMeta = const VerificationMeta(
-    'domestic',
-  );
+      'extinct', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _domesticMeta =
+      const VerificationMeta('domestic');
   late final GeneratedColumn<int> domestic = GeneratedColumn<int>(
-    'domestic',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _flaggedMeta = const VerificationMeta(
-    'flagged',
-  );
+      'domestic', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _flaggedMeta =
+      const VerificationMeta('flagged');
   late final GeneratedColumn<int> flagged = GeneratedColumn<int>(
-    'flagged',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _cMWSciNameMeta = const VerificationMeta(
-    'cMWSciName',
-  );
+      'flagged', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _cMWSciNameMeta =
+      const VerificationMeta('cMWSciName');
   late final GeneratedColumn<String> cMWSciName = GeneratedColumn<String>(
-    'CMW_sciName',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _diffSinceCMWMeta = const VerificationMeta(
-    'diffSinceCMW',
-  );
+      'CMW_sciName', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _diffSinceCMWMeta =
+      const VerificationMeta('diffSinceCMW');
   late final GeneratedColumn<int> diffSinceCMW = GeneratedColumn<int>(
-    'diffSinceCMW',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _mSW3MatchtypeMeta = const VerificationMeta(
-    'mSW3Matchtype',
-  );
+      'diffSinceCMW', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _mSW3MatchtypeMeta =
+      const VerificationMeta('mSW3Matchtype');
   late final GeneratedColumn<String> mSW3Matchtype = GeneratedColumn<String>(
-    'MSW3_matchtype',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _mSW3SciNameMeta = const VerificationMeta(
-    'mSW3SciName',
-  );
+      'MSW3_matchtype', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _mSW3SciNameMeta =
+      const VerificationMeta('mSW3SciName');
   late final GeneratedColumn<String> mSW3SciName = GeneratedColumn<String>(
-    'MSW3_sciName',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _diffSinceMSW3Meta = const VerificationMeta(
-    'diffSinceMSW3',
-  );
+      'MSW3_sciName', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _diffSinceMSW3Meta =
+      const VerificationMeta('diffSinceMSW3');
   late final GeneratedColumn<String> diffSinceMSW3 = GeneratedColumn<String>(
-    'diffSinceMSW3',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'diffSinceMSW3', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -830,7 +653,7 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
         diffSinceCMW,
         mSW3Matchtype,
         mSW3SciName,
-        diffSinceMSW3,
+        diffSinceMSW3
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -838,392 +661,278 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
   String get actualTableName => $name;
   static const String $name = 'taxonomy';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<TaxonomyData> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<TaxonomyData> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('phylosort')) {
-      context.handle(
-        _phylosortMeta,
-        phylosort.isAcceptableOrUnknown(data['phylosort']!, _phylosortMeta),
-      );
+      context.handle(_phylosortMeta,
+          phylosort.isAcceptableOrUnknown(data['phylosort']!, _phylosortMeta));
     }
     if (data.containsKey('subclass')) {
-      context.handle(
-        _subclassMeta,
-        subclass.isAcceptableOrUnknown(data['subclass']!, _subclassMeta),
-      );
+      context.handle(_subclassMeta,
+          subclass.isAcceptableOrUnknown(data['subclass']!, _subclassMeta));
     }
     if (data.containsKey('infraclass')) {
       context.handle(
-        _infraclassMeta,
-        infraclass.isAcceptableOrUnknown(data['infraclass']!, _infraclassMeta),
-      );
+          _infraclassMeta,
+          infraclass.isAcceptableOrUnknown(
+              data['infraclass']!, _infraclassMeta));
     }
     if (data.containsKey('magnorder')) {
-      context.handle(
-        _magnorderMeta,
-        magnorder.isAcceptableOrUnknown(data['magnorder']!, _magnorderMeta),
-      );
+      context.handle(_magnorderMeta,
+          magnorder.isAcceptableOrUnknown(data['magnorder']!, _magnorderMeta));
     }
     if (data.containsKey('superorder')) {
       context.handle(
-        _superorderMeta,
-        superorder.isAcceptableOrUnknown(data['superorder']!, _superorderMeta),
-      );
+          _superorderMeta,
+          superorder.isAcceptableOrUnknown(
+              data['superorder']!, _superorderMeta));
     }
     if (data.containsKey('taxonOrder')) {
       context.handle(
-        _taxonOrderMeta,
-        taxonOrder.isAcceptableOrUnknown(data['taxonOrder']!, _taxonOrderMeta),
-      );
+          _taxonOrderMeta,
+          taxonOrder.isAcceptableOrUnknown(
+              data['taxonOrder']!, _taxonOrderMeta));
     }
     if (data.containsKey('suborder')) {
-      context.handle(
-        _suborderMeta,
-        suborder.isAcceptableOrUnknown(data['suborder']!, _suborderMeta),
-      );
+      context.handle(_suborderMeta,
+          suborder.isAcceptableOrUnknown(data['suborder']!, _suborderMeta));
     }
     if (data.containsKey('infraorder')) {
       context.handle(
-        _infraorderMeta,
-        infraorder.isAcceptableOrUnknown(data['infraorder']!, _infraorderMeta),
-      );
+          _infraorderMeta,
+          infraorder.isAcceptableOrUnknown(
+              data['infraorder']!, _infraorderMeta));
     }
     if (data.containsKey('parvorder')) {
-      context.handle(
-        _parvorderMeta,
-        parvorder.isAcceptableOrUnknown(data['parvorder']!, _parvorderMeta),
-      );
+      context.handle(_parvorderMeta,
+          parvorder.isAcceptableOrUnknown(data['parvorder']!, _parvorderMeta));
     }
     if (data.containsKey('superfamily')) {
       context.handle(
-        _superfamilyMeta,
-        superfamily.isAcceptableOrUnknown(
-          data['superfamily']!,
           _superfamilyMeta,
-        ),
-      );
+          superfamily.isAcceptableOrUnknown(
+              data['superfamily']!, _superfamilyMeta));
     }
     if (data.containsKey('family')) {
-      context.handle(
-        _familyMeta,
-        family.isAcceptableOrUnknown(data['family']!, _familyMeta),
-      );
+      context.handle(_familyMeta,
+          family.isAcceptableOrUnknown(data['family']!, _familyMeta));
     }
     if (data.containsKey('subfamily')) {
-      context.handle(
-        _subfamilyMeta,
-        subfamily.isAcceptableOrUnknown(data['subfamily']!, _subfamilyMeta),
-      );
+      context.handle(_subfamilyMeta,
+          subfamily.isAcceptableOrUnknown(data['subfamily']!, _subfamilyMeta));
     }
     if (data.containsKey('tribe')) {
       context.handle(
-        _tribeMeta,
-        tribe.isAcceptableOrUnknown(data['tribe']!, _tribeMeta),
-      );
+          _tribeMeta, tribe.isAcceptableOrUnknown(data['tribe']!, _tribeMeta));
     }
     if (data.containsKey('genus')) {
       context.handle(
-        _genusMeta,
-        genus.isAcceptableOrUnknown(data['genus']!, _genusMeta),
-      );
+          _genusMeta, genus.isAcceptableOrUnknown(data['genus']!, _genusMeta));
     }
     if (data.containsKey('subgenus')) {
-      context.handle(
-        _subgenusMeta,
-        subgenus.isAcceptableOrUnknown(data['subgenus']!, _subgenusMeta),
-      );
+      context.handle(_subgenusMeta,
+          subgenus.isAcceptableOrUnknown(data['subgenus']!, _subgenusMeta));
     }
     if (data.containsKey('specificEpithet')) {
       context.handle(
-        _specificEpithetMeta,
-        specificEpithet.isAcceptableOrUnknown(
-          data['specificEpithet']!,
           _specificEpithetMeta,
-        ),
-      );
+          specificEpithet.isAcceptableOrUnknown(
+              data['specificEpithet']!, _specificEpithetMeta));
     }
     if (data.containsKey('sciName')) {
-      context.handle(
-        _sciNameMeta,
-        sciName.isAcceptableOrUnknown(data['sciName']!, _sciNameMeta),
-      );
+      context.handle(_sciNameMeta,
+          sciName.isAcceptableOrUnknown(data['sciName']!, _sciNameMeta));
     }
     if (data.containsKey('authoritySpeciesAuthor')) {
       context.handle(
-        _authoritySpeciesAuthorMeta,
-        authoritySpeciesAuthor.isAcceptableOrUnknown(
-          data['authoritySpeciesAuthor']!,
           _authoritySpeciesAuthorMeta,
-        ),
-      );
+          authoritySpeciesAuthor.isAcceptableOrUnknown(
+              data['authoritySpeciesAuthor']!, _authoritySpeciesAuthorMeta));
     }
     if (data.containsKey('authoritySpeciesYear')) {
       context.handle(
-        _authoritySpeciesYearMeta,
-        authoritySpeciesYear.isAcceptableOrUnknown(
-          data['authoritySpeciesYear']!,
           _authoritySpeciesYearMeta,
-        ),
-      );
+          authoritySpeciesYear.isAcceptableOrUnknown(
+              data['authoritySpeciesYear']!, _authoritySpeciesYearMeta));
     }
     if (data.containsKey('authorityParentheses')) {
       context.handle(
-        _authorityParenthesesMeta,
-        authorityParentheses.isAcceptableOrUnknown(
-          data['authorityParentheses']!,
           _authorityParenthesesMeta,
-        ),
-      );
+          authorityParentheses.isAcceptableOrUnknown(
+              data['authorityParentheses']!, _authorityParenthesesMeta));
     }
     if (data.containsKey('mainCommonName')) {
       context.handle(
-        _mainCommonNameMeta,
-        mainCommonName.isAcceptableOrUnknown(
-          data['mainCommonName']!,
           _mainCommonNameMeta,
-        ),
-      );
+          mainCommonName.isAcceptableOrUnknown(
+              data['mainCommonName']!, _mainCommonNameMeta));
     }
     if (data.containsKey('otherCommonNames')) {
       context.handle(
-        _otherCommonNamesMeta,
-        otherCommonNames.isAcceptableOrUnknown(
-          data['otherCommonNames']!,
           _otherCommonNamesMeta,
-        ),
-      );
+          otherCommonNames.isAcceptableOrUnknown(
+              data['otherCommonNames']!, _otherCommonNamesMeta));
     }
     if (data.containsKey('originalNameCombination')) {
       context.handle(
-        _originalNameCombinationMeta,
-        originalNameCombination.isAcceptableOrUnknown(
-          data['originalNameCombination']!,
           _originalNameCombinationMeta,
-        ),
-      );
+          originalNameCombination.isAcceptableOrUnknown(
+              data['originalNameCombination']!, _originalNameCombinationMeta));
     }
     if (data.containsKey('authoritySpeciesCitation')) {
       context.handle(
-        _authoritySpeciesCitationMeta,
-        authoritySpeciesCitation.isAcceptableOrUnknown(
-          data['authoritySpeciesCitation']!,
           _authoritySpeciesCitationMeta,
-        ),
-      );
+          authoritySpeciesCitation.isAcceptableOrUnknown(
+              data['authoritySpeciesCitation']!,
+              _authoritySpeciesCitationMeta));
     }
     if (data.containsKey('authoritySpeciesLink')) {
       context.handle(
-        _authoritySpeciesLinkMeta,
-        authoritySpeciesLink.isAcceptableOrUnknown(
-          data['authoritySpeciesLink']!,
           _authoritySpeciesLinkMeta,
-        ),
-      );
+          authoritySpeciesLink.isAcceptableOrUnknown(
+              data['authoritySpeciesLink']!, _authoritySpeciesLinkMeta));
     }
     if (data.containsKey('typeVoucher')) {
       context.handle(
-        _typeVoucherMeta,
-        typeVoucher.isAcceptableOrUnknown(
-          data['typeVoucher']!,
           _typeVoucherMeta,
-        ),
-      );
+          typeVoucher.isAcceptableOrUnknown(
+              data['typeVoucher']!, _typeVoucherMeta));
     }
     if (data.containsKey('typeKind')) {
-      context.handle(
-        _typeKindMeta,
-        typeKind.isAcceptableOrUnknown(data['typeKind']!, _typeKindMeta),
-      );
+      context.handle(_typeKindMeta,
+          typeKind.isAcceptableOrUnknown(data['typeKind']!, _typeKindMeta));
     }
     if (data.containsKey('typeVoucherURIs')) {
       context.handle(
-        _typeVoucherURIsMeta,
-        typeVoucherURIs.isAcceptableOrUnknown(
-          data['typeVoucherURIs']!,
           _typeVoucherURIsMeta,
-        ),
-      );
+          typeVoucherURIs.isAcceptableOrUnknown(
+              data['typeVoucherURIs']!, _typeVoucherURIsMeta));
     }
     if (data.containsKey('typeLocality')) {
       context.handle(
-        _typeLocalityMeta,
-        typeLocality.isAcceptableOrUnknown(
-          data['typeLocality']!,
           _typeLocalityMeta,
-        ),
-      );
+          typeLocality.isAcceptableOrUnknown(
+              data['typeLocality']!, _typeLocalityMeta));
     }
     if (data.containsKey('typeLocalityLatitude')) {
       context.handle(
-        _typeLocalityLatitudeMeta,
-        typeLocalityLatitude.isAcceptableOrUnknown(
-          data['typeLocalityLatitude']!,
           _typeLocalityLatitudeMeta,
-        ),
-      );
+          typeLocalityLatitude.isAcceptableOrUnknown(
+              data['typeLocalityLatitude']!, _typeLocalityLatitudeMeta));
     }
     if (data.containsKey('typeLocalityLongitude')) {
       context.handle(
-        _typeLocalityLongitudeMeta,
-        typeLocalityLongitude.isAcceptableOrUnknown(
-          data['typeLocalityLongitude']!,
           _typeLocalityLongitudeMeta,
-        ),
-      );
+          typeLocalityLongitude.isAcceptableOrUnknown(
+              data['typeLocalityLongitude']!, _typeLocalityLongitudeMeta));
     }
     if (data.containsKey('nominalNames')) {
       context.handle(
-        _nominalNamesMeta,
-        nominalNames.isAcceptableOrUnknown(
-          data['nominalNames']!,
           _nominalNamesMeta,
-        ),
-      );
+          nominalNames.isAcceptableOrUnknown(
+              data['nominalNames']!, _nominalNamesMeta));
     }
     if (data.containsKey('taxonomyNotes')) {
       context.handle(
-        _taxonomyNotesMeta,
-        taxonomyNotes.isAcceptableOrUnknown(
-          data['taxonomyNotes']!,
           _taxonomyNotesMeta,
-        ),
-      );
+          taxonomyNotes.isAcceptableOrUnknown(
+              data['taxonomyNotes']!, _taxonomyNotesMeta));
     }
     if (data.containsKey('taxonomyNotesCitation')) {
       context.handle(
-        _taxonomyNotesCitationMeta,
-        taxonomyNotesCitation.isAcceptableOrUnknown(
-          data['taxonomyNotesCitation']!,
           _taxonomyNotesCitationMeta,
-        ),
-      );
+          taxonomyNotesCitation.isAcceptableOrUnknown(
+              data['taxonomyNotesCitation']!, _taxonomyNotesCitationMeta));
     }
     if (data.containsKey('distributionNotes')) {
       context.handle(
-        _distributionNotesMeta,
-        distributionNotes.isAcceptableOrUnknown(
-          data['distributionNotes']!,
           _distributionNotesMeta,
-        ),
-      );
+          distributionNotes.isAcceptableOrUnknown(
+              data['distributionNotes']!, _distributionNotesMeta));
     }
     if (data.containsKey('distributionNotesCitation')) {
       context.handle(
-        _distributionNotesCitationMeta,
-        distributionNotesCitation.isAcceptableOrUnknown(
-          data['distributionNotesCitation']!,
           _distributionNotesCitationMeta,
-        ),
-      );
+          distributionNotesCitation.isAcceptableOrUnknown(
+              data['distributionNotesCitation']!,
+              _distributionNotesCitationMeta));
     }
     if (data.containsKey('subregionDistribution')) {
       context.handle(
-        _subregionDistributionMeta,
-        subregionDistribution.isAcceptableOrUnknown(
-          data['subregionDistribution']!,
           _subregionDistributionMeta,
-        ),
-      );
+          subregionDistribution.isAcceptableOrUnknown(
+              data['subregionDistribution']!, _subregionDistributionMeta));
     }
     if (data.containsKey('countryDistribution')) {
       context.handle(
-        _countryDistributionMeta,
-        countryDistribution.isAcceptableOrUnknown(
-          data['countryDistribution']!,
           _countryDistributionMeta,
-        ),
-      );
+          countryDistribution.isAcceptableOrUnknown(
+              data['countryDistribution']!, _countryDistributionMeta));
     }
     if (data.containsKey('continentDistribution')) {
       context.handle(
-        _continentDistributionMeta,
-        continentDistribution.isAcceptableOrUnknown(
-          data['continentDistribution']!,
           _continentDistributionMeta,
-        ),
-      );
+          continentDistribution.isAcceptableOrUnknown(
+              data['continentDistribution']!, _continentDistributionMeta));
     }
     if (data.containsKey('biogeographicRealm')) {
       context.handle(
-        _biogeographicRealmMeta,
-        biogeographicRealm.isAcceptableOrUnknown(
-          data['biogeographicRealm']!,
           _biogeographicRealmMeta,
-        ),
-      );
+          biogeographicRealm.isAcceptableOrUnknown(
+              data['biogeographicRealm']!, _biogeographicRealmMeta));
     }
     if (data.containsKey('iucnStatus')) {
       context.handle(
-        _iucnStatusMeta,
-        iucnStatus.isAcceptableOrUnknown(data['iucnStatus']!, _iucnStatusMeta),
-      );
+          _iucnStatusMeta,
+          iucnStatus.isAcceptableOrUnknown(
+              data['iucnStatus']!, _iucnStatusMeta));
     }
     if (data.containsKey('extinct')) {
-      context.handle(
-        _extinctMeta,
-        extinct.isAcceptableOrUnknown(data['extinct']!, _extinctMeta),
-      );
+      context.handle(_extinctMeta,
+          extinct.isAcceptableOrUnknown(data['extinct']!, _extinctMeta));
     }
     if (data.containsKey('domestic')) {
-      context.handle(
-        _domesticMeta,
-        domestic.isAcceptableOrUnknown(data['domestic']!, _domesticMeta),
-      );
+      context.handle(_domesticMeta,
+          domestic.isAcceptableOrUnknown(data['domestic']!, _domesticMeta));
     }
     if (data.containsKey('flagged')) {
-      context.handle(
-        _flaggedMeta,
-        flagged.isAcceptableOrUnknown(data['flagged']!, _flaggedMeta),
-      );
+      context.handle(_flaggedMeta,
+          flagged.isAcceptableOrUnknown(data['flagged']!, _flaggedMeta));
     }
     if (data.containsKey('CMW_sciName')) {
       context.handle(
-        _cMWSciNameMeta,
-        cMWSciName.isAcceptableOrUnknown(data['CMW_sciName']!, _cMWSciNameMeta),
-      );
+          _cMWSciNameMeta,
+          cMWSciName.isAcceptableOrUnknown(
+              data['CMW_sciName']!, _cMWSciNameMeta));
     }
     if (data.containsKey('diffSinceCMW')) {
       context.handle(
-        _diffSinceCMWMeta,
-        diffSinceCMW.isAcceptableOrUnknown(
-          data['diffSinceCMW']!,
           _diffSinceCMWMeta,
-        ),
-      );
+          diffSinceCMW.isAcceptableOrUnknown(
+              data['diffSinceCMW']!, _diffSinceCMWMeta));
     }
     if (data.containsKey('MSW3_matchtype')) {
       context.handle(
-        _mSW3MatchtypeMeta,
-        mSW3Matchtype.isAcceptableOrUnknown(
-          data['MSW3_matchtype']!,
           _mSW3MatchtypeMeta,
-        ),
-      );
+          mSW3Matchtype.isAcceptableOrUnknown(
+              data['MSW3_matchtype']!, _mSW3MatchtypeMeta));
     }
     if (data.containsKey('MSW3_sciName')) {
       context.handle(
-        _mSW3SciNameMeta,
-        mSW3SciName.isAcceptableOrUnknown(
-          data['MSW3_sciName']!,
           _mSW3SciNameMeta,
-        ),
-      );
+          mSW3SciName.isAcceptableOrUnknown(
+              data['MSW3_sciName']!, _mSW3SciNameMeta));
     }
     if (data.containsKey('diffSinceMSW3')) {
       context.handle(
-        _diffSinceMSW3Meta,
-        diffSinceMSW3.isAcceptableOrUnknown(
-          data['diffSinceMSW3']!,
           _diffSinceMSW3Meta,
-        ),
-      );
+          diffSinceMSW3.isAcceptableOrUnknown(
+              data['diffSinceMSW3']!, _diffSinceMSW3Meta));
     }
     return context;
   }
@@ -1234,206 +943,110 @@ class Taxonomy extends Table with TableInfo<Taxonomy, TaxonomyData> {
   TaxonomyData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TaxonomyData(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      phylosort: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}phylosort'],
-      ),
-      subclass: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}subclass'],
-      ),
-      infraclass: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}infraclass'],
-      ),
-      magnorder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}magnorder'],
-      ),
-      superorder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}superorder'],
-      ),
-      taxonOrder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}taxonOrder'],
-      ),
-      suborder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}suborder'],
-      ),
-      infraorder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}infraorder'],
-      ),
-      parvorder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}parvorder'],
-      ),
-      superfamily: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}superfamily'],
-      ),
-      family: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}family'],
-      ),
-      subfamily: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}subfamily'],
-      ),
-      tribe: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}tribe'],
-      ),
-      genus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}genus'],
-      ),
-      subgenus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}subgenus'],
-      ),
-      specificEpithet: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}specificEpithet'],
-      ),
-      sciName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}sciName'],
-      ),
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      phylosort: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}phylosort']),
+      subclass: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subclass']),
+      infraclass: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}infraclass']),
+      magnorder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}magnorder']),
+      superorder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}superorder']),
+      taxonOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}taxonOrder']),
+      suborder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}suborder']),
+      infraorder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}infraorder']),
+      parvorder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parvorder']),
+      superfamily: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}superfamily']),
+      family: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}family']),
+      subfamily: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subfamily']),
+      tribe: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tribe']),
+      genus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genus']),
+      subgenus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subgenus']),
+      specificEpithet: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}specificEpithet']),
+      sciName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sciName']),
       authoritySpeciesAuthor: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authoritySpeciesAuthor'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}authoritySpeciesAuthor']),
       authoritySpeciesYear: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}authoritySpeciesYear'],
-      ),
+          DriftSqlType.int, data['${effectivePrefix}authoritySpeciesYear']),
       authorityParentheses: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}authorityParentheses'],
-      ),
-      mainCommonName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}mainCommonName'],
-      ),
+          DriftSqlType.int, data['${effectivePrefix}authorityParentheses']),
+      mainCommonName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mainCommonName']),
       otherCommonNames: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}otherCommonNames'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}otherCommonNames']),
       originalNameCombination: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}originalNameCombination'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}originalNameCombination']),
       authoritySpeciesCitation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authoritySpeciesCitation'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}authoritySpeciesCitation']),
       authoritySpeciesLink: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authoritySpeciesLink'],
-      ),
-      typeVoucher: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeVoucher'],
-      ),
-      typeKind: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeKind'],
-      ),
-      typeVoucherURIs: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeVoucherURIs'],
-      ),
-      typeLocality: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeLocality'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}authoritySpeciesLink']),
+      typeVoucher: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeVoucher']),
+      typeKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeKind']),
+      typeVoucherURIs: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeVoucherURIs']),
+      typeLocality: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeLocality']),
       typeLocalityLatitude: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeLocalityLatitude'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}typeLocalityLatitude']),
       typeLocalityLongitude: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeLocalityLongitude'],
-      ),
-      nominalNames: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}nominalNames'],
-      ),
-      taxonomyNotes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}taxonomyNotes'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}typeLocalityLongitude']),
+      nominalNames: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nominalNames']),
+      taxonomyNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}taxonomyNotes']),
       taxonomyNotesCitation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}taxonomyNotesCitation'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}taxonomyNotesCitation']),
       distributionNotes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}distributionNotes'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}distributionNotes']),
       distributionNotesCitation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}distributionNotesCitation'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}distributionNotesCitation']),
       subregionDistribution: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}subregionDistribution'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}subregionDistribution']),
       countryDistribution: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}countryDistribution'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}countryDistribution']),
       continentDistribution: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}continentDistribution'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}continentDistribution']),
       biogeographicRealm: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}biogeographicRealm'],
-      ),
-      iucnStatus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}iucnStatus'],
-      ),
-      extinct: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}extinct'],
-      ),
-      domestic: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}domestic'],
-      ),
-      flagged: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}flagged'],
-      ),
-      cMWSciName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}CMW_sciName'],
-      ),
-      diffSinceCMW: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}diffSinceCMW'],
-      ),
-      mSW3Matchtype: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}MSW3_matchtype'],
-      ),
-      mSW3SciName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}MSW3_sciName'],
-      ),
-      diffSinceMSW3: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}diffSinceMSW3'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}biogeographicRealm']),
+      iucnStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}iucnStatus']),
+      extinct: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}extinct']),
+      domestic: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}domestic']),
+      flagged: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}flagged']),
+      cMWSciName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}CMW_sciName']),
+      diffSinceCMW: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}diffSinceCMW']),
+      mSW3Matchtype: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}MSW3_matchtype']),
+      mSW3SciName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}MSW3_sciName']),
+      diffSinceMSW3: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}diffSinceMSW3']),
     );
   }
 
@@ -1497,58 +1110,57 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
   final String? mSW3Matchtype;
   final String? mSW3SciName;
   final String? diffSinceMSW3;
-  const TaxonomyData({
-    required this.id,
-    this.phylosort,
-    this.subclass,
-    this.infraclass,
-    this.magnorder,
-    this.superorder,
-    this.taxonOrder,
-    this.suborder,
-    this.infraorder,
-    this.parvorder,
-    this.superfamily,
-    this.family,
-    this.subfamily,
-    this.tribe,
-    this.genus,
-    this.subgenus,
-    this.specificEpithet,
-    this.sciName,
-    this.authoritySpeciesAuthor,
-    this.authoritySpeciesYear,
-    this.authorityParentheses,
-    this.mainCommonName,
-    this.otherCommonNames,
-    this.originalNameCombination,
-    this.authoritySpeciesCitation,
-    this.authoritySpeciesLink,
-    this.typeVoucher,
-    this.typeKind,
-    this.typeVoucherURIs,
-    this.typeLocality,
-    this.typeLocalityLatitude,
-    this.typeLocalityLongitude,
-    this.nominalNames,
-    this.taxonomyNotes,
-    this.taxonomyNotesCitation,
-    this.distributionNotes,
-    this.distributionNotesCitation,
-    this.subregionDistribution,
-    this.countryDistribution,
-    this.continentDistribution,
-    this.biogeographicRealm,
-    this.iucnStatus,
-    this.extinct,
-    this.domestic,
-    this.flagged,
-    this.cMWSciName,
-    this.diffSinceCMW,
-    this.mSW3Matchtype,
-    this.mSW3SciName,
-    this.diffSinceMSW3,
-  });
+  const TaxonomyData(
+      {required this.id,
+      this.phylosort,
+      this.subclass,
+      this.infraclass,
+      this.magnorder,
+      this.superorder,
+      this.taxonOrder,
+      this.suborder,
+      this.infraorder,
+      this.parvorder,
+      this.superfamily,
+      this.family,
+      this.subfamily,
+      this.tribe,
+      this.genus,
+      this.subgenus,
+      this.specificEpithet,
+      this.sciName,
+      this.authoritySpeciesAuthor,
+      this.authoritySpeciesYear,
+      this.authorityParentheses,
+      this.mainCommonName,
+      this.otherCommonNames,
+      this.originalNameCombination,
+      this.authoritySpeciesCitation,
+      this.authoritySpeciesLink,
+      this.typeVoucher,
+      this.typeKind,
+      this.typeVoucherURIs,
+      this.typeLocality,
+      this.typeLocalityLatitude,
+      this.typeLocalityLongitude,
+      this.nominalNames,
+      this.taxonomyNotes,
+      this.taxonomyNotesCitation,
+      this.distributionNotes,
+      this.distributionNotesCitation,
+      this.subregionDistribution,
+      this.countryDistribution,
+      this.continentDistribution,
+      this.biogeographicRealm,
+      this.iucnStatus,
+      this.extinct,
+      this.domestic,
+      this.flagged,
+      this.cMWSciName,
+      this.diffSinceCMW,
+      this.mSW3Matchtype,
+      this.mSW3SciName,
+      this.diffSinceMSW3});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1620,14 +1232,12 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       map['otherCommonNames'] = Variable<String>(otherCommonNames);
     }
     if (!nullToAbsent || originalNameCombination != null) {
-      map['originalNameCombination'] = Variable<String>(
-        originalNameCombination,
-      );
+      map['originalNameCombination'] =
+          Variable<String>(originalNameCombination);
     }
     if (!nullToAbsent || authoritySpeciesCitation != null) {
-      map['authoritySpeciesCitation'] = Variable<String>(
-        authoritySpeciesCitation,
-      );
+      map['authoritySpeciesCitation'] =
+          Variable<String>(authoritySpeciesCitation);
     }
     if (!nullToAbsent || authoritySpeciesLink != null) {
       map['authoritySpeciesLink'] = Variable<String>(authoritySpeciesLink);
@@ -1663,9 +1273,8 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       map['distributionNotes'] = Variable<String>(distributionNotes);
     }
     if (!nullToAbsent || distributionNotesCitation != null) {
-      map['distributionNotesCitation'] = Variable<String>(
-        distributionNotesCitation,
-      );
+      map['distributionNotesCitation'] =
+          Variable<String>(distributionNotesCitation);
     }
     if (!nullToAbsent || subregionDistribution != null) {
       map['subregionDistribution'] = Variable<String>(subregionDistribution);
@@ -1860,10 +1469,8 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
     );
   }
 
-  factory TaxonomyData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory TaxonomyData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TaxonomyData(
       id: serializer.fromJson<int>(json['id']),
@@ -1884,59 +1491,44 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       subgenus: serializer.fromJson<String?>(json['subgenus']),
       specificEpithet: serializer.fromJson<String?>(json['specificEpithet']),
       sciName: serializer.fromJson<String?>(json['sciName']),
-      authoritySpeciesAuthor: serializer.fromJson<String?>(
-        json['authoritySpeciesAuthor'],
-      ),
-      authoritySpeciesYear: serializer.fromJson<int?>(
-        json['authoritySpeciesYear'],
-      ),
-      authorityParentheses: serializer.fromJson<int?>(
-        json['authorityParentheses'],
-      ),
+      authoritySpeciesAuthor:
+          serializer.fromJson<String?>(json['authoritySpeciesAuthor']),
+      authoritySpeciesYear:
+          serializer.fromJson<int?>(json['authoritySpeciesYear']),
+      authorityParentheses:
+          serializer.fromJson<int?>(json['authorityParentheses']),
       mainCommonName: serializer.fromJson<String?>(json['mainCommonName']),
       otherCommonNames: serializer.fromJson<String?>(json['otherCommonNames']),
-      originalNameCombination: serializer.fromJson<String?>(
-        json['originalNameCombination'],
-      ),
-      authoritySpeciesCitation: serializer.fromJson<String?>(
-        json['authoritySpeciesCitation'],
-      ),
-      authoritySpeciesLink: serializer.fromJson<String?>(
-        json['authoritySpeciesLink'],
-      ),
+      originalNameCombination:
+          serializer.fromJson<String?>(json['originalNameCombination']),
+      authoritySpeciesCitation:
+          serializer.fromJson<String?>(json['authoritySpeciesCitation']),
+      authoritySpeciesLink:
+          serializer.fromJson<String?>(json['authoritySpeciesLink']),
       typeVoucher: serializer.fromJson<String?>(json['typeVoucher']),
       typeKind: serializer.fromJson<String?>(json['typeKind']),
       typeVoucherURIs: serializer.fromJson<String?>(json['typeVoucherURIs']),
       typeLocality: serializer.fromJson<String?>(json['typeLocality']),
-      typeLocalityLatitude: serializer.fromJson<String?>(
-        json['typeLocalityLatitude'],
-      ),
-      typeLocalityLongitude: serializer.fromJson<String?>(
-        json['typeLocalityLongitude'],
-      ),
+      typeLocalityLatitude:
+          serializer.fromJson<String?>(json['typeLocalityLatitude']),
+      typeLocalityLongitude:
+          serializer.fromJson<String?>(json['typeLocalityLongitude']),
       nominalNames: serializer.fromJson<String?>(json['nominalNames']),
       taxonomyNotes: serializer.fromJson<String?>(json['taxonomyNotes']),
-      taxonomyNotesCitation: serializer.fromJson<String?>(
-        json['taxonomyNotesCitation'],
-      ),
-      distributionNotes: serializer.fromJson<String?>(
-        json['distributionNotes'],
-      ),
-      distributionNotesCitation: serializer.fromJson<String?>(
-        json['distributionNotesCitation'],
-      ),
-      subregionDistribution: serializer.fromJson<String?>(
-        json['subregionDistribution'],
-      ),
-      countryDistribution: serializer.fromJson<String?>(
-        json['countryDistribution'],
-      ),
-      continentDistribution: serializer.fromJson<String?>(
-        json['continentDistribution'],
-      ),
-      biogeographicRealm: serializer.fromJson<String?>(
-        json['biogeographicRealm'],
-      ),
+      taxonomyNotesCitation:
+          serializer.fromJson<String?>(json['taxonomyNotesCitation']),
+      distributionNotes:
+          serializer.fromJson<String?>(json['distributionNotes']),
+      distributionNotesCitation:
+          serializer.fromJson<String?>(json['distributionNotesCitation']),
+      subregionDistribution:
+          serializer.fromJson<String?>(json['subregionDistribution']),
+      countryDistribution:
+          serializer.fromJson<String?>(json['countryDistribution']),
+      continentDistribution:
+          serializer.fromJson<String?>(json['continentDistribution']),
+      biogeographicRealm:
+          serializer.fromJson<String?>(json['biogeographicRealm']),
       iucnStatus: serializer.fromJson<String?>(json['iucnStatus']),
       extinct: serializer.fromJson<int?>(json['extinct']),
       domestic: serializer.fromJson<int?>(json['domestic']),
@@ -1970,44 +1562,36 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
       'subgenus': serializer.toJson<String?>(subgenus),
       'specificEpithet': serializer.toJson<String?>(specificEpithet),
       'sciName': serializer.toJson<String?>(sciName),
-      'authoritySpeciesAuthor': serializer.toJson<String?>(
-        authoritySpeciesAuthor,
-      ),
+      'authoritySpeciesAuthor':
+          serializer.toJson<String?>(authoritySpeciesAuthor),
       'authoritySpeciesYear': serializer.toJson<int?>(authoritySpeciesYear),
       'authorityParentheses': serializer.toJson<int?>(authorityParentheses),
       'mainCommonName': serializer.toJson<String?>(mainCommonName),
       'otherCommonNames': serializer.toJson<String?>(otherCommonNames),
-      'originalNameCombination': serializer.toJson<String?>(
-        originalNameCombination,
-      ),
-      'authoritySpeciesCitation': serializer.toJson<String?>(
-        authoritySpeciesCitation,
-      ),
+      'originalNameCombination':
+          serializer.toJson<String?>(originalNameCombination),
+      'authoritySpeciesCitation':
+          serializer.toJson<String?>(authoritySpeciesCitation),
       'authoritySpeciesLink': serializer.toJson<String?>(authoritySpeciesLink),
       'typeVoucher': serializer.toJson<String?>(typeVoucher),
       'typeKind': serializer.toJson<String?>(typeKind),
       'typeVoucherURIs': serializer.toJson<String?>(typeVoucherURIs),
       'typeLocality': serializer.toJson<String?>(typeLocality),
       'typeLocalityLatitude': serializer.toJson<String?>(typeLocalityLatitude),
-      'typeLocalityLongitude': serializer.toJson<String?>(
-        typeLocalityLongitude,
-      ),
+      'typeLocalityLongitude':
+          serializer.toJson<String?>(typeLocalityLongitude),
       'nominalNames': serializer.toJson<String?>(nominalNames),
       'taxonomyNotes': serializer.toJson<String?>(taxonomyNotes),
-      'taxonomyNotesCitation': serializer.toJson<String?>(
-        taxonomyNotesCitation,
-      ),
+      'taxonomyNotesCitation':
+          serializer.toJson<String?>(taxonomyNotesCitation),
       'distributionNotes': serializer.toJson<String?>(distributionNotes),
-      'distributionNotesCitation': serializer.toJson<String?>(
-        distributionNotesCitation,
-      ),
-      'subregionDistribution': serializer.toJson<String?>(
-        subregionDistribution,
-      ),
+      'distributionNotesCitation':
+          serializer.toJson<String?>(distributionNotesCitation),
+      'subregionDistribution':
+          serializer.toJson<String?>(subregionDistribution),
       'countryDistribution': serializer.toJson<String?>(countryDistribution),
-      'continentDistribution': serializer.toJson<String?>(
-        continentDistribution,
-      ),
+      'continentDistribution':
+          serializer.toJson<String?>(continentDistribution),
       'biogeographicRealm': serializer.toJson<String?>(biogeographicRealm),
       'iucnStatus': serializer.toJson<String?>(iucnStatus),
       'extinct': serializer.toJson<int?>(extinct),
@@ -2021,58 +1605,57 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
     };
   }
 
-  TaxonomyData copyWith({
-    int? id,
-    Value<int?> phylosort = const Value.absent(),
-    Value<String?> subclass = const Value.absent(),
-    Value<String?> infraclass = const Value.absent(),
-    Value<String?> magnorder = const Value.absent(),
-    Value<String?> superorder = const Value.absent(),
-    Value<String?> taxonOrder = const Value.absent(),
-    Value<String?> suborder = const Value.absent(),
-    Value<String?> infraorder = const Value.absent(),
-    Value<String?> parvorder = const Value.absent(),
-    Value<String?> superfamily = const Value.absent(),
-    Value<String?> family = const Value.absent(),
-    Value<String?> subfamily = const Value.absent(),
-    Value<String?> tribe = const Value.absent(),
-    Value<String?> genus = const Value.absent(),
-    Value<String?> subgenus = const Value.absent(),
-    Value<String?> specificEpithet = const Value.absent(),
-    Value<String?> sciName = const Value.absent(),
-    Value<String?> authoritySpeciesAuthor = const Value.absent(),
-    Value<int?> authoritySpeciesYear = const Value.absent(),
-    Value<int?> authorityParentheses = const Value.absent(),
-    Value<String?> mainCommonName = const Value.absent(),
-    Value<String?> otherCommonNames = const Value.absent(),
-    Value<String?> originalNameCombination = const Value.absent(),
-    Value<String?> authoritySpeciesCitation = const Value.absent(),
-    Value<String?> authoritySpeciesLink = const Value.absent(),
-    Value<String?> typeVoucher = const Value.absent(),
-    Value<String?> typeKind = const Value.absent(),
-    Value<String?> typeVoucherURIs = const Value.absent(),
-    Value<String?> typeLocality = const Value.absent(),
-    Value<String?> typeLocalityLatitude = const Value.absent(),
-    Value<String?> typeLocalityLongitude = const Value.absent(),
-    Value<String?> nominalNames = const Value.absent(),
-    Value<String?> taxonomyNotes = const Value.absent(),
-    Value<String?> taxonomyNotesCitation = const Value.absent(),
-    Value<String?> distributionNotes = const Value.absent(),
-    Value<String?> distributionNotesCitation = const Value.absent(),
-    Value<String?> subregionDistribution = const Value.absent(),
-    Value<String?> countryDistribution = const Value.absent(),
-    Value<String?> continentDistribution = const Value.absent(),
-    Value<String?> biogeographicRealm = const Value.absent(),
-    Value<String?> iucnStatus = const Value.absent(),
-    Value<int?> extinct = const Value.absent(),
-    Value<int?> domestic = const Value.absent(),
-    Value<int?> flagged = const Value.absent(),
-    Value<String?> cMWSciName = const Value.absent(),
-    Value<int?> diffSinceCMW = const Value.absent(),
-    Value<String?> mSW3Matchtype = const Value.absent(),
-    Value<String?> mSW3SciName = const Value.absent(),
-    Value<String?> diffSinceMSW3 = const Value.absent(),
-  }) =>
+  TaxonomyData copyWith(
+          {int? id,
+          Value<int?> phylosort = const Value.absent(),
+          Value<String?> subclass = const Value.absent(),
+          Value<String?> infraclass = const Value.absent(),
+          Value<String?> magnorder = const Value.absent(),
+          Value<String?> superorder = const Value.absent(),
+          Value<String?> taxonOrder = const Value.absent(),
+          Value<String?> suborder = const Value.absent(),
+          Value<String?> infraorder = const Value.absent(),
+          Value<String?> parvorder = const Value.absent(),
+          Value<String?> superfamily = const Value.absent(),
+          Value<String?> family = const Value.absent(),
+          Value<String?> subfamily = const Value.absent(),
+          Value<String?> tribe = const Value.absent(),
+          Value<String?> genus = const Value.absent(),
+          Value<String?> subgenus = const Value.absent(),
+          Value<String?> specificEpithet = const Value.absent(),
+          Value<String?> sciName = const Value.absent(),
+          Value<String?> authoritySpeciesAuthor = const Value.absent(),
+          Value<int?> authoritySpeciesYear = const Value.absent(),
+          Value<int?> authorityParentheses = const Value.absent(),
+          Value<String?> mainCommonName = const Value.absent(),
+          Value<String?> otherCommonNames = const Value.absent(),
+          Value<String?> originalNameCombination = const Value.absent(),
+          Value<String?> authoritySpeciesCitation = const Value.absent(),
+          Value<String?> authoritySpeciesLink = const Value.absent(),
+          Value<String?> typeVoucher = const Value.absent(),
+          Value<String?> typeKind = const Value.absent(),
+          Value<String?> typeVoucherURIs = const Value.absent(),
+          Value<String?> typeLocality = const Value.absent(),
+          Value<String?> typeLocalityLatitude = const Value.absent(),
+          Value<String?> typeLocalityLongitude = const Value.absent(),
+          Value<String?> nominalNames = const Value.absent(),
+          Value<String?> taxonomyNotes = const Value.absent(),
+          Value<String?> taxonomyNotesCitation = const Value.absent(),
+          Value<String?> distributionNotes = const Value.absent(),
+          Value<String?> distributionNotesCitation = const Value.absent(),
+          Value<String?> subregionDistribution = const Value.absent(),
+          Value<String?> countryDistribution = const Value.absent(),
+          Value<String?> continentDistribution = const Value.absent(),
+          Value<String?> biogeographicRealm = const Value.absent(),
+          Value<String?> iucnStatus = const Value.absent(),
+          Value<int?> extinct = const Value.absent(),
+          Value<int?> domestic = const Value.absent(),
+          Value<int?> flagged = const Value.absent(),
+          Value<String?> cMWSciName = const Value.absent(),
+          Value<int?> diffSinceCMW = const Value.absent(),
+          Value<String?> mSW3Matchtype = const Value.absent(),
+          Value<String?> mSW3SciName = const Value.absent(),
+          Value<String?> diffSinceMSW3 = const Value.absent()}) =>
       TaxonomyData(
         id: id ?? this.id,
         phylosort: phylosort.present ? phylosort.value : this.phylosort,
@@ -2390,7 +1973,7 @@ class TaxonomyData extends DataClass implements Insertable<TaxonomyData> {
         diffSinceCMW,
         mSW3Matchtype,
         mSW3SciName,
-        diffSinceMSW3,
+        diffSinceMSW3
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2722,58 +2305,57 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
     });
   }
 
-  TaxonomyCompanion copyWith({
-    Value<int>? id,
-    Value<int?>? phylosort,
-    Value<String?>? subclass,
-    Value<String?>? infraclass,
-    Value<String?>? magnorder,
-    Value<String?>? superorder,
-    Value<String?>? taxonOrder,
-    Value<String?>? suborder,
-    Value<String?>? infraorder,
-    Value<String?>? parvorder,
-    Value<String?>? superfamily,
-    Value<String?>? family,
-    Value<String?>? subfamily,
-    Value<String?>? tribe,
-    Value<String?>? genus,
-    Value<String?>? subgenus,
-    Value<String?>? specificEpithet,
-    Value<String?>? sciName,
-    Value<String?>? authoritySpeciesAuthor,
-    Value<int?>? authoritySpeciesYear,
-    Value<int?>? authorityParentheses,
-    Value<String?>? mainCommonName,
-    Value<String?>? otherCommonNames,
-    Value<String?>? originalNameCombination,
-    Value<String?>? authoritySpeciesCitation,
-    Value<String?>? authoritySpeciesLink,
-    Value<String?>? typeVoucher,
-    Value<String?>? typeKind,
-    Value<String?>? typeVoucherURIs,
-    Value<String?>? typeLocality,
-    Value<String?>? typeLocalityLatitude,
-    Value<String?>? typeLocalityLongitude,
-    Value<String?>? nominalNames,
-    Value<String?>? taxonomyNotes,
-    Value<String?>? taxonomyNotesCitation,
-    Value<String?>? distributionNotes,
-    Value<String?>? distributionNotesCitation,
-    Value<String?>? subregionDistribution,
-    Value<String?>? countryDistribution,
-    Value<String?>? continentDistribution,
-    Value<String?>? biogeographicRealm,
-    Value<String?>? iucnStatus,
-    Value<int?>? extinct,
-    Value<int?>? domestic,
-    Value<int?>? flagged,
-    Value<String?>? cMWSciName,
-    Value<int?>? diffSinceCMW,
-    Value<String?>? mSW3Matchtype,
-    Value<String?>? mSW3SciName,
-    Value<String?>? diffSinceMSW3,
-  }) {
+  TaxonomyCompanion copyWith(
+      {Value<int>? id,
+      Value<int?>? phylosort,
+      Value<String?>? subclass,
+      Value<String?>? infraclass,
+      Value<String?>? magnorder,
+      Value<String?>? superorder,
+      Value<String?>? taxonOrder,
+      Value<String?>? suborder,
+      Value<String?>? infraorder,
+      Value<String?>? parvorder,
+      Value<String?>? superfamily,
+      Value<String?>? family,
+      Value<String?>? subfamily,
+      Value<String?>? tribe,
+      Value<String?>? genus,
+      Value<String?>? subgenus,
+      Value<String?>? specificEpithet,
+      Value<String?>? sciName,
+      Value<String?>? authoritySpeciesAuthor,
+      Value<int?>? authoritySpeciesYear,
+      Value<int?>? authorityParentheses,
+      Value<String?>? mainCommonName,
+      Value<String?>? otherCommonNames,
+      Value<String?>? originalNameCombination,
+      Value<String?>? authoritySpeciesCitation,
+      Value<String?>? authoritySpeciesLink,
+      Value<String?>? typeVoucher,
+      Value<String?>? typeKind,
+      Value<String?>? typeVoucherURIs,
+      Value<String?>? typeLocality,
+      Value<String?>? typeLocalityLatitude,
+      Value<String?>? typeLocalityLongitude,
+      Value<String?>? nominalNames,
+      Value<String?>? taxonomyNotes,
+      Value<String?>? taxonomyNotesCitation,
+      Value<String?>? distributionNotes,
+      Value<String?>? distributionNotesCitation,
+      Value<String?>? subregionDistribution,
+      Value<String?>? countryDistribution,
+      Value<String?>? continentDistribution,
+      Value<String?>? biogeographicRealm,
+      Value<String?>? iucnStatus,
+      Value<int?>? extinct,
+      Value<int?>? domestic,
+      Value<int?>? flagged,
+      Value<String?>? cMWSciName,
+      Value<int?>? diffSinceCMW,
+      Value<String?>? mSW3Matchtype,
+      Value<String?>? mSW3SciName,
+      Value<String?>? diffSinceMSW3}) {
     return TaxonomyCompanion(
       id: id ?? this.id,
       phylosort: phylosort ?? this.phylosort,
@@ -2894,9 +2476,8 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['sciName'] = Variable<String>(sciName.value);
     }
     if (authoritySpeciesAuthor.present) {
-      map['authoritySpeciesAuthor'] = Variable<String>(
-        authoritySpeciesAuthor.value,
-      );
+      map['authoritySpeciesAuthor'] =
+          Variable<String>(authoritySpeciesAuthor.value);
     }
     if (authoritySpeciesYear.present) {
       map['authoritySpeciesYear'] = Variable<int>(authoritySpeciesYear.value);
@@ -2911,19 +2492,16 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['otherCommonNames'] = Variable<String>(otherCommonNames.value);
     }
     if (originalNameCombination.present) {
-      map['originalNameCombination'] = Variable<String>(
-        originalNameCombination.value,
-      );
+      map['originalNameCombination'] =
+          Variable<String>(originalNameCombination.value);
     }
     if (authoritySpeciesCitation.present) {
-      map['authoritySpeciesCitation'] = Variable<String>(
-        authoritySpeciesCitation.value,
-      );
+      map['authoritySpeciesCitation'] =
+          Variable<String>(authoritySpeciesCitation.value);
     }
     if (authoritySpeciesLink.present) {
-      map['authoritySpeciesLink'] = Variable<String>(
-        authoritySpeciesLink.value,
-      );
+      map['authoritySpeciesLink'] =
+          Variable<String>(authoritySpeciesLink.value);
     }
     if (typeVoucher.present) {
       map['typeVoucher'] = Variable<String>(typeVoucher.value);
@@ -2938,14 +2516,12 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['typeLocality'] = Variable<String>(typeLocality.value);
     }
     if (typeLocalityLatitude.present) {
-      map['typeLocalityLatitude'] = Variable<String>(
-        typeLocalityLatitude.value,
-      );
+      map['typeLocalityLatitude'] =
+          Variable<String>(typeLocalityLatitude.value);
     }
     if (typeLocalityLongitude.present) {
-      map['typeLocalityLongitude'] = Variable<String>(
-        typeLocalityLongitude.value,
-      );
+      map['typeLocalityLongitude'] =
+          Variable<String>(typeLocalityLongitude.value);
     }
     if (nominalNames.present) {
       map['nominalNames'] = Variable<String>(nominalNames.value);
@@ -2954,30 +2530,26 @@ class TaxonomyCompanion extends UpdateCompanion<TaxonomyData> {
       map['taxonomyNotes'] = Variable<String>(taxonomyNotes.value);
     }
     if (taxonomyNotesCitation.present) {
-      map['taxonomyNotesCitation'] = Variable<String>(
-        taxonomyNotesCitation.value,
-      );
+      map['taxonomyNotesCitation'] =
+          Variable<String>(taxonomyNotesCitation.value);
     }
     if (distributionNotes.present) {
       map['distributionNotes'] = Variable<String>(distributionNotes.value);
     }
     if (distributionNotesCitation.present) {
-      map['distributionNotesCitation'] = Variable<String>(
-        distributionNotesCitation.value,
-      );
+      map['distributionNotesCitation'] =
+          Variable<String>(distributionNotesCitation.value);
     }
     if (subregionDistribution.present) {
-      map['subregionDistribution'] = Variable<String>(
-        subregionDistribution.value,
-      );
+      map['subregionDistribution'] =
+          Variable<String>(subregionDistribution.value);
     }
     if (countryDistribution.present) {
       map['countryDistribution'] = Variable<String>(countryDistribution.value);
     }
     if (continentDistribution.present) {
-      map['continentDistribution'] = Variable<String>(
-        continentDistribution.value,
-      );
+      map['continentDistribution'] =
+          Variable<String>(continentDistribution.value);
     }
     if (biogeographicRealm.present) {
       map['biogeographicRealm'] = Variable<String>(biogeographicRealm.value);
@@ -3077,466 +2649,299 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
   Synonym(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _synIdMeta = const VerificationMeta('synId');
   late final GeneratedColumn<int> synId = GeneratedColumn<int>(
-    'synId',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'synId', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _hespIdMeta = const VerificationMeta('hespId');
   late final GeneratedColumn<int> hespId = GeneratedColumn<int>(
-    'hespId',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _speciesIdMeta = const VerificationMeta(
-    'speciesId',
-  );
+      'hespId', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _speciesIdMeta =
+      const VerificationMeta('speciesId');
   late final GeneratedColumn<int> speciesId = GeneratedColumn<int>(
-    'speciesId',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _speciesMeta = const VerificationMeta(
-    'species',
-  );
+      'speciesId', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _speciesMeta =
+      const VerificationMeta('species');
   late final GeneratedColumn<String> species = GeneratedColumn<String>(
-    'species',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _rootNameMeta = const VerificationMeta(
-    'rootName',
-  );
+      'species', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _rootNameMeta =
+      const VerificationMeta('rootName');
   late final GeneratedColumn<String> rootName = GeneratedColumn<String>(
-    'rootName',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'rootName', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _authorMeta = const VerificationMeta('author');
   late final GeneratedColumn<String> author = GeneratedColumn<String>(
-    'author',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'author', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _yearMeta = const VerificationMeta('year');
   late final GeneratedColumn<String> year = GeneratedColumn<String>(
-    'year',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'year', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _authorityParenthesesMeta =
       const VerificationMeta('authorityParentheses');
   late final GeneratedColumn<int> authorityParentheses = GeneratedColumn<int>(
-    'authorityParentheses',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'authorityParentheses', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _nomenclatureStatusMeta =
       const VerificationMeta('nomenclatureStatus');
   late final GeneratedColumn<String> nomenclatureStatus =
-      GeneratedColumn<String>(
-    'nomenclatureStatus',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _validityMeta = const VerificationMeta(
-    'validity',
-  );
+      GeneratedColumn<String>('nomenclatureStatus', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _validityMeta =
+      const VerificationMeta('validity');
   late final GeneratedColumn<String> validity = GeneratedColumn<String>(
-    'validity',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'validity', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _originalCombinationMeta =
       const VerificationMeta('originalCombination');
   late final GeneratedColumn<String> originalCombination =
-      GeneratedColumn<String>(
-    'originalCombination',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _originalRankMeta = const VerificationMeta(
-    'originalRank',
-  );
+      GeneratedColumn<String>('originalCombination', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _originalRankMeta =
+      const VerificationMeta('originalRank');
   late final GeneratedColumn<String> originalRank = GeneratedColumn<String>(
-    'originalRank',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _authorityCitationMeta = const VerificationMeta(
-    'authorityCitation',
-  );
+      'originalRank', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _authorityCitationMeta =
+      const VerificationMeta('authorityCitation');
   late final GeneratedColumn<String> authorityCitation =
-      GeneratedColumn<String>(
-    'authorityCitation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('authorityCitation', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _uncheckedAuthorityCitationMeta =
       const VerificationMeta('uncheckedAuthorityCitation');
   late final GeneratedColumn<String> uncheckedAuthorityCitation =
-      GeneratedColumn<String>(
-    'uncheckedAuthorityCitation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('uncheckedAuthorityCitation', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _sourcedUnverifiedCitationsMeta =
       const VerificationMeta('sourcedUnverifiedCitations');
   late final GeneratedColumn<String> sourcedUnverifiedCitations =
-      GeneratedColumn<String>(
-    'sourcedUnverifiedCitations',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _citationGroupMeta = const VerificationMeta(
-    'citationGroup',
-  );
+      GeneratedColumn<String>('sourcedUnverifiedCitations', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _citationGroupMeta =
+      const VerificationMeta('citationGroup');
   late final GeneratedColumn<String> citationGroup = GeneratedColumn<String>(
-    'citationGroup',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _citationKindMeta = const VerificationMeta(
-    'citationKind',
-  );
+      'citationGroup', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _citationKindMeta =
+      const VerificationMeta('citationKind');
   late final GeneratedColumn<String> citationKind = GeneratedColumn<String>(
-    'citationKind',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _authorityPageMeta = const VerificationMeta(
-    'authorityPage',
-  );
+      'citationKind', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _authorityPageMeta =
+      const VerificationMeta('authorityPage');
   late final GeneratedColumn<String> authorityPage = GeneratedColumn<String>(
-    'authorityPage',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _authorityLinkMeta = const VerificationMeta(
-    'authorityLink',
-  );
+      'authorityPage', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _authorityLinkMeta =
+      const VerificationMeta('authorityLink');
   late final GeneratedColumn<String> authorityLink = GeneratedColumn<String>(
-    'authorityLink',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _authorityPageLinkMeta = const VerificationMeta(
-    'authorityPageLink',
-  );
+      'authorityLink', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _authorityPageLinkMeta =
+      const VerificationMeta('authorityPageLink');
   late final GeneratedColumn<String> authorityPageLink =
-      GeneratedColumn<String>(
-    'authorityPageLink',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('authorityPageLink', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _uncheckedAuthorityPageLinkMeta =
       const VerificationMeta('uncheckedAuthorityPageLink');
   late final GeneratedColumn<String> uncheckedAuthorityPageLink =
-      GeneratedColumn<String>(
-    'uncheckedAuthorityPageLink',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _oldTypeLocalityMeta = const VerificationMeta(
-    'oldTypeLocality',
-  );
+      GeneratedColumn<String>('uncheckedAuthorityPageLink', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _oldTypeLocalityMeta =
+      const VerificationMeta('oldTypeLocality');
   late final GeneratedColumn<String> oldTypeLocality = GeneratedColumn<String>(
-    'oldTypeLocality',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'oldTypeLocality', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _originalTypeLocalityMeta =
       const VerificationMeta('originalTypeLocality');
   late final GeneratedColumn<String> originalTypeLocality =
-      GeneratedColumn<String>(
-    'originalTypeLocality',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('originalTypeLocality', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _uncheckedTypeLocalityMeta =
       const VerificationMeta('uncheckedTypeLocality');
   late final GeneratedColumn<String> uncheckedTypeLocality =
-      GeneratedColumn<String>(
-    'uncheckedTypeLocality',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<String>('uncheckedTypeLocality', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   static const VerificationMeta _emendedTypeLocalityMeta =
       const VerificationMeta('emendedTypeLocality');
   late final GeneratedColumn<String> emendedTypeLocality =
-      GeneratedColumn<String>(
-    'emendedTypeLocality',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeLatitudeMeta = const VerificationMeta(
-    'typeLatitude',
-  );
+      GeneratedColumn<String>('emendedTypeLocality', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _typeLatitudeMeta =
+      const VerificationMeta('typeLatitude');
   late final GeneratedColumn<String> typeLatitude = GeneratedColumn<String>(
-    'typeLatitude',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeLongitudeMeta = const VerificationMeta(
-    'typeLongitude',
-  );
+      'typeLatitude', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeLongitudeMeta =
+      const VerificationMeta('typeLongitude');
   late final GeneratedColumn<String> typeLongitude = GeneratedColumn<String>(
-    'typeLongitude',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeCountryMeta = const VerificationMeta(
-    'typeCountry',
-  );
+      'typeLongitude', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeCountryMeta =
+      const VerificationMeta('typeCountry');
   late final GeneratedColumn<String> typeCountry = GeneratedColumn<String>(
-    'typeCountry',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeSubregionMeta = const VerificationMeta(
-    'typeSubregion',
-  );
+      'typeCountry', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeSubregionMeta =
+      const VerificationMeta('typeSubregion');
   late final GeneratedColumn<String> typeSubregion = GeneratedColumn<String>(
-    'typeSubregion',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeSubregion2Meta = const VerificationMeta(
-    'typeSubregion2',
-  );
+      'typeSubregion', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeSubregion2Meta =
+      const VerificationMeta('typeSubregion2');
   late final GeneratedColumn<String> typeSubregion2 = GeneratedColumn<String>(
-    'typeSubregion2',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _holotypeMeta = const VerificationMeta(
-    'holotype',
-  );
+      'typeSubregion2', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _holotypeMeta =
+      const VerificationMeta('holotype');
   late final GeneratedColumn<String> holotype = GeneratedColumn<String>(
-    'holotype',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeKindMeta = const VerificationMeta(
-    'typeKind',
-  );
+      'holotype', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeKindMeta =
+      const VerificationMeta('typeKind');
   late final GeneratedColumn<String> typeKind = GeneratedColumn<String>(
-    'typeKind',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _typeSpecimenLinkMeta = const VerificationMeta(
-    'typeSpecimenLink',
-  );
+      'typeKind', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _typeSpecimenLinkMeta =
+      const VerificationMeta('typeSpecimenLink');
   late final GeneratedColumn<String> typeSpecimenLink = GeneratedColumn<String>(
-    'typeSpecimenLink',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _taxonOrderMeta = const VerificationMeta(
-    'taxonOrder',
-  );
+      'typeSpecimenLink', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _taxonOrderMeta =
+      const VerificationMeta('taxonOrder');
   late final GeneratedColumn<String> taxonOrder = GeneratedColumn<String>(
-    'taxonOrder',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'taxonOrder', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _familyMeta = const VerificationMeta('family');
   late final GeneratedColumn<String> family = GeneratedColumn<String>(
-    'family',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'family', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _genusMeta = const VerificationMeta('genus');
   late final GeneratedColumn<String> genus = GeneratedColumn<String>(
-    'genus',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _specificEpithetMeta = const VerificationMeta(
-    'specificEpithet',
-  );
+      'genus', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _specificEpithetMeta =
+      const VerificationMeta('specificEpithet');
   late final GeneratedColumn<String> specificEpithet = GeneratedColumn<String>(
-    'specificEpithet',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'specificEpithet', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _subspecificEpithetMeta =
       const VerificationMeta('subspecificEpithet');
   late final GeneratedColumn<String> subspecificEpithet =
-      GeneratedColumn<String>(
-    'subspecificEpithet',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _variantOfMeta = const VerificationMeta(
-    'variantOf',
-  );
+      GeneratedColumn<String>('subspecificEpithet', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _variantOfMeta =
+      const VerificationMeta('variantOf');
   late final GeneratedColumn<String> variantOf = GeneratedColumn<String>(
-    'variantOf',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _seniorHomonymMeta = const VerificationMeta(
-    'seniorHomonym',
-  );
+      'variantOf', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _seniorHomonymMeta =
+      const VerificationMeta('seniorHomonym');
   late final GeneratedColumn<String> seniorHomonym = GeneratedColumn<String>(
-    'seniorHomonym',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'seniorHomonym', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _variantNameCitationsMeta =
       const VerificationMeta('variantNameCitations');
   late final GeneratedColumn<String> variantNameCitations =
-      GeneratedColumn<String>(
-    'variantNameCitations',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _nameUsagesMeta = const VerificationMeta(
-    'nameUsages',
-  );
+      GeneratedColumn<String>('variantNameCitations', aliasedName, true,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          $customConstraints: '');
+  static const VerificationMeta _nameUsagesMeta =
+      const VerificationMeta('nameUsages');
   late final GeneratedColumn<String> nameUsages = GeneratedColumn<String>(
-    'nameUsages',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _commentsMeta = const VerificationMeta(
-    'comments',
-  );
+      'nameUsages', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _commentsMeta =
+      const VerificationMeta('comments');
   late final GeneratedColumn<String> comments = GeneratedColumn<String>(
-    'comments',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'comments', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [
         synId,
@@ -3581,7 +2986,7 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
         seniorHomonym,
         variantNameCitations,
         nameUsages,
-        comments,
+        comments
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3589,350 +2994,242 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
   String get actualTableName => $name;
   static const String $name = 'synonym';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<SynonymData> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<SynonymData> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('synId')) {
       context.handle(
-        _synIdMeta,
-        synId.isAcceptableOrUnknown(data['synId']!, _synIdMeta),
-      );
+          _synIdMeta, synId.isAcceptableOrUnknown(data['synId']!, _synIdMeta));
     }
     if (data.containsKey('hespId')) {
-      context.handle(
-        _hespIdMeta,
-        hespId.isAcceptableOrUnknown(data['hespId']!, _hespIdMeta),
-      );
+      context.handle(_hespIdMeta,
+          hespId.isAcceptableOrUnknown(data['hespId']!, _hespIdMeta));
     }
     if (data.containsKey('speciesId')) {
-      context.handle(
-        _speciesIdMeta,
-        speciesId.isAcceptableOrUnknown(data['speciesId']!, _speciesIdMeta),
-      );
+      context.handle(_speciesIdMeta,
+          speciesId.isAcceptableOrUnknown(data['speciesId']!, _speciesIdMeta));
     }
     if (data.containsKey('species')) {
-      context.handle(
-        _speciesMeta,
-        species.isAcceptableOrUnknown(data['species']!, _speciesMeta),
-      );
+      context.handle(_speciesMeta,
+          species.isAcceptableOrUnknown(data['species']!, _speciesMeta));
     }
     if (data.containsKey('rootName')) {
-      context.handle(
-        _rootNameMeta,
-        rootName.isAcceptableOrUnknown(data['rootName']!, _rootNameMeta),
-      );
+      context.handle(_rootNameMeta,
+          rootName.isAcceptableOrUnknown(data['rootName']!, _rootNameMeta));
     }
     if (data.containsKey('author')) {
-      context.handle(
-        _authorMeta,
-        author.isAcceptableOrUnknown(data['author']!, _authorMeta),
-      );
+      context.handle(_authorMeta,
+          author.isAcceptableOrUnknown(data['author']!, _authorMeta));
     }
     if (data.containsKey('year')) {
       context.handle(
-        _yearMeta,
-        year.isAcceptableOrUnknown(data['year']!, _yearMeta),
-      );
+          _yearMeta, year.isAcceptableOrUnknown(data['year']!, _yearMeta));
     }
     if (data.containsKey('authorityParentheses')) {
       context.handle(
-        _authorityParenthesesMeta,
-        authorityParentheses.isAcceptableOrUnknown(
-          data['authorityParentheses']!,
           _authorityParenthesesMeta,
-        ),
-      );
+          authorityParentheses.isAcceptableOrUnknown(
+              data['authorityParentheses']!, _authorityParenthesesMeta));
     }
     if (data.containsKey('nomenclatureStatus')) {
       context.handle(
-        _nomenclatureStatusMeta,
-        nomenclatureStatus.isAcceptableOrUnknown(
-          data['nomenclatureStatus']!,
           _nomenclatureStatusMeta,
-        ),
-      );
+          nomenclatureStatus.isAcceptableOrUnknown(
+              data['nomenclatureStatus']!, _nomenclatureStatusMeta));
     }
     if (data.containsKey('validity')) {
-      context.handle(
-        _validityMeta,
-        validity.isAcceptableOrUnknown(data['validity']!, _validityMeta),
-      );
+      context.handle(_validityMeta,
+          validity.isAcceptableOrUnknown(data['validity']!, _validityMeta));
     }
     if (data.containsKey('originalCombination')) {
       context.handle(
-        _originalCombinationMeta,
-        originalCombination.isAcceptableOrUnknown(
-          data['originalCombination']!,
           _originalCombinationMeta,
-        ),
-      );
+          originalCombination.isAcceptableOrUnknown(
+              data['originalCombination']!, _originalCombinationMeta));
     }
     if (data.containsKey('originalRank')) {
       context.handle(
-        _originalRankMeta,
-        originalRank.isAcceptableOrUnknown(
-          data['originalRank']!,
           _originalRankMeta,
-        ),
-      );
+          originalRank.isAcceptableOrUnknown(
+              data['originalRank']!, _originalRankMeta));
     }
     if (data.containsKey('authorityCitation')) {
       context.handle(
-        _authorityCitationMeta,
-        authorityCitation.isAcceptableOrUnknown(
-          data['authorityCitation']!,
           _authorityCitationMeta,
-        ),
-      );
+          authorityCitation.isAcceptableOrUnknown(
+              data['authorityCitation']!, _authorityCitationMeta));
     }
     if (data.containsKey('uncheckedAuthorityCitation')) {
       context.handle(
-        _uncheckedAuthorityCitationMeta,
-        uncheckedAuthorityCitation.isAcceptableOrUnknown(
-          data['uncheckedAuthorityCitation']!,
           _uncheckedAuthorityCitationMeta,
-        ),
-      );
+          uncheckedAuthorityCitation.isAcceptableOrUnknown(
+              data['uncheckedAuthorityCitation']!,
+              _uncheckedAuthorityCitationMeta));
     }
     if (data.containsKey('sourcedUnverifiedCitations')) {
       context.handle(
-        _sourcedUnverifiedCitationsMeta,
-        sourcedUnverifiedCitations.isAcceptableOrUnknown(
-          data['sourcedUnverifiedCitations']!,
           _sourcedUnverifiedCitationsMeta,
-        ),
-      );
+          sourcedUnverifiedCitations.isAcceptableOrUnknown(
+              data['sourcedUnverifiedCitations']!,
+              _sourcedUnverifiedCitationsMeta));
     }
     if (data.containsKey('citationGroup')) {
       context.handle(
-        _citationGroupMeta,
-        citationGroup.isAcceptableOrUnknown(
-          data['citationGroup']!,
           _citationGroupMeta,
-        ),
-      );
+          citationGroup.isAcceptableOrUnknown(
+              data['citationGroup']!, _citationGroupMeta));
     }
     if (data.containsKey('citationKind')) {
       context.handle(
-        _citationKindMeta,
-        citationKind.isAcceptableOrUnknown(
-          data['citationKind']!,
           _citationKindMeta,
-        ),
-      );
+          citationKind.isAcceptableOrUnknown(
+              data['citationKind']!, _citationKindMeta));
     }
     if (data.containsKey('authorityPage')) {
       context.handle(
-        _authorityPageMeta,
-        authorityPage.isAcceptableOrUnknown(
-          data['authorityPage']!,
           _authorityPageMeta,
-        ),
-      );
+          authorityPage.isAcceptableOrUnknown(
+              data['authorityPage']!, _authorityPageMeta));
     }
     if (data.containsKey('authorityLink')) {
       context.handle(
-        _authorityLinkMeta,
-        authorityLink.isAcceptableOrUnknown(
-          data['authorityLink']!,
           _authorityLinkMeta,
-        ),
-      );
+          authorityLink.isAcceptableOrUnknown(
+              data['authorityLink']!, _authorityLinkMeta));
     }
     if (data.containsKey('authorityPageLink')) {
       context.handle(
-        _authorityPageLinkMeta,
-        authorityPageLink.isAcceptableOrUnknown(
-          data['authorityPageLink']!,
           _authorityPageLinkMeta,
-        ),
-      );
+          authorityPageLink.isAcceptableOrUnknown(
+              data['authorityPageLink']!, _authorityPageLinkMeta));
     }
     if (data.containsKey('uncheckedAuthorityPageLink')) {
       context.handle(
-        _uncheckedAuthorityPageLinkMeta,
-        uncheckedAuthorityPageLink.isAcceptableOrUnknown(
-          data['uncheckedAuthorityPageLink']!,
           _uncheckedAuthorityPageLinkMeta,
-        ),
-      );
+          uncheckedAuthorityPageLink.isAcceptableOrUnknown(
+              data['uncheckedAuthorityPageLink']!,
+              _uncheckedAuthorityPageLinkMeta));
     }
     if (data.containsKey('oldTypeLocality')) {
       context.handle(
-        _oldTypeLocalityMeta,
-        oldTypeLocality.isAcceptableOrUnknown(
-          data['oldTypeLocality']!,
           _oldTypeLocalityMeta,
-        ),
-      );
+          oldTypeLocality.isAcceptableOrUnknown(
+              data['oldTypeLocality']!, _oldTypeLocalityMeta));
     }
     if (data.containsKey('originalTypeLocality')) {
       context.handle(
-        _originalTypeLocalityMeta,
-        originalTypeLocality.isAcceptableOrUnknown(
-          data['originalTypeLocality']!,
           _originalTypeLocalityMeta,
-        ),
-      );
+          originalTypeLocality.isAcceptableOrUnknown(
+              data['originalTypeLocality']!, _originalTypeLocalityMeta));
     }
     if (data.containsKey('uncheckedTypeLocality')) {
       context.handle(
-        _uncheckedTypeLocalityMeta,
-        uncheckedTypeLocality.isAcceptableOrUnknown(
-          data['uncheckedTypeLocality']!,
           _uncheckedTypeLocalityMeta,
-        ),
-      );
+          uncheckedTypeLocality.isAcceptableOrUnknown(
+              data['uncheckedTypeLocality']!, _uncheckedTypeLocalityMeta));
     }
     if (data.containsKey('emendedTypeLocality')) {
       context.handle(
-        _emendedTypeLocalityMeta,
-        emendedTypeLocality.isAcceptableOrUnknown(
-          data['emendedTypeLocality']!,
           _emendedTypeLocalityMeta,
-        ),
-      );
+          emendedTypeLocality.isAcceptableOrUnknown(
+              data['emendedTypeLocality']!, _emendedTypeLocalityMeta));
     }
     if (data.containsKey('typeLatitude')) {
       context.handle(
-        _typeLatitudeMeta,
-        typeLatitude.isAcceptableOrUnknown(
-          data['typeLatitude']!,
           _typeLatitudeMeta,
-        ),
-      );
+          typeLatitude.isAcceptableOrUnknown(
+              data['typeLatitude']!, _typeLatitudeMeta));
     }
     if (data.containsKey('typeLongitude')) {
       context.handle(
-        _typeLongitudeMeta,
-        typeLongitude.isAcceptableOrUnknown(
-          data['typeLongitude']!,
           _typeLongitudeMeta,
-        ),
-      );
+          typeLongitude.isAcceptableOrUnknown(
+              data['typeLongitude']!, _typeLongitudeMeta));
     }
     if (data.containsKey('typeCountry')) {
       context.handle(
-        _typeCountryMeta,
-        typeCountry.isAcceptableOrUnknown(
-          data['typeCountry']!,
           _typeCountryMeta,
-        ),
-      );
+          typeCountry.isAcceptableOrUnknown(
+              data['typeCountry']!, _typeCountryMeta));
     }
     if (data.containsKey('typeSubregion')) {
       context.handle(
-        _typeSubregionMeta,
-        typeSubregion.isAcceptableOrUnknown(
-          data['typeSubregion']!,
           _typeSubregionMeta,
-        ),
-      );
+          typeSubregion.isAcceptableOrUnknown(
+              data['typeSubregion']!, _typeSubregionMeta));
     }
     if (data.containsKey('typeSubregion2')) {
       context.handle(
-        _typeSubregion2Meta,
-        typeSubregion2.isAcceptableOrUnknown(
-          data['typeSubregion2']!,
           _typeSubregion2Meta,
-        ),
-      );
+          typeSubregion2.isAcceptableOrUnknown(
+              data['typeSubregion2']!, _typeSubregion2Meta));
     }
     if (data.containsKey('holotype')) {
-      context.handle(
-        _holotypeMeta,
-        holotype.isAcceptableOrUnknown(data['holotype']!, _holotypeMeta),
-      );
+      context.handle(_holotypeMeta,
+          holotype.isAcceptableOrUnknown(data['holotype']!, _holotypeMeta));
     }
     if (data.containsKey('typeKind')) {
-      context.handle(
-        _typeKindMeta,
-        typeKind.isAcceptableOrUnknown(data['typeKind']!, _typeKindMeta),
-      );
+      context.handle(_typeKindMeta,
+          typeKind.isAcceptableOrUnknown(data['typeKind']!, _typeKindMeta));
     }
     if (data.containsKey('typeSpecimenLink')) {
       context.handle(
-        _typeSpecimenLinkMeta,
-        typeSpecimenLink.isAcceptableOrUnknown(
-          data['typeSpecimenLink']!,
           _typeSpecimenLinkMeta,
-        ),
-      );
+          typeSpecimenLink.isAcceptableOrUnknown(
+              data['typeSpecimenLink']!, _typeSpecimenLinkMeta));
     }
     if (data.containsKey('taxonOrder')) {
       context.handle(
-        _taxonOrderMeta,
-        taxonOrder.isAcceptableOrUnknown(data['taxonOrder']!, _taxonOrderMeta),
-      );
+          _taxonOrderMeta,
+          taxonOrder.isAcceptableOrUnknown(
+              data['taxonOrder']!, _taxonOrderMeta));
     }
     if (data.containsKey('family')) {
-      context.handle(
-        _familyMeta,
-        family.isAcceptableOrUnknown(data['family']!, _familyMeta),
-      );
+      context.handle(_familyMeta,
+          family.isAcceptableOrUnknown(data['family']!, _familyMeta));
     }
     if (data.containsKey('genus')) {
       context.handle(
-        _genusMeta,
-        genus.isAcceptableOrUnknown(data['genus']!, _genusMeta),
-      );
+          _genusMeta, genus.isAcceptableOrUnknown(data['genus']!, _genusMeta));
     }
     if (data.containsKey('specificEpithet')) {
       context.handle(
-        _specificEpithetMeta,
-        specificEpithet.isAcceptableOrUnknown(
-          data['specificEpithet']!,
           _specificEpithetMeta,
-        ),
-      );
+          specificEpithet.isAcceptableOrUnknown(
+              data['specificEpithet']!, _specificEpithetMeta));
     }
     if (data.containsKey('subspecificEpithet')) {
       context.handle(
-        _subspecificEpithetMeta,
-        subspecificEpithet.isAcceptableOrUnknown(
-          data['subspecificEpithet']!,
           _subspecificEpithetMeta,
-        ),
-      );
+          subspecificEpithet.isAcceptableOrUnknown(
+              data['subspecificEpithet']!, _subspecificEpithetMeta));
     }
     if (data.containsKey('variantOf')) {
-      context.handle(
-        _variantOfMeta,
-        variantOf.isAcceptableOrUnknown(data['variantOf']!, _variantOfMeta),
-      );
+      context.handle(_variantOfMeta,
+          variantOf.isAcceptableOrUnknown(data['variantOf']!, _variantOfMeta));
     }
     if (data.containsKey('seniorHomonym')) {
       context.handle(
-        _seniorHomonymMeta,
-        seniorHomonym.isAcceptableOrUnknown(
-          data['seniorHomonym']!,
           _seniorHomonymMeta,
-        ),
-      );
+          seniorHomonym.isAcceptableOrUnknown(
+              data['seniorHomonym']!, _seniorHomonymMeta));
     }
     if (data.containsKey('variantNameCitations')) {
       context.handle(
-        _variantNameCitationsMeta,
-        variantNameCitations.isAcceptableOrUnknown(
-          data['variantNameCitations']!,
           _variantNameCitationsMeta,
-        ),
-      );
+          variantNameCitations.isAcceptableOrUnknown(
+              data['variantNameCitations']!, _variantNameCitationsMeta));
     }
     if (data.containsKey('nameUsages')) {
       context.handle(
-        _nameUsagesMeta,
-        nameUsages.isAcceptableOrUnknown(data['nameUsages']!, _nameUsagesMeta),
-      );
+          _nameUsagesMeta,
+          nameUsages.isAcceptableOrUnknown(
+              data['nameUsages']!, _nameUsagesMeta));
     }
     if (data.containsKey('comments')) {
-      context.handle(
-        _commentsMeta,
-        comments.isAcceptableOrUnknown(data['comments']!, _commentsMeta),
-      );
+      context.handle(_commentsMeta,
+          comments.isAcceptableOrUnknown(data['comments']!, _commentsMeta));
     }
     return context;
   }
@@ -3943,178 +3240,95 @@ class Synonym extends Table with TableInfo<Synonym, SynonymData> {
   SynonymData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return SynonymData(
-      synId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}synId'],
-      ),
-      hespId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}hespId'],
-      ),
-      speciesId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}speciesId'],
-      ),
-      species: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}species'],
-      ),
-      rootName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}rootName'],
-      ),
-      author: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}author'],
-      ),
-      year: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}year'],
-      ),
+      synId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}synId']),
+      hespId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}hespId']),
+      speciesId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}speciesId']),
+      species: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}species']),
+      rootName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rootName']),
+      author: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}author']),
+      year: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}year']),
       authorityParentheses: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}authorityParentheses'],
-      ),
+          DriftSqlType.int, data['${effectivePrefix}authorityParentheses']),
       nomenclatureStatus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}nomenclatureStatus'],
-      ),
-      validity: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}validity'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}nomenclatureStatus']),
+      validity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}validity']),
       originalCombination: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}originalCombination'],
-      ),
-      originalRank: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}originalRank'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}originalCombination']),
+      originalRank: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}originalRank']),
       authorityCitation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authorityCitation'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}authorityCitation']),
       uncheckedAuthorityCitation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}uncheckedAuthorityCitation'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}uncheckedAuthorityCitation']),
       sourcedUnverifiedCitations: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}sourcedUnverifiedCitations'],
-      ),
-      citationGroup: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}citationGroup'],
-      ),
-      citationKind: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}citationKind'],
-      ),
-      authorityPage: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authorityPage'],
-      ),
-      authorityLink: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authorityLink'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}sourcedUnverifiedCitations']),
+      citationGroup: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}citationGroup']),
+      citationKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}citationKind']),
+      authorityPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}authorityPage']),
+      authorityLink: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}authorityLink']),
       authorityPageLink: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}authorityPageLink'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}authorityPageLink']),
       uncheckedAuthorityPageLink: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}uncheckedAuthorityPageLink'],
-      ),
-      oldTypeLocality: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}oldTypeLocality'],
-      ),
+          DriftSqlType.string,
+          data['${effectivePrefix}uncheckedAuthorityPageLink']),
+      oldTypeLocality: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}oldTypeLocality']),
       originalTypeLocality: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}originalTypeLocality'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}originalTypeLocality']),
       uncheckedTypeLocality: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}uncheckedTypeLocality'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}uncheckedTypeLocality']),
       emendedTypeLocality: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}emendedTypeLocality'],
-      ),
-      typeLatitude: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeLatitude'],
-      ),
-      typeLongitude: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeLongitude'],
-      ),
-      typeCountry: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeCountry'],
-      ),
-      typeSubregion: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeSubregion'],
-      ),
-      typeSubregion2: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeSubregion2'],
-      ),
-      holotype: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}holotype'],
-      ),
-      typeKind: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeKind'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}emendedTypeLocality']),
+      typeLatitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeLatitude']),
+      typeLongitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeLongitude']),
+      typeCountry: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeCountry']),
+      typeSubregion: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeSubregion']),
+      typeSubregion2: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeSubregion2']),
+      holotype: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}holotype']),
+      typeKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}typeKind']),
       typeSpecimenLink: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}typeSpecimenLink'],
-      ),
-      taxonOrder: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}taxonOrder'],
-      ),
-      family: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}family'],
-      ),
-      genus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}genus'],
-      ),
-      specificEpithet: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}specificEpithet'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}typeSpecimenLink']),
+      taxonOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}taxonOrder']),
+      family: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}family']),
+      genus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}genus']),
+      specificEpithet: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}specificEpithet']),
       subspecificEpithet: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}subspecificEpithet'],
-      ),
-      variantOf: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}variantOf'],
-      ),
-      seniorHomonym: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}seniorHomonym'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}subspecificEpithet']),
+      variantOf: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variantOf']),
+      seniorHomonym: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}seniorHomonym']),
       variantNameCitations: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}variantNameCitations'],
-      ),
-      nameUsages: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}nameUsages'],
-      ),
-      comments: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}comments'],
-      ),
+          DriftSqlType.string, data['${effectivePrefix}variantNameCitations']),
+      nameUsages: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nameUsages']),
+      comments: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}comments']),
     );
   }
 
@@ -4171,51 +3385,50 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
   final String? variantNameCitations;
   final String? nameUsages;
   final String? comments;
-  const SynonymData({
-    this.synId,
-    this.hespId,
-    this.speciesId,
-    this.species,
-    this.rootName,
-    this.author,
-    this.year,
-    this.authorityParentheses,
-    this.nomenclatureStatus,
-    this.validity,
-    this.originalCombination,
-    this.originalRank,
-    this.authorityCitation,
-    this.uncheckedAuthorityCitation,
-    this.sourcedUnverifiedCitations,
-    this.citationGroup,
-    this.citationKind,
-    this.authorityPage,
-    this.authorityLink,
-    this.authorityPageLink,
-    this.uncheckedAuthorityPageLink,
-    this.oldTypeLocality,
-    this.originalTypeLocality,
-    this.uncheckedTypeLocality,
-    this.emendedTypeLocality,
-    this.typeLatitude,
-    this.typeLongitude,
-    this.typeCountry,
-    this.typeSubregion,
-    this.typeSubregion2,
-    this.holotype,
-    this.typeKind,
-    this.typeSpecimenLink,
-    this.taxonOrder,
-    this.family,
-    this.genus,
-    this.specificEpithet,
-    this.subspecificEpithet,
-    this.variantOf,
-    this.seniorHomonym,
-    this.variantNameCitations,
-    this.nameUsages,
-    this.comments,
-  });
+  const SynonymData(
+      {this.synId,
+      this.hespId,
+      this.speciesId,
+      this.species,
+      this.rootName,
+      this.author,
+      this.year,
+      this.authorityParentheses,
+      this.nomenclatureStatus,
+      this.validity,
+      this.originalCombination,
+      this.originalRank,
+      this.authorityCitation,
+      this.uncheckedAuthorityCitation,
+      this.sourcedUnverifiedCitations,
+      this.citationGroup,
+      this.citationKind,
+      this.authorityPage,
+      this.authorityLink,
+      this.authorityPageLink,
+      this.uncheckedAuthorityPageLink,
+      this.oldTypeLocality,
+      this.originalTypeLocality,
+      this.uncheckedTypeLocality,
+      this.emendedTypeLocality,
+      this.typeLatitude,
+      this.typeLongitude,
+      this.typeCountry,
+      this.typeSubregion,
+      this.typeSubregion2,
+      this.holotype,
+      this.typeKind,
+      this.typeSpecimenLink,
+      this.taxonOrder,
+      this.family,
+      this.genus,
+      this.specificEpithet,
+      this.subspecificEpithet,
+      this.variantOf,
+      this.seniorHomonym,
+      this.variantNameCitations,
+      this.nameUsages,
+      this.comments});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -4259,14 +3472,12 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       map['authorityCitation'] = Variable<String>(authorityCitation);
     }
     if (!nullToAbsent || uncheckedAuthorityCitation != null) {
-      map['uncheckedAuthorityCitation'] = Variable<String>(
-        uncheckedAuthorityCitation,
-      );
+      map['uncheckedAuthorityCitation'] =
+          Variable<String>(uncheckedAuthorityCitation);
     }
     if (!nullToAbsent || sourcedUnverifiedCitations != null) {
-      map['sourcedUnverifiedCitations'] = Variable<String>(
-        sourcedUnverifiedCitations,
-      );
+      map['sourcedUnverifiedCitations'] =
+          Variable<String>(sourcedUnverifiedCitations);
     }
     if (!nullToAbsent || citationGroup != null) {
       map['citationGroup'] = Variable<String>(citationGroup);
@@ -4284,9 +3495,8 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       map['authorityPageLink'] = Variable<String>(authorityPageLink);
     }
     if (!nullToAbsent || uncheckedAuthorityPageLink != null) {
-      map['uncheckedAuthorityPageLink'] = Variable<String>(
-        uncheckedAuthorityPageLink,
-      );
+      map['uncheckedAuthorityPageLink'] =
+          Variable<String>(uncheckedAuthorityPageLink);
     }
     if (!nullToAbsent || oldTypeLocality != null) {
       map['oldTypeLocality'] = Variable<String>(oldTypeLocality);
@@ -4487,10 +3697,8 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
     );
   }
 
-  factory SynonymData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory SynonymData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SynonymData(
       synId: serializer.fromJson<int?>(json['synId']),
@@ -4500,46 +3708,35 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       rootName: serializer.fromJson<String?>(json['rootName']),
       author: serializer.fromJson<String?>(json['author']),
       year: serializer.fromJson<String?>(json['year']),
-      authorityParentheses: serializer.fromJson<int?>(
-        json['authorityParentheses'],
-      ),
-      nomenclatureStatus: serializer.fromJson<String?>(
-        json['nomenclatureStatus'],
-      ),
+      authorityParentheses:
+          serializer.fromJson<int?>(json['authorityParentheses']),
+      nomenclatureStatus:
+          serializer.fromJson<String?>(json['nomenclatureStatus']),
       validity: serializer.fromJson<String?>(json['validity']),
-      originalCombination: serializer.fromJson<String?>(
-        json['originalCombination'],
-      ),
+      originalCombination:
+          serializer.fromJson<String?>(json['originalCombination']),
       originalRank: serializer.fromJson<String?>(json['originalRank']),
-      authorityCitation: serializer.fromJson<String?>(
-        json['authorityCitation'],
-      ),
-      uncheckedAuthorityCitation: serializer.fromJson<String?>(
-        json['uncheckedAuthorityCitation'],
-      ),
-      sourcedUnverifiedCitations: serializer.fromJson<String?>(
-        json['sourcedUnverifiedCitations'],
-      ),
+      authorityCitation:
+          serializer.fromJson<String?>(json['authorityCitation']),
+      uncheckedAuthorityCitation:
+          serializer.fromJson<String?>(json['uncheckedAuthorityCitation']),
+      sourcedUnverifiedCitations:
+          serializer.fromJson<String?>(json['sourcedUnverifiedCitations']),
       citationGroup: serializer.fromJson<String?>(json['citationGroup']),
       citationKind: serializer.fromJson<String?>(json['citationKind']),
       authorityPage: serializer.fromJson<String?>(json['authorityPage']),
       authorityLink: serializer.fromJson<String?>(json['authorityLink']),
-      authorityPageLink: serializer.fromJson<String?>(
-        json['authorityPageLink'],
-      ),
-      uncheckedAuthorityPageLink: serializer.fromJson<String?>(
-        json['uncheckedAuthorityPageLink'],
-      ),
+      authorityPageLink:
+          serializer.fromJson<String?>(json['authorityPageLink']),
+      uncheckedAuthorityPageLink:
+          serializer.fromJson<String?>(json['uncheckedAuthorityPageLink']),
       oldTypeLocality: serializer.fromJson<String?>(json['oldTypeLocality']),
-      originalTypeLocality: serializer.fromJson<String?>(
-        json['originalTypeLocality'],
-      ),
-      uncheckedTypeLocality: serializer.fromJson<String?>(
-        json['uncheckedTypeLocality'],
-      ),
-      emendedTypeLocality: serializer.fromJson<String?>(
-        json['emendedTypeLocality'],
-      ),
+      originalTypeLocality:
+          serializer.fromJson<String?>(json['originalTypeLocality']),
+      uncheckedTypeLocality:
+          serializer.fromJson<String?>(json['uncheckedTypeLocality']),
+      emendedTypeLocality:
+          serializer.fromJson<String?>(json['emendedTypeLocality']),
       typeLatitude: serializer.fromJson<String?>(json['typeLatitude']),
       typeLongitude: serializer.fromJson<String?>(json['typeLongitude']),
       typeCountry: serializer.fromJson<String?>(json['typeCountry']),
@@ -4552,14 +3749,12 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       family: serializer.fromJson<String?>(json['family']),
       genus: serializer.fromJson<String?>(json['genus']),
       specificEpithet: serializer.fromJson<String?>(json['specificEpithet']),
-      subspecificEpithet: serializer.fromJson<String?>(
-        json['subspecificEpithet'],
-      ),
+      subspecificEpithet:
+          serializer.fromJson<String?>(json['subspecificEpithet']),
       variantOf: serializer.fromJson<String?>(json['variantOf']),
       seniorHomonym: serializer.fromJson<String?>(json['seniorHomonym']),
-      variantNameCitations: serializer.fromJson<String?>(
-        json['variantNameCitations'],
-      ),
+      variantNameCitations:
+          serializer.fromJson<String?>(json['variantNameCitations']),
       nameUsages: serializer.fromJson<String?>(json['nameUsages']),
       comments: serializer.fromJson<String?>(json['comments']),
     );
@@ -4581,25 +3776,21 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
       'originalCombination': serializer.toJson<String?>(originalCombination),
       'originalRank': serializer.toJson<String?>(originalRank),
       'authorityCitation': serializer.toJson<String?>(authorityCitation),
-      'uncheckedAuthorityCitation': serializer.toJson<String?>(
-        uncheckedAuthorityCitation,
-      ),
-      'sourcedUnverifiedCitations': serializer.toJson<String?>(
-        sourcedUnverifiedCitations,
-      ),
+      'uncheckedAuthorityCitation':
+          serializer.toJson<String?>(uncheckedAuthorityCitation),
+      'sourcedUnverifiedCitations':
+          serializer.toJson<String?>(sourcedUnverifiedCitations),
       'citationGroup': serializer.toJson<String?>(citationGroup),
       'citationKind': serializer.toJson<String?>(citationKind),
       'authorityPage': serializer.toJson<String?>(authorityPage),
       'authorityLink': serializer.toJson<String?>(authorityLink),
       'authorityPageLink': serializer.toJson<String?>(authorityPageLink),
-      'uncheckedAuthorityPageLink': serializer.toJson<String?>(
-        uncheckedAuthorityPageLink,
-      ),
+      'uncheckedAuthorityPageLink':
+          serializer.toJson<String?>(uncheckedAuthorityPageLink),
       'oldTypeLocality': serializer.toJson<String?>(oldTypeLocality),
       'originalTypeLocality': serializer.toJson<String?>(originalTypeLocality),
-      'uncheckedTypeLocality': serializer.toJson<String?>(
-        uncheckedTypeLocality,
-      ),
+      'uncheckedTypeLocality':
+          serializer.toJson<String?>(uncheckedTypeLocality),
       'emendedTypeLocality': serializer.toJson<String?>(emendedTypeLocality),
       'typeLatitude': serializer.toJson<String?>(typeLatitude),
       'typeLongitude': serializer.toJson<String?>(typeLongitude),
@@ -4622,51 +3813,50 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
     };
   }
 
-  SynonymData copyWith({
-    Value<int?> synId = const Value.absent(),
-    Value<int?> hespId = const Value.absent(),
-    Value<int?> speciesId = const Value.absent(),
-    Value<String?> species = const Value.absent(),
-    Value<String?> rootName = const Value.absent(),
-    Value<String?> author = const Value.absent(),
-    Value<String?> year = const Value.absent(),
-    Value<int?> authorityParentheses = const Value.absent(),
-    Value<String?> nomenclatureStatus = const Value.absent(),
-    Value<String?> validity = const Value.absent(),
-    Value<String?> originalCombination = const Value.absent(),
-    Value<String?> originalRank = const Value.absent(),
-    Value<String?> authorityCitation = const Value.absent(),
-    Value<String?> uncheckedAuthorityCitation = const Value.absent(),
-    Value<String?> sourcedUnverifiedCitations = const Value.absent(),
-    Value<String?> citationGroup = const Value.absent(),
-    Value<String?> citationKind = const Value.absent(),
-    Value<String?> authorityPage = const Value.absent(),
-    Value<String?> authorityLink = const Value.absent(),
-    Value<String?> authorityPageLink = const Value.absent(),
-    Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
-    Value<String?> oldTypeLocality = const Value.absent(),
-    Value<String?> originalTypeLocality = const Value.absent(),
-    Value<String?> uncheckedTypeLocality = const Value.absent(),
-    Value<String?> emendedTypeLocality = const Value.absent(),
-    Value<String?> typeLatitude = const Value.absent(),
-    Value<String?> typeLongitude = const Value.absent(),
-    Value<String?> typeCountry = const Value.absent(),
-    Value<String?> typeSubregion = const Value.absent(),
-    Value<String?> typeSubregion2 = const Value.absent(),
-    Value<String?> holotype = const Value.absent(),
-    Value<String?> typeKind = const Value.absent(),
-    Value<String?> typeSpecimenLink = const Value.absent(),
-    Value<String?> taxonOrder = const Value.absent(),
-    Value<String?> family = const Value.absent(),
-    Value<String?> genus = const Value.absent(),
-    Value<String?> specificEpithet = const Value.absent(),
-    Value<String?> subspecificEpithet = const Value.absent(),
-    Value<String?> variantOf = const Value.absent(),
-    Value<String?> seniorHomonym = const Value.absent(),
-    Value<String?> variantNameCitations = const Value.absent(),
-    Value<String?> nameUsages = const Value.absent(),
-    Value<String?> comments = const Value.absent(),
-  }) =>
+  SynonymData copyWith(
+          {Value<int?> synId = const Value.absent(),
+          Value<int?> hespId = const Value.absent(),
+          Value<int?> speciesId = const Value.absent(),
+          Value<String?> species = const Value.absent(),
+          Value<String?> rootName = const Value.absent(),
+          Value<String?> author = const Value.absent(),
+          Value<String?> year = const Value.absent(),
+          Value<int?> authorityParentheses = const Value.absent(),
+          Value<String?> nomenclatureStatus = const Value.absent(),
+          Value<String?> validity = const Value.absent(),
+          Value<String?> originalCombination = const Value.absent(),
+          Value<String?> originalRank = const Value.absent(),
+          Value<String?> authorityCitation = const Value.absent(),
+          Value<String?> uncheckedAuthorityCitation = const Value.absent(),
+          Value<String?> sourcedUnverifiedCitations = const Value.absent(),
+          Value<String?> citationGroup = const Value.absent(),
+          Value<String?> citationKind = const Value.absent(),
+          Value<String?> authorityPage = const Value.absent(),
+          Value<String?> authorityLink = const Value.absent(),
+          Value<String?> authorityPageLink = const Value.absent(),
+          Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
+          Value<String?> oldTypeLocality = const Value.absent(),
+          Value<String?> originalTypeLocality = const Value.absent(),
+          Value<String?> uncheckedTypeLocality = const Value.absent(),
+          Value<String?> emendedTypeLocality = const Value.absent(),
+          Value<String?> typeLatitude = const Value.absent(),
+          Value<String?> typeLongitude = const Value.absent(),
+          Value<String?> typeCountry = const Value.absent(),
+          Value<String?> typeSubregion = const Value.absent(),
+          Value<String?> typeSubregion2 = const Value.absent(),
+          Value<String?> holotype = const Value.absent(),
+          Value<String?> typeKind = const Value.absent(),
+          Value<String?> typeSpecimenLink = const Value.absent(),
+          Value<String?> taxonOrder = const Value.absent(),
+          Value<String?> family = const Value.absent(),
+          Value<String?> genus = const Value.absent(),
+          Value<String?> specificEpithet = const Value.absent(),
+          Value<String?> subspecificEpithet = const Value.absent(),
+          Value<String?> variantOf = const Value.absent(),
+          Value<String?> seniorHomonym = const Value.absent(),
+          Value<String?> variantNameCitations = const Value.absent(),
+          Value<String?> nameUsages = const Value.absent(),
+          Value<String?> comments = const Value.absent()}) =>
       SynonymData(
         synId: synId.present ? synId.value : this.synId,
         hespId: hespId.present ? hespId.value : this.hespId,
@@ -4951,7 +4141,7 @@ class SynonymData extends DataClass implements Insertable<SynonymData> {
         seniorHomonym,
         variantNameCitations,
         nameUsages,
-        comments,
+        comments
       ]);
   @override
   bool operator ==(Object other) =>
@@ -5242,52 +4432,51 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
     });
   }
 
-  SynonymCompanion copyWith({
-    Value<int?>? synId,
-    Value<int?>? hespId,
-    Value<int?>? speciesId,
-    Value<String?>? species,
-    Value<String?>? rootName,
-    Value<String?>? author,
-    Value<String?>? year,
-    Value<int?>? authorityParentheses,
-    Value<String?>? nomenclatureStatus,
-    Value<String?>? validity,
-    Value<String?>? originalCombination,
-    Value<String?>? originalRank,
-    Value<String?>? authorityCitation,
-    Value<String?>? uncheckedAuthorityCitation,
-    Value<String?>? sourcedUnverifiedCitations,
-    Value<String?>? citationGroup,
-    Value<String?>? citationKind,
-    Value<String?>? authorityPage,
-    Value<String?>? authorityLink,
-    Value<String?>? authorityPageLink,
-    Value<String?>? uncheckedAuthorityPageLink,
-    Value<String?>? oldTypeLocality,
-    Value<String?>? originalTypeLocality,
-    Value<String?>? uncheckedTypeLocality,
-    Value<String?>? emendedTypeLocality,
-    Value<String?>? typeLatitude,
-    Value<String?>? typeLongitude,
-    Value<String?>? typeCountry,
-    Value<String?>? typeSubregion,
-    Value<String?>? typeSubregion2,
-    Value<String?>? holotype,
-    Value<String?>? typeKind,
-    Value<String?>? typeSpecimenLink,
-    Value<String?>? taxonOrder,
-    Value<String?>? family,
-    Value<String?>? genus,
-    Value<String?>? specificEpithet,
-    Value<String?>? subspecificEpithet,
-    Value<String?>? variantOf,
-    Value<String?>? seniorHomonym,
-    Value<String?>? variantNameCitations,
-    Value<String?>? nameUsages,
-    Value<String?>? comments,
-    Value<int>? rowid,
-  }) {
+  SynonymCompanion copyWith(
+      {Value<int?>? synId,
+      Value<int?>? hespId,
+      Value<int?>? speciesId,
+      Value<String?>? species,
+      Value<String?>? rootName,
+      Value<String?>? author,
+      Value<String?>? year,
+      Value<int?>? authorityParentheses,
+      Value<String?>? nomenclatureStatus,
+      Value<String?>? validity,
+      Value<String?>? originalCombination,
+      Value<String?>? originalRank,
+      Value<String?>? authorityCitation,
+      Value<String?>? uncheckedAuthorityCitation,
+      Value<String?>? sourcedUnverifiedCitations,
+      Value<String?>? citationGroup,
+      Value<String?>? citationKind,
+      Value<String?>? authorityPage,
+      Value<String?>? authorityLink,
+      Value<String?>? authorityPageLink,
+      Value<String?>? uncheckedAuthorityPageLink,
+      Value<String?>? oldTypeLocality,
+      Value<String?>? originalTypeLocality,
+      Value<String?>? uncheckedTypeLocality,
+      Value<String?>? emendedTypeLocality,
+      Value<String?>? typeLatitude,
+      Value<String?>? typeLongitude,
+      Value<String?>? typeCountry,
+      Value<String?>? typeSubregion,
+      Value<String?>? typeSubregion2,
+      Value<String?>? holotype,
+      Value<String?>? typeKind,
+      Value<String?>? typeSpecimenLink,
+      Value<String?>? taxonOrder,
+      Value<String?>? family,
+      Value<String?>? genus,
+      Value<String?>? specificEpithet,
+      Value<String?>? subspecificEpithet,
+      Value<String?>? variantOf,
+      Value<String?>? seniorHomonym,
+      Value<String?>? variantNameCitations,
+      Value<String?>? nameUsages,
+      Value<String?>? comments,
+      Value<int>? rowid}) {
     return SynonymCompanion(
       synId: synId ?? this.synId,
       hespId: hespId ?? this.hespId,
@@ -5383,14 +4572,12 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
       map['authorityCitation'] = Variable<String>(authorityCitation.value);
     }
     if (uncheckedAuthorityCitation.present) {
-      map['uncheckedAuthorityCitation'] = Variable<String>(
-        uncheckedAuthorityCitation.value,
-      );
+      map['uncheckedAuthorityCitation'] =
+          Variable<String>(uncheckedAuthorityCitation.value);
     }
     if (sourcedUnverifiedCitations.present) {
-      map['sourcedUnverifiedCitations'] = Variable<String>(
-        sourcedUnverifiedCitations.value,
-      );
+      map['sourcedUnverifiedCitations'] =
+          Variable<String>(sourcedUnverifiedCitations.value);
     }
     if (citationGroup.present) {
       map['citationGroup'] = Variable<String>(citationGroup.value);
@@ -5408,22 +4595,19 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
       map['authorityPageLink'] = Variable<String>(authorityPageLink.value);
     }
     if (uncheckedAuthorityPageLink.present) {
-      map['uncheckedAuthorityPageLink'] = Variable<String>(
-        uncheckedAuthorityPageLink.value,
-      );
+      map['uncheckedAuthorityPageLink'] =
+          Variable<String>(uncheckedAuthorityPageLink.value);
     }
     if (oldTypeLocality.present) {
       map['oldTypeLocality'] = Variable<String>(oldTypeLocality.value);
     }
     if (originalTypeLocality.present) {
-      map['originalTypeLocality'] = Variable<String>(
-        originalTypeLocality.value,
-      );
+      map['originalTypeLocality'] =
+          Variable<String>(originalTypeLocality.value);
     }
     if (uncheckedTypeLocality.present) {
-      map['uncheckedTypeLocality'] = Variable<String>(
-        uncheckedTypeLocality.value,
-      );
+      map['uncheckedTypeLocality'] =
+          Variable<String>(uncheckedTypeLocality.value);
     }
     if (emendedTypeLocality.present) {
       map['emendedTypeLocality'] = Variable<String>(emendedTypeLocality.value);
@@ -5474,9 +4658,8 @@ class SynonymCompanion extends UpdateCompanion<SynonymData> {
       map['seniorHomonym'] = Variable<String>(seniorHomonym.value);
     }
     if (variantNameCitations.present) {
-      map['variantNameCitations'] = Variable<String>(
-        variantNameCitations.value,
-      );
+      map['variantNameCitations'] =
+          Variable<String>(variantNameCitations.value);
     }
     if (nameUsages.present) {
       map['nameUsages'] = Variable<String>(nameUsages.value);
@@ -5549,99 +4732,65 @@ class MilData extends Table with TableInfo<MilData, MilDataData> {
   MilData(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _milIdMeta = const VerificationMeta('milId');
   late final GeneratedColumn<String> milId = GeneratedColumn<String>(
-    'milId',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL PRIMARY KEY',
-  );
+      'milId', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
   static const VerificationMeta _mddIdMeta = const VerificationMeta('mddId');
   late final GeneratedColumn<int> mddId = GeneratedColumn<int>(
-    'mddId',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
-  );
-  static const VerificationMeta _descriptionMeta = const VerificationMeta(
-    'description',
-  );
+      'mddId', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
-    'description',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _photographerMeta = const VerificationMeta(
-    'photographer',
-  );
+      'description', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _photographerMeta =
+      const VerificationMeta('photographer');
   late final GeneratedColumn<String> photographer = GeneratedColumn<String>(
-    'photographer',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _locationMeta = const VerificationMeta(
-    'location',
-  );
+      'photographer', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
   late final GeneratedColumn<String> location = GeneratedColumn<String>(
-    'location',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _distributionMeta = const VerificationMeta(
-    'distribution',
-  );
+      'location', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _distributionMeta =
+      const VerificationMeta('distribution');
   late final GeneratedColumn<String> distribution = GeneratedColumn<String>(
-    'distribution',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _dateTakenMeta = const VerificationMeta(
-    'dateTaken',
-  );
+      'distribution', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _dateTakenMeta =
+      const VerificationMeta('dateTaken');
   late final GeneratedColumn<String> dateTaken = GeneratedColumn<String>(
-    'dateTaken',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
-  static const VerificationMeta _orientationMeta = const VerificationMeta(
-    'orientation',
-  );
+      'dateTaken', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _orientationMeta =
+      const VerificationMeta('orientation');
   late final GeneratedColumn<String> orientation = GeneratedColumn<String>(
-    'orientation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      'orientation', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   static const VerificationMeta _isUncertainIdentificationMeta =
       const VerificationMeta('isUncertainIdentification');
   late final GeneratedColumn<int> isUncertainIdentification =
-      GeneratedColumn<int>(
-    'isUncertainIdentification',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
+      GeneratedColumn<int>('isUncertainIdentification', aliasedName, true,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [
         milId,
@@ -5652,7 +4801,7 @@ class MilData extends Table with TableInfo<MilData, MilDataData> {
         distribution,
         dateTaken,
         orientation,
-        isUncertainIdentification,
+        isUncertainIdentification
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5660,84 +4809,60 @@ class MilData extends Table with TableInfo<MilData, MilDataData> {
   String get actualTableName => $name;
   static const String $name = 'milData';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<MilDataData> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<MilDataData> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('milId')) {
       context.handle(
-        _milIdMeta,
-        milId.isAcceptableOrUnknown(data['milId']!, _milIdMeta),
-      );
+          _milIdMeta, milId.isAcceptableOrUnknown(data['milId']!, _milIdMeta));
     } else if (isInserting) {
       context.missing(_milIdMeta);
     }
     if (data.containsKey('mddId')) {
       context.handle(
-        _mddIdMeta,
-        mddId.isAcceptableOrUnknown(data['mddId']!, _mddIdMeta),
-      );
+          _mddIdMeta, mddId.isAcceptableOrUnknown(data['mddId']!, _mddIdMeta));
     } else if (isInserting) {
       context.missing(_mddIdMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
-        _descriptionMeta,
-        description.isAcceptableOrUnknown(
-          data['description']!,
           _descriptionMeta,
-        ),
-      );
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
     }
     if (data.containsKey('photographer')) {
       context.handle(
-        _photographerMeta,
-        photographer.isAcceptableOrUnknown(
-          data['photographer']!,
           _photographerMeta,
-        ),
-      );
+          photographer.isAcceptableOrUnknown(
+              data['photographer']!, _photographerMeta));
     }
     if (data.containsKey('location')) {
-      context.handle(
-        _locationMeta,
-        location.isAcceptableOrUnknown(data['location']!, _locationMeta),
-      );
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
     }
     if (data.containsKey('distribution')) {
       context.handle(
-        _distributionMeta,
-        distribution.isAcceptableOrUnknown(
-          data['distribution']!,
           _distributionMeta,
-        ),
-      );
+          distribution.isAcceptableOrUnknown(
+              data['distribution']!, _distributionMeta));
     }
     if (data.containsKey('dateTaken')) {
-      context.handle(
-        _dateTakenMeta,
-        dateTaken.isAcceptableOrUnknown(data['dateTaken']!, _dateTakenMeta),
-      );
+      context.handle(_dateTakenMeta,
+          dateTaken.isAcceptableOrUnknown(data['dateTaken']!, _dateTakenMeta));
     }
     if (data.containsKey('orientation')) {
       context.handle(
-        _orientationMeta,
-        orientation.isAcceptableOrUnknown(
-          data['orientation']!,
           _orientationMeta,
-        ),
-      );
+          orientation.isAcceptableOrUnknown(
+              data['orientation']!, _orientationMeta));
     }
     if (data.containsKey('isUncertainIdentification')) {
       context.handle(
-        _isUncertainIdentificationMeta,
-        isUncertainIdentification.isAcceptableOrUnknown(
-          data['isUncertainIdentification']!,
           _isUncertainIdentificationMeta,
-        ),
-      );
+          isUncertainIdentification.isAcceptableOrUnknown(
+              data['isUncertainIdentification']!,
+              _isUncertainIdentificationMeta));
     }
     return context;
   }
@@ -5748,42 +4873,25 @@ class MilData extends Table with TableInfo<MilData, MilDataData> {
   MilDataData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return MilDataData(
-      milId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}milId'],
-      )!,
-      mddId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}mddId'],
-      )!,
-      description: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}description'],
-      ),
-      photographer: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}photographer'],
-      ),
-      location: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}location'],
-      ),
-      distribution: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}distribution'],
-      ),
-      dateTaken: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}dateTaken'],
-      ),
-      orientation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}orientation'],
-      ),
+      milId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}milId'])!,
+      mddId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}mddId'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      photographer: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}photographer']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      distribution: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}distribution']),
+      dateTaken: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dateTaken']),
+      orientation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}orientation']),
       isUncertainIdentification: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}isUncertainIdentification'],
-      ),
+          DriftSqlType.int,
+          data['${effectivePrefix}isUncertainIdentification']),
     );
   }
 
@@ -5806,17 +4914,16 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
   final String? dateTaken;
   final String? orientation;
   final int? isUncertainIdentification;
-  const MilDataData({
-    required this.milId,
-    required this.mddId,
-    this.description,
-    this.photographer,
-    this.location,
-    this.distribution,
-    this.dateTaken,
-    this.orientation,
-    this.isUncertainIdentification,
-  });
+  const MilDataData(
+      {required this.milId,
+      required this.mddId,
+      this.description,
+      this.photographer,
+      this.location,
+      this.distribution,
+      this.dateTaken,
+      this.orientation,
+      this.isUncertainIdentification});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5841,9 +4948,8 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
       map['orientation'] = Variable<String>(orientation);
     }
     if (!nullToAbsent || isUncertainIdentification != null) {
-      map['isUncertainIdentification'] = Variable<int>(
-        isUncertainIdentification,
-      );
+      map['isUncertainIdentification'] =
+          Variable<int>(isUncertainIdentification);
     }
     return map;
   }
@@ -5877,10 +4983,8 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
     );
   }
 
-  factory MilDataData.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory MilDataData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MilDataData(
       milId: serializer.fromJson<String>(json['milId']),
@@ -5891,9 +4995,8 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
       distribution: serializer.fromJson<String?>(json['distribution']),
       dateTaken: serializer.fromJson<String?>(json['dateTaken']),
       orientation: serializer.fromJson<String?>(json['orientation']),
-      isUncertainIdentification: serializer.fromJson<int?>(
-        json['isUncertainIdentification'],
-      ),
+      isUncertainIdentification:
+          serializer.fromJson<int?>(json['isUncertainIdentification']),
     );
   }
   @override
@@ -5908,23 +5011,21 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
       'distribution': serializer.toJson<String?>(distribution),
       'dateTaken': serializer.toJson<String?>(dateTaken),
       'orientation': serializer.toJson<String?>(orientation),
-      'isUncertainIdentification': serializer.toJson<int?>(
-        isUncertainIdentification,
-      ),
+      'isUncertainIdentification':
+          serializer.toJson<int?>(isUncertainIdentification),
     };
   }
 
-  MilDataData copyWith({
-    String? milId,
-    int? mddId,
-    Value<String?> description = const Value.absent(),
-    Value<String?> photographer = const Value.absent(),
-    Value<String?> location = const Value.absent(),
-    Value<String?> distribution = const Value.absent(),
-    Value<String?> dateTaken = const Value.absent(),
-    Value<String?> orientation = const Value.absent(),
-    Value<int?> isUncertainIdentification = const Value.absent(),
-  }) =>
+  MilDataData copyWith(
+          {String? milId,
+          int? mddId,
+          Value<String?> description = const Value.absent(),
+          Value<String?> photographer = const Value.absent(),
+          Value<String?> location = const Value.absent(),
+          Value<String?> distribution = const Value.absent(),
+          Value<String?> dateTaken = const Value.absent(),
+          Value<String?> orientation = const Value.absent(),
+          Value<int?> isUncertainIdentification = const Value.absent()}) =>
       MilDataData(
         milId: milId ?? this.milId,
         mddId: mddId ?? this.mddId,
@@ -5980,16 +5081,15 @@ class MilDataData extends DataClass implements Insertable<MilDataData> {
 
   @override
   int get hashCode => Object.hash(
-        milId,
-        mddId,
-        description,
-        photographer,
-        location,
-        distribution,
-        dateTaken,
-        orientation,
-        isUncertainIdentification,
-      );
+      milId,
+      mddId,
+      description,
+      photographer,
+      location,
+      distribution,
+      dateTaken,
+      orientation,
+      isUncertainIdentification);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6068,18 +5168,17 @@ class MilDataCompanion extends UpdateCompanion<MilDataData> {
     });
   }
 
-  MilDataCompanion copyWith({
-    Value<String>? milId,
-    Value<int>? mddId,
-    Value<String?>? description,
-    Value<String?>? photographer,
-    Value<String?>? location,
-    Value<String?>? distribution,
-    Value<String?>? dateTaken,
-    Value<String?>? orientation,
-    Value<int?>? isUncertainIdentification,
-    Value<int>? rowid,
-  }) {
+  MilDataCompanion copyWith(
+      {Value<String>? milId,
+      Value<int>? mddId,
+      Value<String?>? description,
+      Value<String?>? photographer,
+      Value<String?>? location,
+      Value<String?>? distribution,
+      Value<String?>? dateTaken,
+      Value<String?>? orientation,
+      Value<int?>? isUncertainIdentification,
+      Value<int>? rowid}) {
     return MilDataCompanion(
       milId: milId ?? this.milId,
       mddId: mddId ?? this.mddId,
@@ -6123,9 +5222,8 @@ class MilDataCompanion extends UpdateCompanion<MilDataData> {
       map['orientation'] = Variable<String>(orientation.value);
     }
     if (isUncertainIdentification.present) {
-      map['isUncertainIdentification'] = Variable<int>(
-        isUncertainIdentification.value,
-      );
+      map['isUncertainIdentification'] =
+          Variable<int>(isUncertainIdentification.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -6159,281 +5257,270 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Synonym synonym = Synonym(this);
   late final MilData milData = MilData(this);
   Selectable<MddGroupListResult> mddGroupList() {
-    return customSelect(
-      'SELECT id, taxonOrder, family, genus FROM taxonomy',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => MddGroupListResult(
-        id: row.read<int>('id'),
-        taxonOrder: row.readNullable<String>('taxonOrder'),
-        family: row.readNullable<String>('family'),
-        genus: row.readNullable<String>('genus'),
-      ),
-    );
+    return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => MddGroupListResult(
+          id: row.read<int>('id'),
+          taxonOrder: row.readNullable<String>('taxonOrder'),
+          family: row.readNullable<String>('family'),
+          genus: row.readNullable<String>('genus'),
+        ));
   }
 
   Selectable<StatSpeciesPerOrderResult> statSpeciesPerOrder() {
     return customSelect(
-      'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesPerOrderResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerOrderResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatSpeciesPerFamilyResult> statSpeciesPerFamily() {
     return customSelect(
-      'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesPerFamilyResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerFamilyResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatSpeciesByIucnStatusResult> statSpeciesByIucnStatus() {
     return customSelect(
-      'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesByIucnStatusResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByIucnStatusResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatSpeciesByDiscoveryDecadeResult>
       statSpeciesByDiscoveryDecade() {
     return customSelect(
-      'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
-        decade: row.readNullable<int>('decade'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
+          decade: row.readNullable<int>('decade'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatExtinctSpeciesResult> statExtinctSpecies() {
     return customSelect(
-      'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatExtinctSpeciesResult(
-        isExtinct: row.readNullable<int>('isExtinct'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatExtinctSpeciesResult(
+          isExtinct: row.readNullable<int>('isExtinct'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatDomesticSpeciesResult> statDomesticSpecies() {
     return customSelect(
-      'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatDomesticSpeciesResult(
-        isDomestic: row.readNullable<int>('isDomestic'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatDomesticSpeciesResult(
+          isDomestic: row.readNullable<int>('isDomestic'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatSpeciesByBiogeographicRealmResult>
       statSpeciesByBiogeographicRealm() {
     return customSelect(
-      'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesByBiogeographicRealmResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByBiogeographicRealmResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<String?> statCountryDistributions() {
     return customSelect(
-      'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.readNullable<String>('countryDistribution'));
+        'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map(
+        (QueryRow row) => row.readNullable<String>('countryDistribution'));
   }
 
   Selectable<StatSpeciesPerGenusResult> statSpeciesPerGenus() {
     return customSelect(
-      'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesPerGenusResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesPerGenusResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatSpeciesByDiscoveryYearResult> statSpeciesByDiscoveryYear() {
     return customSelect(
-      'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatSpeciesByDiscoveryYearResult(
-        year: row.readNullable<int>('year'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatSpeciesByDiscoveryYearResult(
+          year: row.readNullable<int>('year'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<RandomMilImagesWithTaxonomyResult> randomMilImagesWithTaxonomy() {
     return customSelect(
-      'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy, milData},
-    ).map(
-      (QueryRow row) => RandomMilImagesWithTaxonomyResult(
-        milId: row.read<String>('milId'),
-        mddId: row.read<int>('mddId'),
-        description: row.readNullable<String>('description'),
-        photographer: row.readNullable<String>('photographer'),
-        location: row.readNullable<String>('location'),
-        distribution: row.readNullable<String>('distribution'),
-        dateTaken: row.readNullable<String>('dateTaken'),
-        orientation: row.readNullable<String>('orientation'),
-        isUncertainIdentification: row.readNullable<int>(
-          'isUncertainIdentification',
-        ),
-        genus: row.readNullable<String>('genus'),
-        specificEpithet: row.readNullable<String>('specificEpithet'),
-        mainCommonName: row.readNullable<String>('mainCommonName'),
-      ),
-    );
+        'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          milData,
+        }).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
+          milId: row.read<String>('milId'),
+          mddId: row.read<int>('mddId'),
+          description: row.readNullable<String>('description'),
+          photographer: row.readNullable<String>('photographer'),
+          location: row.readNullable<String>('location'),
+          distribution: row.readNullable<String>('distribution'),
+          dateTaken: row.readNullable<String>('dateTaken'),
+          orientation: row.readNullable<String>('orientation'),
+          isUncertainIdentification:
+              row.readNullable<int>('isUncertainIdentification'),
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          mainCommonName: row.readNullable<String>('mainCommonName'),
+        ));
   }
 
   Selectable<StatSpeciesWithMostImagesResult> statSpeciesWithMostImages() {
     return customSelect(
-      'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy, milData},
-    ).map(
-      (QueryRow row) => StatSpeciesWithMostImagesResult(
-        genus: row.readNullable<String>('genus'),
-        specificEpithet: row.readNullable<String>('specificEpithet'),
-        imageCount: row.read<int>('imageCount'),
-      ),
-    );
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          milData,
+        }).map((QueryRow row) => StatSpeciesWithMostImagesResult(
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          imageCount: row.read<int>('imageCount'),
+        ));
   }
 
   Selectable<int> statSpeciesWithImagesCount() {
-    return customSelect(
-      'SELECT COUNT(DISTINCT mddId) AS count FROM milData',
-      variables: [],
-      readsFrom: {milData},
-    ).map((QueryRow row) => row.read<int>('count'));
+    return customSelect('SELECT COUNT(DISTINCT mddId) AS count FROM milData',
+        variables: [],
+        readsFrom: {
+          milData,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalSpeciesCount() {
-    return customSelect(
-      'SELECT COUNT(id) AS count FROM taxonomy',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.read<int>('count'));
+    return customSelect('SELECT COUNT(id) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalOrdersCount() {
     return customSelect(
-      'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.read<int>('count'));
+        'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalFamiliesCount() {
-    return customSelect(
-      'SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.read<int>('count'));
+    return customSelect('SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statTotalGeneraCount() {
-    return customSelect(
-      'SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.read<int>('count'));
+    return customSelect('SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<int> statLivingWildSpeciesCount() {
     return customSelect(
-      'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map((QueryRow row) => row.read<int>('count'));
+        'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<StatSpeciesWithMostSynonymsResult> statSpeciesWithMostSynonyms() {
     return customSelect(
-      'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
-      variables: [],
-      readsFrom: {taxonomy, synonym},
-    ).map(
-      (QueryRow row) => StatSpeciesWithMostSynonymsResult(
-        genus: row.readNullable<String>('genus'),
-        specificEpithet: row.readNullable<String>('specificEpithet'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+          synonym,
+        }).map((QueryRow row) => StatSpeciesWithMostSynonymsResult(
+          genus: row.readNullable<String>('genus'),
+          specificEpithet: row.readNullable<String>('specificEpithet'),
+          count: row.read<int>('count'),
+        ));
   }
 
   Selectable<StatTypeKindProportionResult> statTypeKindProportion() {
     return customSelect(
-      'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
-      variables: [],
-      readsFrom: {taxonomy},
-    ).map(
-      (QueryRow row) => StatTypeKindProportionResult(
-        name: row.readNullable<String>('name'),
-        count: row.read<int>('count'),
-      ),
-    );
+        'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
+        variables: [],
+        readsFrom: {
+          taxonomy,
+        }).map((QueryRow row) => StatTypeKindProportionResult(
+          name: row.readNullable<String>('name'),
+          count: row.read<int>('count'),
+        ));
   }
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [
-        mddInfo,
-        taxonomy,
-        synonym,
-        milData,
-      ];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [mddInfo, taxonomy, synonym, milData];
 }
 
 typedef $MddInfoCreateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
   Value<String?> releaseDate,
+  Value<String?> milVersion,
   Value<int> rowid,
 });
 typedef $MddInfoUpdateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
   Value<String?> releaseDate,
+  Value<String?> milVersion,
   Value<int> rowid,
 });
 
@@ -6446,14 +5533,13 @@ class $MddInfoFilterComposer extends Composer<_$AppDatabase, MddInfo> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<String> get version => $composableBuilder(
-        column: $table.version,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.version, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get releaseDate => $composableBuilder(
-        column: $table.releaseDate,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.releaseDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get milVersion => $composableBuilder(
+      column: $table.milVersion, builder: (column) => ColumnFilters(column));
 }
 
 class $MddInfoOrderingComposer extends Composer<_$AppDatabase, MddInfo> {
@@ -6465,14 +5551,13 @@ class $MddInfoOrderingComposer extends Composer<_$AppDatabase, MddInfo> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<String> get version => $composableBuilder(
-        column: $table.version,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.version, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get releaseDate => $composableBuilder(
-        column: $table.releaseDate,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.releaseDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get milVersion => $composableBuilder(
+      column: $table.milVersion, builder: (column) => ColumnOrderings(column));
 }
 
 class $MddInfoAnnotationComposer extends Composer<_$AppDatabase, MddInfo> {
@@ -6487,9 +5572,10 @@ class $MddInfoAnnotationComposer extends Composer<_$AppDatabase, MddInfo> {
       $composableBuilder(column: $table.version, builder: (column) => column);
 
   GeneratedColumn<String> get releaseDate => $composableBuilder(
-        column: $table.releaseDate,
-        builder: (column) => column,
-      );
+      column: $table.releaseDate, builder: (column) => column);
+
+  GeneratedColumn<String> get milVersion => $composableBuilder(
+      column: $table.milVersion, builder: (column) => column);
 }
 
 class $MddInfoTableManager extends RootTableManager<
@@ -6505,42 +5591,44 @@ class $MddInfoTableManager extends RootTableManager<
     MddInfoData,
     PrefetchHooks Function()> {
   $MddInfoTableManager(_$AppDatabase db, MddInfo table)
-      : super(
-          TableManagerState(
-            db: db,
-            table: table,
-            createFilteringComposer: () =>
-                $MddInfoFilterComposer($db: db, $table: table),
-            createOrderingComposer: () =>
-                $MddInfoOrderingComposer($db: db, $table: table),
-            createComputedFieldComposer: () =>
-                $MddInfoAnnotationComposer($db: db, $table: table),
-            updateCompanionCallback: ({
-              Value<String?> version = const Value.absent(),
-              Value<String?> releaseDate = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                MddInfoCompanion(
-              version: version,
-              releaseDate: releaseDate,
-              rowid: rowid,
-            ),
-            createCompanionCallback: ({
-              Value<String?> version = const Value.absent(),
-              Value<String?> releaseDate = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                MddInfoCompanion.insert(
-              version: version,
-              releaseDate: releaseDate,
-              rowid: rowid,
-            ),
-            withReferenceMapper: (p0) => p0
-                .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-                .toList(),
-            prefetchHooksCallback: null,
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $MddInfoFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $MddInfoOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $MddInfoAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String?> version = const Value.absent(),
+            Value<String?> releaseDate = const Value.absent(),
+            Value<String?> milVersion = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MddInfoCompanion(
+            version: version,
+            releaseDate: releaseDate,
+            milVersion: milVersion,
+            rowid: rowid,
           ),
-        );
+          createCompanionCallback: ({
+            Value<String?> version = const Value.absent(),
+            Value<String?> releaseDate = const Value.absent(),
+            Value<String?> milVersion = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MddInfoCompanion.insert(
+            version: version,
+            releaseDate: releaseDate,
+            milVersion: milVersion,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
 }
 
 typedef $MddInfoProcessedTableManager = ProcessedTableManager<
@@ -6669,254 +5757,173 @@ class $TaxonomyFilterComposer extends Composer<_$AppDatabase, Taxonomy> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-        column: $table.id,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get phylosort => $composableBuilder(
-        column: $table.phylosort,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.phylosort, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subclass => $composableBuilder(
-        column: $table.subclass,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.subclass, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get infraclass => $composableBuilder(
-        column: $table.infraclass,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.infraclass, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get magnorder => $composableBuilder(
-        column: $table.magnorder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.magnorder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get superorder => $composableBuilder(
-        column: $table.superorder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.superorder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.taxonOrder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get suborder => $composableBuilder(
-        column: $table.suborder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.suborder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get infraorder => $composableBuilder(
-        column: $table.infraorder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.infraorder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get parvorder => $composableBuilder(
-        column: $table.parvorder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.parvorder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get superfamily => $composableBuilder(
-        column: $table.superfamily,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.superfamily, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get family => $composableBuilder(
-        column: $table.family,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.family, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subfamily => $composableBuilder(
-        column: $table.subfamily,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.subfamily, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get tribe => $composableBuilder(
-        column: $table.tribe,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.tribe, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get genus => $composableBuilder(
-        column: $table.genus,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.genus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subgenus => $composableBuilder(
-        column: $table.subgenus,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.subgenus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.specificEpithet,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sciName => $composableBuilder(
-        column: $table.sciName,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.sciName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authoritySpeciesAuthor => $composableBuilder(
-        column: $table.authoritySpeciesAuthor,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authoritySpeciesAuthor,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get authoritySpeciesYear => $composableBuilder(
-        column: $table.authoritySpeciesYear,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authoritySpeciesYear,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mainCommonName => $composableBuilder(
-        column: $table.mainCommonName,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.mainCommonName,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get otherCommonNames => $composableBuilder(
-        column: $table.otherCommonNames,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.otherCommonNames,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get originalNameCombination => $composableBuilder(
-        column: $table.originalNameCombination,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.originalNameCombination,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authoritySpeciesCitation => $composableBuilder(
-        column: $table.authoritySpeciesCitation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authoritySpeciesCitation,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authoritySpeciesLink => $composableBuilder(
-        column: $table.authoritySpeciesLink,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authoritySpeciesLink,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeVoucher => $composableBuilder(
-        column: $table.typeVoucher,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeVoucher, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeKind => $composableBuilder(
-        column: $table.typeKind,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeKind, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeVoucherURIs => $composableBuilder(
-        column: $table.typeVoucherURIs,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeVoucherURIs,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeLocality => $composableBuilder(
-        column: $table.typeLocality,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeLocality, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeLocalityLatitude => $composableBuilder(
-        column: $table.typeLocalityLatitude,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeLocalityLatitude,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeLocalityLongitude => $composableBuilder(
-        column: $table.typeLocalityLongitude,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeLocalityLongitude,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get nominalNames => $composableBuilder(
-        column: $table.nominalNames,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.nominalNames, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get taxonomyNotes => $composableBuilder(
-        column: $table.taxonomyNotes,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.taxonomyNotes, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get taxonomyNotesCitation => $composableBuilder(
-        column: $table.taxonomyNotesCitation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.taxonomyNotesCitation,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get distributionNotes => $composableBuilder(
-        column: $table.distributionNotes,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.distributionNotes,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get distributionNotesCitation => $composableBuilder(
-        column: $table.distributionNotesCitation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.distributionNotesCitation,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subregionDistribution => $composableBuilder(
-        column: $table.subregionDistribution,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.subregionDistribution,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get countryDistribution => $composableBuilder(
-        column: $table.countryDistribution,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.countryDistribution,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get continentDistribution => $composableBuilder(
-        column: $table.continentDistribution,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.continentDistribution,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get biogeographicRealm => $composableBuilder(
-        column: $table.biogeographicRealm,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.biogeographicRealm,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get iucnStatus => $composableBuilder(
-        column: $table.iucnStatus,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.iucnStatus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get extinct => $composableBuilder(
-        column: $table.extinct,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.extinct, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get domestic => $composableBuilder(
-        column: $table.domestic,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.domestic, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get flagged => $composableBuilder(
-        column: $table.flagged,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.flagged, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get cMWSciName => $composableBuilder(
-        column: $table.cMWSciName,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.cMWSciName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get diffSinceCMW => $composableBuilder(
-        column: $table.diffSinceCMW,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.diffSinceCMW, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mSW3Matchtype => $composableBuilder(
-        column: $table.mSW3Matchtype,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.mSW3Matchtype, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mSW3SciName => $composableBuilder(
-        column: $table.mSW3SciName,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.mSW3SciName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get diffSinceMSW3 => $composableBuilder(
-        column: $table.diffSinceMSW3,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.diffSinceMSW3, builder: (column) => ColumnFilters(column));
 }
 
 class $TaxonomyOrderingComposer extends Composer<_$AppDatabase, Taxonomy> {
@@ -6928,254 +5935,179 @@ class $TaxonomyOrderingComposer extends Composer<_$AppDatabase, Taxonomy> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-        column: $table.id,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get phylosort => $composableBuilder(
-        column: $table.phylosort,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.phylosort, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get subclass => $composableBuilder(
-        column: $table.subclass,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.subclass, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get infraclass => $composableBuilder(
-        column: $table.infraclass,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.infraclass, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get magnorder => $composableBuilder(
-        column: $table.magnorder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.magnorder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get superorder => $composableBuilder(
-        column: $table.superorder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.superorder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.taxonOrder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get suborder => $composableBuilder(
-        column: $table.suborder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.suborder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get infraorder => $composableBuilder(
-        column: $table.infraorder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.infraorder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get parvorder => $composableBuilder(
-        column: $table.parvorder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.parvorder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get superfamily => $composableBuilder(
-        column: $table.superfamily,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.superfamily, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get family => $composableBuilder(
-        column: $table.family,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.family, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get subfamily => $composableBuilder(
-        column: $table.subfamily,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.subfamily, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get tribe => $composableBuilder(
-        column: $table.tribe,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.tribe, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get genus => $composableBuilder(
-        column: $table.genus,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.genus, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get subgenus => $composableBuilder(
-        column: $table.subgenus,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.subgenus, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.specificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sciName => $composableBuilder(
-        column: $table.sciName,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.sciName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authoritySpeciesAuthor => $composableBuilder(
-        column: $table.authoritySpeciesAuthor,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authoritySpeciesAuthor,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get authoritySpeciesYear => $composableBuilder(
-        column: $table.authoritySpeciesYear,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authoritySpeciesYear,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mainCommonName => $composableBuilder(
-        column: $table.mainCommonName,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.mainCommonName,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get otherCommonNames => $composableBuilder(
-        column: $table.otherCommonNames,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.otherCommonNames,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get originalNameCombination => $composableBuilder(
-        column: $table.originalNameCombination,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.originalNameCombination,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authoritySpeciesCitation => $composableBuilder(
-        column: $table.authoritySpeciesCitation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authoritySpeciesCitation,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authoritySpeciesLink => $composableBuilder(
-        column: $table.authoritySpeciesLink,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authoritySpeciesLink,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeVoucher => $composableBuilder(
-        column: $table.typeVoucher,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeVoucher, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeKind => $composableBuilder(
-        column: $table.typeKind,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeKind, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeVoucherURIs => $composableBuilder(
-        column: $table.typeVoucherURIs,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeVoucherURIs,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeLocality => $composableBuilder(
-        column: $table.typeLocality,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeLocality,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeLocalityLatitude => $composableBuilder(
-        column: $table.typeLocalityLatitude,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeLocalityLatitude,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeLocalityLongitude => $composableBuilder(
-        column: $table.typeLocalityLongitude,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeLocalityLongitude,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get nominalNames => $composableBuilder(
-        column: $table.nominalNames,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.nominalNames,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get taxonomyNotes => $composableBuilder(
-        column: $table.taxonomyNotes,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.taxonomyNotes,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get taxonomyNotesCitation => $composableBuilder(
-        column: $table.taxonomyNotesCitation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.taxonomyNotesCitation,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get distributionNotes => $composableBuilder(
-        column: $table.distributionNotes,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.distributionNotes,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get distributionNotesCitation => $composableBuilder(
-        column: $table.distributionNotesCitation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.distributionNotesCitation,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get subregionDistribution => $composableBuilder(
-        column: $table.subregionDistribution,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.subregionDistribution,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get countryDistribution => $composableBuilder(
-        column: $table.countryDistribution,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.countryDistribution,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get continentDistribution => $composableBuilder(
-        column: $table.continentDistribution,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.continentDistribution,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get biogeographicRealm => $composableBuilder(
-        column: $table.biogeographicRealm,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.biogeographicRealm,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get iucnStatus => $composableBuilder(
-        column: $table.iucnStatus,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.iucnStatus, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get extinct => $composableBuilder(
-        column: $table.extinct,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.extinct, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get domestic => $composableBuilder(
-        column: $table.domestic,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.domestic, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get flagged => $composableBuilder(
-        column: $table.flagged,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.flagged, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get cMWSciName => $composableBuilder(
-        column: $table.cMWSciName,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.cMWSciName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get diffSinceCMW => $composableBuilder(
-        column: $table.diffSinceCMW,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.diffSinceCMW,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mSW3Matchtype => $composableBuilder(
-        column: $table.mSW3Matchtype,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.mSW3Matchtype,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mSW3SciName => $composableBuilder(
-        column: $table.mSW3SciName,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.mSW3SciName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get diffSinceMSW3 => $composableBuilder(
-        column: $table.diffSinceMSW3,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.diffSinceMSW3,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
@@ -7196,38 +6128,28 @@ class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
       $composableBuilder(column: $table.subclass, builder: (column) => column);
 
   GeneratedColumn<String> get infraclass => $composableBuilder(
-        column: $table.infraclass,
-        builder: (column) => column,
-      );
+      column: $table.infraclass, builder: (column) => column);
 
   GeneratedColumn<String> get magnorder =>
       $composableBuilder(column: $table.magnorder, builder: (column) => column);
 
   GeneratedColumn<String> get superorder => $composableBuilder(
-        column: $table.superorder,
-        builder: (column) => column,
-      );
+      column: $table.superorder, builder: (column) => column);
 
   GeneratedColumn<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => column,
-      );
+      column: $table.taxonOrder, builder: (column) => column);
 
   GeneratedColumn<String> get suborder =>
       $composableBuilder(column: $table.suborder, builder: (column) => column);
 
   GeneratedColumn<String> get infraorder => $composableBuilder(
-        column: $table.infraorder,
-        builder: (column) => column,
-      );
+      column: $table.infraorder, builder: (column) => column);
 
   GeneratedColumn<String> get parvorder =>
       $composableBuilder(column: $table.parvorder, builder: (column) => column);
 
   GeneratedColumn<String> get superfamily => $composableBuilder(
-        column: $table.superfamily,
-        builder: (column) => column,
-      );
+      column: $table.superfamily, builder: (column) => column);
 
   GeneratedColumn<String> get family =>
       $composableBuilder(column: $table.family, builder: (column) => column);
@@ -7245,130 +6167,82 @@ class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
       $composableBuilder(column: $table.subgenus, builder: (column) => column);
 
   GeneratedColumn<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => column,
-      );
+      column: $table.specificEpithet, builder: (column) => column);
 
   GeneratedColumn<String> get sciName =>
       $composableBuilder(column: $table.sciName, builder: (column) => column);
 
   GeneratedColumn<String> get authoritySpeciesAuthor => $composableBuilder(
-        column: $table.authoritySpeciesAuthor,
-        builder: (column) => column,
-      );
+      column: $table.authoritySpeciesAuthor, builder: (column) => column);
 
   GeneratedColumn<int> get authoritySpeciesYear => $composableBuilder(
-        column: $table.authoritySpeciesYear,
-        builder: (column) => column,
-      );
+      column: $table.authoritySpeciesYear, builder: (column) => column);
 
   GeneratedColumn<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => column,
-      );
+      column: $table.authorityParentheses, builder: (column) => column);
 
   GeneratedColumn<String> get mainCommonName => $composableBuilder(
-        column: $table.mainCommonName,
-        builder: (column) => column,
-      );
+      column: $table.mainCommonName, builder: (column) => column);
 
   GeneratedColumn<String> get otherCommonNames => $composableBuilder(
-        column: $table.otherCommonNames,
-        builder: (column) => column,
-      );
+      column: $table.otherCommonNames, builder: (column) => column);
 
   GeneratedColumn<String> get originalNameCombination => $composableBuilder(
-        column: $table.originalNameCombination,
-        builder: (column) => column,
-      );
+      column: $table.originalNameCombination, builder: (column) => column);
 
   GeneratedColumn<String> get authoritySpeciesCitation => $composableBuilder(
-        column: $table.authoritySpeciesCitation,
-        builder: (column) => column,
-      );
+      column: $table.authoritySpeciesCitation, builder: (column) => column);
 
   GeneratedColumn<String> get authoritySpeciesLink => $composableBuilder(
-        column: $table.authoritySpeciesLink,
-        builder: (column) => column,
-      );
+      column: $table.authoritySpeciesLink, builder: (column) => column);
 
   GeneratedColumn<String> get typeVoucher => $composableBuilder(
-        column: $table.typeVoucher,
-        builder: (column) => column,
-      );
+      column: $table.typeVoucher, builder: (column) => column);
 
   GeneratedColumn<String> get typeKind =>
       $composableBuilder(column: $table.typeKind, builder: (column) => column);
 
   GeneratedColumn<String> get typeVoucherURIs => $composableBuilder(
-        column: $table.typeVoucherURIs,
-        builder: (column) => column,
-      );
+      column: $table.typeVoucherURIs, builder: (column) => column);
 
   GeneratedColumn<String> get typeLocality => $composableBuilder(
-        column: $table.typeLocality,
-        builder: (column) => column,
-      );
+      column: $table.typeLocality, builder: (column) => column);
 
   GeneratedColumn<String> get typeLocalityLatitude => $composableBuilder(
-        column: $table.typeLocalityLatitude,
-        builder: (column) => column,
-      );
+      column: $table.typeLocalityLatitude, builder: (column) => column);
 
   GeneratedColumn<String> get typeLocalityLongitude => $composableBuilder(
-        column: $table.typeLocalityLongitude,
-        builder: (column) => column,
-      );
+      column: $table.typeLocalityLongitude, builder: (column) => column);
 
   GeneratedColumn<String> get nominalNames => $composableBuilder(
-        column: $table.nominalNames,
-        builder: (column) => column,
-      );
+      column: $table.nominalNames, builder: (column) => column);
 
   GeneratedColumn<String> get taxonomyNotes => $composableBuilder(
-        column: $table.taxonomyNotes,
-        builder: (column) => column,
-      );
+      column: $table.taxonomyNotes, builder: (column) => column);
 
   GeneratedColumn<String> get taxonomyNotesCitation => $composableBuilder(
-        column: $table.taxonomyNotesCitation,
-        builder: (column) => column,
-      );
+      column: $table.taxonomyNotesCitation, builder: (column) => column);
 
   GeneratedColumn<String> get distributionNotes => $composableBuilder(
-        column: $table.distributionNotes,
-        builder: (column) => column,
-      );
+      column: $table.distributionNotes, builder: (column) => column);
 
   GeneratedColumn<String> get distributionNotesCitation => $composableBuilder(
-        column: $table.distributionNotesCitation,
-        builder: (column) => column,
-      );
+      column: $table.distributionNotesCitation, builder: (column) => column);
 
   GeneratedColumn<String> get subregionDistribution => $composableBuilder(
-        column: $table.subregionDistribution,
-        builder: (column) => column,
-      );
+      column: $table.subregionDistribution, builder: (column) => column);
 
   GeneratedColumn<String> get countryDistribution => $composableBuilder(
-        column: $table.countryDistribution,
-        builder: (column) => column,
-      );
+      column: $table.countryDistribution, builder: (column) => column);
 
   GeneratedColumn<String> get continentDistribution => $composableBuilder(
-        column: $table.continentDistribution,
-        builder: (column) => column,
-      );
+      column: $table.continentDistribution, builder: (column) => column);
 
   GeneratedColumn<String> get biogeographicRealm => $composableBuilder(
-        column: $table.biogeographicRealm,
-        builder: (column) => column,
-      );
+      column: $table.biogeographicRealm, builder: (column) => column);
 
   GeneratedColumn<String> get iucnStatus => $composableBuilder(
-        column: $table.iucnStatus,
-        builder: (column) => column,
-      );
+      column: $table.iucnStatus, builder: (column) => column);
 
   GeneratedColumn<int> get extinct =>
       $composableBuilder(column: $table.extinct, builder: (column) => column);
@@ -7380,29 +6254,19 @@ class $TaxonomyAnnotationComposer extends Composer<_$AppDatabase, Taxonomy> {
       $composableBuilder(column: $table.flagged, builder: (column) => column);
 
   GeneratedColumn<String> get cMWSciName => $composableBuilder(
-        column: $table.cMWSciName,
-        builder: (column) => column,
-      );
+      column: $table.cMWSciName, builder: (column) => column);
 
   GeneratedColumn<int> get diffSinceCMW => $composableBuilder(
-        column: $table.diffSinceCMW,
-        builder: (column) => column,
-      );
+      column: $table.diffSinceCMW, builder: (column) => column);
 
   GeneratedColumn<String> get mSW3Matchtype => $composableBuilder(
-        column: $table.mSW3Matchtype,
-        builder: (column) => column,
-      );
+      column: $table.mSW3Matchtype, builder: (column) => column);
 
   GeneratedColumn<String> get mSW3SciName => $composableBuilder(
-        column: $table.mSW3SciName,
-        builder: (column) => column,
-      );
+      column: $table.mSW3SciName, builder: (column) => column);
 
   GeneratedColumn<String> get diffSinceMSW3 => $composableBuilder(
-        column: $table.diffSinceMSW3,
-        builder: (column) => column,
-      );
+      column: $table.diffSinceMSW3, builder: (column) => column);
 }
 
 class $TaxonomyTableManager extends RootTableManager<
@@ -7418,230 +6282,228 @@ class $TaxonomyTableManager extends RootTableManager<
     TaxonomyData,
     PrefetchHooks Function()> {
   $TaxonomyTableManager(_$AppDatabase db, Taxonomy table)
-      : super(
-          TableManagerState(
-            db: db,
-            table: table,
-            createFilteringComposer: () =>
-                $TaxonomyFilterComposer($db: db, $table: table),
-            createOrderingComposer: () =>
-                $TaxonomyOrderingComposer($db: db, $table: table),
-            createComputedFieldComposer: () =>
-                $TaxonomyAnnotationComposer($db: db, $table: table),
-            updateCompanionCallback: ({
-              Value<int> id = const Value.absent(),
-              Value<int?> phylosort = const Value.absent(),
-              Value<String?> subclass = const Value.absent(),
-              Value<String?> infraclass = const Value.absent(),
-              Value<String?> magnorder = const Value.absent(),
-              Value<String?> superorder = const Value.absent(),
-              Value<String?> taxonOrder = const Value.absent(),
-              Value<String?> suborder = const Value.absent(),
-              Value<String?> infraorder = const Value.absent(),
-              Value<String?> parvorder = const Value.absent(),
-              Value<String?> superfamily = const Value.absent(),
-              Value<String?> family = const Value.absent(),
-              Value<String?> subfamily = const Value.absent(),
-              Value<String?> tribe = const Value.absent(),
-              Value<String?> genus = const Value.absent(),
-              Value<String?> subgenus = const Value.absent(),
-              Value<String?> specificEpithet = const Value.absent(),
-              Value<String?> sciName = const Value.absent(),
-              Value<String?> authoritySpeciesAuthor = const Value.absent(),
-              Value<int?> authoritySpeciesYear = const Value.absent(),
-              Value<int?> authorityParentheses = const Value.absent(),
-              Value<String?> mainCommonName = const Value.absent(),
-              Value<String?> otherCommonNames = const Value.absent(),
-              Value<String?> originalNameCombination = const Value.absent(),
-              Value<String?> authoritySpeciesCitation = const Value.absent(),
-              Value<String?> authoritySpeciesLink = const Value.absent(),
-              Value<String?> typeVoucher = const Value.absent(),
-              Value<String?> typeKind = const Value.absent(),
-              Value<String?> typeVoucherURIs = const Value.absent(),
-              Value<String?> typeLocality = const Value.absent(),
-              Value<String?> typeLocalityLatitude = const Value.absent(),
-              Value<String?> typeLocalityLongitude = const Value.absent(),
-              Value<String?> nominalNames = const Value.absent(),
-              Value<String?> taxonomyNotes = const Value.absent(),
-              Value<String?> taxonomyNotesCitation = const Value.absent(),
-              Value<String?> distributionNotes = const Value.absent(),
-              Value<String?> distributionNotesCitation = const Value.absent(),
-              Value<String?> subregionDistribution = const Value.absent(),
-              Value<String?> countryDistribution = const Value.absent(),
-              Value<String?> continentDistribution = const Value.absent(),
-              Value<String?> biogeographicRealm = const Value.absent(),
-              Value<String?> iucnStatus = const Value.absent(),
-              Value<int?> extinct = const Value.absent(),
-              Value<int?> domestic = const Value.absent(),
-              Value<int?> flagged = const Value.absent(),
-              Value<String?> cMWSciName = const Value.absent(),
-              Value<int?> diffSinceCMW = const Value.absent(),
-              Value<String?> mSW3Matchtype = const Value.absent(),
-              Value<String?> mSW3SciName = const Value.absent(),
-              Value<String?> diffSinceMSW3 = const Value.absent(),
-            }) =>
-                TaxonomyCompanion(
-              id: id,
-              phylosort: phylosort,
-              subclass: subclass,
-              infraclass: infraclass,
-              magnorder: magnorder,
-              superorder: superorder,
-              taxonOrder: taxonOrder,
-              suborder: suborder,
-              infraorder: infraorder,
-              parvorder: parvorder,
-              superfamily: superfamily,
-              family: family,
-              subfamily: subfamily,
-              tribe: tribe,
-              genus: genus,
-              subgenus: subgenus,
-              specificEpithet: specificEpithet,
-              sciName: sciName,
-              authoritySpeciesAuthor: authoritySpeciesAuthor,
-              authoritySpeciesYear: authoritySpeciesYear,
-              authorityParentheses: authorityParentheses,
-              mainCommonName: mainCommonName,
-              otherCommonNames: otherCommonNames,
-              originalNameCombination: originalNameCombination,
-              authoritySpeciesCitation: authoritySpeciesCitation,
-              authoritySpeciesLink: authoritySpeciesLink,
-              typeVoucher: typeVoucher,
-              typeKind: typeKind,
-              typeVoucherURIs: typeVoucherURIs,
-              typeLocality: typeLocality,
-              typeLocalityLatitude: typeLocalityLatitude,
-              typeLocalityLongitude: typeLocalityLongitude,
-              nominalNames: nominalNames,
-              taxonomyNotes: taxonomyNotes,
-              taxonomyNotesCitation: taxonomyNotesCitation,
-              distributionNotes: distributionNotes,
-              distributionNotesCitation: distributionNotesCitation,
-              subregionDistribution: subregionDistribution,
-              countryDistribution: countryDistribution,
-              continentDistribution: continentDistribution,
-              biogeographicRealm: biogeographicRealm,
-              iucnStatus: iucnStatus,
-              extinct: extinct,
-              domestic: domestic,
-              flagged: flagged,
-              cMWSciName: cMWSciName,
-              diffSinceCMW: diffSinceCMW,
-              mSW3Matchtype: mSW3Matchtype,
-              mSW3SciName: mSW3SciName,
-              diffSinceMSW3: diffSinceMSW3,
-            ),
-            createCompanionCallback: ({
-              Value<int> id = const Value.absent(),
-              Value<int?> phylosort = const Value.absent(),
-              Value<String?> subclass = const Value.absent(),
-              Value<String?> infraclass = const Value.absent(),
-              Value<String?> magnorder = const Value.absent(),
-              Value<String?> superorder = const Value.absent(),
-              Value<String?> taxonOrder = const Value.absent(),
-              Value<String?> suborder = const Value.absent(),
-              Value<String?> infraorder = const Value.absent(),
-              Value<String?> parvorder = const Value.absent(),
-              Value<String?> superfamily = const Value.absent(),
-              Value<String?> family = const Value.absent(),
-              Value<String?> subfamily = const Value.absent(),
-              Value<String?> tribe = const Value.absent(),
-              Value<String?> genus = const Value.absent(),
-              Value<String?> subgenus = const Value.absent(),
-              Value<String?> specificEpithet = const Value.absent(),
-              Value<String?> sciName = const Value.absent(),
-              Value<String?> authoritySpeciesAuthor = const Value.absent(),
-              Value<int?> authoritySpeciesYear = const Value.absent(),
-              Value<int?> authorityParentheses = const Value.absent(),
-              Value<String?> mainCommonName = const Value.absent(),
-              Value<String?> otherCommonNames = const Value.absent(),
-              Value<String?> originalNameCombination = const Value.absent(),
-              Value<String?> authoritySpeciesCitation = const Value.absent(),
-              Value<String?> authoritySpeciesLink = const Value.absent(),
-              Value<String?> typeVoucher = const Value.absent(),
-              Value<String?> typeKind = const Value.absent(),
-              Value<String?> typeVoucherURIs = const Value.absent(),
-              Value<String?> typeLocality = const Value.absent(),
-              Value<String?> typeLocalityLatitude = const Value.absent(),
-              Value<String?> typeLocalityLongitude = const Value.absent(),
-              Value<String?> nominalNames = const Value.absent(),
-              Value<String?> taxonomyNotes = const Value.absent(),
-              Value<String?> taxonomyNotesCitation = const Value.absent(),
-              Value<String?> distributionNotes = const Value.absent(),
-              Value<String?> distributionNotesCitation = const Value.absent(),
-              Value<String?> subregionDistribution = const Value.absent(),
-              Value<String?> countryDistribution = const Value.absent(),
-              Value<String?> continentDistribution = const Value.absent(),
-              Value<String?> biogeographicRealm = const Value.absent(),
-              Value<String?> iucnStatus = const Value.absent(),
-              Value<int?> extinct = const Value.absent(),
-              Value<int?> domestic = const Value.absent(),
-              Value<int?> flagged = const Value.absent(),
-              Value<String?> cMWSciName = const Value.absent(),
-              Value<int?> diffSinceCMW = const Value.absent(),
-              Value<String?> mSW3Matchtype = const Value.absent(),
-              Value<String?> mSW3SciName = const Value.absent(),
-              Value<String?> diffSinceMSW3 = const Value.absent(),
-            }) =>
-                TaxonomyCompanion.insert(
-              id: id,
-              phylosort: phylosort,
-              subclass: subclass,
-              infraclass: infraclass,
-              magnorder: magnorder,
-              superorder: superorder,
-              taxonOrder: taxonOrder,
-              suborder: suborder,
-              infraorder: infraorder,
-              parvorder: parvorder,
-              superfamily: superfamily,
-              family: family,
-              subfamily: subfamily,
-              tribe: tribe,
-              genus: genus,
-              subgenus: subgenus,
-              specificEpithet: specificEpithet,
-              sciName: sciName,
-              authoritySpeciesAuthor: authoritySpeciesAuthor,
-              authoritySpeciesYear: authoritySpeciesYear,
-              authorityParentheses: authorityParentheses,
-              mainCommonName: mainCommonName,
-              otherCommonNames: otherCommonNames,
-              originalNameCombination: originalNameCombination,
-              authoritySpeciesCitation: authoritySpeciesCitation,
-              authoritySpeciesLink: authoritySpeciesLink,
-              typeVoucher: typeVoucher,
-              typeKind: typeKind,
-              typeVoucherURIs: typeVoucherURIs,
-              typeLocality: typeLocality,
-              typeLocalityLatitude: typeLocalityLatitude,
-              typeLocalityLongitude: typeLocalityLongitude,
-              nominalNames: nominalNames,
-              taxonomyNotes: taxonomyNotes,
-              taxonomyNotesCitation: taxonomyNotesCitation,
-              distributionNotes: distributionNotes,
-              distributionNotesCitation: distributionNotesCitation,
-              subregionDistribution: subregionDistribution,
-              countryDistribution: countryDistribution,
-              continentDistribution: continentDistribution,
-              biogeographicRealm: biogeographicRealm,
-              iucnStatus: iucnStatus,
-              extinct: extinct,
-              domestic: domestic,
-              flagged: flagged,
-              cMWSciName: cMWSciName,
-              diffSinceCMW: diffSinceCMW,
-              mSW3Matchtype: mSW3Matchtype,
-              mSW3SciName: mSW3SciName,
-              diffSinceMSW3: diffSinceMSW3,
-            ),
-            withReferenceMapper: (p0) => p0
-                .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-                .toList(),
-            prefetchHooksCallback: null,
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $TaxonomyFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $TaxonomyOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $TaxonomyAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> phylosort = const Value.absent(),
+            Value<String?> subclass = const Value.absent(),
+            Value<String?> infraclass = const Value.absent(),
+            Value<String?> magnorder = const Value.absent(),
+            Value<String?> superorder = const Value.absent(),
+            Value<String?> taxonOrder = const Value.absent(),
+            Value<String?> suborder = const Value.absent(),
+            Value<String?> infraorder = const Value.absent(),
+            Value<String?> parvorder = const Value.absent(),
+            Value<String?> superfamily = const Value.absent(),
+            Value<String?> family = const Value.absent(),
+            Value<String?> subfamily = const Value.absent(),
+            Value<String?> tribe = const Value.absent(),
+            Value<String?> genus = const Value.absent(),
+            Value<String?> subgenus = const Value.absent(),
+            Value<String?> specificEpithet = const Value.absent(),
+            Value<String?> sciName = const Value.absent(),
+            Value<String?> authoritySpeciesAuthor = const Value.absent(),
+            Value<int?> authoritySpeciesYear = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
+            Value<String?> mainCommonName = const Value.absent(),
+            Value<String?> otherCommonNames = const Value.absent(),
+            Value<String?> originalNameCombination = const Value.absent(),
+            Value<String?> authoritySpeciesCitation = const Value.absent(),
+            Value<String?> authoritySpeciesLink = const Value.absent(),
+            Value<String?> typeVoucher = const Value.absent(),
+            Value<String?> typeKind = const Value.absent(),
+            Value<String?> typeVoucherURIs = const Value.absent(),
+            Value<String?> typeLocality = const Value.absent(),
+            Value<String?> typeLocalityLatitude = const Value.absent(),
+            Value<String?> typeLocalityLongitude = const Value.absent(),
+            Value<String?> nominalNames = const Value.absent(),
+            Value<String?> taxonomyNotes = const Value.absent(),
+            Value<String?> taxonomyNotesCitation = const Value.absent(),
+            Value<String?> distributionNotes = const Value.absent(),
+            Value<String?> distributionNotesCitation = const Value.absent(),
+            Value<String?> subregionDistribution = const Value.absent(),
+            Value<String?> countryDistribution = const Value.absent(),
+            Value<String?> continentDistribution = const Value.absent(),
+            Value<String?> biogeographicRealm = const Value.absent(),
+            Value<String?> iucnStatus = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
+            Value<String?> cMWSciName = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
+            Value<String?> mSW3Matchtype = const Value.absent(),
+            Value<String?> mSW3SciName = const Value.absent(),
+            Value<String?> diffSinceMSW3 = const Value.absent(),
+          }) =>
+              TaxonomyCompanion(
+            id: id,
+            phylosort: phylosort,
+            subclass: subclass,
+            infraclass: infraclass,
+            magnorder: magnorder,
+            superorder: superorder,
+            taxonOrder: taxonOrder,
+            suborder: suborder,
+            infraorder: infraorder,
+            parvorder: parvorder,
+            superfamily: superfamily,
+            family: family,
+            subfamily: subfamily,
+            tribe: tribe,
+            genus: genus,
+            subgenus: subgenus,
+            specificEpithet: specificEpithet,
+            sciName: sciName,
+            authoritySpeciesAuthor: authoritySpeciesAuthor,
+            authoritySpeciesYear: authoritySpeciesYear,
+            authorityParentheses: authorityParentheses,
+            mainCommonName: mainCommonName,
+            otherCommonNames: otherCommonNames,
+            originalNameCombination: originalNameCombination,
+            authoritySpeciesCitation: authoritySpeciesCitation,
+            authoritySpeciesLink: authoritySpeciesLink,
+            typeVoucher: typeVoucher,
+            typeKind: typeKind,
+            typeVoucherURIs: typeVoucherURIs,
+            typeLocality: typeLocality,
+            typeLocalityLatitude: typeLocalityLatitude,
+            typeLocalityLongitude: typeLocalityLongitude,
+            nominalNames: nominalNames,
+            taxonomyNotes: taxonomyNotes,
+            taxonomyNotesCitation: taxonomyNotesCitation,
+            distributionNotes: distributionNotes,
+            distributionNotesCitation: distributionNotesCitation,
+            subregionDistribution: subregionDistribution,
+            countryDistribution: countryDistribution,
+            continentDistribution: continentDistribution,
+            biogeographicRealm: biogeographicRealm,
+            iucnStatus: iucnStatus,
+            extinct: extinct,
+            domestic: domestic,
+            flagged: flagged,
+            cMWSciName: cMWSciName,
+            diffSinceCMW: diffSinceCMW,
+            mSW3Matchtype: mSW3Matchtype,
+            mSW3SciName: mSW3SciName,
+            diffSinceMSW3: diffSinceMSW3,
           ),
-        );
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> phylosort = const Value.absent(),
+            Value<String?> subclass = const Value.absent(),
+            Value<String?> infraclass = const Value.absent(),
+            Value<String?> magnorder = const Value.absent(),
+            Value<String?> superorder = const Value.absent(),
+            Value<String?> taxonOrder = const Value.absent(),
+            Value<String?> suborder = const Value.absent(),
+            Value<String?> infraorder = const Value.absent(),
+            Value<String?> parvorder = const Value.absent(),
+            Value<String?> superfamily = const Value.absent(),
+            Value<String?> family = const Value.absent(),
+            Value<String?> subfamily = const Value.absent(),
+            Value<String?> tribe = const Value.absent(),
+            Value<String?> genus = const Value.absent(),
+            Value<String?> subgenus = const Value.absent(),
+            Value<String?> specificEpithet = const Value.absent(),
+            Value<String?> sciName = const Value.absent(),
+            Value<String?> authoritySpeciesAuthor = const Value.absent(),
+            Value<int?> authoritySpeciesYear = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
+            Value<String?> mainCommonName = const Value.absent(),
+            Value<String?> otherCommonNames = const Value.absent(),
+            Value<String?> originalNameCombination = const Value.absent(),
+            Value<String?> authoritySpeciesCitation = const Value.absent(),
+            Value<String?> authoritySpeciesLink = const Value.absent(),
+            Value<String?> typeVoucher = const Value.absent(),
+            Value<String?> typeKind = const Value.absent(),
+            Value<String?> typeVoucherURIs = const Value.absent(),
+            Value<String?> typeLocality = const Value.absent(),
+            Value<String?> typeLocalityLatitude = const Value.absent(),
+            Value<String?> typeLocalityLongitude = const Value.absent(),
+            Value<String?> nominalNames = const Value.absent(),
+            Value<String?> taxonomyNotes = const Value.absent(),
+            Value<String?> taxonomyNotesCitation = const Value.absent(),
+            Value<String?> distributionNotes = const Value.absent(),
+            Value<String?> distributionNotesCitation = const Value.absent(),
+            Value<String?> subregionDistribution = const Value.absent(),
+            Value<String?> countryDistribution = const Value.absent(),
+            Value<String?> continentDistribution = const Value.absent(),
+            Value<String?> biogeographicRealm = const Value.absent(),
+            Value<String?> iucnStatus = const Value.absent(),
+            Value<int?> extinct = const Value.absent(),
+            Value<int?> domestic = const Value.absent(),
+            Value<int?> flagged = const Value.absent(),
+            Value<String?> cMWSciName = const Value.absent(),
+            Value<int?> diffSinceCMW = const Value.absent(),
+            Value<String?> mSW3Matchtype = const Value.absent(),
+            Value<String?> mSW3SciName = const Value.absent(),
+            Value<String?> diffSinceMSW3 = const Value.absent(),
+          }) =>
+              TaxonomyCompanion.insert(
+            id: id,
+            phylosort: phylosort,
+            subclass: subclass,
+            infraclass: infraclass,
+            magnorder: magnorder,
+            superorder: superorder,
+            taxonOrder: taxonOrder,
+            suborder: suborder,
+            infraorder: infraorder,
+            parvorder: parvorder,
+            superfamily: superfamily,
+            family: family,
+            subfamily: subfamily,
+            tribe: tribe,
+            genus: genus,
+            subgenus: subgenus,
+            specificEpithet: specificEpithet,
+            sciName: sciName,
+            authoritySpeciesAuthor: authoritySpeciesAuthor,
+            authoritySpeciesYear: authoritySpeciesYear,
+            authorityParentheses: authorityParentheses,
+            mainCommonName: mainCommonName,
+            otherCommonNames: otherCommonNames,
+            originalNameCombination: originalNameCombination,
+            authoritySpeciesCitation: authoritySpeciesCitation,
+            authoritySpeciesLink: authoritySpeciesLink,
+            typeVoucher: typeVoucher,
+            typeKind: typeKind,
+            typeVoucherURIs: typeVoucherURIs,
+            typeLocality: typeLocality,
+            typeLocalityLatitude: typeLocalityLatitude,
+            typeLocalityLongitude: typeLocalityLongitude,
+            nominalNames: nominalNames,
+            taxonomyNotes: taxonomyNotes,
+            taxonomyNotesCitation: taxonomyNotesCitation,
+            distributionNotes: distributionNotes,
+            distributionNotesCitation: distributionNotesCitation,
+            subregionDistribution: subregionDistribution,
+            countryDistribution: countryDistribution,
+            continentDistribution: continentDistribution,
+            biogeographicRealm: biogeographicRealm,
+            iucnStatus: iucnStatus,
+            extinct: extinct,
+            domestic: domestic,
+            flagged: flagged,
+            cMWSciName: cMWSciName,
+            diffSinceCMW: diffSinceCMW,
+            mSW3Matchtype: mSW3Matchtype,
+            mSW3SciName: mSW3SciName,
+            diffSinceMSW3: diffSinceMSW3,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
 }
 
 typedef $TaxonomyProcessedTableManager = ProcessedTableManager<
@@ -7758,219 +6620,150 @@ class $SynonymFilterComposer extends Composer<_$AppDatabase, Synonym> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get synId => $composableBuilder(
-        column: $table.synId,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.synId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get hespId => $composableBuilder(
-        column: $table.hespId,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.hespId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get speciesId => $composableBuilder(
-        column: $table.speciesId,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.speciesId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get species => $composableBuilder(
-        column: $table.species,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.species, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get rootName => $composableBuilder(
-        column: $table.rootName,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.rootName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get author => $composableBuilder(
-        column: $table.author,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.author, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get year => $composableBuilder(
-        column: $table.year,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.year, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get nomenclatureStatus => $composableBuilder(
-        column: $table.nomenclatureStatus,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.nomenclatureStatus,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get validity => $composableBuilder(
-        column: $table.validity,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.validity, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get originalCombination => $composableBuilder(
-        column: $table.originalCombination,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.originalCombination,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get originalRank => $composableBuilder(
-        column: $table.originalRank,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.originalRank, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authorityCitation => $composableBuilder(
-        column: $table.authorityCitation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityCitation,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get uncheckedAuthorityCitation => $composableBuilder(
-        column: $table.uncheckedAuthorityCitation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.uncheckedAuthorityCitation,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourcedUnverifiedCitations => $composableBuilder(
-        column: $table.sourcedUnverifiedCitations,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.sourcedUnverifiedCitations,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get citationGroup => $composableBuilder(
-        column: $table.citationGroup,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.citationGroup, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get citationKind => $composableBuilder(
-        column: $table.citationKind,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.citationKind, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authorityPage => $composableBuilder(
-        column: $table.authorityPage,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityPage, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authorityLink => $composableBuilder(
-        column: $table.authorityLink,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityLink, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get authorityPageLink => $composableBuilder(
-        column: $table.authorityPageLink,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.authorityPageLink,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get uncheckedAuthorityPageLink => $composableBuilder(
-        column: $table.uncheckedAuthorityPageLink,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.uncheckedAuthorityPageLink,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get oldTypeLocality => $composableBuilder(
-        column: $table.oldTypeLocality,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.oldTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get originalTypeLocality => $composableBuilder(
-        column: $table.originalTypeLocality,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.originalTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get uncheckedTypeLocality => $composableBuilder(
-        column: $table.uncheckedTypeLocality,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.uncheckedTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get emendedTypeLocality => $composableBuilder(
-        column: $table.emendedTypeLocality,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.emendedTypeLocality,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeLatitude => $composableBuilder(
-        column: $table.typeLatitude,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeLatitude, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeLongitude => $composableBuilder(
-        column: $table.typeLongitude,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeLongitude, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeCountry => $composableBuilder(
-        column: $table.typeCountry,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeCountry, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeSubregion => $composableBuilder(
-        column: $table.typeSubregion,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeSubregion, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeSubregion2 => $composableBuilder(
-        column: $table.typeSubregion2,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeSubregion2,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get holotype => $composableBuilder(
-        column: $table.holotype,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.holotype, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeKind => $composableBuilder(
-        column: $table.typeKind,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeKind, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get typeSpecimenLink => $composableBuilder(
-        column: $table.typeSpecimenLink,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.typeSpecimenLink,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.taxonOrder, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get family => $composableBuilder(
-        column: $table.family,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.family, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get genus => $composableBuilder(
-        column: $table.genus,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.genus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.specificEpithet,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get subspecificEpithet => $composableBuilder(
-        column: $table.subspecificEpithet,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.subspecificEpithet,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get variantOf => $composableBuilder(
-        column: $table.variantOf,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.variantOf, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get seniorHomonym => $composableBuilder(
-        column: $table.seniorHomonym,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.seniorHomonym, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get variantNameCitations => $composableBuilder(
-        column: $table.variantNameCitations,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.variantNameCitations,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get nameUsages => $composableBuilder(
-        column: $table.nameUsages,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.nameUsages, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get comments => $composableBuilder(
-        column: $table.comments,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.comments, builder: (column) => ColumnFilters(column));
 }
 
 class $SynonymOrderingComposer extends Composer<_$AppDatabase, Synonym> {
@@ -7982,219 +6775,159 @@ class $SynonymOrderingComposer extends Composer<_$AppDatabase, Synonym> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get synId => $composableBuilder(
-        column: $table.synId,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.synId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get hespId => $composableBuilder(
-        column: $table.hespId,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.hespId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get speciesId => $composableBuilder(
-        column: $table.speciesId,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.speciesId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get species => $composableBuilder(
-        column: $table.species,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.species, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get rootName => $composableBuilder(
-        column: $table.rootName,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.rootName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get author => $composableBuilder(
-        column: $table.author,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.author, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get year => $composableBuilder(
-        column: $table.year,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.year, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityParentheses,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get nomenclatureStatus => $composableBuilder(
-        column: $table.nomenclatureStatus,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.nomenclatureStatus,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get validity => $composableBuilder(
-        column: $table.validity,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.validity, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get originalCombination => $composableBuilder(
-        column: $table.originalCombination,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.originalCombination,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get originalRank => $composableBuilder(
-        column: $table.originalRank,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.originalRank,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authorityCitation => $composableBuilder(
-        column: $table.authorityCitation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityCitation,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get uncheckedAuthorityCitation => $composableBuilder(
-        column: $table.uncheckedAuthorityCitation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.uncheckedAuthorityCitation,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourcedUnverifiedCitations => $composableBuilder(
-        column: $table.sourcedUnverifiedCitations,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.sourcedUnverifiedCitations,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get citationGroup => $composableBuilder(
-        column: $table.citationGroup,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.citationGroup,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get citationKind => $composableBuilder(
-        column: $table.citationKind,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.citationKind,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authorityPage => $composableBuilder(
-        column: $table.authorityPage,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityPage,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authorityLink => $composableBuilder(
-        column: $table.authorityLink,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityLink,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get authorityPageLink => $composableBuilder(
-        column: $table.authorityPageLink,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.authorityPageLink,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get uncheckedAuthorityPageLink => $composableBuilder(
-        column: $table.uncheckedAuthorityPageLink,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.uncheckedAuthorityPageLink,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get oldTypeLocality => $composableBuilder(
-        column: $table.oldTypeLocality,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.oldTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get originalTypeLocality => $composableBuilder(
-        column: $table.originalTypeLocality,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.originalTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get uncheckedTypeLocality => $composableBuilder(
-        column: $table.uncheckedTypeLocality,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.uncheckedTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get emendedTypeLocality => $composableBuilder(
-        column: $table.emendedTypeLocality,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.emendedTypeLocality,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeLatitude => $composableBuilder(
-        column: $table.typeLatitude,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeLatitude,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeLongitude => $composableBuilder(
-        column: $table.typeLongitude,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeLongitude,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeCountry => $composableBuilder(
-        column: $table.typeCountry,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeCountry, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeSubregion => $composableBuilder(
-        column: $table.typeSubregion,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeSubregion,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeSubregion2 => $composableBuilder(
-        column: $table.typeSubregion2,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeSubregion2,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get holotype => $composableBuilder(
-        column: $table.holotype,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.holotype, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeKind => $composableBuilder(
-        column: $table.typeKind,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeKind, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get typeSpecimenLink => $composableBuilder(
-        column: $table.typeSpecimenLink,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.typeSpecimenLink,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.taxonOrder, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get family => $composableBuilder(
-        column: $table.family,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.family, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get genus => $composableBuilder(
-        column: $table.genus,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.genus, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.specificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get subspecificEpithet => $composableBuilder(
-        column: $table.subspecificEpithet,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.subspecificEpithet,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get variantOf => $composableBuilder(
-        column: $table.variantOf,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.variantOf, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get seniorHomonym => $composableBuilder(
-        column: $table.seniorHomonym,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.seniorHomonym,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get variantNameCitations => $composableBuilder(
-        column: $table.variantNameCitations,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.variantNameCitations,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get nameUsages => $composableBuilder(
-        column: $table.nameUsages,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.nameUsages, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get comments => $composableBuilder(
-        column: $table.comments,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.comments, builder: (column) => ColumnOrderings(column));
 }
 
 class $SynonymAnnotationComposer extends Composer<_$AppDatabase, Synonym> {
@@ -8227,117 +6960,73 @@ class $SynonymAnnotationComposer extends Composer<_$AppDatabase, Synonym> {
       $composableBuilder(column: $table.year, builder: (column) => column);
 
   GeneratedColumn<int> get authorityParentheses => $composableBuilder(
-        column: $table.authorityParentheses,
-        builder: (column) => column,
-      );
+      column: $table.authorityParentheses, builder: (column) => column);
 
   GeneratedColumn<String> get nomenclatureStatus => $composableBuilder(
-        column: $table.nomenclatureStatus,
-        builder: (column) => column,
-      );
+      column: $table.nomenclatureStatus, builder: (column) => column);
 
   GeneratedColumn<String> get validity =>
       $composableBuilder(column: $table.validity, builder: (column) => column);
 
   GeneratedColumn<String> get originalCombination => $composableBuilder(
-        column: $table.originalCombination,
-        builder: (column) => column,
-      );
+      column: $table.originalCombination, builder: (column) => column);
 
   GeneratedColumn<String> get originalRank => $composableBuilder(
-        column: $table.originalRank,
-        builder: (column) => column,
-      );
+      column: $table.originalRank, builder: (column) => column);
 
   GeneratedColumn<String> get authorityCitation => $composableBuilder(
-        column: $table.authorityCitation,
-        builder: (column) => column,
-      );
+      column: $table.authorityCitation, builder: (column) => column);
 
   GeneratedColumn<String> get uncheckedAuthorityCitation => $composableBuilder(
-        column: $table.uncheckedAuthorityCitation,
-        builder: (column) => column,
-      );
+      column: $table.uncheckedAuthorityCitation, builder: (column) => column);
 
   GeneratedColumn<String> get sourcedUnverifiedCitations => $composableBuilder(
-        column: $table.sourcedUnverifiedCitations,
-        builder: (column) => column,
-      );
+      column: $table.sourcedUnverifiedCitations, builder: (column) => column);
 
   GeneratedColumn<String> get citationGroup => $composableBuilder(
-        column: $table.citationGroup,
-        builder: (column) => column,
-      );
+      column: $table.citationGroup, builder: (column) => column);
 
   GeneratedColumn<String> get citationKind => $composableBuilder(
-        column: $table.citationKind,
-        builder: (column) => column,
-      );
+      column: $table.citationKind, builder: (column) => column);
 
   GeneratedColumn<String> get authorityPage => $composableBuilder(
-        column: $table.authorityPage,
-        builder: (column) => column,
-      );
+      column: $table.authorityPage, builder: (column) => column);
 
   GeneratedColumn<String> get authorityLink => $composableBuilder(
-        column: $table.authorityLink,
-        builder: (column) => column,
-      );
+      column: $table.authorityLink, builder: (column) => column);
 
   GeneratedColumn<String> get authorityPageLink => $composableBuilder(
-        column: $table.authorityPageLink,
-        builder: (column) => column,
-      );
+      column: $table.authorityPageLink, builder: (column) => column);
 
   GeneratedColumn<String> get uncheckedAuthorityPageLink => $composableBuilder(
-        column: $table.uncheckedAuthorityPageLink,
-        builder: (column) => column,
-      );
+      column: $table.uncheckedAuthorityPageLink, builder: (column) => column);
 
   GeneratedColumn<String> get oldTypeLocality => $composableBuilder(
-        column: $table.oldTypeLocality,
-        builder: (column) => column,
-      );
+      column: $table.oldTypeLocality, builder: (column) => column);
 
   GeneratedColumn<String> get originalTypeLocality => $composableBuilder(
-        column: $table.originalTypeLocality,
-        builder: (column) => column,
-      );
+      column: $table.originalTypeLocality, builder: (column) => column);
 
   GeneratedColumn<String> get uncheckedTypeLocality => $composableBuilder(
-        column: $table.uncheckedTypeLocality,
-        builder: (column) => column,
-      );
+      column: $table.uncheckedTypeLocality, builder: (column) => column);
 
   GeneratedColumn<String> get emendedTypeLocality => $composableBuilder(
-        column: $table.emendedTypeLocality,
-        builder: (column) => column,
-      );
+      column: $table.emendedTypeLocality, builder: (column) => column);
 
   GeneratedColumn<String> get typeLatitude => $composableBuilder(
-        column: $table.typeLatitude,
-        builder: (column) => column,
-      );
+      column: $table.typeLatitude, builder: (column) => column);
 
   GeneratedColumn<String> get typeLongitude => $composableBuilder(
-        column: $table.typeLongitude,
-        builder: (column) => column,
-      );
+      column: $table.typeLongitude, builder: (column) => column);
 
   GeneratedColumn<String> get typeCountry => $composableBuilder(
-        column: $table.typeCountry,
-        builder: (column) => column,
-      );
+      column: $table.typeCountry, builder: (column) => column);
 
   GeneratedColumn<String> get typeSubregion => $composableBuilder(
-        column: $table.typeSubregion,
-        builder: (column) => column,
-      );
+      column: $table.typeSubregion, builder: (column) => column);
 
   GeneratedColumn<String> get typeSubregion2 => $composableBuilder(
-        column: $table.typeSubregion2,
-        builder: (column) => column,
-      );
+      column: $table.typeSubregion2, builder: (column) => column);
 
   GeneratedColumn<String> get holotype =>
       $composableBuilder(column: $table.holotype, builder: (column) => column);
@@ -8346,14 +7035,10 @@ class $SynonymAnnotationComposer extends Composer<_$AppDatabase, Synonym> {
       $composableBuilder(column: $table.typeKind, builder: (column) => column);
 
   GeneratedColumn<String> get typeSpecimenLink => $composableBuilder(
-        column: $table.typeSpecimenLink,
-        builder: (column) => column,
-      );
+      column: $table.typeSpecimenLink, builder: (column) => column);
 
   GeneratedColumn<String> get taxonOrder => $composableBuilder(
-        column: $table.taxonOrder,
-        builder: (column) => column,
-      );
+      column: $table.taxonOrder, builder: (column) => column);
 
   GeneratedColumn<String> get family =>
       $composableBuilder(column: $table.family, builder: (column) => column);
@@ -8362,32 +7047,22 @@ class $SynonymAnnotationComposer extends Composer<_$AppDatabase, Synonym> {
       $composableBuilder(column: $table.genus, builder: (column) => column);
 
   GeneratedColumn<String> get specificEpithet => $composableBuilder(
-        column: $table.specificEpithet,
-        builder: (column) => column,
-      );
+      column: $table.specificEpithet, builder: (column) => column);
 
   GeneratedColumn<String> get subspecificEpithet => $composableBuilder(
-        column: $table.subspecificEpithet,
-        builder: (column) => column,
-      );
+      column: $table.subspecificEpithet, builder: (column) => column);
 
   GeneratedColumn<String> get variantOf =>
       $composableBuilder(column: $table.variantOf, builder: (column) => column);
 
   GeneratedColumn<String> get seniorHomonym => $composableBuilder(
-        column: $table.seniorHomonym,
-        builder: (column) => column,
-      );
+      column: $table.seniorHomonym, builder: (column) => column);
 
   GeneratedColumn<String> get variantNameCitations => $composableBuilder(
-        column: $table.variantNameCitations,
-        builder: (column) => column,
-      );
+      column: $table.variantNameCitations, builder: (column) => column);
 
   GeneratedColumn<String> get nameUsages => $composableBuilder(
-        column: $table.nameUsages,
-        builder: (column) => column,
-      );
+      column: $table.nameUsages, builder: (column) => column);
 
   GeneratedColumn<String> get comments =>
       $composableBuilder(column: $table.comments, builder: (column) => column);
@@ -8406,206 +7081,204 @@ class $SynonymTableManager extends RootTableManager<
     SynonymData,
     PrefetchHooks Function()> {
   $SynonymTableManager(_$AppDatabase db, Synonym table)
-      : super(
-          TableManagerState(
-            db: db,
-            table: table,
-            createFilteringComposer: () =>
-                $SynonymFilterComposer($db: db, $table: table),
-            createOrderingComposer: () =>
-                $SynonymOrderingComposer($db: db, $table: table),
-            createComputedFieldComposer: () =>
-                $SynonymAnnotationComposer($db: db, $table: table),
-            updateCompanionCallback: ({
-              Value<int?> synId = const Value.absent(),
-              Value<int?> hespId = const Value.absent(),
-              Value<int?> speciesId = const Value.absent(),
-              Value<String?> species = const Value.absent(),
-              Value<String?> rootName = const Value.absent(),
-              Value<String?> author = const Value.absent(),
-              Value<String?> year = const Value.absent(),
-              Value<int?> authorityParentheses = const Value.absent(),
-              Value<String?> nomenclatureStatus = const Value.absent(),
-              Value<String?> validity = const Value.absent(),
-              Value<String?> originalCombination = const Value.absent(),
-              Value<String?> originalRank = const Value.absent(),
-              Value<String?> authorityCitation = const Value.absent(),
-              Value<String?> uncheckedAuthorityCitation = const Value.absent(),
-              Value<String?> sourcedUnverifiedCitations = const Value.absent(),
-              Value<String?> citationGroup = const Value.absent(),
-              Value<String?> citationKind = const Value.absent(),
-              Value<String?> authorityPage = const Value.absent(),
-              Value<String?> authorityLink = const Value.absent(),
-              Value<String?> authorityPageLink = const Value.absent(),
-              Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
-              Value<String?> oldTypeLocality = const Value.absent(),
-              Value<String?> originalTypeLocality = const Value.absent(),
-              Value<String?> uncheckedTypeLocality = const Value.absent(),
-              Value<String?> emendedTypeLocality = const Value.absent(),
-              Value<String?> typeLatitude = const Value.absent(),
-              Value<String?> typeLongitude = const Value.absent(),
-              Value<String?> typeCountry = const Value.absent(),
-              Value<String?> typeSubregion = const Value.absent(),
-              Value<String?> typeSubregion2 = const Value.absent(),
-              Value<String?> holotype = const Value.absent(),
-              Value<String?> typeKind = const Value.absent(),
-              Value<String?> typeSpecimenLink = const Value.absent(),
-              Value<String?> taxonOrder = const Value.absent(),
-              Value<String?> family = const Value.absent(),
-              Value<String?> genus = const Value.absent(),
-              Value<String?> specificEpithet = const Value.absent(),
-              Value<String?> subspecificEpithet = const Value.absent(),
-              Value<String?> variantOf = const Value.absent(),
-              Value<String?> seniorHomonym = const Value.absent(),
-              Value<String?> variantNameCitations = const Value.absent(),
-              Value<String?> nameUsages = const Value.absent(),
-              Value<String?> comments = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                SynonymCompanion(
-              synId: synId,
-              hespId: hespId,
-              speciesId: speciesId,
-              species: species,
-              rootName: rootName,
-              author: author,
-              year: year,
-              authorityParentheses: authorityParentheses,
-              nomenclatureStatus: nomenclatureStatus,
-              validity: validity,
-              originalCombination: originalCombination,
-              originalRank: originalRank,
-              authorityCitation: authorityCitation,
-              uncheckedAuthorityCitation: uncheckedAuthorityCitation,
-              sourcedUnverifiedCitations: sourcedUnverifiedCitations,
-              citationGroup: citationGroup,
-              citationKind: citationKind,
-              authorityPage: authorityPage,
-              authorityLink: authorityLink,
-              authorityPageLink: authorityPageLink,
-              uncheckedAuthorityPageLink: uncheckedAuthorityPageLink,
-              oldTypeLocality: oldTypeLocality,
-              originalTypeLocality: originalTypeLocality,
-              uncheckedTypeLocality: uncheckedTypeLocality,
-              emendedTypeLocality: emendedTypeLocality,
-              typeLatitude: typeLatitude,
-              typeLongitude: typeLongitude,
-              typeCountry: typeCountry,
-              typeSubregion: typeSubregion,
-              typeSubregion2: typeSubregion2,
-              holotype: holotype,
-              typeKind: typeKind,
-              typeSpecimenLink: typeSpecimenLink,
-              taxonOrder: taxonOrder,
-              family: family,
-              genus: genus,
-              specificEpithet: specificEpithet,
-              subspecificEpithet: subspecificEpithet,
-              variantOf: variantOf,
-              seniorHomonym: seniorHomonym,
-              variantNameCitations: variantNameCitations,
-              nameUsages: nameUsages,
-              comments: comments,
-              rowid: rowid,
-            ),
-            createCompanionCallback: ({
-              Value<int?> synId = const Value.absent(),
-              Value<int?> hespId = const Value.absent(),
-              Value<int?> speciesId = const Value.absent(),
-              Value<String?> species = const Value.absent(),
-              Value<String?> rootName = const Value.absent(),
-              Value<String?> author = const Value.absent(),
-              Value<String?> year = const Value.absent(),
-              Value<int?> authorityParentheses = const Value.absent(),
-              Value<String?> nomenclatureStatus = const Value.absent(),
-              Value<String?> validity = const Value.absent(),
-              Value<String?> originalCombination = const Value.absent(),
-              Value<String?> originalRank = const Value.absent(),
-              Value<String?> authorityCitation = const Value.absent(),
-              Value<String?> uncheckedAuthorityCitation = const Value.absent(),
-              Value<String?> sourcedUnverifiedCitations = const Value.absent(),
-              Value<String?> citationGroup = const Value.absent(),
-              Value<String?> citationKind = const Value.absent(),
-              Value<String?> authorityPage = const Value.absent(),
-              Value<String?> authorityLink = const Value.absent(),
-              Value<String?> authorityPageLink = const Value.absent(),
-              Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
-              Value<String?> oldTypeLocality = const Value.absent(),
-              Value<String?> originalTypeLocality = const Value.absent(),
-              Value<String?> uncheckedTypeLocality = const Value.absent(),
-              Value<String?> emendedTypeLocality = const Value.absent(),
-              Value<String?> typeLatitude = const Value.absent(),
-              Value<String?> typeLongitude = const Value.absent(),
-              Value<String?> typeCountry = const Value.absent(),
-              Value<String?> typeSubregion = const Value.absent(),
-              Value<String?> typeSubregion2 = const Value.absent(),
-              Value<String?> holotype = const Value.absent(),
-              Value<String?> typeKind = const Value.absent(),
-              Value<String?> typeSpecimenLink = const Value.absent(),
-              Value<String?> taxonOrder = const Value.absent(),
-              Value<String?> family = const Value.absent(),
-              Value<String?> genus = const Value.absent(),
-              Value<String?> specificEpithet = const Value.absent(),
-              Value<String?> subspecificEpithet = const Value.absent(),
-              Value<String?> variantOf = const Value.absent(),
-              Value<String?> seniorHomonym = const Value.absent(),
-              Value<String?> variantNameCitations = const Value.absent(),
-              Value<String?> nameUsages = const Value.absent(),
-              Value<String?> comments = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                SynonymCompanion.insert(
-              synId: synId,
-              hespId: hespId,
-              speciesId: speciesId,
-              species: species,
-              rootName: rootName,
-              author: author,
-              year: year,
-              authorityParentheses: authorityParentheses,
-              nomenclatureStatus: nomenclatureStatus,
-              validity: validity,
-              originalCombination: originalCombination,
-              originalRank: originalRank,
-              authorityCitation: authorityCitation,
-              uncheckedAuthorityCitation: uncheckedAuthorityCitation,
-              sourcedUnverifiedCitations: sourcedUnverifiedCitations,
-              citationGroup: citationGroup,
-              citationKind: citationKind,
-              authorityPage: authorityPage,
-              authorityLink: authorityLink,
-              authorityPageLink: authorityPageLink,
-              uncheckedAuthorityPageLink: uncheckedAuthorityPageLink,
-              oldTypeLocality: oldTypeLocality,
-              originalTypeLocality: originalTypeLocality,
-              uncheckedTypeLocality: uncheckedTypeLocality,
-              emendedTypeLocality: emendedTypeLocality,
-              typeLatitude: typeLatitude,
-              typeLongitude: typeLongitude,
-              typeCountry: typeCountry,
-              typeSubregion: typeSubregion,
-              typeSubregion2: typeSubregion2,
-              holotype: holotype,
-              typeKind: typeKind,
-              typeSpecimenLink: typeSpecimenLink,
-              taxonOrder: taxonOrder,
-              family: family,
-              genus: genus,
-              specificEpithet: specificEpithet,
-              subspecificEpithet: subspecificEpithet,
-              variantOf: variantOf,
-              seniorHomonym: seniorHomonym,
-              variantNameCitations: variantNameCitations,
-              nameUsages: nameUsages,
-              comments: comments,
-              rowid: rowid,
-            ),
-            withReferenceMapper: (p0) => p0
-                .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-                .toList(),
-            prefetchHooksCallback: null,
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $SynonymFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $SynonymOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $SynonymAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int?> synId = const Value.absent(),
+            Value<int?> hespId = const Value.absent(),
+            Value<int?> speciesId = const Value.absent(),
+            Value<String?> species = const Value.absent(),
+            Value<String?> rootName = const Value.absent(),
+            Value<String?> author = const Value.absent(),
+            Value<String?> year = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
+            Value<String?> nomenclatureStatus = const Value.absent(),
+            Value<String?> validity = const Value.absent(),
+            Value<String?> originalCombination = const Value.absent(),
+            Value<String?> originalRank = const Value.absent(),
+            Value<String?> authorityCitation = const Value.absent(),
+            Value<String?> uncheckedAuthorityCitation = const Value.absent(),
+            Value<String?> sourcedUnverifiedCitations = const Value.absent(),
+            Value<String?> citationGroup = const Value.absent(),
+            Value<String?> citationKind = const Value.absent(),
+            Value<String?> authorityPage = const Value.absent(),
+            Value<String?> authorityLink = const Value.absent(),
+            Value<String?> authorityPageLink = const Value.absent(),
+            Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
+            Value<String?> oldTypeLocality = const Value.absent(),
+            Value<String?> originalTypeLocality = const Value.absent(),
+            Value<String?> uncheckedTypeLocality = const Value.absent(),
+            Value<String?> emendedTypeLocality = const Value.absent(),
+            Value<String?> typeLatitude = const Value.absent(),
+            Value<String?> typeLongitude = const Value.absent(),
+            Value<String?> typeCountry = const Value.absent(),
+            Value<String?> typeSubregion = const Value.absent(),
+            Value<String?> typeSubregion2 = const Value.absent(),
+            Value<String?> holotype = const Value.absent(),
+            Value<String?> typeKind = const Value.absent(),
+            Value<String?> typeSpecimenLink = const Value.absent(),
+            Value<String?> taxonOrder = const Value.absent(),
+            Value<String?> family = const Value.absent(),
+            Value<String?> genus = const Value.absent(),
+            Value<String?> specificEpithet = const Value.absent(),
+            Value<String?> subspecificEpithet = const Value.absent(),
+            Value<String?> variantOf = const Value.absent(),
+            Value<String?> seniorHomonym = const Value.absent(),
+            Value<String?> variantNameCitations = const Value.absent(),
+            Value<String?> nameUsages = const Value.absent(),
+            Value<String?> comments = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SynonymCompanion(
+            synId: synId,
+            hespId: hespId,
+            speciesId: speciesId,
+            species: species,
+            rootName: rootName,
+            author: author,
+            year: year,
+            authorityParentheses: authorityParentheses,
+            nomenclatureStatus: nomenclatureStatus,
+            validity: validity,
+            originalCombination: originalCombination,
+            originalRank: originalRank,
+            authorityCitation: authorityCitation,
+            uncheckedAuthorityCitation: uncheckedAuthorityCitation,
+            sourcedUnverifiedCitations: sourcedUnverifiedCitations,
+            citationGroup: citationGroup,
+            citationKind: citationKind,
+            authorityPage: authorityPage,
+            authorityLink: authorityLink,
+            authorityPageLink: authorityPageLink,
+            uncheckedAuthorityPageLink: uncheckedAuthorityPageLink,
+            oldTypeLocality: oldTypeLocality,
+            originalTypeLocality: originalTypeLocality,
+            uncheckedTypeLocality: uncheckedTypeLocality,
+            emendedTypeLocality: emendedTypeLocality,
+            typeLatitude: typeLatitude,
+            typeLongitude: typeLongitude,
+            typeCountry: typeCountry,
+            typeSubregion: typeSubregion,
+            typeSubregion2: typeSubregion2,
+            holotype: holotype,
+            typeKind: typeKind,
+            typeSpecimenLink: typeSpecimenLink,
+            taxonOrder: taxonOrder,
+            family: family,
+            genus: genus,
+            specificEpithet: specificEpithet,
+            subspecificEpithet: subspecificEpithet,
+            variantOf: variantOf,
+            seniorHomonym: seniorHomonym,
+            variantNameCitations: variantNameCitations,
+            nameUsages: nameUsages,
+            comments: comments,
+            rowid: rowid,
           ),
-        );
+          createCompanionCallback: ({
+            Value<int?> synId = const Value.absent(),
+            Value<int?> hespId = const Value.absent(),
+            Value<int?> speciesId = const Value.absent(),
+            Value<String?> species = const Value.absent(),
+            Value<String?> rootName = const Value.absent(),
+            Value<String?> author = const Value.absent(),
+            Value<String?> year = const Value.absent(),
+            Value<int?> authorityParentheses = const Value.absent(),
+            Value<String?> nomenclatureStatus = const Value.absent(),
+            Value<String?> validity = const Value.absent(),
+            Value<String?> originalCombination = const Value.absent(),
+            Value<String?> originalRank = const Value.absent(),
+            Value<String?> authorityCitation = const Value.absent(),
+            Value<String?> uncheckedAuthorityCitation = const Value.absent(),
+            Value<String?> sourcedUnverifiedCitations = const Value.absent(),
+            Value<String?> citationGroup = const Value.absent(),
+            Value<String?> citationKind = const Value.absent(),
+            Value<String?> authorityPage = const Value.absent(),
+            Value<String?> authorityLink = const Value.absent(),
+            Value<String?> authorityPageLink = const Value.absent(),
+            Value<String?> uncheckedAuthorityPageLink = const Value.absent(),
+            Value<String?> oldTypeLocality = const Value.absent(),
+            Value<String?> originalTypeLocality = const Value.absent(),
+            Value<String?> uncheckedTypeLocality = const Value.absent(),
+            Value<String?> emendedTypeLocality = const Value.absent(),
+            Value<String?> typeLatitude = const Value.absent(),
+            Value<String?> typeLongitude = const Value.absent(),
+            Value<String?> typeCountry = const Value.absent(),
+            Value<String?> typeSubregion = const Value.absent(),
+            Value<String?> typeSubregion2 = const Value.absent(),
+            Value<String?> holotype = const Value.absent(),
+            Value<String?> typeKind = const Value.absent(),
+            Value<String?> typeSpecimenLink = const Value.absent(),
+            Value<String?> taxonOrder = const Value.absent(),
+            Value<String?> family = const Value.absent(),
+            Value<String?> genus = const Value.absent(),
+            Value<String?> specificEpithet = const Value.absent(),
+            Value<String?> subspecificEpithet = const Value.absent(),
+            Value<String?> variantOf = const Value.absent(),
+            Value<String?> seniorHomonym = const Value.absent(),
+            Value<String?> variantNameCitations = const Value.absent(),
+            Value<String?> nameUsages = const Value.absent(),
+            Value<String?> comments = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SynonymCompanion.insert(
+            synId: synId,
+            hespId: hespId,
+            speciesId: speciesId,
+            species: species,
+            rootName: rootName,
+            author: author,
+            year: year,
+            authorityParentheses: authorityParentheses,
+            nomenclatureStatus: nomenclatureStatus,
+            validity: validity,
+            originalCombination: originalCombination,
+            originalRank: originalRank,
+            authorityCitation: authorityCitation,
+            uncheckedAuthorityCitation: uncheckedAuthorityCitation,
+            sourcedUnverifiedCitations: sourcedUnverifiedCitations,
+            citationGroup: citationGroup,
+            citationKind: citationKind,
+            authorityPage: authorityPage,
+            authorityLink: authorityLink,
+            authorityPageLink: authorityPageLink,
+            uncheckedAuthorityPageLink: uncheckedAuthorityPageLink,
+            oldTypeLocality: oldTypeLocality,
+            originalTypeLocality: originalTypeLocality,
+            uncheckedTypeLocality: uncheckedTypeLocality,
+            emendedTypeLocality: emendedTypeLocality,
+            typeLatitude: typeLatitude,
+            typeLongitude: typeLongitude,
+            typeCountry: typeCountry,
+            typeSubregion: typeSubregion,
+            typeSubregion2: typeSubregion2,
+            holotype: holotype,
+            typeKind: typeKind,
+            typeSpecimenLink: typeSpecimenLink,
+            taxonOrder: taxonOrder,
+            family: family,
+            genus: genus,
+            specificEpithet: specificEpithet,
+            subspecificEpithet: subspecificEpithet,
+            variantOf: variantOf,
+            seniorHomonym: seniorHomonym,
+            variantNameCitations: variantNameCitations,
+            nameUsages: nameUsages,
+            comments: comments,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
 }
 
 typedef $SynonymProcessedTableManager = ProcessedTableManager<
@@ -8654,49 +7327,32 @@ class $MilDataFilterComposer extends Composer<_$AppDatabase, MilData> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<String> get milId => $composableBuilder(
-        column: $table.milId,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.milId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get mddId => $composableBuilder(
-        column: $table.mddId,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.mddId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get description => $composableBuilder(
-        column: $table.description,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.description, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get photographer => $composableBuilder(
-        column: $table.photographer,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.photographer, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get location => $composableBuilder(
-        column: $table.location,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.location, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get distribution => $composableBuilder(
-        column: $table.distribution,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.distribution, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get dateTaken => $composableBuilder(
-        column: $table.dateTaken,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.dateTaken, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get orientation => $composableBuilder(
-        column: $table.orientation,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.orientation, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get isUncertainIdentification => $composableBuilder(
-        column: $table.isUncertainIdentification,
-        builder: (column) => ColumnFilters(column),
-      );
+      column: $table.isUncertainIdentification,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $MilDataOrderingComposer extends Composer<_$AppDatabase, MilData> {
@@ -8708,49 +7364,34 @@ class $MilDataOrderingComposer extends Composer<_$AppDatabase, MilData> {
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<String> get milId => $composableBuilder(
-        column: $table.milId,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.milId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get mddId => $composableBuilder(
-        column: $table.mddId,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.mddId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get description => $composableBuilder(
-        column: $table.description,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.description, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get photographer => $composableBuilder(
-        column: $table.photographer,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.photographer,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get location => $composableBuilder(
-        column: $table.location,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.location, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get distribution => $composableBuilder(
-        column: $table.distribution,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.distribution,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get dateTaken => $composableBuilder(
-        column: $table.dateTaken,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.dateTaken, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get orientation => $composableBuilder(
-        column: $table.orientation,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.orientation, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get isUncertainIdentification => $composableBuilder(
-        column: $table.isUncertainIdentification,
-        builder: (column) => ColumnOrderings(column),
-      );
+      column: $table.isUncertainIdentification,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $MilDataAnnotationComposer extends Composer<_$AppDatabase, MilData> {
@@ -8768,35 +7409,25 @@ class $MilDataAnnotationComposer extends Composer<_$AppDatabase, MilData> {
       $composableBuilder(column: $table.mddId, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
-        column: $table.description,
-        builder: (column) => column,
-      );
+      column: $table.description, builder: (column) => column);
 
   GeneratedColumn<String> get photographer => $composableBuilder(
-        column: $table.photographer,
-        builder: (column) => column,
-      );
+      column: $table.photographer, builder: (column) => column);
 
   GeneratedColumn<String> get location =>
       $composableBuilder(column: $table.location, builder: (column) => column);
 
   GeneratedColumn<String> get distribution => $composableBuilder(
-        column: $table.distribution,
-        builder: (column) => column,
-      );
+      column: $table.distribution, builder: (column) => column);
 
   GeneratedColumn<String> get dateTaken =>
       $composableBuilder(column: $table.dateTaken, builder: (column) => column);
 
   GeneratedColumn<String> get orientation => $composableBuilder(
-        column: $table.orientation,
-        builder: (column) => column,
-      );
+      column: $table.orientation, builder: (column) => column);
 
   GeneratedColumn<int> get isUncertainIdentification => $composableBuilder(
-        column: $table.isUncertainIdentification,
-        builder: (column) => column,
-      );
+      column: $table.isUncertainIdentification, builder: (column) => column);
 }
 
 class $MilDataTableManager extends RootTableManager<
@@ -8812,70 +7443,68 @@ class $MilDataTableManager extends RootTableManager<
     MilDataData,
     PrefetchHooks Function()> {
   $MilDataTableManager(_$AppDatabase db, MilData table)
-      : super(
-          TableManagerState(
-            db: db,
-            table: table,
-            createFilteringComposer: () =>
-                $MilDataFilterComposer($db: db, $table: table),
-            createOrderingComposer: () =>
-                $MilDataOrderingComposer($db: db, $table: table),
-            createComputedFieldComposer: () =>
-                $MilDataAnnotationComposer($db: db, $table: table),
-            updateCompanionCallback: ({
-              Value<String> milId = const Value.absent(),
-              Value<int> mddId = const Value.absent(),
-              Value<String?> description = const Value.absent(),
-              Value<String?> photographer = const Value.absent(),
-              Value<String?> location = const Value.absent(),
-              Value<String?> distribution = const Value.absent(),
-              Value<String?> dateTaken = const Value.absent(),
-              Value<String?> orientation = const Value.absent(),
-              Value<int?> isUncertainIdentification = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                MilDataCompanion(
-              milId: milId,
-              mddId: mddId,
-              description: description,
-              photographer: photographer,
-              location: location,
-              distribution: distribution,
-              dateTaken: dateTaken,
-              orientation: orientation,
-              isUncertainIdentification: isUncertainIdentification,
-              rowid: rowid,
-            ),
-            createCompanionCallback: ({
-              required String milId,
-              required int mddId,
-              Value<String?> description = const Value.absent(),
-              Value<String?> photographer = const Value.absent(),
-              Value<String?> location = const Value.absent(),
-              Value<String?> distribution = const Value.absent(),
-              Value<String?> dateTaken = const Value.absent(),
-              Value<String?> orientation = const Value.absent(),
-              Value<int?> isUncertainIdentification = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                MilDataCompanion.insert(
-              milId: milId,
-              mddId: mddId,
-              description: description,
-              photographer: photographer,
-              location: location,
-              distribution: distribution,
-              dateTaken: dateTaken,
-              orientation: orientation,
-              isUncertainIdentification: isUncertainIdentification,
-              rowid: rowid,
-            ),
-            withReferenceMapper: (p0) => p0
-                .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-                .toList(),
-            prefetchHooksCallback: null,
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $MilDataFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $MilDataOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $MilDataAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> milId = const Value.absent(),
+            Value<int> mddId = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> photographer = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> distribution = const Value.absent(),
+            Value<String?> dateTaken = const Value.absent(),
+            Value<String?> orientation = const Value.absent(),
+            Value<int?> isUncertainIdentification = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MilDataCompanion(
+            milId: milId,
+            mddId: mddId,
+            description: description,
+            photographer: photographer,
+            location: location,
+            distribution: distribution,
+            dateTaken: dateTaken,
+            orientation: orientation,
+            isUncertainIdentification: isUncertainIdentification,
+            rowid: rowid,
           ),
-        );
+          createCompanionCallback: ({
+            required String milId,
+            required int mddId,
+            Value<String?> description = const Value.absent(),
+            Value<String?> photographer = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> distribution = const Value.absent(),
+            Value<String?> dateTaken = const Value.absent(),
+            Value<String?> orientation = const Value.absent(),
+            Value<int?> isUncertainIdentification = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MilDataCompanion.insert(
+            milId: milId,
+            mddId: mddId,
+            description: description,
+            photographer: photographer,
+            location: location,
+            distribution: distribution,
+            dateTaken: dateTaken,
+            orientation: orientation,
+            isUncertainIdentification: isUncertainIdentification,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
 }
 
 typedef $MilDataProcessedTableManager = ProcessedTableManager<
@@ -8917,55 +7546,82 @@ class MddGroupListResult {
 class StatSpeciesPerOrderResult {
   final String? name;
   final int count;
-  StatSpeciesPerOrderResult({this.name, required this.count});
+  StatSpeciesPerOrderResult({
+    this.name,
+    required this.count,
+  });
 }
 
 class StatSpeciesPerFamilyResult {
   final String? name;
   final int count;
-  StatSpeciesPerFamilyResult({this.name, required this.count});
+  StatSpeciesPerFamilyResult({
+    this.name,
+    required this.count,
+  });
 }
 
 class StatSpeciesByIucnStatusResult {
   final String? name;
   final int count;
-  StatSpeciesByIucnStatusResult({this.name, required this.count});
+  StatSpeciesByIucnStatusResult({
+    this.name,
+    required this.count,
+  });
 }
 
 class StatSpeciesByDiscoveryDecadeResult {
   final int? decade;
   final int count;
-  StatSpeciesByDiscoveryDecadeResult({this.decade, required this.count});
+  StatSpeciesByDiscoveryDecadeResult({
+    this.decade,
+    required this.count,
+  });
 }
 
 class StatExtinctSpeciesResult {
   final int? isExtinct;
   final int count;
-  StatExtinctSpeciesResult({this.isExtinct, required this.count});
+  StatExtinctSpeciesResult({
+    this.isExtinct,
+    required this.count,
+  });
 }
 
 class StatDomesticSpeciesResult {
   final int? isDomestic;
   final int count;
-  StatDomesticSpeciesResult({this.isDomestic, required this.count});
+  StatDomesticSpeciesResult({
+    this.isDomestic,
+    required this.count,
+  });
 }
 
 class StatSpeciesByBiogeographicRealmResult {
   final String? name;
   final int count;
-  StatSpeciesByBiogeographicRealmResult({this.name, required this.count});
+  StatSpeciesByBiogeographicRealmResult({
+    this.name,
+    required this.count,
+  });
 }
 
 class StatSpeciesPerGenusResult {
   final String? name;
   final int count;
-  StatSpeciesPerGenusResult({this.name, required this.count});
+  StatSpeciesPerGenusResult({
+    this.name,
+    required this.count,
+  });
 }
 
 class StatSpeciesByDiscoveryYearResult {
   final int? year;
   final int count;
-  StatSpeciesByDiscoveryYearResult({this.year, required this.count});
+  StatSpeciesByDiscoveryYearResult({
+    this.year,
+    required this.count,
+  });
 }
 
 class RandomMilImagesWithTaxonomyResult {
@@ -9022,5 +7678,8 @@ class StatSpeciesWithMostSynonymsResult {
 class StatTypeKindProportionResult {
   final String? name;
   final int count;
-  StatTypeKindProportionResult({this.name, required this.count});
+  StatTypeKindProportionResult({
+    this.name,
+    required this.count,
+  });
 }

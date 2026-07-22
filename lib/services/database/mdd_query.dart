@@ -80,6 +80,16 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<RandomMilImagesWithTaxonomyResult>> getRandomMilImages() async {
     return randomMilImagesWithTaxonomy().get();
   }
+
+  Future<List<TaxonomyData>> getTaxonomyForCountryStats() async {
+    return (select(taxonomy)
+          ..where(
+            (tbl) =>
+                tbl.countryDistribution.isNotNull() &
+                tbl.countryDistribution.isNotValue(''),
+          ))
+        .get();
+  }
 }
 
 enum SearchFilter {

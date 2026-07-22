@@ -6,6 +6,9 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `copy_images_from_dir`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `copy_mil_images`
+
 class MddHelper {
   /// MDD file version
   final String version;
@@ -51,26 +54,30 @@ class MddHelper {
 }
 
 class MilHelper {
+  final String milVersion;
   final String milData;
 
-  const MilHelper({required this.milData});
+  const MilHelper({
+    required this.milVersion,
+    required this.milData,
+  });
 
-  static Future<MilHelper> parseMilData({
-    required String tarPath,
-    required String dbPath,
-  }) =>
+  static Future<String> extractMilVersion({required String path}) =>
+      RustLib.instance.api.crateApiParserMilHelperExtractMilVersion(path: path);
+
+  static Future<MilHelper> parseMilData(
+          {required String tarPath, required String dbPath}) =>
       RustLib.instance.api.crateApiParserMilHelperParseMilData(
-        tarPath: tarPath,
-        dbPath: dbPath,
-      );
+          tarPath: tarPath, dbPath: dbPath);
 
   @override
-  int get hashCode => milData.hashCode;
+  int get hashCode => milVersion.hashCode ^ milData.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MilHelper &&
           runtimeType == other.runtimeType &&
+          milVersion == other.milVersion &&
           milData == other.milData;
 }

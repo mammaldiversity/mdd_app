@@ -185,4 +185,89 @@ class StatisticsService {
     return typeKindCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
   }
+
+  Future<List<CountryDiversityData>> getCountryDiversityStats() async {
+    final rows = await mddQuery.getTaxonomyForCountryStats();
+    final Map<String, _CountryAccumulator> countryMap = {};
+
+    for (final row in rows) {
+      final countryDist = row.countryDistribution;
+      if (countryDist == null || countryDist.isEmpty) continue;
+      final countries = countryDist.split(RegExp(r'[|,]'));
+      for (var c in countries) {
+        c = c.trim();
+        if (c.endsWith('?')) {
+          c = c.substring(0, c.length - 1).trim();
+        }
+        if (c.isEmpty || c == 'NA') continue;
+
+        final acc = countryMap.putIfAbsent(c, () => _CountryAccumulator(c));
+        if (row.taxonOrder != null && row.taxonOrder!.isNotEmpty) {
+          acc.orders.add(row.taxonOrder!);
+        }
+        if (row.family != null && row.family!.isNotEmpty) {
+          acc.families.add(row.family!);
+        }
+        if (row.genus != null && row.genus!.isNotEmpty) {
+          acc.genera.add(row.genus!);
+        }
+        if (row.extinct == 1) {
+          acc.totalExtinctSpecies++;
+        } else {
+          acc.totalLivingSpecies++;
+        }
+        acc.speciesIds.add(row.id);
+      }
+    }
+
+    final list = countryMap.values.map((acc) {
+      return CountryDiversityData(
+        countryName: acc.countryName,
+        totalOrders: acc.orders.length,
+        totalFamilies: acc.families.length,
+        totalGenera: acc.genera.length,
+        totalLivingSpecies: acc.totalLivingSpecies,
+        totalExtinctSpecies: acc.totalExtinctSpecies,
+        speciesIds: acc.speciesIds,
+      );
+    }).toList();
+
+    list.sort((a, b) => a.countryName.compareTo(b.countryName));
+    return list;
+  }
 }
+
+class CountryDiversityData {
+  final String countryName;
+  final int totalOrders;
+  final int totalFamilies;
+  final int totalGenera;
+  final int totalLivingSpecies;
+  final int totalExtinctSpecies;
+  final List<int> speciesIds;
+
+  CountryDiversityData({
+    required this.countryName,
+    required this.totalOrders,
+    required this.totalFamilies,
+    required this.totalGenera,
+    required this.totalLivingSpecies,
+    required this.totalExtinctSpecies,
+    required this.speciesIds,
+  });
+
+  int get totalSpecies => totalLivingSpecies + totalExtinctSpecies;
+}
+
+class _CountryAccumulator {
+  final String countryName;
+  final Set<String> orders = {};
+  final Set<String> families = {};
+  final Set<String> genera = {};
+  int totalLivingSpecies = 0;
+  int totalExtinctSpecies = 0;
+  final List<int> speciesIds = [];
+
+  _CountryAccumulator(this.countryName);
+}
+

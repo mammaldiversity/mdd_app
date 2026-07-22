@@ -45,27 +45,71 @@ LazyDatabase _openConnection() {
     }
 
     bool needsCopy = false;
-    if (!await file.exists()) {
-      needsCopy = true;
-    } else if (await file.length() < 1000000) {
-      // If the file is less than 1MB, it's likely an empty shell (corrupted/missing tables)
+    ByteData? loadedAssetData;
+
+    if (!await file.exists() || await file.length() < 1000000) {
       needsCopy = true;
     } else {
-      // Check if MIL data exists in the database
       try {
         final db = sqlite3.sqlite3.open(file.path);
-        final result = db.select('SELECT count(*) as c FROM milData');
-        final count = result.first['c'] as int;
-        if (count == 0) {
-          if (kDebugMode) {
-            print('MIL data missing from local database.');
+        final milCountRes = db.select('SELECT count(*) as c FROM milData');
+        final milCount = milCountRes.first['c'] as int;
+
+        String? localMilVer;
+        try {
+          final infoRes = db.select('SELECT milVersion FROM mddInfo');
+          if (infoRes.isNotEmpty) {
+            localMilVer = infoRes.first['milVersion'] as String?;
           }
-          needsCopy = true;
+        } catch (_) {
+          // milVersion column missing in older schemas
         }
         db.close();
+
+        if (milCount == 0 || localMilVer == null || localMilVer.isEmpty) {
+          if (kDebugMode) {
+            print('MIL data or version missing from local database.');
+          }
+          needsCopy = true;
+        } else {
+          // Compare with asset DB milVersion
+          try {
+            loadedAssetData = await rootBundle.load('assets/data/mdd.db');
+            final tempDir = await Directory.systemTemp.createTemp('mdd_ver_check');
+            final tempAssetFile = File(path.join(tempDir.path, 'asset_mdd.db'));
+            await tempAssetFile.writeAsBytes(
+              loadedAssetData.buffer.asUint8List(
+                loadedAssetData.offsetInBytes,
+                loadedAssetData.lengthInBytes,
+              ),
+            );
+
+            final assetDb = sqlite3.sqlite3.open(tempAssetFile.path);
+            final assetInfoRes = assetDb.select('SELECT milVersion FROM mddInfo');
+            String? assetMilVer;
+            if (assetInfoRes.isNotEmpty) {
+              assetMilVer = assetInfoRes.first['milVersion'] as String?;
+            }
+            assetDb.close();
+            await tempDir.delete(recursive: true);
+
+            if (assetMilVer != null && assetMilVer.isNotEmpty && assetMilVer != localMilVer) {
+              if (kDebugMode) {
+                print(
+                  'New MIL release detected in assets ($assetMilVer vs local $localMilVer). Replacing database.',
+                );
+              }
+              needsCopy = true;
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Could not verify asset milVersion: $e');
+            }
+          }
+        }
       } catch (e) {
         if (kDebugMode) {
-          print('Failed to verify MIL data: $e');
+          print('Failed to verify local database: $e');
         }
         needsCopy = true;
       }
@@ -74,11 +118,11 @@ LazyDatabase _openConnection() {
     if (needsCopy) {
       if (kDebugMode) {
         print(
-          'Database not found or is empty. Copying from assets/data/mdd.db...',
+          'Replacing/initializing database from assets/data/mdd.db...',
         );
       }
       try {
-        final byteData = await rootBundle.load('assets/data/mdd.db');
+        final byteData = loadedAssetData ?? await rootBundle.load('assets/data/mdd.db');
         final bytes = byteData.buffer.asUint8List(
           byteData.offsetInBytes,
           byteData.lengthInBytes,

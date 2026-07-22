@@ -6,11 +6,13 @@ class CommonCard extends StatelessWidget {
     required this.title,
     required this.child,
     this.description,
+    this.action,
   });
 
   final String title;
   final String? description;
   final Widget child;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +26,22 @@ class CommonCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+            padding: const EdgeInsets.only(left: 16, right: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                if (action != null) action!,
+              ],
+            ),
           ),
           if (description != null && description!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 16),
+              padding: const EdgeInsets.only(left: 16, right: 16),
               child: Text(
                 description!,
                 style: TextStyle(

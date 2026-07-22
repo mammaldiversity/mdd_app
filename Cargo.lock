@@ -1453,6 +1453,7 @@ dependencies = [
 name = "rust_lib_mdd"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "flate2",
  "flutter_rust_bridge",
  "mdd_api",

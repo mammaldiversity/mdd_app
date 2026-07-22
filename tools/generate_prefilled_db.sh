@@ -13,14 +13,18 @@ cd rust
 cargo install --path . --force
 cd ..
 
-if [ -f "data/mil.json" ]; then
+if [ -n "$1" ]; then
+    MIL_PATH="$1"
+elif [ -f "data/mil.json" ]; then
     MIL_PATH="data/mil.json"
-elif [ -f "data/MIL.tar.gz" ]; then
-    MIL_PATH="data/MIL.tar.gz"
 else
-    echo "Error: data/mil.json or data/MIL.tar.gz not found!"
-    echo "Please ensure they are downloaded into the data/ directory before generating."
-    exit 1
+    # Find dated MIL release or MIL tarball in data/ directory
+    MIL_PATH=$(find data -maxdepth 1 \( -name "mil-v*.tar.gz" -o -name "MIL.tar.gz" -o -name "*mil*.tar.gz" \) 2>/dev/null | sort -r | head -n 1)
+    if [ -z "$MIL_PATH" ]; then
+        echo "Error: data/mil.json, data/mil-v*.tar.gz, or data/MIL.tar.gz not found!"
+        echo "Please ensure MIL archive is downloaded into the data/ directory before generating."
+        exit 1
+    fi
 fi
 
 if [ ! -f "data/MDD.zip" ]; then
@@ -28,9 +32,10 @@ if [ ! -f "data/MDD.zip" ]; then
     exit 1
 fi
 
-echo "--> Generating mdd.db using Rust CLI..."
-# The Rust CLI will automatically spawn the generator subprocess
-rust_lib_mdd data/MDD.zip "$MIL_PATH"
+echo "--> Generating mdd.db using Rust CLI with named arguments..."
+echo "    MDD: data/MDD.zip"
+echo "    MIL: $MIL_PATH"
+rust_lib_mdd --mdd data/MDD.zip --mil "$MIL_PATH"
 
 # Verify generation
 if [ ! -f "assets/data/mdd.db" ]; then

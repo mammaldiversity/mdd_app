@@ -7,6 +7,7 @@ use serde::Serialize;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
+use std::path::Path;
 use tempdir::TempDir;
 
 #[flutter_rust_bridge::frb(init)]
@@ -95,10 +96,30 @@ impl MddHelper {
 
 #[derive(Serialize)]
 pub struct MilHelper {
+    pub mil_version: String,
     pub mil_data: String,
 }
 
 impl MilHelper {
+    pub fn extract_mil_version(path: &str) -> String {
+        let filename = Path::new(path)
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or(path);
+
+        let re = regex::Regex::new(r"(?i)(mil-v\d{4}-\d{2}-\d{2}|v\d{4}-\d{2}-\d{2}|v\d+\.\d+\.\d+)").unwrap();
+        if let Some(mat) = re.find(filename) {
+            mat.as_str().to_string()
+        } else {
+            let name = filename
+                .strip_suffix(".tar.gz")
+                .or_else(|| filename.strip_suffix(".tgz"))
+                .or_else(|| filename.strip_suffix(".json"))
+                .unwrap_or(filename);
+            name.to_string()
+        }
+    }
+
     pub fn parse_mil_data(tar_path: String, db_path: String) -> Self {
         let mut json_content = String::new();
 
@@ -141,7 +162,7 @@ impl MilHelper {
                     }
                 }
 
-                let mil_file_path = std::path::Path::new(&tar_path);
+                let mil_file_path = Path::new(&tar_path);
                 let mil_parser =
                     MilParser::new(mil_file_path, &temp_csv_path, None, &temp_json_path);
                 if mil_parser.prepare_metadata().is_ok() {
@@ -161,10 +182,152 @@ impl MilHelper {
                 .unwrap_or_default();
         }
 
+        // Copy MIL images to assets/mil-images
+        let target_img_dir = Path::new("assets/mil-images");
+        let _ = copy_mil_images(Path::new(&tar_path), target_img_dir);
+
+        let mil_version = Self::extract_mil_version(&tar_path);
+
         Self {
+            mil_version,
             mil_data: json_content,
         }
     }
+}
+
+#[flutter_rust_bridge::frb(ignore)]
+pub fn copy_mil_images(
+    tar_path: &Path,
+    dest_dir: &Path,
+) -> Result<usize, Box<dyn std::error::Error>> {
+    if !dest_dir.exists() {
+        std::fs::create_dir_all(dest_dir)?;
+    }
+
+    if tar_path.is_dir() {
+        return copy_images_from_dir(tar_path, dest_dir);
+    }
+
+    let path_str = tar_path.to_string_lossy().to_lowercase();
+    let file = File::open(tar_path)?;
+    let mut count = 0;
+
+    if path_str.ends_with(".tar.gz") || path_str.ends_with(".tgz") {
+        let gz = flate2::read::GzDecoder::new(file);
+        let mut archive = tar::Archive::new(gz);
+        for entry in archive.entries()? {
+            let mut entry = entry?;
+            let entry_path = entry.path()?.to_path_buf();
+            let entry_str = entry_path.to_string_lossy();
+            if entry_str.contains("images-540px-webp") {
+                if let Some(ext) = entry_path.extension() {
+                    let ext_str = ext.to_string_lossy().to_lowercase();
+                    if ext_str == "webp"
+                        || ext_str == "jpg"
+                        || ext_str == "jpeg"
+                        || ext_str == "png"
+                    {
+                        if let Some(file_name) = entry_path.file_name() {
+                            let out_path = dest_dir.join(file_name);
+                            let mut out_file = File::create(&out_path)?;
+                            std::io::copy(&mut entry, &mut out_file)?;
+                            count += 1;
+                        }
+                    }
+                }
+            }
+        }
+    } else if path_str.ends_with(".tar") {
+        let mut archive = tar::Archive::new(file);
+        for entry in archive.entries()? {
+            let mut entry = entry?;
+            let entry_path = entry.path()?.to_path_buf();
+            let entry_str = entry_path.to_string_lossy();
+            if entry_str.contains("images-540px-webp") {
+                if let Some(ext) = entry_path.extension() {
+                    let ext_str = ext.to_string_lossy().to_lowercase();
+                    if ext_str == "webp"
+                        || ext_str == "jpg"
+                        || ext_str == "jpeg"
+                        || ext_str == "png"
+                    {
+                        if let Some(file_name) = entry_path.file_name() {
+                            let out_path = dest_dir.join(file_name);
+                            let mut out_file = File::create(&out_path)?;
+                            std::io::copy(&mut entry, &mut out_file)?;
+                            count += 1;
+                        }
+                    }
+                }
+            }
+        }
+    } else if path_str.ends_with(".zip") {
+        let mut archive = zip::ZipArchive::new(file)?;
+        for i in 0..archive.len() {
+            let mut entry = archive.by_index(i)?;
+            let entry_str = entry.name().to_string();
+            if entry_str.contains("images-540px-webp") {
+                let entry_path = std::path::Path::new(&entry_str);
+                if let Some(ext) = entry_path.extension() {
+                    let ext_str = ext.to_string_lossy().to_lowercase();
+                    if ext_str == "webp"
+                        || ext_str == "jpg"
+                        || ext_str == "jpeg"
+                        || ext_str == "png"
+                    {
+                        if let Some(file_name) = entry_path.file_name() {
+                            let out_path = dest_dir.join(file_name);
+                            let mut out_file = File::create(&out_path)?;
+                            std::io::copy(&mut entry, &mut out_file)?;
+                            count += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(count)
+}
+
+fn copy_images_from_dir(
+    src_dir: &std::path::Path,
+    dest_dir: &std::path::Path,
+) -> Result<usize, Box<dyn std::error::Error>> {
+    let mut count = 0;
+    if let Ok(entries) = std::fs::read_dir(src_dir) {
+        for entry in entries.flatten() {
+            let p = entry.path();
+            if p.is_dir() {
+                count += copy_images_from_dir(&p, dest_dir)?;
+            } else if p.is_file() {
+                let path_str = p.to_string_lossy();
+                let is_in_image_folder = path_str.contains("images-540px-webp")
+                    || p.parent().map_or(false, |parent| {
+                        parent
+                            .file_name()
+                            .map_or(false, |n| n == "images-540px-webp")
+                    });
+                if is_in_image_folder {
+                    if let Some(ext) = p.extension() {
+                        let ext_str = ext.to_string_lossy().to_lowercase();
+                        if ext_str == "webp"
+                            || ext_str == "jpg"
+                            || ext_str == "jpeg"
+                            || ext_str == "png"
+                        {
+                            if let Some(file_name) = p.file_name() {
+                                let out_path = dest_dir.join(file_name);
+                                std::fs::copy(&p, &out_path)?;
+                                count += 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(count)
 }
 
 #[cfg(test)]

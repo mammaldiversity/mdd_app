@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/statistics/chart_card.dart';
 import 'package:mdd/screens/statistics/country_bar_chart.dart';
+import 'package:mdd/screens/statistics/country_table_page.dart';
 import 'package:mdd/screens/statistics/decade_bar_chart.dart';
 import 'package:mdd/screens/statistics/domestic_pie_chart.dart';
 import 'package:mdd/screens/statistics/extinct_pie_chart.dart';
@@ -81,6 +82,18 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       ),
                       ChartCard(
                         title: 'Species Diversity by Country (Top 15)',
+                        action: IconButton(
+                          icon: const Icon(Icons.table_chart_outlined),
+                          tooltip: 'View All Country Statistics',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CountryTablePage(),
+                              ),
+                            );
+                          },
+                        ),
                         chart: CountryBarChart(stats: stats),
                       ),
                     ),
