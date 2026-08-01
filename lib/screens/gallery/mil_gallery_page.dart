@@ -138,177 +138,153 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
           final crossAxisCount =
               (constraints.maxWidth / 165).floor().clamp(2, 6);
 
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const InfoCard(
-                        text:
-                            'Browse photographs of mammals from the ASM Mammal Images Library (MIL). Tap any photo to view full metadata, photographer credit, and species details.',
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const InfoCard(
+                      text:
+                          'Browse photographs of mammals from the ASM Mammal Images Library (MIL). Tap any photo to view full metadata, photographer credit, and species details.',
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _searchController,
+                      onChanged: _onSearchChanged,
+                      decoration: InputDecoration(
+                        hintText:
+                            'Search species, common name, photographer, location...',
+                        hintStyle: TextStyle(
+                          color: colorScheme.onSurfaceVariant.withAlpha(180),
+                          fontSize: 14,
+                        ),
+                        prefixIcon: Icon(Icons.search, color: colorScheme.primary),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _onSearchChanged('');
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: colorScheme.surfaceContainerLow,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: colorScheme.outlineVariant.withAlpha(140),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: colorScheme.outlineVariant.withAlpha(140),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: colorScheme.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
                       ),
-                      const SizedBox(height: 14),
-                      TextField(
-                        controller: _searchController,
-                        onChanged: _onSearchChanged,
-                        decoration: InputDecoration(
-                          hintText:
-                              'Search species, common name, photographer, location...',
-                          hintStyle: TextStyle(
-                            color: colorScheme.onSurfaceVariant.withAlpha(180),
-                            fontSize: 14,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _searchQuery.isNotEmpty
+                          ? 'Found $_totalCount results'
+                          : 'Showing $_totalCount MIL Images',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
                           ),
-                          prefixIcon: Icon(Icons.search, color: colorScheme.primary),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _onSearchChanged('');
-                                  },
-                                )
-                              : null,
-                          filled: true,
-                          fillColor: colorScheme.surfaceContainerLow,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                              color: colorScheme.outlineVariant.withAlpha(140),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    if (_items.isEmpty && !_isLoading)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerLow,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: colorScheme.outlineVariant.withAlpha(120),
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.photo_library_outlined,
+                                    size: 48,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _searchQuery.isNotEmpty
+                                      ? 'No MIL images found matching "$_searchQuery"'
+                                      : 'No MIL images available',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                              color: colorScheme.outlineVariant.withAlpha(140),
-                            ),
+                        ),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                        sliver: SliverGrid(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.76,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                              color: colorScheme.primary,
-                              width: 1.5,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 14,
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final item = _items[index];
+                              return _MilGalleryCard(item: item);
+                            },
+                            childCount: _items.length,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _searchQuery.isNotEmpty
-                                ? 'Found $_totalCount results'
-                                : 'Showing $_totalCount MIL Images',
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.onSurface,
-                                ),
-                          ),
-                          if (_items.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colorScheme.surfaceContainerHigh,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: colorScheme.outlineVariant.withAlpha(100),
-                                ),
-                              ),
-                              child: Text(
-                                'Loaded ${_items.length} of $_totalCount',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ),
-                        ],
+                    if (_isLoading)
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              if (_items.isEmpty && !_isLoading)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerLow,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: colorScheme.outlineVariant.withAlpha(120),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.photo_library_outlined,
-                              size: 48,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _searchQuery.isNotEmpty
-                                ? 'No MIL images found matching "$_searchQuery"'
-                                : 'No MIL images available',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 24),
                     ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.76,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final item = _items[index];
-                        return _MilGalleryCard(item: item);
-                      },
-                      childCount: _items.length,
-                    ),
-                  ),
+                  ],
                 ),
-              if (_isLoading)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 24),
               ),
             ],
           );
