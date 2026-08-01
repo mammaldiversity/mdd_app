@@ -81,6 +81,108 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return randomMilImagesWithTaxonomy().get();
   }
 
+  Future<List<RandomMilImagesWithTaxonomyResult>> getMilImagesPaginated({
+    required int limit,
+    required int offset,
+    String? searchQuery,
+  }) async {
+    String query = '''
+      SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName 
+      FROM milData 
+      INNER JOIN taxonomy ON milData.mddId = taxonomy.id 
+    ''';
+    List<Variable> variables = [];
+
+    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+      final cleanQuery = searchQuery.trim();
+      final queryWithUnderscore = cleanQuery.replaceAll(' ', '_');
+      query += '''
+        WHERE taxonomy.genus LIKE ? 
+           OR taxonomy.specificEpithet LIKE ? 
+           OR taxonomy.sciName LIKE ? 
+           OR taxonomy.mainCommonName LIKE ? 
+           OR milData.photographer LIKE ? 
+           OR milData.location LIKE ? 
+           OR milData.description LIKE ?
+      ''';
+      final pattern = '%$cleanQuery%';
+      final sciPattern = '%$queryWithUnderscore%';
+      variables.addAll([
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(sciPattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+      ]);
+    }
+
+    query += ' ORDER BY taxonomy.genus ASC, taxonomy.specificEpithet ASC LIMIT ? OFFSET ?';
+    variables.add(Variable.withInt(limit));
+    variables.add(Variable.withInt(offset));
+
+    return customSelect(
+      query,
+      variables: variables,
+      readsFrom: {milData, taxonomy},
+    ).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
+      milId: row.read<String>('milId'),
+      mddId: row.read<int>('mddId'),
+      description: row.readNullable<String>('description'),
+      photographer: row.readNullable<String>('photographer'),
+      location: row.readNullable<String>('location'),
+      distribution: row.readNullable<String>('distribution'),
+      dateTaken: row.readNullable<String>('dateTaken'),
+      orientation: row.readNullable<String>('orientation'),
+      isUncertainIdentification: row.readNullable<int>('isUncertainIdentification'),
+      genus: row.readNullable<String>('genus'),
+      specificEpithet: row.readNullable<String>('specificEpithet'),
+      mainCommonName: row.readNullable<String>('mainCommonName'),
+    )).get();
+  }
+
+  Future<int> getMilImagesCount({String? searchQuery}) async {
+    String query = '''
+      SELECT COUNT(*) AS count 
+      FROM milData 
+      INNER JOIN taxonomy ON milData.mddId = taxonomy.id 
+    ''';
+    List<Variable> variables = [];
+
+    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+      final cleanQuery = searchQuery.trim();
+      final queryWithUnderscore = cleanQuery.replaceAll(' ', '_');
+      query += '''
+        WHERE taxonomy.genus LIKE ? 
+           OR taxonomy.specificEpithet LIKE ? 
+           OR taxonomy.sciName LIKE ? 
+           OR taxonomy.mainCommonName LIKE ? 
+           OR milData.photographer LIKE ? 
+           OR milData.location LIKE ? 
+           OR milData.description LIKE ?
+      ''';
+      final pattern = '%$cleanQuery%';
+      final sciPattern = '%$queryWithUnderscore%';
+      variables.addAll([
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(sciPattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+        Variable.withString(pattern),
+      ]);
+    }
+
+    final result = await customSelect(
+      query,
+      variables: variables,
+      readsFrom: {milData, taxonomy},
+    ).map((row) => row.read<int>('count')).getSingle();
+    return result;
+  }
+
   Future<List<TaxonomyData>> getTaxonomyForCountryStats() async {
     return (select(taxonomy)
           ..where(

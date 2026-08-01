@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
+import 'package:mdd/screens/gallery/mil_gallery_page.dart';
 import 'package:mdd/screens/home/search.dart';
 import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
@@ -15,6 +16,7 @@ import 'package:mdd/services/system.dart';
 const List<Widget> _pages = <Widget>[
   HomeScreen(),
   ExploreSpecies(),
+  MilGalleryPage(),
   MddStats(),
   MoreMenu(),
 ];
@@ -22,6 +24,7 @@ const List<Widget> _pages = <Widget>[
 const List<String> _pageTitles = <String>[
   'Home',
   'Explore Taxonomy',
+  'MIL Image Gallery',
   'Statistics',
   'Menu',
 ];

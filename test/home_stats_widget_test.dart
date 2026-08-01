@@ -61,7 +61,7 @@ void main() {
     expect(find.text('1,350'), findsOneWidget);
 
     // Synonyms and Images
-    expect(find.text('Synonyms'), findsOneWidget);
+    expect(find.text('Names & Synonyms'), findsOneWidget);
     expect(find.text('54,120'), findsOneWidget);
     expect(find.text('Images'), findsOneWidget);
     expect(find.text('12,500'), findsOneWidget);

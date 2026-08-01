@@ -25,6 +25,11 @@ const List<NavigationProperties> navigationProperties = <NavigationProperties>[
     selectedIcon: Icon(Icons.travel_explore_rounded),
   ),
   NavigationProperties(
+    label: 'Gallery',
+    icon: Icon(Icons.photo_library_outlined),
+    selectedIcon: Icon(Icons.photo_library_rounded),
+  ),
+  NavigationProperties(
     label: 'Stats',
     icon: Icon(Icons.analytics_outlined),
     selectedIcon: Icon(Icons.analytics_rounded),
