@@ -22,7 +22,11 @@ pub struct Cli {
     pub db: String,
 
     /// Path to Drift table definition file
-    #[arg(short = 't', long = "drift", default_value = "lib/services/database/tables.drift")]
+    #[arg(
+        short = 't',
+        long = "drift",
+        default_value = "lib/services/database/tables.drift"
+    )]
     pub drift: String,
 
     /// Positional fallback for MDD zip path
@@ -115,7 +119,10 @@ fn main() {
     println!("Copying MIL images to assets/mil-images...");
     let target_img_dir = Path::new("assets/mil-images");
     match copy_mil_images(Path::new(&mil_tar_path), target_img_dir) {
-        Ok(count) => println!("Successfully copied {} MIL images to assets/mil-images", count),
+        Ok(count) => println!(
+            "Successfully copied {} MIL images to assets/mil-images",
+            count
+        ),
         Err(e) => eprintln!("Warning: Failed to copy MIL images: {}", e),
     }
 

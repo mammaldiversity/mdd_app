@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mdd/screens/home/stats.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -69,5 +70,13 @@ void main() {
         expect(result[2].value, 10);
       },
     );
+
+    test('StatCard.formatCount formats counts with thousands separators', () {
+      expect(StatCard.formatCount(0), '0');
+      expect(StatCard.formatCount(999), '999');
+      expect(StatCard.formatCount(1000), '1,000');
+      expect(StatCard.formatCount(54321), '54,321');
+      expect(StatCard.formatCount(1234567), '1,234,567');
+    });
   });
 }

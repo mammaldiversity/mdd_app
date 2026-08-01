@@ -18,4 +18,3 @@ final countryDiversityStatsProvider =
   final service = ref.watch(statisticsServiceProvider);
   return service.getCountryDiversityStats();
 });
-

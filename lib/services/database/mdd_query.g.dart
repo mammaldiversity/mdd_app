@@ -255,6 +255,22 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         ));
   }
 
+  Selectable<int> statTotalSynonymsCount() {
+    return customSelect('SELECT COUNT(*) AS count FROM synonym',
+        variables: [],
+        readsFrom: {
+          synonym,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statTotalImagesCount() {
+    return customSelect('SELECT COUNT(*) AS count FROM milData',
+        variables: [],
+        readsFrom: {
+          milData,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
   MddQueryManager get managers => MddQueryManager(this);
 }
 

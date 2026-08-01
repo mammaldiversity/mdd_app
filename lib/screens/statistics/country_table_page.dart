@@ -77,10 +77,8 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
   Widget _buildHeaderLabel(String title, int columnIndex) {
     final isSelected = _sortColumnIndex == columnIndex;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final mutedColor = Theme.of(context)
-        .colorScheme
-        .onSurfaceVariant
-        .withValues(alpha: 0.4);
+    final mutedColor =
+        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
 
     if (isSelected) {
       return Text(

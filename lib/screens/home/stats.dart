@@ -30,13 +30,18 @@ class MddStatistics extends ConsumerWidget {
 
             return Container(
               constraints: const BoxConstraints(maxWidth: 800),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
+              padding: const EdgeInsets.fromLTRB(2, 16, 2, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     'Mammal Diversity Statistics',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(
+                      context,
+                    )
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w500),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -72,6 +77,24 @@ class MddStatistics extends ConsumerWidget {
                     recentlyExtinct: recentlyExtinctCount,
                     domestic: domesticCount,
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: StatCard(
+                          title: 'Names & Synonyms',
+                          count: stats.totalSynonymsCount,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: StatCard(
+                          title: 'Images',
+                          count: stats.totalImagesCount,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             );
@@ -88,6 +111,13 @@ class StatCard extends StatelessWidget {
   final String title;
   final int count;
 
+  static String formatCount(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -101,7 +131,7 @@ class StatCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              count.toString(),
+              formatCount(count),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.secondary,
@@ -157,7 +187,7 @@ class SpeciesDetailedStatCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              total.toString(),
+              StatCard.formatCount(total),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.secondary,
@@ -196,7 +226,7 @@ class SpeciesSubStats extends StatelessWidget {
     return Column(
       children: [
         Text(
-          value.toString(),
+          StatCard.formatCount(value),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,

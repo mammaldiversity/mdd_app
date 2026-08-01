@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/home/mil_carousel.dart';
 import 'package:mdd/screens/home/stats.dart';
+import 'package:mdd/screens/menu/release_notes.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/database.dart';
 
-import 'package:mdd/screens/home/mil_carousel.dart';
+import 'package:mdd/screens/home/top_countries.dart';
 
 class DatabaseSearch extends ConsumerWidget {
   const DatabaseSearch({super.key});
@@ -20,6 +22,8 @@ class DatabaseSearch extends ConsumerWidget {
         HomeSearchBar(),
         SizedBox(height: 16),
         MddStatistics(),
+        SizedBox(height: 16),
+        TopCountriesWidget(),
         SizedBox(height: 16),
         DatabaseInfo(),
       ],
@@ -95,14 +99,33 @@ class DatabaseInfo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(mddInfoProvider).when(
           data: (MddInfoData mddInfo) {
-            final milText = (mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty)
-                ? '\nMIL release: ${mddInfo.milVersion}'
-                : '';
-            return Text(
-              'Database version\n${mddInfo.version}, '
-              'released ${mddInfo.releaseDate}.$milText',
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
+            final milText =
+                (mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty)
+                    ? '\nMIL release: ${mddInfo.milVersion}'
+                    : '';
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  'Database version\n${mddInfo.version}, '
+                  'released ${mddInfo.releaseDate}.$milText',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) =>
+                            const ReleaseNotesPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.notes, size: 16),
+                  label: const Text('Release Notes'),
+                ),
+              ],
             );
           },
           loading: () => const SimpleLoadingMessages(),

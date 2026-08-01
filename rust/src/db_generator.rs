@@ -1,15 +1,20 @@
+use crate::api::parser::{MddHelper, MilHelper};
+use regex::Regex;
 use rusqlite::{params_from_iter, Connection, Result};
+use serde_json::Value;
 use std::fs;
 use std::path::Path;
-use regex::Regex;
-use serde_json::Value;
-use crate::api::parser::{MddHelper, MilHelper};
 
-pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str, drift_path: &str) -> Result<()> {
+pub fn generate_db(
+    mdd_helper: &MddHelper,
+    mil_helper: &MilHelper,
+    db_path: &str,
+    drift_path: &str,
+) -> Result<()> {
     if Path::new(db_path).exists() {
         fs::remove_file(db_path).unwrap();
     }
-    
+
     if let Some(parent) = Path::new(db_path).parent() {
         fs::create_dir_all(parent).unwrap();
     }
@@ -19,21 +24,23 @@ pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str
 
     // Parse CREATE TABLE statements
     let table_re = Regex::new(r"(?i)CREATE\s+TABLE\s+(\w+)\s*\(([^;]+)\);").unwrap();
-    
+
     let mut table_queries = Vec::new();
     let mut table_columns = std::collections::HashMap::new();
 
     for cap in table_re.captures_iter(&drift_content) {
         let table_name = cap[1].to_string();
         let columns_block = cap[2].to_string();
-        
+
         let full_query = format!("CREATE TABLE {} ({})", table_name, columns_block);
         table_queries.push(full_query);
 
         let mut cols = Vec::new();
         for line in columns_block.lines() {
             let line = line.trim();
-            if line.is_empty() { continue; }
+            if line.is_empty() {
+                continue;
+            }
             let parts: Vec<&str> = line.split_whitespace().collect();
             if !parts.is_empty() {
                 let col_name = parts[0];
@@ -52,8 +59,14 @@ pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str
 
     // Insert mddInfo
     tx.execute(
-        "INSERT INTO mddInfo (version, releaseDate, milVersion) VALUES (?1, ?2, ?3)",
-        [&mdd_helper.version, &mdd_helper.release_date, &mil_helper.mil_version],
+        "INSERT INTO mddInfo (version, releaseDate, milVersion, remarks, doi) VALUES (?1, ?2, ?3, ?4, ?5)",
+        [
+            &mdd_helper.version,
+            &mdd_helper.release_date,
+            &mil_helper.mil_version,
+            mdd_helper.remarks.as_deref().unwrap_or(""),
+            mdd_helper.doi.as_deref().unwrap_or(""),
+        ],
     )?;
 
     // Prepare taxonomy and synonym statements
@@ -109,7 +122,7 @@ pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str
                 mil_cols.join(", "),
                 vec!["?"; mil_cols.len()].join(", ")
             ))?;
-            
+
             for item in mil_arr {
                 let mut params = Vec::new();
                 for col in mil_cols {
@@ -130,7 +143,7 @@ pub fn generate_db(mdd_helper: &MddHelper, mil_helper: &MilHelper, db_path: &str
 
 fn extract_value<'a>(val: &'a Value, col: &str) -> rusqlite::types::ToSqlOutput<'a> {
     use rusqlite::types::{ToSqlOutput, Value as SqlValue};
-    
+
     if let Some(v) = val.get(col) {
         match v {
             Value::Null => {
@@ -141,7 +154,7 @@ fn extract_value<'a>(val: &'a Value, col: &str) -> rusqlite::types::ToSqlOutput<
                 } else {
                     ToSqlOutput::Owned(SqlValue::Null)
                 }
-            },
+            }
             Value::Bool(b) => ToSqlOutput::Owned(SqlValue::Integer(if *b { 1 } else { 0 })),
             Value::Number(n) => {
                 if let Some(i) = n.as_i64() {
@@ -151,7 +164,7 @@ fn extract_value<'a>(val: &'a Value, col: &str) -> rusqlite::types::ToSqlOutput<
                 } else {
                     ToSqlOutput::Owned(SqlValue::Null)
                 }
-            },
+            }
             Value::String(s) => {
                 if col == "mddId" || col == "id" {
                     if let Ok(i) = s.parse::<i64>() {
@@ -160,7 +173,7 @@ fn extract_value<'a>(val: &'a Value, col: &str) -> rusqlite::types::ToSqlOutput<
                     return ToSqlOutput::Owned(SqlValue::Integer(0));
                 }
                 ToSqlOutput::Owned(SqlValue::Text(s.clone()))
-            },
+            }
             _ => {
                 // Object or array fallback to string
                 ToSqlOutput::Owned(SqlValue::Text(v.to_string()))

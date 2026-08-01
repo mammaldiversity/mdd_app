@@ -16,6 +16,12 @@ class MddHelper {
   /// MDD release date
   final String releaseDate;
 
+  /// MDD release remarks
+  final String? remarks;
+
+  /// MDD release DOI
+  final String? doi;
+
   /// MDD main data
   final List<String> mddData;
 
@@ -25,6 +31,8 @@ class MddHelper {
   const MddHelper({
     required this.version,
     required this.releaseDate,
+    this.remarks,
+    this.doi,
     required this.mddData,
     required this.synData,
   });
@@ -39,6 +47,8 @@ class MddHelper {
   int get hashCode =>
       version.hashCode ^
       releaseDate.hashCode ^
+      remarks.hashCode ^
+      doi.hashCode ^
       mddData.hashCode ^
       synData.hashCode;
 
@@ -49,6 +59,8 @@ class MddHelper {
           runtimeType == other.runtimeType &&
           version == other.version &&
           releaseDate == other.releaseDate &&
+          remarks == other.remarks &&
+          doi == other.doi &&
           mddData == other.mddData &&
           synData == other.synData;
 }

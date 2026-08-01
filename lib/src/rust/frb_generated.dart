@@ -353,13 +353,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   MddHelper dco_decode_mdd_helper(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return MddHelper(
       version: dco_decode_String(arr[0]),
       releaseDate: dco_decode_String(arr[1]),
-      mddData: dco_decode_list_String(arr[2]),
-      synData: dco_decode_list_String(arr[3]),
+      remarks: dco_decode_opt_String(arr[2]),
+      doi: dco_decode_opt_String(arr[3]),
+      mddData: dco_decode_list_String(arr[4]),
+      synData: dco_decode_list_String(arr[5]),
     );
   }
 
@@ -373,6 +375,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       milVersion: dco_decode_String(arr[0]),
       milData: dco_decode_String(arr[1]),
     );
+  }
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
   }
 
   @protected
@@ -452,11 +460,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_version = sse_decode_String(deserializer);
     var var_releaseDate = sse_decode_String(deserializer);
+    var var_remarks = sse_decode_opt_String(deserializer);
+    var var_doi = sse_decode_opt_String(deserializer);
     var var_mddData = sse_decode_list_String(deserializer);
     var var_synData = sse_decode_list_String(deserializer);
     return MddHelper(
         version: var_version,
         releaseDate: var_releaseDate,
+        remarks: var_remarks,
+        doi: var_doi,
         mddData: var_mddData,
         synData: var_synData);
   }
@@ -467,6 +479,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_milVersion = sse_decode_String(deserializer);
     var var_milData = sse_decode_String(deserializer);
     return MilHelper(milVersion: var_milVersion, milData: var_milData);
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
   }
 
   @protected
@@ -546,6 +569,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.version, serializer);
     sse_encode_String(self.releaseDate, serializer);
+    sse_encode_opt_String(self.remarks, serializer);
+    sse_encode_opt_String(self.doi, serializer);
     sse_encode_list_String(self.mddData, serializer);
     sse_encode_list_String(self.synData, serializer);
   }
@@ -555,6 +580,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.milVersion, serializer);
     sse_encode_String(self.milData, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
   }
 
   @protected

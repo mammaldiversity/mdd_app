@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/menu/release_notes.dart';
 import 'package:mdd/screens/menu/settings.dart';
 import 'package:mdd/screens/menu/version.dart';
 import 'package:mdd/screens/shared/card.dart';
@@ -23,11 +24,53 @@ class _MoreMenuState extends State<MoreMenu> {
           const SizedBox(height: 8),
           const SettingSection(),
           const SizedBox(height: 16),
+          const ReleaseNotesSection(),
+          const SizedBox(height: 16),
           const EssentialUrls(),
           const SizedBox(height: 16),
           const AppVersionView(),
         ],
       ),
+    );
+  }
+}
+
+class ReleaseNotesSection extends StatelessWidget {
+  const ReleaseNotesSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonCard(
+      title: 'Database Info',
+      child: Material(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(8),
+          child: const ReleaseNotesTile(),
+        ),
+      ),
+    );
+  }
+}
+
+class ReleaseNotesTile extends StatelessWidget {
+  const ReleaseNotesTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.notes),
+      title: const Text('Release Notes'),
+      subtitle: const Text('View database version remarks and DOI'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const ReleaseNotesPage(),
+          ),
+        );
+      },
     );
   }
 }

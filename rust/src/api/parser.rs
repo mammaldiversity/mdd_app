@@ -21,6 +21,10 @@ pub struct MddHelper {
     pub version: String,
     /// MDD release date
     pub release_date: String,
+    /// MDD release remarks
+    pub remarks: Option<String>,
+    /// MDD release DOI
+    pub doi: Option<String>,
     /// MDD main data
     pub mdd_data: Vec<String>,
     /// Synonyms data
@@ -33,9 +37,13 @@ impl MddHelper {
         let (mdd, syn) = mdd_data.get_data();
         let version = mdd_data.get_version().to_string();
         let release_date = mdd_data.get_release_date().to_string();
+        let remarks = mdd_data.get_remarks().map(|s| s.to_string());
+        let doi = mdd_data.get_doi().map(|s| s.to_string());
         Self {
-            version: version,
-            release_date: release_date,
+            version,
+            release_date,
+            remarks,
+            doi,
             mdd_data: mdd,
             syn_data: syn,
         }
@@ -49,6 +57,8 @@ impl MddHelper {
         let mut syn_csv = String::new();
         let mut version = String::from("Unknown");
         let mut release_date = String::from("Unknown");
+        let mut remarks: Option<String> = None;
+        let mut doi: Option<String> = None;
 
         for i in 0..archive.len() {
             let mut file = archive.by_index(i).expect("Failed to read zip entry");
@@ -60,6 +70,8 @@ impl MddHelper {
                     if let Ok(release_toml) = ReleaseToml::from_toml(&contents) {
                         version = release_toml.metadata.version;
                         release_date = release_toml.metadata.release_date;
+                        remarks = release_toml.metadata.remarks;
+                        doi = release_toml.metadata.doi;
                     }
                 }
             } else if file_name.contains("MDD_v")
@@ -67,7 +79,7 @@ impl MddHelper {
                 && !file_name.contains("__MACOSX")
             {
                 let _ = file.read_to_string(&mut mdd_csv);
-            } else if file_name.contains("Species_Syn_v")
+            } else if file_name.contains("Species_Syn_")
                 && file_name.ends_with(".csv")
                 && !file_name.contains("__MACOSX")
             {
@@ -81,13 +93,23 @@ impl MddHelper {
         let parsed_mdd = mdd_parser.from_csv(&mdd_csv);
         let parsed_syn = syn_parser.from_csv(&syn_csv);
 
-        let released_data =
-            ReleasedMddData::from_parser(parsed_mdd, parsed_syn, &version, &release_date);
+        let release_metadata = mdd_api::mdd::metadata::ReleaseMetadata {
+            name: "MDD".to_string(),
+            version: version.clone(),
+            release_date: release_date.clone(),
+            mdd_file: "".to_string(),
+            synonym_file: "".to_string(),
+            doi: doi.clone(),
+            remarks: remarks.clone(),
+        };
+        let released_data = ReleasedMddData::from_parser(parsed_mdd, parsed_syn, &release_metadata);
         let (mdd, syn) = released_data.get_data();
 
         Self {
-            version: version,
-            release_date: release_date,
+            version,
+            release_date,
+            remarks,
+            doi,
             mdd_data: mdd,
             syn_data: syn,
         }
@@ -107,7 +129,9 @@ impl MilHelper {
             .and_then(|n| n.to_str())
             .unwrap_or(path);
 
-        let re = regex::Regex::new(r"(?i)(mil-v\d{4}-\d{2}-\d{2}|v\d{4}-\d{2}-\d{2}|v\d+\.\d+\.\d+)").unwrap();
+        let re =
+            regex::Regex::new(r"(?i)(mil-v\d{4}-\d{2}-\d{2}|v\d{4}-\d{2}-\d{2}|v\d+\.\d+\.\d+)")
+                .unwrap();
         if let Some(mat) = re.find(filename) {
             mat.as_str().to_string()
         } else {
@@ -385,6 +409,29 @@ remarks = "test remarks"
         assert_eq!(helper.release_date, "2026-01-02");
         assert_eq!(helper.mdd_data.len(), 1);
         assert_eq!(helper.syn_data.len(), 0);
+
+        let _ = std::fs::remove_file(zip_path);
+    }
+
+    #[test]
+    fn test_parse_mdd_zip_with_species_syn_current() {
+        let temp_dir = std::env::temp_dir();
+        let zip_path = temp_dir.join("test_mdd_current_release.zip");
+
+        let file = File::create(&zip_path).unwrap();
+        let mut zip = ZipWriter::new(file);
+        let options = SimpleFileOptions::default();
+
+        zip.start_file("MDD/MDD_v2.5_6871species.csv", options).unwrap();
+        zip.write_all(get_mock_mdd_csv().as_bytes()).unwrap();
+
+        zip.start_file("MDD/Species_Syn_Current_v2.5.csv", options).unwrap();
+        zip.write_all(get_mock_syn_csv().as_bytes()).unwrap();
+
+        zip.finish().unwrap();
+
+        let helper = MddHelper::parse_mdd_zip(zip_path.to_str().unwrap().to_string());
+        assert_eq!(helper.mdd_data.len(), 1);
 
         let _ = std::fs::remove_file(zip_path);
     }

@@ -1109,9 +1109,9 @@ dependencies = [
 
 [[package]]
 name = "mdd_api"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "187e20a6f86561a9fc4858ce6571313624f1193f53e3f1007ab28a1f3a295e87"
+checksum = "65506d0cf48c02b3d41c428a07588c7446fac03afc7cb64ccece977f8e9c4fdb"
 dependencies = [
  "calamine",
  "chrono",

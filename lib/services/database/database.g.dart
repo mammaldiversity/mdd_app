@@ -29,8 +29,22 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       $customConstraints: '');
+  static const VerificationMeta _remarksMeta =
+      const VerificationMeta('remarks');
+  late final GeneratedColumn<String> remarks = GeneratedColumn<String>(
+      'remarks', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  static const VerificationMeta _doiMeta = const VerificationMeta('doi');
+  late final GeneratedColumn<String> doi = GeneratedColumn<String>(
+      'doi', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
-  List<GeneratedColumn> get $columns => [version, releaseDate, milVersion];
+  List<GeneratedColumn> get $columns =>
+      [version, releaseDate, milVersion, remarks, doi];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -57,6 +71,14 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
           milVersion.isAcceptableOrUnknown(
               data['milVersion']!, _milVersionMeta));
     }
+    if (data.containsKey('remarks')) {
+      context.handle(_remarksMeta,
+          remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta));
+    }
+    if (data.containsKey('doi')) {
+      context.handle(
+          _doiMeta, doi.isAcceptableOrUnknown(data['doi']!, _doiMeta));
+    }
     return context;
   }
 
@@ -72,6 +94,10 @@ class MddInfo extends Table with TableInfo<MddInfo, MddInfoData> {
           .read(DriftSqlType.string, data['${effectivePrefix}releaseDate']),
       milVersion: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}milVersion']),
+      remarks: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remarks']),
+      doi: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}doi']),
     );
   }
 
@@ -88,7 +114,14 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
   final String? version;
   final String? releaseDate;
   final String? milVersion;
-  const MddInfoData({this.version, this.releaseDate, this.milVersion});
+  final String? remarks;
+  final String? doi;
+  const MddInfoData(
+      {this.version,
+      this.releaseDate,
+      this.milVersion,
+      this.remarks,
+      this.doi});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -100,6 +133,12 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     }
     if (!nullToAbsent || milVersion != null) {
       map['milVersion'] = Variable<String>(milVersion);
+    }
+    if (!nullToAbsent || remarks != null) {
+      map['remarks'] = Variable<String>(remarks);
+    }
+    if (!nullToAbsent || doi != null) {
+      map['doi'] = Variable<String>(doi);
     }
     return map;
   }
@@ -115,6 +154,10 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
       milVersion: milVersion == null && nullToAbsent
           ? const Value.absent()
           : Value(milVersion),
+      remarks: remarks == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remarks),
+      doi: doi == null && nullToAbsent ? const Value.absent() : Value(doi),
     );
   }
 
@@ -125,6 +168,8 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
       version: serializer.fromJson<String?>(json['version']),
       releaseDate: serializer.fromJson<String?>(json['releaseDate']),
       milVersion: serializer.fromJson<String?>(json['milVersion']),
+      remarks: serializer.fromJson<String?>(json['remarks']),
+      doi: serializer.fromJson<String?>(json['doi']),
     );
   }
   @override
@@ -134,17 +179,23 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
       'version': serializer.toJson<String?>(version),
       'releaseDate': serializer.toJson<String?>(releaseDate),
       'milVersion': serializer.toJson<String?>(milVersion),
+      'remarks': serializer.toJson<String?>(remarks),
+      'doi': serializer.toJson<String?>(doi),
     };
   }
 
   MddInfoData copyWith(
           {Value<String?> version = const Value.absent(),
           Value<String?> releaseDate = const Value.absent(),
-          Value<String?> milVersion = const Value.absent()}) =>
+          Value<String?> milVersion = const Value.absent(),
+          Value<String?> remarks = const Value.absent(),
+          Value<String?> doi = const Value.absent()}) =>
       MddInfoData(
         version: version.present ? version.value : this.version,
         releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
         milVersion: milVersion.present ? milVersion.value : this.milVersion,
+        remarks: remarks.present ? remarks.value : this.remarks,
+        doi: doi.present ? doi.value : this.doi,
       );
   MddInfoData copyWithCompanion(MddInfoCompanion data) {
     return MddInfoData(
@@ -153,6 +204,8 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
           data.releaseDate.present ? data.releaseDate.value : this.releaseDate,
       milVersion:
           data.milVersion.present ? data.milVersion.value : this.milVersion,
+      remarks: data.remarks.present ? data.remarks.value : this.remarks,
+      doi: data.doi.present ? data.doi.value : this.doi,
     );
   }
 
@@ -161,49 +214,64 @@ class MddInfoData extends DataClass implements Insertable<MddInfoData> {
     return (StringBuffer('MddInfoData(')
           ..write('version: $version, ')
           ..write('releaseDate: $releaseDate, ')
-          ..write('milVersion: $milVersion')
+          ..write('milVersion: $milVersion, ')
+          ..write('remarks: $remarks, ')
+          ..write('doi: $doi')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(version, releaseDate, milVersion);
+  int get hashCode =>
+      Object.hash(version, releaseDate, milVersion, remarks, doi);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MddInfoData &&
           other.version == this.version &&
           other.releaseDate == this.releaseDate &&
-          other.milVersion == this.milVersion);
+          other.milVersion == this.milVersion &&
+          other.remarks == this.remarks &&
+          other.doi == this.doi);
 }
 
 class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
   final Value<String?> version;
   final Value<String?> releaseDate;
   final Value<String?> milVersion;
+  final Value<String?> remarks;
+  final Value<String?> doi;
   final Value<int> rowid;
   const MddInfoCompanion({
     this.version = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.milVersion = const Value.absent(),
+    this.remarks = const Value.absent(),
+    this.doi = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MddInfoCompanion.insert({
     this.version = const Value.absent(),
     this.releaseDate = const Value.absent(),
     this.milVersion = const Value.absent(),
+    this.remarks = const Value.absent(),
+    this.doi = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   static Insertable<MddInfoData> custom({
     Expression<String>? version,
     Expression<String>? releaseDate,
     Expression<String>? milVersion,
+    Expression<String>? remarks,
+    Expression<String>? doi,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (version != null) 'version': version,
       if (releaseDate != null) 'releaseDate': releaseDate,
       if (milVersion != null) 'milVersion': milVersion,
+      if (remarks != null) 'remarks': remarks,
+      if (doi != null) 'doi': doi,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -212,11 +280,15 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
       {Value<String?>? version,
       Value<String?>? releaseDate,
       Value<String?>? milVersion,
+      Value<String?>? remarks,
+      Value<String?>? doi,
       Value<int>? rowid}) {
     return MddInfoCompanion(
       version: version ?? this.version,
       releaseDate: releaseDate ?? this.releaseDate,
       milVersion: milVersion ?? this.milVersion,
+      remarks: remarks ?? this.remarks,
+      doi: doi ?? this.doi,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -233,6 +305,12 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
     if (milVersion.present) {
       map['milVersion'] = Variable<String>(milVersion.value);
     }
+    if (remarks.present) {
+      map['remarks'] = Variable<String>(remarks.value);
+    }
+    if (doi.present) {
+      map['doi'] = Variable<String>(doi.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -245,6 +323,8 @@ class MddInfoCompanion extends UpdateCompanion<MddInfoData> {
           ..write('version: $version, ')
           ..write('releaseDate: $releaseDate, ')
           ..write('milVersion: $milVersion, ')
+          ..write('remarks: $remarks, ')
+          ..write('doi: $doi, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5503,6 +5583,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         ));
   }
 
+  Selectable<int> statTotalSynonymsCount() {
+    return customSelect('SELECT COUNT(*) AS count FROM synonym',
+        variables: [],
+        readsFrom: {
+          synonym,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
+  Selectable<int> statTotalImagesCount() {
+    return customSelect('SELECT COUNT(*) AS count FROM milData',
+        variables: [],
+        readsFrom: {
+          milData,
+        }).map((QueryRow row) => row.read<int>('count'));
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5515,12 +5611,16 @@ typedef $MddInfoCreateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
   Value<String?> releaseDate,
   Value<String?> milVersion,
+  Value<String?> remarks,
+  Value<String?> doi,
   Value<int> rowid,
 });
 typedef $MddInfoUpdateCompanionBuilder = MddInfoCompanion Function({
   Value<String?> version,
   Value<String?> releaseDate,
   Value<String?> milVersion,
+  Value<String?> remarks,
+  Value<String?> doi,
   Value<int> rowid,
 });
 
@@ -5540,6 +5640,12 @@ class $MddInfoFilterComposer extends Composer<_$AppDatabase, MddInfo> {
 
   ColumnFilters<String> get milVersion => $composableBuilder(
       column: $table.milVersion, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remarks => $composableBuilder(
+      column: $table.remarks, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get doi => $composableBuilder(
+      column: $table.doi, builder: (column) => ColumnFilters(column));
 }
 
 class $MddInfoOrderingComposer extends Composer<_$AppDatabase, MddInfo> {
@@ -5558,6 +5664,12 @@ class $MddInfoOrderingComposer extends Composer<_$AppDatabase, MddInfo> {
 
   ColumnOrderings<String> get milVersion => $composableBuilder(
       column: $table.milVersion, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remarks => $composableBuilder(
+      column: $table.remarks, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get doi => $composableBuilder(
+      column: $table.doi, builder: (column) => ColumnOrderings(column));
 }
 
 class $MddInfoAnnotationComposer extends Composer<_$AppDatabase, MddInfo> {
@@ -5576,6 +5688,12 @@ class $MddInfoAnnotationComposer extends Composer<_$AppDatabase, MddInfo> {
 
   GeneratedColumn<String> get milVersion => $composableBuilder(
       column: $table.milVersion, builder: (column) => column);
+
+  GeneratedColumn<String> get remarks =>
+      $composableBuilder(column: $table.remarks, builder: (column) => column);
+
+  GeneratedColumn<String> get doi =>
+      $composableBuilder(column: $table.doi, builder: (column) => column);
 }
 
 class $MddInfoTableManager extends RootTableManager<
@@ -5604,24 +5722,32 @@ class $MddInfoTableManager extends RootTableManager<
             Value<String?> version = const Value.absent(),
             Value<String?> releaseDate = const Value.absent(),
             Value<String?> milVersion = const Value.absent(),
+            Value<String?> remarks = const Value.absent(),
+            Value<String?> doi = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MddInfoCompanion(
             version: version,
             releaseDate: releaseDate,
             milVersion: milVersion,
+            remarks: remarks,
+            doi: doi,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             Value<String?> version = const Value.absent(),
             Value<String?> releaseDate = const Value.absent(),
             Value<String?> milVersion = const Value.absent(),
+            Value<String?> remarks = const Value.absent(),
+            Value<String?> doi = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MddInfoCompanion.insert(
             version: version,
             releaseDate: releaseDate,
             milVersion: milVersion,
+            remarks: remarks,
+            doi: doi,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

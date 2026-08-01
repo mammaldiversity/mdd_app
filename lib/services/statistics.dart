@@ -20,6 +20,8 @@ class MddStatistics {
   final int totalSpeciesCount;
   final List<StatSpeciesWithMostSynonymsResult> speciesWithMostSynonyms;
   final List<MapEntry<String, int>> typeKindProportion;
+  final int totalSynonymsCount;
+  final int totalImagesCount;
 
   MddStatistics({
     required this.speciesPerOrder,
@@ -41,6 +43,8 @@ class MddStatistics {
     required this.totalSpeciesCount,
     required this.speciesWithMostSynonyms,
     required this.typeKindProportion,
+    required this.totalSynonymsCount,
+    required this.totalImagesCount,
   });
 }
 
@@ -104,6 +108,10 @@ class StatisticsService {
     final totalGeneraCount = await mddQuery.statTotalGeneraCount().getSingle();
     final livingWildSpeciesCount =
         await mddQuery.statLivingWildSpeciesCount().getSingle();
+    final totalSynonymsCount =
+        await mddQuery.statTotalSynonymsCount().getSingle();
+    final totalImagesCount =
+        await mddQuery.statTotalImagesCount().getSingle();
 
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,
@@ -125,6 +133,8 @@ class StatisticsService {
       totalSpeciesCount: totalSpeciesCount,
       speciesWithMostSynonyms: speciesWithMostSynonyms,
       typeKindProportion: cleanedTypeKind,
+      totalSynonymsCount: totalSynonymsCount,
+      totalImagesCount: totalImagesCount,
     );
   }
 
@@ -270,4 +280,3 @@ class _CountryAccumulator {
 
   _CountryAccumulator(this.countryName);
 }
-

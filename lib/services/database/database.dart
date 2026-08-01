@@ -75,7 +75,8 @@ LazyDatabase _openConnection() {
           // Compare with asset DB milVersion
           try {
             loadedAssetData = await rootBundle.load('assets/data/mdd.db');
-            final tempDir = await Directory.systemTemp.createTemp('mdd_ver_check');
+            final tempDir =
+                await Directory.systemTemp.createTemp('mdd_ver_check');
             final tempAssetFile = File(path.join(tempDir.path, 'asset_mdd.db'));
             await tempAssetFile.writeAsBytes(
               loadedAssetData.buffer.asUint8List(
@@ -85,7 +86,8 @@ LazyDatabase _openConnection() {
             );
 
             final assetDb = sqlite3.sqlite3.open(tempAssetFile.path);
-            final assetInfoRes = assetDb.select('SELECT milVersion FROM mddInfo');
+            final assetInfoRes =
+                assetDb.select('SELECT milVersion FROM mddInfo');
             String? assetMilVer;
             if (assetInfoRes.isNotEmpty) {
               assetMilVer = assetInfoRes.first['milVersion'] as String?;
@@ -93,7 +95,9 @@ LazyDatabase _openConnection() {
             assetDb.close();
             await tempDir.delete(recursive: true);
 
-            if (assetMilVer != null && assetMilVer.isNotEmpty && assetMilVer != localMilVer) {
+            if (assetMilVer != null &&
+                assetMilVer.isNotEmpty &&
+                assetMilVer != localMilVer) {
               if (kDebugMode) {
                 print(
                   'New MIL release detected in assets ($assetMilVer vs local $localMilVer). Replacing database.',
@@ -122,7 +126,8 @@ LazyDatabase _openConnection() {
         );
       }
       try {
-        final byteData = loadedAssetData ?? await rootBundle.load('assets/data/mdd.db');
+        final byteData =
+            loadedAssetData ?? await rootBundle.load('assets/data/mdd.db');
         final bytes = byteData.buffer.asUint8List(
           byteData.offsetInBytes,
           byteData.lengthInBytes,

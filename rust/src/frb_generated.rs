@@ -358,11 +358,15 @@ impl SseDecode for crate::api::parser::MddHelper {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_releaseDate = <String>::sse_decode(deserializer);
+        let mut var_remarks = <Option<String>>::sse_decode(deserializer);
+        let mut var_doi = <Option<String>>::sse_decode(deserializer);
         let mut var_mddData = <Vec<String>>::sse_decode(deserializer);
         let mut var_synData = <Vec<String>>::sse_decode(deserializer);
         return crate::api::parser::MddHelper {
             version: var_version,
             release_date: var_releaseDate,
+            remarks: var_remarks,
+            doi: var_doi,
             mdd_data: var_mddData,
             syn_data: var_synData,
         };
@@ -378,6 +382,17 @@ impl SseDecode for crate::api::parser::MilHelper {
             mil_version: var_milVersion,
             mil_data: var_milData,
         };
+    }
+}
+
+impl SseDecode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
     }
 }
 
@@ -480,6 +495,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::parser::MddHelper {
         [
             self.version.into_into_dart().into_dart(),
             self.release_date.into_into_dart().into_dart(),
+            self.remarks.into_into_dart().into_dart(),
+            self.doi.into_into_dart().into_dart(),
             self.mdd_data.into_into_dart().into_dart(),
             self.syn_data.into_into_dart().into_dart(),
         ]
@@ -562,6 +579,8 @@ impl SseEncode for crate::api::parser::MddHelper {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.version, serializer);
         <String>::sse_encode(self.release_date, serializer);
+        <Option<String>>::sse_encode(self.remarks, serializer);
+        <Option<String>>::sse_encode(self.doi, serializer);
         <Vec<String>>::sse_encode(self.mdd_data, serializer);
         <Vec<String>>::sse_encode(self.syn_data, serializer);
     }
@@ -572,6 +591,16 @@ impl SseEncode for crate::api::parser::MilHelper {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.mil_version, serializer);
         <String>::sse_encode(self.mil_data, serializer);
+    }
+}
+
+impl SseEncode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <String>::sse_encode(value, serializer);
+        }
     }
 }
 
