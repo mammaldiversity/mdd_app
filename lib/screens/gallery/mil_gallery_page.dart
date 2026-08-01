@@ -136,14 +136,14 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final crossAxisCount =
-              (constraints.maxWidth / 160).floor().clamp(2, 6);
+              (constraints.maxWidth / 165).floor().clamp(2, 6);
 
           return CustomScrollView(
             controller: _scrollController,
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -151,14 +151,18 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                         text:
                             'Browse photographs of mammals from the ASM Mammal Images Library (MIL). Tap any photo to view full metadata, photographer credit, and species details.',
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       TextField(
                         controller: _searchController,
                         onChanged: _onSearchChanged,
                         decoration: InputDecoration(
                           hintText:
                               'Search species, common name, photographer, location...',
-                          prefixIcon: const Icon(Icons.search),
+                          hintStyle: TextStyle(
+                            color: colorScheme.onSurfaceVariant.withAlpha(180),
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(Icons.search, color: colorScheme.primary),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.clear),
@@ -169,19 +173,33 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                                 )
                               : null,
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest
-                              .withAlpha(128),
+                          fillColor: colorScheme.surfaceContainerLow,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: colorScheme.outlineVariant.withAlpha(140),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: colorScheme.outlineVariant.withAlpha(140),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: colorScheme.primary,
+                              width: 1.5,
+                            ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                            horizontal: 20,
+                            vertical: 14,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -189,12 +207,34 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                             _searchQuery.isNotEmpty
                                 ? 'Found $_totalCount results'
                                 : 'Showing $_totalCount MIL Images',
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
                           ),
                           if (_items.isNotEmpty)
-                            Text(
-                              'Loaded ${_items.length} of $_totalCount',
-                              style: Theme.of(context).textTheme.bodySmall,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: colorScheme.outlineVariant.withAlpha(100),
+                                ),
+                              ),
+                              child: Text(
+                                'Loaded ${_items.length} of $_totalCount',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
                             ),
                         ],
                       ),
@@ -206,19 +246,38 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.image_not_supported,
-                            size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isNotEmpty
-                              ? 'No MIL images found matching "$_searchQuery"'
-                              : 'No MIL images available',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerLow,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorScheme.outlineVariant.withAlpha(120),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.photo_library_outlined,
+                              size: 48,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _searchQuery.isNotEmpty
+                                ? 'No MIL images found matching "$_searchQuery"'
+                                : 'No MIL images available',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )
@@ -228,9 +287,9 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                   sliver: SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.78,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.76,
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -271,9 +330,17 @@ class _MilGalleryCard extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withAlpha(140),
+          width: 1,
+        ),
+      ),
       child: InkWell(
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.push(
             context,
@@ -295,31 +362,37 @@ class _MilGalleryCard extends StatelessWidget {
                     cacheWidth: 350,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: Icon(Icons.broken_image,
-                            size: 36, color: Colors.grey),
+                      child: Center(
+                        child: Icon(
+                          Icons.broken_image_outlined,
+                          size: 36,
+                          color: colorScheme.onSurfaceVariant.withAlpha(140),
+                        ),
                       ),
                     ),
                   ),
                   if (item.photographer != null &&
                       item.photographer!.isNotEmpty)
                     Positioned(
-                      left: 6,
-                      bottom: 6,
+                      left: 8,
+                      bottom: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withAlpha(160),
-                          borderRadius: BorderRadius.circular(6),
+                          color: Colors.black.withAlpha(180),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.camera_alt,
-                                size: 10, color: Colors.white70),
+                            const Icon(
+                              Icons.camera_alt,
+                              size: 11,
+                              color: Colors.white70,
+                            ),
                             const SizedBox(width: 4),
                             ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 100),
@@ -329,7 +402,7 @@ class _MilGalleryCard extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -337,11 +410,28 @@ class _MilGalleryCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  if (item.isUncertainIdentification == 1)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.errorContainer.withAlpha(230),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.warning_amber_rounded,
+                          size: 14,
+                          color: colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -349,9 +439,10 @@ class _MilGalleryCard extends StatelessWidget {
                     sciName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontStyle: FontStyle.italic,
                           fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
                         ),
                   ),
                   if (item.mainCommonName != null &&
@@ -363,6 +454,7 @@ class _MilGalleryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
                           ),
                     ),
                   ],

@@ -110,149 +110,214 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                 bottom: 0,
                 child: Container(
                   constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.48,
+                    maxHeight: MediaQuery.of(context).size.height * 0.52,
                   ),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHigh,
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
+                      top: Radius.circular(24),
                     ),
-                    border: Border(
-                      top: BorderSide(color: colorScheme.outlineVariant),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant,
+                      width: 1,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(
-                          theme.brightness == Brightness.dark ? 120 : 30,
-                        ),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                      ),
-                    ],
                   ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    scientificName,
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      color: colorScheme.onSurface,
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (item.mainCommonName != null &&
-                                      item.mainCommonName!.isNotEmpty) ...[
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      item.mainCommonName!,
-                                      style:
-                                          theme.textTheme.titleMedium?.copyWith(
-                                        color: colorScheme.secondary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                foregroundColor: colorScheme.onPrimary,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
-                                ),
-                              ),
-                              icon: const Icon(Icons.pets, size: 18),
-                              label: const Text(
-                                'View Species',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              onPressed: () {
-                                ref
-                                    .read(currentMddIDProvider.notifier)
-                                    .setMddID(item.mddId);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext context) =>
-                                        const SpeciesPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        Divider(color: colorScheme.outlineVariant, height: 24),
-                        _buildInfoRow(
-                            'Photographer', item.photographer, colorScheme),
-                        _buildInfoRow('Location', item.location, colorScheme),
-                        _buildInfoRow(
-                            'Date taken', item.dateTaken, colorScheme),
-                        _buildInfoRow(
-                            'Description', item.description, colorScheme),
-                        _buildInfoRow(
-                            'Distribution', item.distribution, colorScheme),
-                        _buildInfoRow('MIL ID', item.milId, colorScheme),
-                        if (item.isUncertainIdentification == 1)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.warning_amber_rounded,
-                                  color: colorScheme.error,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Uncertain identification',
-                                  style: TextStyle(
-                                    color: colorScheme.error,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10, bottom: 4),
+                        child: Center(
+                          child: Container(
+                            width: 36,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: colorScheme.onSurfaceVariant.withAlpha(80),
+                              borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                        const SizedBox(height: 16),
-                        RichText(
-                          text: TextSpan(
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                        ),
+                      ),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const TextSpan(text: 'Image courtesy of the '),
-                              TextSpan(
-                                text: 'ASM Mammal Images Library',
-                                style: TextStyle(
-                                  color: colorScheme.primary,
-                                  decoration: TextDecoration.underline,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                recognizer: _tapGestureRecognizer,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          scientificName,
+                                          style: theme.textTheme.titleLarge
+                                              ?.copyWith(
+                                            color: colorScheme.onSurface,
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        if (item.mainCommonName != null &&
+                                            item.mainCommonName!
+                                                .isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            item.mainCommonName!,
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                              color: colorScheme.secondary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  FilledButton.icon(
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: colorScheme.primary,
+                                      foregroundColor: colorScheme.onPrimary,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.pets, size: 18),
+                                    label: const Text(
+                                      'View Species',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () {
+                                      ref
+                                          .read(currentMddIDProvider.notifier)
+                                          .setMddID(item.mddId);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute<void>(
+                                          builder: (BuildContext context) =>
+                                              const SpeciesPage(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              TextSpan(
-                                text: ' · MIL ID: ${item.milId}',
+                              Divider(
+                                color:
+                                    colorScheme.outlineVariant.withAlpha(140),
+                                height: 24,
+                              ),
+                              _buildInfoRow(
+                                'Photographer',
+                                item.photographer,
+                                colorScheme,
+                                Icons.camera_alt_outlined,
+                              ),
+                              _buildInfoRow(
+                                'Location',
+                                item.location,
+                                colorScheme,
+                                Icons.location_on_outlined,
+                              ),
+                              _buildInfoRow(
+                                'Date taken',
+                                item.dateTaken,
+                                colorScheme,
+                                Icons.calendar_today_outlined,
+                              ),
+                              _buildInfoRow(
+                                'Description',
+                                item.description,
+                                colorScheme,
+                                Icons.notes_outlined,
+                              ),
+                              _buildInfoRow(
+                                'Distribution',
+                                item.distribution,
+                                colorScheme,
+                                Icons.map_outlined,
+                              ),
+                              _buildInfoRow(
+                                'MIL ID',
+                                item.milId,
+                                colorScheme,
+                                Icons.tag,
+                              ),
+                              if (item.isUncertainIdentification == 1)
+                                Container(
+                                  margin:
+                                      const EdgeInsets.only(top: 8, bottom: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.errorContainer
+                                        .withAlpha(120),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: colorScheme.error.withAlpha(100),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: colorScheme.error,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Uncertain identification',
+                                        style: TextStyle(
+                                          color: colorScheme.onErrorContainer,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              const SizedBox(height: 16),
+                              RichText(
+                                text: TextSpan(
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                  children: [
+                                    const TextSpan(
+                                        text: 'Image courtesy of the '),
+                                    TextSpan(
+                                      text: 'ASM Mammal Images Library',
+                                      style: TextStyle(
+                                        color: colorScheme.primary,
+                                        decoration: TextDecoration.underline,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      recognizer: _tapGestureRecognizer,
+                                    ),
+                                    TextSpan(
+                                      text: ' · MIL ID: ${item.milId}',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -262,22 +327,33 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
     );
   }
 
-  Widget _buildInfoRow(String label, String? value, ColorScheme colorScheme) {
+  Widget _buildInfoRow(
+    String label,
+    String? value,
+    ColorScheme colorScheme,
+    IconData icon,
+  ) {
     if (value == null || value.trim().isEmpty || value.toUpperCase() == 'NA') {
       return const SizedBox.shrink();
     }
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(
+            icon,
+            size: 16,
+            color: colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
           SizedBox(
-            width: 105,
+            width: 95,
             child: Text(
               label,
               style: TextStyle(
                 color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
             ),
@@ -289,6 +365,7 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
               style: TextStyle(
                 color: colorScheme.onSurface,
                 fontSize: 13,
+                height: 1.3,
               ),
             ),
           ),
