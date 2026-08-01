@@ -169,38 +169,55 @@ class SearchResultInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final int foundRecordCount = foundRecords.length;
+
     return ref.watch(totalRecordsProvider).when(
           data: (int totalRecords) {
             return totalRecords == foundRecordCount || foundRecordCount == 0
                 ? const SizedBox.shrink()
                 : Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: SizedBox(
-                      height: 50,
+                      height: 44,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SearchInfoBox(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer
-                                .withValues(alpha: 0.8),
-                            child: Text(
-                              'Found $foundRecordCount of $totalRecords records',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                              overflow: TextOverflow.ellipsis,
+                            color: colorScheme.secondaryContainer,
+                            borderColor:
+                                colorScheme.outlineVariant.withAlpha(160),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.info_outline_rounded,
+                                  size: 16,
+                                  color: colorScheme.onSecondaryContainer,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Found $foundRecordCount of $totalRecords records',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                        color: colorScheme.onSecondaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 8),
                           SearchInfoBox(
-                            padding: 8,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withValues(alpha: 0.8),
+                            padding: 4,
+                            color: colorScheme.primaryContainer,
+                            borderColor:
+                                colorScheme.outlineVariant.withAlpha(160),
                             child: SearchExportButton(mddIDs: foundRecords),
                           ),
                         ],
@@ -221,21 +238,29 @@ class SearchInfoBox extends StatelessWidget {
     super.key,
     required this.child,
     this.color,
+    this.borderColor,
     this.padding = 16,
   });
 
   final double padding;
   final Color? color;
+  final Color? borderColor;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      height: 48,
+      height: 44,
       padding: EdgeInsets.symmetric(horizontal: padding),
       decoration: BoxDecoration(
-        color: color ?? Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        color: color ?? colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: borderColor ?? colorScheme.outlineVariant.withAlpha(140),
+          width: 1,
+        ),
       ),
       child: Center(child: child),
     );
@@ -254,12 +279,15 @@ class SearchExportButton extends ConsumerStatefulWidget {
 class SearchExportButtonState extends ConsumerState<SearchExportButton> {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return IconButton(
       icon: Icon(
         Icons.adaptive.share,
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        size: 20,
+        color: colorScheme.onPrimaryContainer,
       ),
-      tooltip: 'Export',
+      tooltip: 'Export search results',
       onPressed: () async {
         try {
           await _exportRecords();

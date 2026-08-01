@@ -10,6 +10,8 @@ class TopCountriesWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ref.watch(countryDiversityStatsProvider).when(
           data: (allCountries) {
             final sortedCountries = allCountries.toList()
@@ -19,15 +21,16 @@ class TopCountriesWidget extends ConsumerWidget {
 
             return Container(
               constraints: const BoxConstraints(maxWidth: 800),
-              padding: const EdgeInsets.fromLTRB(2, 0, 2, 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Card(
                 elevation: 0,
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest
-                    .withAlpha(150),
+                color: colorScheme.surfaceContainerLow,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant.withAlpha(130),
+                    width: 1,
+                  ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -39,87 +42,93 @@ class TopCountriesWidget extends ConsumerWidget {
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurface,
                                 ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       ...top5.asMap().entries.map((entry) {
                         final rank = entry.key + 1;
                         final country = entry.value;
 
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CountrySpeciesPage(countryData: country),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 4,
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 3),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHigh.withAlpha(120),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withAlpha(80),
+                              width: 1,
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '$rank',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimaryContainer,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CountrySpeciesPage(countryData: country),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.primaryContainer,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '$rank',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                          color: colorScheme.onPrimaryContainer,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    country.countryName,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      country.countryName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: colorScheme.onSurface,
+                                          ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${country.totalLivingSpecies} living species',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .bodyMedium
+                                        .bodySmall
                                         ?.copyWith(
+                                          color: colorScheme.secondary,
                                           fontWeight: FontWeight.w600,
                                         ),
                                   ),
-                                ),
-                                Text(
-                                  '${country.totalLivingSpecies} living species',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.chevron_right,
-                                  size: 18,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 18,
+                                    color: colorScheme.onSurfaceVariant
+                                        .withAlpha(160),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -139,8 +148,12 @@ class TopCountriesWidget extends ConsumerWidget {
                               const Icon(Icons.table_chart_outlined, size: 18),
                           label: const Text('View Full Country Table'),
                           style: OutlinedButton.styleFrom(
+                            elevation: 0,
+                            side: BorderSide(
+                              color: colorScheme.outlineVariant,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                         ),

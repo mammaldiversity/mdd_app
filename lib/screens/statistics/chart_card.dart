@@ -17,16 +17,18 @@ class ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return CommonCard(
       title: title,
       action: action,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+          color: colorScheme.surfaceContainerHigh.withAlpha(120),
           borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(16),
+            bottom: Radius.circular(15),
           ),
         ),
         child: SizedBox(height: height, child: chart),

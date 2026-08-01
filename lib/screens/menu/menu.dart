@@ -18,7 +18,7 @@ class _MoreMenuState extends State<MoreMenu> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: ListView(
         children: <Widget>[
           const SizedBox(height: 8),
@@ -163,17 +163,39 @@ class UrlTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withAlpha(100),
+          width: 1,
+        ),
       ),
-      leading: Icon(icon ?? Icons.public),
-      title: Text(title),
-      trailing: const Icon(Icons.open_in_new),
-      onTap: () {
-        launchURL(url);
-      },
+      child: ListTile(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        leading: Icon(icon ?? Icons.public, color: colorScheme.primary),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+        ),
+        trailing: Icon(
+          Icons.open_in_new_rounded,
+          size: 18,
+          color: colorScheme.onSurfaceVariant.withAlpha(160),
+        ),
+        onTap: () {
+          launchURL(url);
+        },
+      ),
     );
   }
 }

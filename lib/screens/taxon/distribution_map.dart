@@ -239,7 +239,7 @@ class _DistributionMapState extends State<DistributionMap> {
                             backgroundColor: Theme.of(
                               context,
                             ).colorScheme.surface,
-                            elevation: 4,
+                            elevation: 0,
                             child: Icon(
                               Icons.center_focus_strong,
                               color: Theme.of(context).colorScheme.onSurface,

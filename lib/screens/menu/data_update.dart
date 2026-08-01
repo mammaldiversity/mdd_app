@@ -341,13 +341,13 @@ class MilUpdatePreview extends ConsumerWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outlineVariant
+                              .withAlpha(120),
+                          width: 1,
+                        ),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),

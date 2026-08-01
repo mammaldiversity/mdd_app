@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Add MIL Image Gallery tab featuring searchable MIL images with full-screen metadata and attribution viewer.
 - Add total synonym and image counts to the home page statistics overview section.
 - Add app release remarks to the Release Notes page.
+- Improve design.
 - Incremental MDD v2.5 updates.
 
 ## [v1.2.0] - 2026-07-21

@@ -95,10 +95,7 @@ class MddPagesState extends ConsumerState<MddPages> {
                 },
               ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _pages.elementAt(_selectedPage),
-              ),
+              child: _pages.elementAt(_selectedPage),
             ),
           ],
         ),

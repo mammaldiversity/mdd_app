@@ -142,7 +142,17 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Search country...',
-                      prefixIcon: const Icon(Icons.search),
+                      hintStyle: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withAlpha(180),
+                        fontSize: 14,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear),
@@ -154,12 +164,37 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                               },
                             )
                           : null,
+                      filled: true,
+                      fillColor:
+                          Theme.of(context).colorScheme.surfaceContainerLow,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outlineVariant
+                              .withAlpha(140),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outlineVariant
+                              .withAlpha(140),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                        horizontal: 20,
+                        vertical: 14,
                       ),
                     ),
                     onChanged: (value) {
@@ -190,10 +225,15 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                   const SizedBox(height: 8),
                   Card(
                     elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
-                        color: Theme.of(context).colorScheme.outlineVariant,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withAlpha(130),
+                        width: 1,
                       ),
                     ),
                     clipBehavior: Clip.antiAlias,
