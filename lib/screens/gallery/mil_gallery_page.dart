@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/gallery/mil_full_screen_view.dart';
 import 'package:mdd/screens/shared/info_card.dart';
-import 'package:mdd/services/database/database.dart' hide RandomMilImagesWithTaxonomyResult;
+import 'package:mdd/services/database/database.dart'
+    hide RandomMilImagesWithTaxonomyResult;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 
@@ -148,7 +149,7 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                     children: [
                       const InfoCard(
                         text:
-                            'Browse high-resolution photographs of wild mammals from the ASM Mammal Images Library (MIL). Tap any photo to view full metadata, photographer credit, and species details.',
+                            'Browse photographs of mammals from the ASM Mammal Images Library (MIL). Tap any photo to view full metadata, photographer credit, and species details.',
                       ),
                       const SizedBox(height: 12),
                       TextField(
