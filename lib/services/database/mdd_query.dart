@@ -81,6 +81,40 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return randomMilImagesWithTaxonomy().get();
   }
 
+  Future<List<RandomMilImagesWithTaxonomyResult>> getMilImagesForSpecies(
+    int mddId,
+  ) async {
+    const String query = '''
+      SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName 
+      FROM milData 
+      INNER JOIN taxonomy ON milData.mddId = taxonomy.id 
+      WHERE milData.mddId = ?
+      ORDER BY milData.milId ASC
+    ''';
+
+    return customSelect(
+      query,
+      variables: [Variable.withInt(mddId)],
+      readsFrom: {milData, taxonomy},
+    )
+        .map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
+              milId: row.read<String>('milId'),
+              mddId: row.read<int>('mddId'),
+              description: row.readNullable<String>('description'),
+              photographer: row.readNullable<String>('photographer'),
+              location: row.readNullable<String>('location'),
+              distribution: row.readNullable<String>('distribution'),
+              dateTaken: row.readNullable<String>('dateTaken'),
+              orientation: row.readNullable<String>('orientation'),
+              isUncertainIdentification:
+                  row.readNullable<int>('isUncertainIdentification'),
+              genus: row.readNullable<String>('genus'),
+              specificEpithet: row.readNullable<String>('specificEpithet'),
+              mainCommonName: row.readNullable<String>('mainCommonName'),
+            ))
+        .get();
+  }
+
   Future<List<RandomMilImagesWithTaxonomyResult>> getMilImagesPaginated({
     required int limit,
     required int offset,
@@ -118,7 +152,8 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
       ]);
     }
 
-    query += ' ORDER BY taxonomy.genus ASC, taxonomy.specificEpithet ASC LIMIT ? OFFSET ?';
+    query +=
+        ' ORDER BY taxonomy.genus ASC, taxonomy.specificEpithet ASC LIMIT ? OFFSET ?';
     variables.add(Variable.withInt(limit));
     variables.add(Variable.withInt(offset));
 
@@ -126,20 +161,23 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
       query,
       variables: variables,
       readsFrom: {milData, taxonomy},
-    ).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
-      milId: row.read<String>('milId'),
-      mddId: row.read<int>('mddId'),
-      description: row.readNullable<String>('description'),
-      photographer: row.readNullable<String>('photographer'),
-      location: row.readNullable<String>('location'),
-      distribution: row.readNullable<String>('distribution'),
-      dateTaken: row.readNullable<String>('dateTaken'),
-      orientation: row.readNullable<String>('orientation'),
-      isUncertainIdentification: row.readNullable<int>('isUncertainIdentification'),
-      genus: row.readNullable<String>('genus'),
-      specificEpithet: row.readNullable<String>('specificEpithet'),
-      mainCommonName: row.readNullable<String>('mainCommonName'),
-    )).get();
+    )
+        .map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
+              milId: row.read<String>('milId'),
+              mddId: row.read<int>('mddId'),
+              description: row.readNullable<String>('description'),
+              photographer: row.readNullable<String>('photographer'),
+              location: row.readNullable<String>('location'),
+              distribution: row.readNullable<String>('distribution'),
+              dateTaken: row.readNullable<String>('dateTaken'),
+              orientation: row.readNullable<String>('orientation'),
+              isUncertainIdentification:
+                  row.readNullable<int>('isUncertainIdentification'),
+              genus: row.readNullable<String>('genus'),
+              specificEpithet: row.readNullable<String>('specificEpithet'),
+              mainCommonName: row.readNullable<String>('mainCommonName'),
+            ))
+        .get();
   }
 
   Future<int> getMilImagesCount({String? searchQuery}) async {

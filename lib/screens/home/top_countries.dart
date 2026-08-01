@@ -54,7 +54,8 @@ class TopCountriesWidget extends ConsumerWidget {
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 3),
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHigh.withAlpha(120),
+                            color:
+                                colorScheme.surfaceContainerHigh.withAlpha(120),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: colorScheme.outlineVariant.withAlpha(80),

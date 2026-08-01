@@ -6,6 +6,7 @@ class ChartCard extends StatelessWidget {
   final Widget chart;
   final double height;
   final Widget? action;
+  final Widget? footer;
 
   const ChartCard({
     super.key,
@@ -13,6 +14,7 @@ class ChartCard extends StatelessWidget {
     required this.chart,
     this.height = 300,
     this.action,
+    this.footer,
   });
 
   @override
@@ -31,7 +33,16 @@ class ChartCard extends StatelessWidget {
             bottom: Radius.circular(15),
           ),
         ),
-        child: SizedBox(height: height, child: chart),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: height, child: chart),
+            if (footer != null) ...[
+              const SizedBox(height: 12),
+              footer!,
+            ],
+          ],
+        ),
       ),
     );
   }

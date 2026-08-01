@@ -5,39 +5,122 @@ import 'package:mdd/screens/taxon/species.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/essential_url.dart';
+import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/providers/species.dart';
 
 class MilFullScreenView extends ConsumerStatefulWidget {
-  const MilFullScreenView({super.key, required this.milItem});
+  const MilFullScreenView({
+    super.key,
+    required this.milItem,
+    this.initialImages,
+  });
 
   final RandomMilImagesWithTaxonomyResult milItem;
+  final List<RandomMilImagesWithTaxonomyResult>? initialImages;
 
   @override
   ConsumerState<MilFullScreenView> createState() => _MilFullScreenViewState();
 }
 
 class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
-  bool _showMetadata = true;
+  late List<RandomMilImagesWithTaxonomyResult> _images;
+  late int _currentIndex;
+  late PageController _pageController;
+  late TransformationController _transformationController;
   late TapGestureRecognizer _tapGestureRecognizer;
+
+  bool _showMetadata = true;
+  bool _isZoomed = false;
 
   @override
   void initState() {
     super.initState();
+    _images = widget.initialImages != null && widget.initialImages!.isNotEmpty
+        ? widget.initialImages!
+        : [widget.milItem];
+
+    final foundIndex = _images.indexWhere(
+      (item) => item.milId == widget.milItem.milId,
+    );
+    _currentIndex = foundIndex >= 0 ? foundIndex : 0;
+    _pageController = PageController(initialPage: _currentIndex);
+
+    _transformationController = TransformationController()
+      ..addListener(_onTransformationChanged);
+
     _tapGestureRecognizer = TapGestureRecognizer()
       ..onTap = () {
         launchURL(milUrl);
       };
+
+    if (widget.initialImages == null) {
+      _loadSpeciesImages();
+    }
   }
 
   @override
   void dispose() {
+    _transformationController.removeListener(_onTransformationChanged);
+    _transformationController.dispose();
+    _pageController.dispose();
     _tapGestureRecognizer.dispose();
     super.dispose();
   }
 
+  void _onTransformationChanged() {
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    final isZoomed = scale > 1.05;
+    if (isZoomed != _isZoomed) {
+      setState(() {
+        _isZoomed = isZoomed;
+      });
+    }
+  }
+
+  Future<void> _loadSpeciesImages() async {
+    try {
+      final db = ref.read(databaseProvider);
+      final query = MddQuery(db);
+      final speciesImages =
+          await query.getMilImagesForSpecies(widget.milItem.mddId);
+      if (mounted && speciesImages.isNotEmpty) {
+        final newIndex = speciesImages.indexWhere(
+          (item) => item.milId == widget.milItem.milId,
+        );
+        setState(() {
+          _images = speciesImages;
+          _currentIndex = newIndex >= 0 ? newIndex : 0;
+        });
+        if (newIndex >= 0 && _pageController.hasClients) {
+          _pageController.jumpToPage(_currentIndex);
+        }
+      }
+    } catch (_) {
+      // Database unavailable or error during load fallback
+    }
+  }
+
+  void _nextPage() {
+    if (_currentIndex < _images.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _previousPage() {
+    if (_currentIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final item = widget.milItem;
+    final item = _images[_currentIndex];
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -74,35 +157,128 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                   _showMetadata = !_showMetadata;
                 });
               },
-              child: Center(
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 4.0,
-                  child: Image.asset(
-                    'assets/mil-images/${item.milId}.webp',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.broken_image,
-                            size: 80,
-                            color: colorScheme.onSurfaceVariant.withAlpha(128),
+              child: PageView.builder(
+                controller: _pageController,
+                physics: _isZoomed
+                    ? const NeverScrollableScrollPhysics()
+                    : const BouncingScrollPhysics(),
+                itemCount: _images.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                    _transformationController.value = Matrix4.identity();
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final currentItem = _images[index];
+                  return Center(
+                    child: InteractiveViewer(
+                      transformationController: index == _currentIndex
+                          ? _transformationController
+                          : null,
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: Image.asset(
+                        'assets/mil-images/${currentItem.milId}.webp',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image,
+                                size: 80,
+                                color:
+                                    colorScheme.onSurfaceVariant.withAlpha(128),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Image not available',
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Image not available',
-                            style:
-                                TextStyle(color: colorScheme.onSurfaceVariant),
-                          ),
-                        ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (_images.length > 1) ...[
+              if (_currentIndex > 0)
+                Positioned(
+                  left: 12,
+                  top: 0,
+                  bottom: _showMetadata ? 180 : 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      backgroundColor: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.85),
+                      radius: 20,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.chevron_left,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        padding: EdgeInsets.zero,
+                        onPressed: _previousPage,
+                        tooltip: 'Previous Image',
                       ),
                     ),
                   ),
                 ),
+              if (_currentIndex < _images.length - 1)
+                Positioned(
+                  right: 12,
+                  top: 0,
+                  bottom: _showMetadata ? 180 : 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      backgroundColor: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.85),
+                      radius: 20,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        padding: EdgeInsets.zero,
+                        onPressed: _nextPage,
+                        tooltip: 'Next Image',
+                      ),
+                    ),
+                  ),
+                ),
+              Positioned(
+                bottom: _showMetadata ? 190 : 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        colorScheme.surfaceContainerHigh.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withAlpha(140),
+                    ),
+                  ),
+                  child: Text(
+                    '${_currentIndex + 1} / ${_images.length}',
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
             if (_showMetadata)
               Positioned(
                 left: 0,
@@ -194,7 +370,8 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                     label: const Text(
                                       'View Species',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     onPressed: () {
                                       ref
@@ -216,41 +393,41 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                     colorScheme.outlineVariant.withAlpha(140),
                                 height: 24,
                               ),
-                              _buildInfoRow(
-                                'Photographer',
-                                item.photographer,
-                                colorScheme,
-                                Icons.camera_alt_outlined,
+                              _InfoRow(
+                                label: 'Photographer',
+                                value: item.photographer,
+                                colorScheme: colorScheme,
+                                icon: Icons.camera_alt_outlined,
                               ),
-                              _buildInfoRow(
-                                'Location',
-                                item.location,
-                                colorScheme,
-                                Icons.location_on_outlined,
+                              _InfoRow(
+                                label: 'Location',
+                                value: item.location,
+                                colorScheme: colorScheme,
+                                icon: Icons.location_on_outlined,
                               ),
-                              _buildInfoRow(
-                                'Date taken',
-                                item.dateTaken,
-                                colorScheme,
-                                Icons.calendar_today_outlined,
+                              _InfoRow(
+                                label: 'Date taken',
+                                value: item.dateTaken,
+                                colorScheme: colorScheme,
+                                icon: Icons.calendar_today_outlined,
                               ),
-                              _buildInfoRow(
-                                'Description',
-                                item.description,
-                                colorScheme,
-                                Icons.notes_outlined,
+                              _InfoRow(
+                                label: 'Description',
+                                value: item.description,
+                                colorScheme: colorScheme,
+                                icon: Icons.notes_outlined,
                               ),
-                              _buildInfoRow(
-                                'Distribution',
-                                item.distribution,
-                                colorScheme,
-                                Icons.map_outlined,
+                              _InfoRow(
+                                label: 'Distribution',
+                                value: item.distribution,
+                                colorScheme: colorScheme,
+                                icon: Icons.map_outlined,
                               ),
-                              _buildInfoRow(
-                                'MIL ID',
-                                item.milId,
-                                colorScheme,
-                                Icons.tag,
+                              _InfoRow(
+                                label: 'MIL ID',
+                                value: item.milId,
+                                colorScheme: colorScheme,
+                                icon: Icons.tag,
                               ),
                               if (item.isUncertainIdentification == 1)
                                 Container(
@@ -297,7 +474,8 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                   ),
                                   children: [
                                     const TextSpan(
-                                        text: 'Image courtesy of the '),
+                                      text: 'Image courtesy of the ',
+                                    ),
                                     TextSpan(
                                       text: 'ASM Mammal Images Library',
                                       style: TextStyle(
@@ -326,14 +504,26 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
       ),
     );
   }
+}
 
-  Widget _buildInfoRow(
-    String label,
-    String? value,
-    ColorScheme colorScheme,
-    IconData icon,
-  ) {
-    if (value == null || value.trim().isEmpty || value.toUpperCase() == 'NA') {
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.colorScheme,
+    required this.icon,
+  });
+
+  final String label;
+  final String? value;
+  final ColorScheme colorScheme;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    if (value == null ||
+        value!.trim().isEmpty ||
+        value!.toUpperCase() == 'NA') {
       return const SizedBox.shrink();
     }
     return Padding(
@@ -361,7 +551,7 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
           const Text(": "),
           Expanded(
             child: Text(
-              value,
+              value!,
               style: TextStyle(
                 color: colorScheme.onSurface,
                 fontSize: 13,

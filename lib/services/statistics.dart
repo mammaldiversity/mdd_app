@@ -110,8 +110,7 @@ class StatisticsService {
         await mddQuery.statLivingWildSpeciesCount().getSingle();
     final totalSynonymsCount =
         await mddQuery.statTotalSynonymsCount().getSingle();
-    final totalImagesCount =
-        await mddQuery.statTotalImagesCount().getSingle();
+    final totalImagesCount = await mddQuery.statTotalImagesCount().getSingle();
 
     return MddStatistics(
       speciesPerOrder: speciesPerOrder,

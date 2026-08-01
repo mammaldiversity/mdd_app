@@ -467,9 +467,7 @@ class SpeciesTile extends ConsumerWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                ref
-                    .read(currentMddIDProvider.notifier)
-                    .setMddID(taxonData.id);
+                ref.read(currentMddIDProvider.notifier).setMddID(taxonData.id);
                 Navigator.push(
                   context,
                   MaterialPageRoute<void>(

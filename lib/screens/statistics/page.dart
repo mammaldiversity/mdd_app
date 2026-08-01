@@ -82,19 +82,36 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       ),
                       ChartCard(
                         title: 'Species Diversity by Country (Top 15)',
-                        action: IconButton(
-                          icon: const Icon(Icons.table_chart_outlined),
-                          tooltip: 'View All Country Statistics',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CountryTablePage(),
-                              ),
-                            );
-                          },
-                        ),
                         chart: CountryBarChart(stats: stats),
+                        footer: Center(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const CountryTablePage(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.table_chart_outlined,
+                              size: 18,
+                            ),
+                            label: const Text('View Full Country Table'),
+                            style: OutlinedButton.styleFrom(
+                              elevation: 0,
+                              side: BorderSide(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),

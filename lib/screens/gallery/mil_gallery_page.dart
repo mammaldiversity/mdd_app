@@ -161,7 +161,8 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                           color: colorScheme.onSurfaceVariant.withAlpha(180),
                           fontSize: 14,
                         ),
-                        prefixIcon: Icon(Icons.search, color: colorScheme.primary),
+                        prefixIcon:
+                            Icon(Icons.search, color: colorScheme.primary),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -230,7 +231,8 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                                     color: colorScheme.surfaceContainerLow,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: colorScheme.outlineVariant.withAlpha(120),
+                                      color: colorScheme.outlineVariant
+                                          .withAlpha(120),
                                     ),
                                   ),
                                   child: Icon(
@@ -244,7 +246,10 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                                   _searchQuery.isNotEmpty
                                       ? 'No MIL images found matching "$_searchQuery"'
                                       : 'No MIL images available',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
                                         fontWeight: FontWeight.w600,
                                       ),
                                   textAlign: TextAlign.center,
@@ -258,7 +263,8 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
                         sliver: SliverGrid(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,

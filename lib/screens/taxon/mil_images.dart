@@ -1,11 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/services/database/database.dart';
-import 'package:mdd/services/essential_url.dart';
-import 'package:mdd/services/providers/species.dart';
+import 'package:mdd/screens/gallery/mil_full_screen_view.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/app_services.dart';
+import 'package:mdd/services/database/database.dart'
+    hide RandomMilImagesWithTaxonomyResult;
+import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/essential_url.dart';
+import 'package:mdd/services/providers/species.dart';
 
 class MilImagesWidget extends ConsumerWidget {
   const MilImagesWidget({super.key});
@@ -23,15 +26,16 @@ class MilImagesWidget extends ConsumerWidget {
   }
 }
 
-class MilImagesViewer extends StatefulWidget {
+class MilImagesViewer extends ConsumerStatefulWidget {
   const MilImagesViewer({super.key, required this.data});
+
   final List<MilDataData> data;
 
   @override
-  State<MilImagesViewer> createState() => _MilImagesViewerState();
+  ConsumerState<MilImagesViewer> createState() => _MilImagesViewerState();
 }
 
-class _MilImagesViewerState extends State<MilImagesViewer> {
+class _MilImagesViewerState extends ConsumerState<MilImagesViewer> {
   int _currentIndex = 0;
 
   void _nextImage() {
@@ -47,6 +51,44 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
     });
   }
 
+  void _openFullScreenView() {
+    final taxon = ref.read(taxonDataProvider).value;
+    final initialImages = widget.data
+        .map(
+          (mil) => RandomMilImagesWithTaxonomyResult(
+            milId: mil.milId,
+            mddId: mil.mddId,
+            description: mil.description,
+            photographer: mil.photographer,
+            location: mil.location,
+            distribution: mil.distribution,
+            dateTaken: mil.dateTaken,
+            orientation: mil.orientation,
+            isUncertainIdentification: mil.isUncertainIdentification,
+            genus: taxon?.genus,
+            specificEpithet: taxon?.specificEpithet,
+            mainCommonName: taxon?.mainCommonName,
+          ),
+        )
+        .toList();
+
+    final currentMil = widget.data[_currentIndex];
+    final currentItem = initialImages.firstWhere(
+      (img) => img.milId == currentMil.milId,
+      orElse: () => initialImages.first,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => MilFullScreenView(
+          milItem: currentItem,
+          initialImages: initialImages,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mil = widget.data[_currentIndex];
@@ -59,7 +101,10 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
           Stack(
             alignment: Alignment.center,
             children: [
-              MilImage(mil: mil),
+              GestureDetector(
+                onTap: _openFullScreenView,
+                child: MilImage(mil: mil),
+              ),
               if (widget.data.length > 1) ...[
                 Positioned(
                   left: 8,
@@ -121,6 +166,7 @@ class _MilImagesViewerState extends State<MilImagesViewer> {
 
 class MilImage extends StatelessWidget {
   const MilImage({super.key, required this.mil});
+
   final MilDataData mil;
 
   @override
@@ -145,6 +191,7 @@ class MilImage extends StatelessWidget {
 
 class MilMetadataView extends StatefulWidget {
   const MilMetadataView({super.key, required this.mil});
+
   final MilDataData mil;
 
   @override
@@ -186,8 +233,14 @@ class _MilMetadataViewState extends State<MilMetadataView> {
         children: [
           MilMetadataRow(label: 'Location', value: widget.mil.location),
           MilMetadataRow(label: 'Date taken', value: widget.mil.dateTaken),
-          MilMetadataRow(label: 'Description', value: widget.mil.description),
-          MilMetadataRow(label: 'Distribution', value: widget.mil.distribution),
+          MilMetadataRow(
+            label: 'Description',
+            value: widget.mil.description,
+          ),
+          MilMetadataRow(
+            label: 'Distribution',
+            value: widget.mil.distribution,
+          ),
           const SizedBox(height: 12),
           RichText(
             text: TextSpan(
@@ -213,6 +266,7 @@ class _MilMetadataViewState extends State<MilMetadataView> {
 
 class MilMetadataRow extends StatelessWidget {
   const MilMetadataRow({super.key, required this.label, required this.value});
+
   final String label;
   final String? value;
 

@@ -47,5 +47,23 @@ void main() {
       // Verify the CommonCard renders its title
       expect(find.text('Layout Test'), findsOneWidget);
     });
+
+    testWidgets('renders footer widget when provided', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ChartCard(
+              title: 'Footer Test',
+              chart: SizedBox(),
+              footer: Text('Footer Action Button'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Footer Action Button'), findsOneWidget);
+    });
   });
 }

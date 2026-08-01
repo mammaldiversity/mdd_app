@@ -129,6 +129,12 @@ final milDataFamilyProvider = FutureProvider.family<List<db.MilDataData>, int>((
   return MddQuery(ref.watch(databaseProvider)).retrieveMilData(mddID);
 });
 
+final speciesMilImagesProvider =
+    FutureProvider.family<List<RandomMilImagesWithTaxonomyResult>, int>(
+        (ref, mddId) async {
+  return MddQuery(ref.watch(databaseProvider)).getMilImagesForSpecies(mddId);
+});
+
 final milDataProvider =
     AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
   () => MilDataNotifier(),
