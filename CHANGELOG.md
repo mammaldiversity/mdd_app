@@ -3,12 +3,23 @@
 All notable changes to this project will be documented in this file.
 
 
-## [v1.2.0]
+## [v1.3.0] - 2026-08-01
 
 ### Added
 - Add total synonym and image counts to the home page statistics overview section.
 - Add app release remarks to the Release Notes page.
 - Incremental MDD v2.5 updates.
+
+## [v1.2.0] - 2026-07-21
+
+### Added
+
+- Incremental MIL image updates
+- Add country table
+
+### Chores
+
+- Update dependencies
 
 ## [v1.1.1] - 2026-06-23
 
