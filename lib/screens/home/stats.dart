@@ -36,10 +36,7 @@ class MddStatistics extends ConsumerWidget {
                 children: [
                   Text(
                     'Mammal Diversity Statistics',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
@@ -214,11 +211,11 @@ class SpeciesDetailedStatCard extends StatelessWidget {
               children: [
                 SpeciesSubStats(label: 'Living', value: living),
                 SpeciesSubStats(label: 'Living Wild', value: livingWild),
+                SpeciesSubStats(label: 'Domestic', value: domestic),
                 SpeciesSubStats(
                   label: 'Recently Extinct',
                   value: recentlyExtinct,
                 ),
-                SpeciesSubStats(label: 'Domestic', value: domestic),
               ],
             ),
           ],

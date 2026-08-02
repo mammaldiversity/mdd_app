@@ -8,8 +8,6 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/database.dart';
 
-import 'package:mdd/screens/home/top_countries.dart';
-
 class DatabaseSearch extends ConsumerWidget {
   const DatabaseSearch({super.key});
 
@@ -22,8 +20,6 @@ class DatabaseSearch extends ConsumerWidget {
         HomeSearchBar(),
         SizedBox(height: 16),
         MddStatistics(),
-        SizedBox(height: 16),
-        TopCountriesWidget(),
         SizedBox(height: 16),
         DatabaseInfo(),
       ],
