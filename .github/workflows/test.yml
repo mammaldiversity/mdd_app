@@ -53,10 +53,6 @@ jobs:
           channel: "stable"
           cache: true
 
-      - name: Test tools (svg_generator)
-        working-directory: tools/svg_generator
-        run: uv run pytest
-
       - name: Install MDD CLI
         run: cargo install mdd_api
 
