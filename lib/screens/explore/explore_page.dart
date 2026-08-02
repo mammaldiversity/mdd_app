@@ -181,7 +181,7 @@ class FamilyGroups extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  Icons.folder_outlined,
+                  Icons.list_outlined,
                   size: 20,
                   color: colorScheme.secondary,
                 ),
@@ -248,8 +248,8 @@ class GenusGroup extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               leading: Icon(
                 Icons.label_outlined,
-                size: 18,
-                color: colorScheme.tertiary,
+                size: 24,
+                color: colorScheme.outlineVariant,
               ),
               title: Text(
                 entry.key,

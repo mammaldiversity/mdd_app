@@ -22,7 +22,7 @@ class SpeciesPage extends ConsumerWidget {
         child: Center(
           child: ref.watch(taxonDataProvider).when(
                 data: (TaxonomyData taxonData) {
-                  return SelectionArea(child: TaxonForm(taxonData: taxonData));
+                  return TaxonForm(taxonData: taxonData);
                 },
                 loading: () => const SimpleLoadingOnly(),
                 error: (Object error, StackTrace stackTrace) {
@@ -50,15 +50,19 @@ class TaxonForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SpeciesDetails(taxonData: taxonData),
+              SelectionArea(
+                child: SpeciesDetails(taxonData: taxonData),
+              ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      OtherDetailsResponsive(taxonData: taxonData),
-                      const SizedBox(height: 16),
-                      const CorrectionRequest(),
-                    ],
+                  child: SelectionArea(
+                    child: Column(
+                      children: [
+                        OtherDetailsResponsive(taxonData: taxonData),
+                        const SizedBox(height: 16),
+                        const CorrectionRequest(),
+                      ],
+                    ),
                   ),
                 ),
               ),

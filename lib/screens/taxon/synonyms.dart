@@ -198,20 +198,20 @@ class SynonymSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final SynonymName synonymObj = SynonymName(data: data);
     final ({String authorYear, String name}) synName = synonymObj.getSynonym();
-    return SelectionArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          SynonymTitle(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SelectionArea(
+          child: SynonymTitle(
             synName: synName.name,
             authorYear: synName.authorYear,
             separator: synonymObj.getAuthoritySeparator(),
           ),
-          Flexible(child: OtherSynonymData(data: data)),
-        ],
-      ),
+        ),
+        Flexible(child: OtherSynonymData(data: data)),
+      ],
     );
   }
 }
@@ -267,43 +267,50 @@ class OtherSynonymData extends StatelessWidget {
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
-          ContentText(title: "Family", content: data.family),
-          ContentText(
-            title: "Root name",
-            content: data.rootName,
-            isItalic: true,
+          SelectionArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ContentText(title: "Family", content: data.family),
+                ContentText(
+                  title: "Root name",
+                  content: data.rootName,
+                  isItalic: true,
+                ),
+                ContentText(title: "Validity status", content: data.validity),
+                ContentText(
+                  title: "Nomenclatural status",
+                  content: data.nomenclatureStatus,
+                ),
+                ContentText(title: "Type", content: data.holotype),
+                ContentText(title: "Type kind", content: data.typeKind),
+                ContentText(
+                  title: "Original type locality",
+                  content: data.originalTypeLocality,
+                ),
+                ContentText(
+                  title: "Type locality",
+                  content: SynonymName(data: data).createStructuredTypeLocality(),
+                ),
+                ContentText(
+                  title: "Type specimen URI",
+                  content: data.typeSpecimenLink,
+                  isUrl: true,
+                ),
+                ContentText(title: "Authority page", content: data.authorityPage),
+                ContentText(
+                  title: "Authority page URI",
+                  content: data.authorityPageLink,
+                  isUrl: true,
+                ),
+                ContentText(
+                  title: "Authority publication",
+                  content: data.citationGroup,
+                ),
+                NameUsageList(content: data.nameUsages),
+              ],
+            ),
           ),
-          ContentText(title: "Validity status", content: data.validity),
-          ContentText(
-            title: "Nomenclatural status",
-            content: data.nomenclatureStatus,
-          ),
-          ContentText(title: "Type", content: data.holotype),
-          ContentText(title: "Type kind", content: data.typeKind),
-          ContentText(
-            title: "Original type locality",
-            content: data.originalTypeLocality,
-          ),
-          ContentText(
-            title: "Type locality",
-            content: SynonymName(data: data).createStructuredTypeLocality(),
-          ),
-          ContentText(
-            title: "Type specimen URI",
-            content: data.typeSpecimenLink,
-            isUrl: true,
-          ),
-          ContentText(title: "Authority page", content: data.authorityPage),
-          ContentText(
-            title: "Authority page URI",
-            content: data.authorityPageLink,
-            isUrl: true,
-          ),
-          ContentText(
-            title: "Authority publication",
-            content: data.citationGroup,
-          ),
-          NameUsageList(content: data.nameUsages),
         ],
       ),
     );
