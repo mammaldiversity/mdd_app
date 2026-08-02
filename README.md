@@ -8,9 +8,11 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- More MIL Photos: Added new photos to the Mammal Images Library collection.
-- Country Tables: Introduced country distribution tables for regional species data.
-- Minor performance improvements.
+- New Mammal Image Gallery: Access the new image gallery tab featuring searchable images complete with a full-screen metadata.
+- Enhanced Stats Overview: The home page now displays total synonym and image counts.
+- Design Upgrades: Refined UI elements for a smoother, cleaner user experience.
+- MDD v2.5 Updates: Includes incremental data updates
+- Bug fixes and performance optimizations.
 
 ## Installation
 
