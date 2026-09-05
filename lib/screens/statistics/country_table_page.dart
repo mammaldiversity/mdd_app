@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/info_card.dart';
+import 'package:mdd/screens/statistics/chart_export_dialog.dart';
 import 'package:mdd/screens/statistics/country_species_page.dart';
+import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/statistics.dart';
+import 'package:mdd/services/system.dart';
 
 class CountryTablePage extends ConsumerStatefulWidget {
   const CountryTablePage({super.key});
@@ -30,6 +33,72 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
       _sortColumnIndex = columnIndex;
       _sortAscending = ascending;
     });
+  }
+
+  Future<void> _exportData(List<CountryDiversityData> dataToExport) async {
+    final ExportSettings? settings = await showDialog<ExportSettings>(
+      context: context,
+      builder: (context) => const ChartExportDialog(
+        defaultFileName: 'mammal_diversity_by_country',
+      ),
+    );
+
+    if (settings != null && mounted) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+
+      const headers = [
+        'Country',
+        'Orders',
+        'Families',
+        'Genera',
+        'Living Species',
+        'Extinct Species',
+        'Total Species',
+      ];
+      final rows = dataToExport
+          .map(
+            (c) => [
+              c.countryName,
+              c.totalOrders,
+              c.totalFamilies,
+              c.totalGenera,
+              c.totalLivingSpecies,
+              c.totalExtinctSpecies,
+              c.totalSpecies,
+            ],
+          )
+          .toList();
+
+      final exporter = TableDataExporter(
+        fileName: settings.fileName,
+        format: settings.format,
+        headers: headers,
+        rows: rows,
+      );
+
+      try {
+        final result = await exporter.write(context);
+        final platformType = getPlatformType();
+        if (platformType == PlatformType.desktop && mounted && result != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(seconds: 10),
+              content: Text('Done! File saved as $result'),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(seconds: 10),
+              content: Text('Failed to export: $e'),
+            ),
+          );
+        }
+      }
+    }
   }
 
   List<CountryDiversityData> _filterAndSort(
@@ -116,6 +185,17 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mammal Diversity by Country'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined),
+            tooltip: 'Export Table Data',
+            onPressed: () {
+              countryStatsAsync.whenData((allCountries) {
+                _exportData(_filterAndSort(allCountries));
+              });
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: countryStatsAsync.when(

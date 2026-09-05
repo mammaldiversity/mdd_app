@@ -1,24 +1,25 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:mdd/services/statistics.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/statistics.dart';
 
 class DecadeBarChart extends StatelessWidget {
-  final MddStatistics stats;
-
   const DecadeBarChart({super.key, required this.stats});
+
+  final MddStatistics stats;
 
   @override
   Widget build(BuildContext context) {
     if (stats.discoveryDecade.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryDecadeResult> data = stats.discoveryDecade;
-    double maxY =
+    final double maxY =
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
-    final textColor = Theme.of(context).colorScheme.onSurface;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textColor = colorScheme.onSurface;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final requiredWidth = data.length * (8.0 + 4.0) + 50.0;
+        final requiredWidth = data.length * (12.0 + 6.0) + 50.0;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -32,12 +33,18 @@ class DecadeBarChart extends StatelessWidget {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.center,
-                  groupsSpace: 4,
-                  maxY: maxY * 1.1,
+                  groupsSpace: 6,
+                  maxY: maxY * 1.15,
                   barTouchData: BarTouchData(
                     enabled: true,
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (group) => Colors.blueGrey.shade800,
+                      getTooltipColor: (group) =>
+                          colorScheme.surfaceContainerHighest,
+                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       fitInsideHorizontally: true,
                       fitInsideVertically: true,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
@@ -45,17 +52,17 @@ class DecadeBarChart extends StatelessWidget {
                             '${data[group.x.toInt()].decade?.toInt() ?? 0}s';
                         return BarTooltipItem(
                           '$xAxisLabel\n',
-                          const TextStyle(
-                            color: Colors.white70,
+                          TextStyle(
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 12,
-                            fontWeight: FontWeight.normal,
+                            fontWeight: FontWeight.w500,
                           ),
                           children: [
                             TextSpan(
-                              text: '${rod.toY.toInt()}',
+                              text: '${rod.toY.toInt()} descriptions',
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                                color: Colors.deepOrange,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -78,49 +85,58 @@ class DecadeBarChart extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Transform.rotate(
-                              angle: -0.8,
+                              angle: -0.7,
                               child: Text(
                                 '${data[index].decade?.toInt() ?? 0}s',
                                 style: TextStyle(
                                   fontSize: 10,
+                                  fontWeight: FontWeight.w500,
                                   color: textColor,
                                 ),
                               ),
                             ),
                           );
                         },
-                        reservedSize: 40,
+                        reservedSize: 48,
                       ),
                     ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 50,
+                        reservedSize: 46,
                         interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
                         getTitlesWidget: (value, meta) {
                           return SideTitleWidget(
                             meta: meta,
                             child: Text(
                               value.toInt().toString(),
-                              style: TextStyle(fontSize: 10, color: textColor),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           );
                         },
                       ),
                     ),
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 24,
-                        getTitlesWidget: (value, meta) =>
-                            const SizedBox.shrink(),
-                      ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  gridData: const FlGridData(show: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval:
+                        maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                      strokeWidth: 1,
+                      dashArray: [4, 4],
+                    ),
+                  ),
                   borderData: FlBorderData(show: false),
                   barGroups: data.asMap().entries.map((e) {
                     return BarChartGroupData(
@@ -128,9 +144,18 @@ class DecadeBarChart extends StatelessWidget {
                       barRods: [
                         BarChartRodData(
                           toY: e.value.count.toDouble(),
-                          color: Colors.orangeAccent,
-                          width: 8,
-                          borderRadius: BorderRadius.circular(2),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Colors.orange,
+                              Color(0xFFFFB74D),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          width: 10,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
                         ),
                       ],
                     );

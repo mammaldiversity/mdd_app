@@ -7,6 +7,8 @@ class ChartCard extends StatelessWidget {
   final double height;
   final Widget? action;
   final Widget? footer;
+  final VoidCallback? onViewTable;
+  final String viewTableLabel;
 
   const ChartCard({
     super.key,
@@ -15,15 +17,63 @@ class ChartCard extends StatelessWidget {
     this.height = 300,
     this.action,
     this.footer,
+    this.onViewTable,
+    this.viewTableLabel = 'View Full Table',
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    Widget? headerAction;
+    if (action != null && onViewTable != null) {
+      headerAction = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          action!,
+          IconButton(
+            icon: const Icon(Icons.table_chart_outlined, size: 20),
+            tooltip: 'View Full Table',
+            onPressed: onViewTable,
+          ),
+        ],
+      );
+    } else if (action != null) {
+      headerAction = action;
+    } else if (onViewTable != null) {
+      headerAction = IconButton(
+        icon: const Icon(Icons.table_chart_outlined, size: 20),
+        tooltip: 'View Full Table',
+        onPressed: onViewTable,
+      );
+    }
+
+    Widget? effectiveFooter = footer;
+    if (effectiveFooter == null && onViewTable != null) {
+      effectiveFooter = Center(
+        child: OutlinedButton.icon(
+          onPressed: onViewTable,
+          icon: const Icon(
+            Icons.table_chart_outlined,
+            size: 18,
+          ),
+          label: Text(viewTableLabel),
+          style: OutlinedButton.styleFrom(
+            elevation: 0,
+            side: BorderSide(
+              color: colorScheme.outlineVariant,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      );
+    }
+
     return CommonCard(
       title: title,
-      action: action,
+      action: headerAction,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -37,9 +87,9 @@ class ChartCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: height, child: chart),
-            if (footer != null) ...[
+            if (effectiveFooter != null) ...[
               const SizedBox(height: 12),
-              footer!,
+              effectiveFooter,
             ],
           ],
         ),

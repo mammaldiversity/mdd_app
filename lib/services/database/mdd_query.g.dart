@@ -12,7 +12,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT id, taxonOrder, family, genus FROM taxonomy',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => MddGroupListResult(
           id: row.read<int>('id'),
           taxonOrder: row.readNullable<String>('taxonOrder'),
@@ -26,7 +26,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT taxonOrder AS name, COUNT(*) AS count FROM taxonomy GROUP BY taxonOrder ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesPerOrderResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -35,10 +35,10 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
 
   Selectable<StatSpeciesPerFamilyResult> statSpeciesPerFamily() {
     return customSelect(
-        'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC LIMIT 15',
+        'SELECT family AS name, COUNT(*) AS count FROM taxonomy GROUP BY family ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesPerFamilyResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -50,7 +50,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT iucnStatus AS name, COUNT(*) AS count FROM taxonomy WHERE iucnStatus IS NOT NULL AND iucnStatus != \'\' GROUP BY iucnStatus ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesByIucnStatusResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -63,7 +63,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT(authoritySpeciesYear / 10)* 10 AS decade, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY decade ORDER BY decade ASC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesByDiscoveryDecadeResult(
           decade: row.readNullable<int>('decade'),
           count: row.read<int>('count'),
@@ -75,7 +75,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT extinct AS isExtinct, COUNT(*) AS count FROM taxonomy GROUP BY extinct',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatExtinctSpeciesResult(
           isExtinct: row.readNullable<int>('isExtinct'),
           count: row.read<int>('count'),
@@ -87,7 +87,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT domestic AS isDomestic, COUNT(*) AS count FROM taxonomy GROUP BY domestic',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatDomesticSpeciesResult(
           isDomestic: row.readNullable<int>('isDomestic'),
           count: row.read<int>('count'),
@@ -100,7 +100,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT biogeographicRealm AS name, COUNT(*) AS count FROM taxonomy WHERE biogeographicRealm IS NOT NULL AND biogeographicRealm != \'\' AND biogeographicRealm != \'NA\' GROUP BY biogeographicRealm ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesByBiogeographicRealmResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -112,17 +112,17 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT countryDistribution FROM taxonomy WHERE countryDistribution IS NOT NULL AND countryDistribution != \'\'',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map(
         (QueryRow row) => row.readNullable<String>('countryDistribution'));
   }
 
   Selectable<StatSpeciesPerGenusResult> statSpeciesPerGenus() {
     return customSelect(
-        'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC LIMIT 15',
+        'SELECT genus AS name, COUNT(*) AS count FROM taxonomy GROUP BY genus ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesPerGenusResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -131,10 +131,10 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
 
   Selectable<StatSpeciesByDiscoveryYearResult> statSpeciesByDiscoveryYear() {
     return customSelect(
-        'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC LIMIT 15',
+        'SELECT authoritySpeciesYear AS year, COUNT(*) AS count FROM taxonomy WHERE authoritySpeciesYear IS NOT NULL AND authoritySpeciesYear > 0 GROUP BY year ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatSpeciesByDiscoveryYearResult(
           year: row.readNullable<int>('year'),
           count: row.read<int>('count'),
@@ -146,8 +146,8 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName FROM milData INNER JOIN taxonomy ON milData.mddId = taxonomy.id ORDER BY RANDOM() LIMIT 15',
         variables: [],
         readsFrom: {
-          taxonomy,
-          milData,
+          this.taxonomy,
+          this.milData,
         }).map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
           milId: row.read<String>('milId'),
           mddId: row.read<int>('mddId'),
@@ -167,11 +167,11 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
 
   Selectable<StatSpeciesWithMostImagesResult> statSpeciesWithMostImages() {
     return customSelect(
-        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC LIMIT 15',
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(milData.milId) AS imageCount FROM taxonomy INNER JOIN milData ON taxonomy.id = milData.mddId GROUP BY taxonomy.id ORDER BY imageCount DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
-          milData,
+          this.taxonomy,
+          this.milData,
         }).map((QueryRow row) => StatSpeciesWithMostImagesResult(
           genus: row.readNullable<String>('genus'),
           specificEpithet: row.readNullable<String>('specificEpithet'),
@@ -183,7 +183,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(DISTINCT mddId) AS count FROM milData',
         variables: [],
         readsFrom: {
-          milData,
+          this.milData,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -191,7 +191,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(id) AS count FROM taxonomy',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -200,7 +200,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT COUNT(DISTINCT taxonOrder) AS count FROM taxonomy',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -208,7 +208,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(DISTINCT family) AS count FROM taxonomy',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -216,7 +216,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(DISTINCT genus) AS count FROM taxonomy',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -225,17 +225,17 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT COUNT(id) AS count FROM taxonomy WHERE extinct = 0 AND domestic = 0',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
   Selectable<StatSpeciesWithMostSynonymsResult> statSpeciesWithMostSynonyms() {
     return customSelect(
-        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC LIMIT 15',
+        'SELECT taxonomy.genus, taxonomy.specificEpithet, COUNT(synonym.synId) AS count FROM taxonomy INNER JOIN synonym ON taxonomy.id = synonym.speciesId GROUP BY taxonomy.id ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
-          synonym,
+          this.taxonomy,
+          this.synonym,
         }).map((QueryRow row) => StatSpeciesWithMostSynonymsResult(
           genus: row.readNullable<String>('genus'),
           specificEpithet: row.readNullable<String>('specificEpithet'),
@@ -248,7 +248,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
         'SELECT typeKind AS name, COUNT(*) AS count FROM taxonomy WHERE typeKind IS NOT NULL AND typeKind != \'\' AND typeKind != \'NA\' GROUP BY typeKind ORDER BY count DESC',
         variables: [],
         readsFrom: {
-          taxonomy,
+          this.taxonomy,
         }).map((QueryRow row) => StatTypeKindProportionResult(
           name: row.readNullable<String>('name'),
           count: row.read<int>('count'),
@@ -259,7 +259,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(*) AS count FROM synonym',
         variables: [],
         readsFrom: {
-          synonym,
+          this.synonym,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 
@@ -267,7 +267,7 @@ mixin _$MddQueryMixin on DatabaseAccessor<AppDatabase> {
     return customSelect('SELECT COUNT(*) AS count FROM milData',
         variables: [],
         readsFrom: {
-          milData,
+          this.milData,
         }).map((QueryRow row) => row.read<int>('count'));
   }
 

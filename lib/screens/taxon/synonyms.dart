@@ -290,14 +290,16 @@ class OtherSynonymData extends StatelessWidget {
                 ),
                 ContentText(
                   title: "Type locality",
-                  content: SynonymName(data: data).createStructuredTypeLocality(),
+                  content:
+                      SynonymName(data: data).createStructuredTypeLocality(),
                 ),
                 ContentText(
                   title: "Type specimen URI",
                   content: data.typeSpecimenLink,
                   isUrl: true,
                 ),
-                ContentText(title: "Authority page", content: data.authorityPage),
+                ContentText(
+                    title: "Authority page", content: data.authorityPage),
                 ContentText(
                   title: "Authority page URI",
                   content: data.authorityPageLink,

@@ -393,13 +393,6 @@ class SearchFilterView {
   }
 }
 
-class ExportSettings {
-  final String fileName;
-  final ExportFormat format;
-
-  ExportSettings({required this.fileName, required this.format});
-}
-
 class ExportDialog extends StatefulWidget {
   const ExportDialog({super.key});
 
@@ -441,6 +434,7 @@ class _ExportDialogState extends State<ExportDialog> {
           SegmentedButton<ExportFormat>(
             segments: const [
               ButtonSegment(value: ExportFormat.csv, label: Text('CSV')),
+              ButtonSegment(value: ExportFormat.tsv, label: Text('TSV')),
               ButtonSegment(value: ExportFormat.json, label: Text('JSON')),
             ],
             selected: {_format},
