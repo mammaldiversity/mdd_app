@@ -29,4 +29,11 @@ linter:
 analyzer:
   plugins:
     - custom_lint
-  exclude: [rust_builder/**]
+  exclude:
+    - rust_builder/**
+    - build/**
+    - android/**
+    - ios/**
+    - windows/**
+    - macos/**
+    - linux/**
