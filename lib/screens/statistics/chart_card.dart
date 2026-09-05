@@ -18,35 +18,14 @@ class ChartCard extends StatelessWidget {
     this.action,
     this.footer,
     this.onViewTable,
-    this.viewTableLabel = 'View Full Table',
+    this.viewTableLabel = 'View Table',
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    Widget? headerAction;
-    if (action != null && onViewTable != null) {
-      headerAction = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          action!,
-          IconButton(
-            icon: const Icon(Icons.table_chart_outlined, size: 20),
-            tooltip: 'View Full Table',
-            onPressed: onViewTable,
-          ),
-        ],
-      );
-    } else if (action != null) {
-      headerAction = action;
-    } else if (onViewTable != null) {
-      headerAction = IconButton(
-        icon: const Icon(Icons.table_chart_outlined, size: 20),
-        tooltip: 'View Full Table',
-        onPressed: onViewTable,
-      );
-    }
+    final Widget? headerAction = action;
 
     Widget? effectiveFooter = footer;
     if (effectiveFooter == null && onViewTable != null) {

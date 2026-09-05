@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/statistics.dart';
 
 class CountryBarChart extends StatefulWidget {
@@ -37,6 +38,7 @@ class _CountryBarChartState extends State<CountryBarChart> {
         data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getCountryColor(context);
 
     return Column(
       children: [
@@ -105,7 +107,7 @@ class _CountryBarChartState extends State<CountryBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -118,15 +120,16 @@ class _CountryBarChartState extends State<CountryBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 children: [
                                   TextSpan(
                                     text: '${rod.toY.toInt()} species',
-                                    style: const TextStyle(
-                                      color: Colors.teal,
+                                    style: TextStyle(
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -214,10 +217,10 @@ class _CountryBarChartState extends State<CountryBarChart> {
                             barRods: [
                               BarChartRodData(
                                 toY: e.value.value.toDouble(),
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Colors.teal,
-                                    Color(0xFF4DB6AC),
+                                    barColor,
+                                    barColor.withValues(alpha: 0.75),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

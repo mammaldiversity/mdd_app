@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -28,6 +29,7 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
         .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getImagesBarColor(context);
 
     return Column(
       children: [
@@ -96,7 +98,7 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -111,7 +113,8 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontStyle: FontStyle.italic,
                                   fontWeight: FontWeight.w600,
@@ -119,8 +122,8 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                                 children: [
                                   TextSpan(
                                     text: '${rod.toY.toInt()} images',
-                                    style: const TextStyle(
-                                      color: Colors.cyan,
+                                    style: TextStyle(
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontStyle: FontStyle.normal,
                                       fontWeight: FontWeight.bold,
@@ -212,10 +215,10 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                             barRods: [
                               BarChartRodData(
                                 toY: e.value.imageCount.toDouble(),
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Colors.cyan,
-                                    Color(0xFF80DEEA),
+                                    barColor,
+                                    barColor.withValues(alpha: 0.75),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

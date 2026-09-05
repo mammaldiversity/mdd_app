@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -16,6 +17,7 @@ class DecadeBarChart extends StatelessWidget {
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getDecadeColor(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -38,8 +40,7 @@ class DecadeBarChart extends StatelessWidget {
                   barTouchData: BarTouchData(
                     enabled: true,
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (group) =>
-                          colorScheme.surfaceContainerHighest,
+                      getTooltipColor: (group) => colorScheme.inverseSurface,
                       tooltipBorderRadius: BorderRadius.circular(8),
                       tooltipPadding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -53,15 +54,16 @@ class DecadeBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           TextStyle(
-                            color: colorScheme.onSurfaceVariant,
+                            color: colorScheme.onInverseSurface
+                                .withValues(alpha: 0.8),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                           children: [
                             TextSpan(
                               text: '${rod.toY.toInt()} descriptions',
-                              style: const TextStyle(
-                                color: Colors.deepOrange,
+                              style: TextStyle(
+                                color: colorScheme.onInverseSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -144,10 +146,10 @@ class DecadeBarChart extends StatelessWidget {
                       barRods: [
                         BarChartRodData(
                           toY: e.value.count.toDouble(),
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [
-                              Colors.orange,
-                              Color(0xFFFFB74D),
+                              barColor,
+                              barColor.withValues(alpha: 0.75),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,

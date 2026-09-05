@@ -173,13 +173,6 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined),
-            tooltip: 'Export Table',
-            onPressed: () => _exportData(filteredList),
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -275,6 +268,13 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                     'Records (${filteredList.length})',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.file_download_outlined),
+                      tooltip: 'Export Table Data',
+                      onPressed: () => _exportData(filteredList),
+                    ),
+                  ],
                   rowsPerPage: _rowsPerPage,
                   availableRowsPerPage: const [10, 15, 25, 50, 100],
                   onRowsPerPageChanged: (value) {

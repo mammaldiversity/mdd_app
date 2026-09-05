@@ -185,17 +185,6 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mammal Diversity by Country'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.file_download_outlined),
-            tooltip: 'Export Table Data',
-            onPressed: () {
-              countryStatsAsync.whenData((allCountries) {
-                _exportData(_filterAndSort(allCountries));
-              });
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: countryStatsAsync.when(
@@ -322,6 +311,13 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                         'Countries (${filteredList.length})',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.file_download_outlined),
+                          tooltip: 'Export Table Data',
+                          onPressed: () => _exportData(filteredList),
+                        ),
+                      ],
                       rowsPerPage: _rowsPerPage,
                       availableRowsPerPage: const [10, 15, 25, 50, 100],
                       onRowsPerPageChanged: (value) {

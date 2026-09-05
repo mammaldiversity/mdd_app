@@ -18,6 +18,7 @@ class Indicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -26,16 +27,21 @@ class Indicator extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             shape: isSquare ? BoxShape.rectangle : BoxShape.circle,
+            borderRadius: isSquare ? BorderRadius.circular(3) : null,
             color: color,
+            border: Border.all(
+              color: colorScheme.outlineVariant,
+              width: 1,
+            ),
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 6),
         Text(
           text,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: textColor,
+            fontWeight: FontWeight.w600,
+            color: textColor ?? colorScheme.onSurface,
           ),
         ),
       ],

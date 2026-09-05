@@ -197,40 +197,6 @@ class _MddStatsState extends ConsumerState<MddStats> {
     );
   }
 
-  StatTablePage _imagesPieTablePage(MddStatistics stats) {
-    final withImg = stats.speciesWithImagesCount;
-    final withoutImg = stats.totalSpeciesCount - stats.speciesWithImagesCount;
-    final total = stats.totalSpeciesCount;
-    final withPct =
-        total > 0 ? (withImg / total * 100).toStringAsFixed(2) : '0.00';
-    final withoutPct =
-        total > 0 ? (withoutImg / total * 100).toStringAsFixed(2) : '0.00';
-
-    return StatTablePage(
-      title: 'Proportion of Species with Images',
-      infoText:
-          'Comparison of mammal species with documented images versus those without.',
-      exportDefaultFileName: 'species_with_images_proportion',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Category'),
-        StatTableColumn(title: 'Species Count', numeric: true),
-        StatTableColumn(title: 'Percentage', numeric: true),
-      ],
-      rows: [
-        StatTableRow(
-          values: ['With Images', withImg, '$withPct%'],
-          searchText: 'With Images',
-        ),
-        StatTableRow(
-          values: ['Without Images', withoutImg, '$withoutPct%'],
-          searchText: 'Without Images',
-        ),
-      ],
-    );
-  }
-
   StatTablePage _synonymsTablePage(MddStatistics stats) {
     return StatTablePage(
       title: 'Species with the Most Names and Synonyms',
@@ -417,12 +383,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Species Diversity by Order',
                         chart: OrderBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_orderTablePage(stats)),
+                        onViewTable: stats.speciesPerOrder.length >= 5
+                            ? () => _navigateTo(_orderTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Species Diversity by Family',
                         chart: FamilyBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_familyTablePage(stats)),
+                        onViewTable: stats.speciesPerFamily.length >= 5
+                            ? () => _navigateTo(_familyTablePage(stats))
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -431,14 +401,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Species Diversity by Genus',
                         chart: GenusBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_genusTablePage(stats)),
+                        onViewTable: stats.speciesPerGenus.length >= 5
+                            ? () => _navigateTo(_genusTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Species Diversity by Country',
                         chart: CountryBarChart(stats: stats),
-                        viewTableLabel: 'View Full Country Table',
-                        onViewTable: () =>
-                            _navigateTo(const CountryTablePage()),
+                        onViewTable: stats.topCountries.length >= 5
+                            ? () => _navigateTo(const CountryTablePage())
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -447,12 +419,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Species Descriptions by Decade',
                         chart: DecadeBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_decadeTablePage(stats)),
+                        onViewTable: stats.discoveryDecade.length >= 5
+                            ? () => _navigateTo(_decadeTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Species Descriptions by Year',
                         chart: YearBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_yearTablePage(stats)),
+                        onViewTable: stats.discoveryYear.length >= 5
+                            ? () => _navigateTo(_yearTablePage(stats))
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -461,13 +437,14 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Species with Most Images',
                         chart: ImagesBarChart(stats: stats),
-                        onViewTable: () => _navigateTo(_imagesTablePage(stats)),
+                        onViewTable: stats.speciesWithMostImages.length >= 5
+                            ? () => _navigateTo(_imagesTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Proportion of Species with Images',
                         chart: ImagesPieChart(stats: stats),
-                        onViewTable: () =>
-                            _navigateTo(_imagesPieTablePage(stats)),
+                        onViewTable: null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -476,14 +453,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Species with the Most Names and Synonyms',
                         chart: SynonymsBarChart(stats: stats),
-                        onViewTable: () =>
-                            _navigateTo(_synonymsTablePage(stats)),
+                        onViewTable: stats.speciesWithMostSynonyms.length >= 5
+                            ? () => _navigateTo(_synonymsTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Proportion of Type Kind',
                         chart: TypeKindPieChart(stats: stats),
-                        onViewTable: () =>
-                            _navigateTo(_typeKindTablePage(stats)),
+                        onViewTable: stats.typeKindProportion.length >= 5
+                            ? () => _navigateTo(_typeKindTablePage(stats))
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -492,12 +471,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'IUCN Red List Conservation Status',
                         chart: IucnPieChart(stats: stats),
-                        onViewTable: () => _navigateTo(_iucnTablePage(stats)),
+                        onViewTable: stats.iucnStatus.length >= 5
+                            ? () => _navigateTo(_iucnTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Distribution by Biogeographic Realm',
                         chart: RealmPieChart(stats: stats),
-                        onViewTable: () => _navigateTo(_realmTablePage(stats)),
+                        onViewTable: stats.biogeographicRealm.length >= 5
+                            ? () => _navigateTo(_realmTablePage(stats))
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -506,14 +489,16 @@ class _MddStatsState extends ConsumerState<MddStats> {
                       chart1: ChartCard(
                         title: 'Extinct vs. Extant Species',
                         chart: ExtinctPieChart(stats: stats),
-                        onViewTable: () =>
-                            _navigateTo(_extinctTablePage(stats)),
+                        onViewTable: stats.extinctSpecies.length >= 5
+                            ? () => _navigateTo(_extinctTablePage(stats))
+                            : null,
                       ),
                       chart2: ChartCard(
                         title: 'Domesticated vs. Wild Species',
                         chart: DomesticPieChart(stats: stats),
-                        onViewTable: () =>
-                            _navigateTo(_domesticTablePage(stats)),
+                        onViewTable: stats.domesticSpecies.length >= 5
+                            ? () => _navigateTo(_domesticTablePage(stats))
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 32),

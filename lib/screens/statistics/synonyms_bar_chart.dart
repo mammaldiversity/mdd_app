@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -26,6 +27,7 @@ class _SynonymsBarChartState extends State<SynonymsBarChart> {
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getSynonymsColor(context);
 
     return Column(
       children: [
@@ -94,7 +96,7 @@ class _SynonymsBarChartState extends State<SynonymsBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -109,7 +111,8 @@ class _SynonymsBarChartState extends State<SynonymsBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontStyle: FontStyle.italic,
                                   fontWeight: FontWeight.w600,
@@ -117,8 +120,8 @@ class _SynonymsBarChartState extends State<SynonymsBarChart> {
                                 children: [
                                   TextSpan(
                                     text: '${rod.toY.toInt()} synonyms',
-                                    style: const TextStyle(
-                                      color: Colors.purple,
+                                    style: TextStyle(
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontStyle: FontStyle.normal,
                                       fontWeight: FontWeight.bold,
@@ -210,10 +213,10 @@ class _SynonymsBarChartState extends State<SynonymsBarChart> {
                             barRods: [
                               BarChartRodData(
                                 toY: e.value.count.toDouble(),
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Colors.purple,
-                                    Color(0xFFBA68C8),
+                                    barColor,
+                                    barColor.withValues(alpha: 0.75),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

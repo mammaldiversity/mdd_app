@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -17,13 +18,16 @@ class _YearBarChartState extends State<YearBarChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.stats.discoveryYear.isEmpty) return const SizedBox.shrink();
+    if (widget.stats.discoveryYear.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final List<StatSpeciesByDiscoveryYearResult> data =
         widget.stats.discoveryYear.take(_topN).toList();
     final double maxY =
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getYearColor(context);
 
     return Column(
       children: [
@@ -92,7 +96,7 @@ class _YearBarChartState extends State<YearBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -106,15 +110,16 @@ class _YearBarChartState extends State<YearBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 children: [
                                   TextSpan(
                                     text: '${rod.toY.toInt()} descriptions',
-                                    style: const TextStyle(
-                                      color: Colors.deepPurple,
+                                    style: TextStyle(
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -199,10 +204,10 @@ class _YearBarChartState extends State<YearBarChart> {
                             barRods: [
                               BarChartRodData(
                                 toY: e.value.count.toDouble(),
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Colors.deepPurple,
-                                    Color(0xFF9575CD),
+                                    barColor,
+                                    barColor.withValues(alpha: 0.75),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

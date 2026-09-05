@@ -92,7 +92,7 @@ class _FamilyBarChartState extends State<FamilyBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -106,7 +106,8 @@ class _FamilyBarChartState extends State<FamilyBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -114,7 +115,7 @@ class _FamilyBarChartState extends State<FamilyBarChart> {
                                   TextSpan(
                                     text: '${rod.toY.toInt()} species',
                                     style: TextStyle(
-                                      color: colorScheme.secondary,
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),

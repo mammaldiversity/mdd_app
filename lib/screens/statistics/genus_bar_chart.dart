@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -24,6 +25,7 @@ class _GenusBarChartState extends State<GenusBarChart> {
         data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
+    final barColor = ChartPalette.getGenusColor(context);
 
     return Column(
       children: [
@@ -92,7 +94,7 @@ class _GenusBarChartState extends State<GenusBarChart> {
                           enabled: true,
                           touchTooltipData: BarTouchTooltipData(
                             getTooltipColor: (group) =>
-                                colorScheme.surfaceContainerHighest,
+                                colorScheme.inverseSurface,
                             tooltipBorderRadius: BorderRadius.circular(8),
                             tooltipPadding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -106,7 +108,8 @@ class _GenusBarChartState extends State<GenusBarChart> {
                               return BarTooltipItem(
                                 '$xAxisLabel\n',
                                 TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.onInverseSurface
+                                      .withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontStyle: FontStyle.italic,
                                   fontWeight: FontWeight.w600,
@@ -115,7 +118,7 @@ class _GenusBarChartState extends State<GenusBarChart> {
                                   TextSpan(
                                     text: '${rod.toY.toInt()} species',
                                     style: TextStyle(
-                                      color: colorScheme.tertiary,
+                                      color: colorScheme.onInverseSurface,
                                       fontSize: 14,
                                       fontStyle: FontStyle.normal,
                                       fontWeight: FontWeight.bold,
@@ -209,9 +212,8 @@ class _GenusBarChartState extends State<GenusBarChart> {
                                 toY: (e.value.count).toDouble(),
                                 gradient: LinearGradient(
                                   colors: [
-                                    colorScheme.tertiary,
-                                    colorScheme.tertiary
-                                        .withValues(alpha: 0.75),
+                                    barColor,
+                                    barColor.withValues(alpha: 0.75),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
