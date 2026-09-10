@@ -8,10 +8,10 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- New Mammal Image Gallery: Access the new image gallery tab featuring searchable images complete with a full-screen metadata.
-- Enhanced Stats Overview: The home page now displays total synonym and image counts.
-- Design Upgrades: Refined UI elements for a smoother, cleaner user experience.
-- MDD v2.5 Updates: Includes incremental data updates
+- 70+ new images from the ASM's Mammal Image Library
+- Brand new map layers
+- Table views for all stats with multi-tabular format export support.
+- Improve chart colors for better accessibility
 - Bug fixes and performance optimizations.
 
 ## Installation
