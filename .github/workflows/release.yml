@@ -9,6 +9,9 @@ jobs:
   release:
     strategy:
       matrix:
+        # Linux stays on ubuntu-22.04: flutter_inappwebview_linux requires WPE
+        # WebKit, which Ubuntu only packages up to 22.04 (not in 24.04/26.04).
+        # The snap base (core22) and .deb dependencies must match this runner.
         os: ["windows-latest", "ubuntu-22.04"]
     defaults:
       run:
@@ -19,10 +22,10 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "17"
@@ -79,11 +82,11 @@ jobs:
           channel: "stable"
 
       - name: Setup NuGet
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: NuGet/setup-nuget@v2
+        if: ${{ runner.os == 'Windows' }}
+        uses: NuGet/setup-nuget@v4
 
       - name: Verify WebView2 runtime
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ runner.os == 'Windows' }}
         shell: powershell
         run: |
           $clientId = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
@@ -120,14 +123,14 @@ jobs:
           flutter analyze
 
       - name: Build Linux
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libepoxy-dev libsecret-1-dev libwayland-dev libwpe-1.0-dev libwpebackend-fdo-1.0-dev libwpewebkit-1.0-dev
           flutter build linux --release
 
       - name: Update Snapcraft version
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ runner.os == 'Linux' }}
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           if [ -z "$VERSION" ] || [ "$VERSION" = "master" ] || [ "$VERSION" = "main" ]; then
@@ -136,23 +139,23 @@ jobs:
           sed -i "s/version: '1.0.0'/version: '$VERSION'/g" snap/snapcraft.yaml
 
       - name: Build Snap
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ runner.os == 'Linux' }}
         uses: snapcore/action-build@v1
         id: build-snap
 
       - name: Upload Snap Artifact
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        uses: actions/upload-artifact@v4
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/upload-artifact@v7
         with:
           name: mdd-snap
           path: ${{ steps.build-snap.outputs.snap }}
 
-      - if: ${{ matrix.os == 'windows-latest' }}
+      - if: ${{ runner.os == 'Windows' }}
         run: |
           flutter build windows --release
 
       - name: Compress Linux
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ runner.os == 'Linux' }}
         run: |
           echo "Compressing files..."
           mkdir mdd
@@ -160,7 +163,7 @@ jobs:
           tar -czvf mdd-Linux-x86_64.tar.gz mdd
 
       - name: Compress Windows
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ runner.os == 'Windows' }}
         run: |
           echo "Creating folder..."
           mkdir mdd
