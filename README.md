@@ -91,10 +91,18 @@ mkdir data
 
 - Generate the SQLite database and run a build:
 
-We provide a convenient bash script that builds the Rust parser, generates `assets/data/mdd.db`, and compiles Flutter for supported platforms.
+We provide convenient build scripts that build the Rust parser, generate `assets/data/mdd.db`, and compile Flutter release builds. Android is built as APKs only.
+
+On Linux or macOS, use the bash script. It builds Android, iOS, macOS, and Linux (Linux only on a Linux host):
 
 ```bash
 ./tools/build.sh
+```
+
+On Windows, use the PowerShell script. It builds Android and Windows:
+
+```powershell
+.\tools\build.ps1
 ```
 
 Alternatively, if you only want to generate the database manually without compiling Flutter release builds:
@@ -102,6 +110,12 @@ Alternatively, if you only want to generate the database manually without compil
 ```bash
 ./tools/generate_prefilled_db.sh
 ```
+
+```powershell
+.\tools\generate_prefilled_db.ps1
+```
+
+If PowerShell blocks the scripts because of the execution policy, run them with `powershell -ExecutionPolicy Bypass -File .\tools\build.ps1`.
 
 - Try to run the app:
 

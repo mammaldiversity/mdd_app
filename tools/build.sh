@@ -37,13 +37,6 @@ else
     echo "Skipping Linux build (not on a Linux host)."
 fi
 
-echo "--> Building Windows..."
-if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32"* ]]; then
-    flutter build windows --release
-else
-    echo "Skipping Windows build (not on a Windows host)."
-fi
-
 echo "========================================="
 echo "   Build process complete."
 echo "========================================="
