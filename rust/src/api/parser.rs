@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Read;
 use std::io::Write;
 use std::path::Path;
-use tempfile::Builder;
+use tempdir::TempDir;
 
 #[flutter_rust_bridge::frb(init)]
 pub fn init_app() {
@@ -154,7 +154,7 @@ impl MilHelper {
                 .unwrap_or_default();
         } else {
             // Create a temporary directory
-            if let Ok(temp_dir) = Builder::new().prefix("mil_update").tempdir() {
+            if let Ok(temp_dir) = TempDir::new("mil_update") {
                 let temp_csv_path = temp_dir.path().join("temp_mdd.csv");
                 let temp_json_path = temp_dir.path().join("temp_mil.json");
 
@@ -422,12 +422,10 @@ remarks = "test remarks"
         let mut zip = ZipWriter::new(file);
         let options = SimpleFileOptions::default();
 
-        zip.start_file("MDD/MDD_v2.5_6871species.csv", options)
-            .unwrap();
+        zip.start_file("MDD/MDD_v2.5_6871species.csv", options).unwrap();
         zip.write_all(get_mock_mdd_csv().as_bytes()).unwrap();
 
-        zip.start_file("MDD/Species_Syn_Current_v2.5.csv", options)
-            .unwrap();
+        zip.start_file("MDD/Species_Syn_Current_v2.5.csv", options).unwrap();
         zip.write_all(get_mock_syn_csv().as_bytes()).unwrap();
 
         zip.finish().unwrap();

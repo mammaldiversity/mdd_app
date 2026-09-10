@@ -69,18 +69,18 @@ class MilHelper {
   final String milVersion;
   final String milData;
 
-  const MilHelper({
-    required this.milVersion,
-    required this.milData,
-  });
+  const MilHelper({required this.milVersion, required this.milData});
 
   static Future<String> extractMilVersion({required String path}) =>
       RustLib.instance.api.crateApiParserMilHelperExtractMilVersion(path: path);
 
-  static Future<MilHelper> parseMilData(
-          {required String tarPath, required String dbPath}) =>
-      RustLib.instance.api.crateApiParserMilHelperParseMilData(
-          tarPath: tarPath, dbPath: dbPath);
+  static Future<MilHelper> parseMilData({
+    required String tarPath,
+    required String dbPath,
+  }) => RustLib.instance.api.crateApiParserMilHelperParseMilData(
+    tarPath: tarPath,
+    dbPath: dbPath,
+  );
 
   @override
   int get hashCode => milVersion.hashCode ^ milData.hashCode;

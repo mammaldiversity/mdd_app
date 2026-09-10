@@ -28,7 +28,6 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 analyzer:
   exclude:
-    - rust_builder/**
     - build/**
     - android/**
     - ios/**

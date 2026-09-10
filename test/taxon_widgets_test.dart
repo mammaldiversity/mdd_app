@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mdd/screens/taxon/distribution_map.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/providers/map_renderer.dart';
+
+class _TestMapRendererNotifier extends MapRendererNotifier {
+  @override
+  MapRenderer build() => MapRenderer.naturalEarth;
+}
+
+Widget _mapTestApp(Widget child) => ProviderScope(
+  overrides: [mapRendererProvider.overrideWith(_TestMapRendererNotifier.new)],
+  child: MaterialApp(home: Scaffold(body: child)),
+);
 
 void main() {
   group('DistributionMap widget tests', () {
@@ -10,9 +22,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: DistributionMap(countryDistribution: null)),
-        ),
+        _mapTestApp(const DistributionMap(countryDistribution: null)),
       );
       expect(find.text('Distribution Map'), findsNothing);
     });
@@ -21,9 +31,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: DistributionMap(countryDistribution: 'NA')),
-        ),
+        _mapTestApp(const DistributionMap(countryDistribution: 'NA')),
       );
       expect(find.text('Distribution Map'), findsNothing);
     });
@@ -32,9 +40,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: DistributionMap(countryDistribution: 'USA')),
-        ),
+        _mapTestApp(const DistributionMap(countryDistribution: 'USA')),
       );
       expect(find.text('Distribution Map'), findsOneWidget);
     });

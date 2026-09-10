@@ -15,10 +15,15 @@ FRB_FILES = [DART_FRB, DART_FRB_IO, RUST_FRB_IO, RUST_FRB]
 DMG_CONFIG = "packages/config.json"
 OUTPUT_DMG = "packages/mdd.dmg"
 
-FRB_INSTALL_NAME = "flutter_rust_bridge_codegen"
+FRB_INSTALL_NAME = "flutter_rust_bridge_codegen@^2.13.0"
 
-IOS_PODS_FILES = "ios/Podfile ios/Podfile.lock ios/Pods/"
-MACOS_PODS_FILES = "macos/Podfile macos/Podfile.lock macos/Pods/"
+# iOS and macOS use Swift Package Manager. The Rust library is bundled by the
+# Native Assets build hook, so neither platform has any CocoaPods integration.
+DARWIN_SPM_DIRS = [
+    "ios/.symlinks",
+    "ios/Flutter/ephemeral",
+    "macos/Flutter/ephemeral",
+]
 
 
 class Build:
@@ -138,7 +143,7 @@ class BuildRust:
     def install_frb_executable(self) -> None:
         print("Installing frb executable...")
         try:
-            subprocess.run(["cargo", "install", "flutter_rust_bridge_codegen", "--version", "2.12.0"])
+            subprocess.run(["cargo", "install", FRB_INSTALL_NAME])
             print("Frb executable installed successfully\n")
         except Exception as e:
             print("Error installing frb executable:", str(e))
@@ -159,7 +164,8 @@ class BuildRust:
         print("Cleaning frb code...")
         try:
             self.remove_old_frb_code()
-            subprocess.run(["rm", "-rf", "rust_builder"])
+            subprocess.run(["rm", "-rf", "hook"])
+            subprocess.run(["rm", "-rf", "flutter_rust_bridge.yaml"])
             subprocess.run(["rm", "-rf", "integration_test"])
             print("Frb code cleaned successfully\n")
         except Exception as e:
@@ -169,7 +175,7 @@ class BuildRust:
     def update_frb_executable(self) -> None:
         print("Updating frb executable...")
         try:
-            subprocess.run(["cargo", "install", "flutter_rust_bridge_codegen", "--version", "2.12.0"])
+            subprocess.run(["cargo", "install", FRB_INSTALL_NAME])
             self.update_rust_dependencies()
             print("Frb executable updated successfully\n")
         except Exception as e:
@@ -237,19 +243,17 @@ class FlutterUtils:
             print("Error updating flutter dependencies:", str(e))
             return
     
-    def clean_pods(self) -> None:
-        print("Cleaning pods...")
+    def clean_darwin(self) -> None:
+        print("Cleaning iOS and macOS build state...")
         try:
             subprocess.run(["flutter", "clean"])
-            subprocess.run(["rm", "-rf", IOS_PODS_FILES])
-            subprocess.run(["rm", "-rf", MACOS_PODS_FILES])
-            subprocess.run(["rm", "-rf", "ios/.symlinks"])
+            for directory in DARWIN_SPM_DIRS:
+                subprocess.run(["rm", "-rf", directory])
             subprocess.run(["rm", "-rf", "ios/Flutter/Flutter.framework"])
             subprocess.run(["rm", "-rf", "macos/Flutter/Flutter.framework"])
-            subprocess.run(["rm", "-rf", "macos/Flutter/Flutter.podspec"])
-            print("Pods cleaned successfully\n")
+            print("iOS and macOS build state cleaned successfully\n")
         except Exception as e:
-            print("Error cleaning pods:", str(e))
+            print("Error cleaning iOS and macOS build state:", str(e))
             return
 
 
@@ -341,7 +345,11 @@ class Args:
         parser.add_argument(
             "--update", action="store_true", help="Update flutter dependencies"
         )
-        parser.add_argument("--clean-pods", action="store_true", help="Clean pods")
+        parser.add_argument(
+            "--clean-darwin",
+            action="store_true",
+            help="Clean iOS and macOS build state",
+        )
 
     def get_rust_build_args(self, args: argparse.Namespace) -> None:
         parser = args.add_parser("frb", help="Build options for Rust project")
@@ -401,8 +409,8 @@ class Parser:
             utils.fix_dart_code()
         elif self.args.update:
             utils.update_flutter_dependencies()
-        elif self.args.clean_pods:
-            utils.clean_pods()
+        elif self.args.clean_darwin:
+            utils.clean_darwin()
         else:
             print("No utility option selected")
             return

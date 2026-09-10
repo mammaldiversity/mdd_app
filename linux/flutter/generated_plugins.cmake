@@ -4,12 +4,12 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
+  flutter_inappwebview_linux
   url_launcher_linux
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   jni
-  rust_lib_mdd
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
