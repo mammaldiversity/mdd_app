@@ -41,10 +41,13 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Setup Rust & Cache
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
+      # The Native Assets build hook shells out to rustup and relies on it
+      # auto-installing the channel and cross-compilation targets declared in
+      # rust/rust-toolchain.toml.
+      - name: Setup Rust
+        working-directory: rust
+        run: rustup show active-toolchain
+
       - uses: Swatinem/rust-cache@v2
 
       - name: Setup Flutter & Cache

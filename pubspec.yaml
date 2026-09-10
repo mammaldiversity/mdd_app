@@ -45,9 +45,8 @@ dependencies:
   package_info_plus: ^10.1.0
   share_plus: ^13.1.0
   file_selector: ^1.1.0
-  rust_lib_mdd:
-    path: rust_builder
-  flutter_rust_bridge: 2.12.0
+  flutter_rust_bridge: 2.13.0
+  flutter_rust_bridge_hooks: 2.13.0
   fl_chart: ^1.2.0
   flutter_map: ^8.3.1
   latlong2: ^0.9.1

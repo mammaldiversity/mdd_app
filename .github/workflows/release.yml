@@ -27,10 +27,13 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      # The Native Assets build hook shells out to rustup and relies on it
+      # auto-installing the channel and cross-compilation targets declared in
+      # rust/rust-toolchain.toml. Pinning a separate toolchain here would leave
+      # those targets uninstalled, so warm the pinned one instead.
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
+        working-directory: rust
+        run: rustup show active-toolchain
 
       - name: Install MDD CLI
         run: cargo install mdd_api
