@@ -21,6 +21,13 @@ parts:
   mdd:
     plugin: dump
     source: build/linux/x64/release/bundle
+    stage-packages:
+      - libepoxy0
+      - libsecret-1-0
+      - libwayland-server0
+      - libwpe-1.0-1
+      - libwpebackend-fdo-1.0-1
+      - libwpewebkit-1.0-3
   desktop:
     plugin: nil
     override-build: |

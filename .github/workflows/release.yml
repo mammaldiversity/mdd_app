@@ -9,7 +9,7 @@ jobs:
   release:
     strategy:
       matrix:
-        os: ["windows-latest", "ubuntu-latest"]
+        os: ["windows-latest", "ubuntu-22.04"]
     defaults:
       run:
         shell: bash
@@ -74,7 +74,24 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          
+
+      - name: Setup NuGet
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: NuGet/setup-nuget@v2
+
+      - name: Verify WebView2 runtime
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: powershell
+        run: |
+          $clientId = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $paths = @(
+            "HKLM:\SOFTWARE\Microsoft\EdgeUpdate\Clients\$clientId",
+            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\$clientId"
+          )
+          if (-not ($paths | Where-Object { Test-Path $_ })) {
+            throw 'Microsoft Edge WebView2 Runtime is not installed.'
+          }
+
       - run: |
           flutter pub get
           flutter analyze
@@ -100,14 +117,14 @@ jobs:
           flutter analyze
 
       - name: Build Linux
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           sudo apt-get update
-          sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libepoxy-dev libsecret-1-dev libwayland-dev libwpe-1.0-dev libwpebackend-fdo-1.0-dev libwpewebkit-1.0-dev
           flutter build linux --release
 
       - name: Update Snapcraft version
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           if [ -z "$VERSION" ] || [ "$VERSION" = "master" ] || [ "$VERSION" = "main" ]; then
@@ -116,12 +133,12 @@ jobs:
           sed -i "s/version: '1.0.0'/version: '$VERSION'/g" snap/snapcraft.yaml
 
       - name: Build Snap
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: snapcore/action-build@v1
         id: build-snap
 
       - name: Upload Snap Artifact
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: actions/upload-artifact@v4
         with:
           name: mdd-snap
@@ -132,7 +149,7 @@ jobs:
           flutter build windows --release
 
       - name: Compress Linux
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           echo "Compressing files..."
           mkdir mdd

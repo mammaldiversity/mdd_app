@@ -1,6 +1,60 @@
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+enum DistributionStatus { known, predicted }
+
+class MapCoordinate {
+  const MapCoordinate(this.longitude, this.latitude);
+
+  final double longitude;
+  final double latitude;
+
+  List<double> toGeoJson() => [longitude, latitude];
+}
+
+class DistributionPolygon {
+  const DistributionPolygon({required this.rings, required this.status});
+
+  final List<List<MapCoordinate>> rings;
+  final DistributionStatus status;
+}
+
+class DistributionBounds {
+  const DistributionBounds({
+    required this.west,
+    required this.south,
+    required this.east,
+    required this.north,
+  });
+
+  final double west;
+  final double south;
+  final double east;
+  final double north;
+}
+
+class DistributionMapData {
+  const DistributionMapData({required this.polygons, required this.bounds});
+
+  final List<DistributionPolygon> polygons;
+  final DistributionBounds? bounds;
+
+  Map<String, dynamic> get featureCollection => {
+    'type': 'FeatureCollection',
+    'features': [
+      for (var index = 0; index < polygons.length; index++)
+        {
+          'type': 'Feature',
+          'id': index,
+          'properties': {'distributionStatus': polygons[index].status.name},
+          'geometry': {
+            'type': 'Polygon',
+            'coordinates': [
+              for (final ring in polygons[index].rings)
+                [for (final point in ring) point.toGeoJson()],
+            ],
+          },
+        },
+    ],
+  };
+}
 
 class TopoJsonParser {
   static final Map<String, String> mddToIsoMap = {
@@ -249,100 +303,188 @@ class TopoJsonParser {
     return mddToIsoMap[mddName];
   }
 
-  static List<Polygon> parsePolygons(
+  static DistributionMapData parseDistribution(
     Map<String, dynamic> json,
-    Set<String> knownCountries,
-    Set<String> predictedCountries,
+    String countryDistribution,
   ) {
+    final knownCountries = <String>{};
+    final predictedCountries = <String>{};
+    for (final value in countryDistribution.split(RegExp(r'[|,]'))) {
+      final country = value.trim();
+      if (country.isEmpty) continue;
+      final isPredicted = country.endsWith('?');
+      final rawName = isPredicted
+          ? country.substring(0, country.length - 1).trim()
+          : country;
+      final isoCode = normalizeToIso(rawName);
+      if (isoCode == null) continue;
+      if (isPredicted) {
+        predictedCountries.add(isoCode);
+      } else {
+        knownCountries.add(isoCode);
+      }
+    }
+    predictedCountries.removeAll(knownCountries);
+
     if (json['type'] != 'Topology') {
-      return [];
+      return const DistributionMapData(polygons: [], bounds: null);
     }
 
     final objects = json['objects'];
-    if (objects == null || objects['countries_mdd'] == null) {
-      return [];
+    if (objects is! Map || objects['countries_mdd'] is! Map) {
+      return const DistributionMapData(polygons: [], bounds: null);
     }
 
-    final geometries = objects['countries_mdd']['geometries'] as List;
-    final topoArcs = json['arcs'] as List;
+    final topologyObject = objects['countries_mdd'] as Map;
+    final geometries = topologyObject['geometries'];
+    final topoArcs = json['arcs'];
+    if (geometries is! List || topoArcs is! List) {
+      return const DistributionMapData(polygons: [], bounds: null);
+    }
+    final transformValue = json['transform'];
+    final transform = transformValue is Map
+        ? Map<String, dynamic>.from(transformValue)
+        : null;
 
-    List<LatLng> decodeArc(int arcIndex) {
+    List<MapCoordinate> decodeArc(int arcIndex) {
       final isReversed = arcIndex < 0;
       final actualIndex = isReversed ? ~arcIndex : arcIndex;
-      final arc = topoArcs[actualIndex] as List;
-      List<LatLng> points = [];
+      if (actualIndex < 0 || actualIndex >= topoArcs.length) return const [];
+      final arc = topoArcs[actualIndex];
+      if (arc is! List) return const [];
+      final points = <MapCoordinate>[];
+      var x = 0.0;
+      var y = 0.0;
       for (var coord in arc) {
-        final lon = (coord[0] as num).toDouble();
-        final lat = (coord[1] as num).toDouble();
-        points.add(LatLng(lat, lon));
+        if (coord is! List ||
+            coord.length < 2 ||
+            coord[0] is! num ||
+            coord[1] is! num) {
+          continue;
+        }
+        if (transform == null) {
+          x = (coord[0] as num).toDouble();
+          y = (coord[1] as num).toDouble();
+        } else {
+          x += (coord[0] as num).toDouble();
+          y += (coord[1] as num).toDouble();
+        }
+        points.add(_applyTransform(x, y, transform));
       }
       return isReversed ? points.reversed.toList() : points;
     }
 
-    List<Polygon> loadedPolygons = [];
+    List<MapCoordinate> decodeRing(Object? arcIndexes) {
+      if (arcIndexes is! List) return const [];
+      final ring = <MapCoordinate>[];
+      for (final value in arcIndexes) {
+        if (value is! int) continue;
+        final arc = decodeArc(value);
+        if (arc.isEmpty) continue;
+        final startsAtPreviousEnd =
+            ring.isNotEmpty && _samePoint(ring.last, arc.first);
+        ring.addAll(startsAtPreviousEnd ? arc.skip(1) : arc);
+      }
+      if (ring.length >= 3 && !_samePoint(ring.first, ring.last)) {
+        ring.add(ring.first);
+      }
+      return ring;
+    }
+
+    DistributionPolygon? decodePolygon(
+      Object? polygonArcs,
+      DistributionStatus status,
+    ) {
+      if (polygonArcs is! List) return null;
+      final rings = polygonArcs
+          .map(decodeRing)
+          .where((ring) => ring.length >= 4)
+          .toList(growable: false);
+      if (rings.isEmpty) return null;
+      return DistributionPolygon(rings: rings, status: status);
+    }
+
+    final loadedPolygons = <DistributionPolygon>[];
 
     for (var feature in geometries) {
-      final properties = feature['properties'] ?? {};
-      final isoA2 = properties['ISO_A2'] as String?;
-      if (isoA2 == null) continue;
+      if (feature is! Map) continue;
+      final properties = feature['properties'] as Map? ?? const {};
+      final isoA2Value = properties['ISO_A2'];
+      if (isoA2Value is! String) continue;
+      final isoA2 = isoA2Value;
 
-      bool isKnown = knownCountries.contains(isoA2);
-      bool isPredicted = predictedCountries.contains(isoA2);
+      final status = knownCountries.contains(isoA2)
+          ? DistributionStatus.known
+          : predictedCountries.contains(isoA2)
+          ? DistributionStatus.predicted
+          : null;
+      if (status == null) continue;
 
-      if (isKnown || isPredicted) {
-        final type = feature['type'];
-        final color = isKnown
-            ? const Color(0xFF117554).withValues(alpha: 0.5) // Known green
-            : const Color(
-                0xFFFFEB00,
-              ).withValues(alpha: 0.5); // Predicted yellow
-        final borderColor = isKnown
-            ? const Color(0xFF117554)
-            : const Color(
-                0xFFB5A600,
-              ); // Darker border for predicted for accessibility
-
-        if (type == 'Polygon') {
-          final arcs = feature['arcs'] as List;
-          if (arcs.isNotEmpty) {
-            List<LatLng> ring = [];
-            for (int arcIndex in arcs[0]) {
-              ring.addAll(decodeArc(arcIndex));
-            }
-            if (ring.isNotEmpty) {
-              loadedPolygons.add(_createPolygon(ring, color, borderColor));
-            }
-          }
-        } else if (type == 'MultiPolygon') {
-          final arcs = feature['arcs'] as List;
-          for (var polyArcs in arcs) {
-            if ((polyArcs as List).isNotEmpty) {
-              List<LatLng> ring = [];
-              for (int arcIndex in polyArcs[0]) {
-                ring.addAll(decodeArc(arcIndex));
-              }
-              if (ring.isNotEmpty) {
-                loadedPolygons.add(_createPolygon(ring, color, borderColor));
-              }
-            }
-          }
+      final arcs = feature['arcs'];
+      if (feature['type'] == 'Polygon') {
+        final polygon = decodePolygon(arcs, status);
+        if (polygon != null) loadedPolygons.add(polygon);
+      } else if (feature['type'] == 'MultiPolygon' && arcs is List) {
+        for (final polygonArcs in arcs) {
+          final polygon = decodePolygon(polygonArcs, status);
+          if (polygon != null) loadedPolygons.add(polygon);
         }
       }
     }
 
-    return loadedPolygons;
+    return DistributionMapData(
+      polygons: loadedPolygons,
+      bounds: _boundsFor(loadedPolygons),
+    );
   }
 
-  static Polygon _createPolygon(
-    List<LatLng> points,
-    Color color,
-    Color borderColor,
+  static MapCoordinate _applyTransform(
+    double x,
+    double y,
+    Map<String, dynamic>? transform,
   ) {
-    return Polygon(
-      points: points,
-      color: color,
-      borderColor: borderColor,
-      borderStrokeWidth: 1,
+    if (transform == null) return MapCoordinate(x, y);
+    final scale = transform['scale'];
+    final translate = transform['translate'];
+    if (scale is! List ||
+        scale.length < 2 ||
+        scale[0] is! num ||
+        scale[1] is! num ||
+        translate is! List ||
+        translate.length < 2 ||
+        translate[0] is! num ||
+        translate[1] is! num) {
+      return MapCoordinate(x, y);
+    }
+    return MapCoordinate(
+      x * (scale[0] as num).toDouble() + (translate[0] as num).toDouble(),
+      y * (scale[1] as num).toDouble() + (translate[1] as num).toDouble(),
+    );
+  }
+
+  static bool _samePoint(MapCoordinate first, MapCoordinate second) =>
+      first.longitude == second.longitude && first.latitude == second.latitude;
+
+  static DistributionBounds? _boundsFor(List<DistributionPolygon> polygons) {
+    final points = polygons.expand((polygon) => polygon.rings.expand((e) => e));
+    final iterator = points.iterator;
+    if (!iterator.moveNext()) return null;
+    var west = iterator.current.longitude;
+    var east = west;
+    var south = iterator.current.latitude;
+    var north = south;
+    while (iterator.moveNext()) {
+      final point = iterator.current;
+      if (point.longitude < west) west = point.longitude;
+      if (point.longitude > east) east = point.longitude;
+      if (point.latitude < south) south = point.latitude;
+      if (point.latitude > north) north = point.latitude;
+    }
+    return DistributionBounds(
+      west: west,
+      south: south,
+      east: east,
+      north: north,
     );
   }
 }
