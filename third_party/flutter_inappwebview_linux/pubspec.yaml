@@ -1,0 +1,23 @@
+name: flutter_inappwebview_linux
+description: >-
+  Local no-op stand-in for flutter_inappwebview_linux. MDD does not use a
+  webview on Linux (maps render with flutter_map), so this keeps the WPE
+  WebKit-based implementation, and its system dependencies, out of Linux builds.
+version: 0.1.0-beta.1
+publish_to: none
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    implements: flutter_inappwebview
+    platforms:
+      linux:
+        # Dart-only: no pluginClass, so no native code is compiled or linked.
+        dartPluginClass: FlutterInappwebviewLinuxStub

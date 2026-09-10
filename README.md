@@ -36,7 +36,7 @@ You can download the app on the [App Store](https://apple.co/4vlBaxa). Click the
 
 Download the portable tarball from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
 
-- **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly.
+- **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly. It is built on the latest Ubuntu LTS, so it requires a distribution with an equally recent glibc (Ubuntu 24.04 or newer at the time of writing).
 
 ### Windows
 

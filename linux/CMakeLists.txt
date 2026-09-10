@@ -42,11 +42,6 @@ endif()
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_14)
   target_compile_options(${TARGET} PRIVATE -Wall -Werror)
-  # flutter_inappwebview_linux appends -Wno-deprecated-literal-operator, which
-  # older Clang releases (e.g. Ubuntu 22.04) reject as unknown under -Werror.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(${TARGET} PRIVATE -Wno-unknown-warning-option)
-  endif()
   target_compile_options(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O3>")
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()

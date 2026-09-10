@@ -74,6 +74,12 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+dependency_overrides:
+  # The app does not use a webview on Linux. Replace the WPE WebKit-based
+  # implementation with a no-op so Linux builds need no WPE packages.
+  flutter_inappwebview_linux:
+    path: third_party/flutter_inappwebview_linux
+
 flutter_launcher_icons:
   ios: true
   android: true
