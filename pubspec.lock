@@ -229,18 +229,18 @@ packages:
     dependency: "direct main"
     description:
       name: drift
-      sha256: bab55d542d63765f6250ee3e2c62e11bfa1145d4ec2ffa05353c8fb4e10b52c1
+      sha256: e3b6352aa02e60bed6ffc3cc9894c421578dad5fbef21b1f7f57cdc0e4edabcb
       url: "https://pub.dev"
     source: hosted
-    version: "2.34.4"
+    version: "2.35.0"
   drift_dev:
     dependency: "direct dev"
     description:
       name: drift_dev
-      sha256: aa824b21ac7c43e417e1e481d114c60546ec4b585dcc0f98e7a556d1d0adb476
+      sha256: fbad5c1e3a73820cdb1f32161eb2f40bb5e5f03c0c1a3d236595725aec7efc6d
       url: "https://pub.dev"
     source: hosted
-    version: "2.34.6"
+    version: "2.35.0"
   equatable:
     dependency: transitive
     description:
@@ -930,10 +930,10 @@ packages:
     dependency: transitive
     description:
       name: platform
-      sha256: "5d6b1b0036a5f331ebc77c850ebc8506cbc1e9416c27e59b439f917a902a4984"
+      sha256: a36d119c13416516a7b5913fbe8af8531e11633d784c550b2125f76c758524ec
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.6"
+    version: "3.2.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1407,10 +1407,10 @@ packages:
     dependency: transitive
     description:
       name: webdriver
-      sha256: "2f3a14ca026957870cfd9c635b83507e0e51d8091568e90129fbf805aba7cade"
+      sha256: "28b82ec894fed45dd71c23ba62d1af973ed97dd59a4f5790a4d38b0b13e5657e"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.2.0"
   win32:
     dependency: transitive
     description:
