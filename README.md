@@ -8,11 +8,7 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- 70+ new images from the ASM's Mammal Image Library
-- Brand new map layers
-- Table views for all stats with multi-tabular format export support.
-- Improve chart colors for better accessibility
-- Bug fixes and performance optimizations.
+- Fix map rendering issues on Android.
 
 ## Installation
 
