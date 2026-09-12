@@ -8,7 +8,7 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Fix map rendering issues on Android.
+- Fix pie chart rendering issue on small screens.
 
 ## Installation
 
