@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/indicator.dart';
+import 'package:mdd/screens/statistics/responsive_pie_chart_layout.dart';
 import 'package:mdd/services/statistics.dart';
 
 class IucnPieChart extends StatefulWidget {
@@ -73,8 +74,9 @@ class _IucnPieChartState extends State<IucnPieChart> {
                   _isDonut ? Icons.bar_chart : Icons.donut_large,
                   size: 20,
                 ),
-                tooltip:
-                    _isDonut ? 'Switch to bar chart' : 'Switch to donut chart',
+                tooltip: _isDonut
+                    ? 'Switch to bar chart'
+                    : 'Switch to donut chart',
                 onPressed: () {
                   setState(() {
                     _isDonut = !_isDonut;
@@ -86,93 +88,55 @@ class _IucnPieChartState extends State<IucnPieChart> {
         ),
         Expanded(
           child: _isDonut
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    final chartWidth = constraints.maxWidth < 380.0
-                        ? 380.0
-                        : constraints.maxWidth;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: chartWidth,
-                        height: constraints.maxHeight,
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: PieChart(
-                                  PieChartData(
-                                    pieTouchData: PieTouchData(
-                                      touchCallback: (FlTouchEvent event,
-                                          pieTouchResponse) {
-                                        setState(() {
-                                          if (!event
-                                                  .isInterestedForInteractions ||
-                                              pieTouchResponse == null ||
-                                              pieTouchResponse.touchedSection ==
-                                                  null) {
-                                            _touchedIndex = -1;
-                                            return;
-                                          }
-                                          _touchedIndex = pieTouchResponse
-                                              .touchedSection!
-                                              .touchedSectionIndex;
-                                        });
-                                      },
-                                    ),
-                                    borderData: FlBorderData(show: false),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 38,
-                                    sections: _showingSections(
-                                      data,
-                                      context,
-                                      colorScheme,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: data.map((e) {
-                                      final pct = total > 0
-                                          ? (e.value / total * 100)
-                                              .toStringAsFixed(1)
-                                          : '0';
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: Indicator(
-                                          color: ChartPalette.getIucnColor(
-                                            e.key,
-                                            context,
-                                          ),
-                                          text:
-                                              '${e.key} - ${_getFullIucnName(e.key)}: ${e.value} ($pct%)',
-                                          isSquare: true,
-                                          textColor: colorScheme.onSurface,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
+              ? ResponsivePieChartLayout(
+                  chartBuilder: (context, radiusScale) => PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              _touchedIndex = -1;
+                              return;
+                            }
+                            _touchedIndex = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
+                          });
+                        },
                       ),
-                    );
-                  },
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 38 * radiusScale,
+                      sections: _showingSections(
+                        data,
+                        context,
+                        colorScheme,
+                        radiusScale,
+                      ),
+                    ),
+                  ),
+                  legend: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: data.map((e) {
+                      final pct = total > 0
+                          ? (e.value / total * 100).toStringAsFixed(1)
+                          : '0';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Indicator(
+                          color: ChartPalette.getIucnColor(e.key, context),
+                          text:
+                              '${e.key} - ${_getFullIucnName(e.key)}: ${e.value} ($pct%)',
+                          isSquare: true,
+                          textColor: colorScheme.onSurface,
+                          expandText: true,
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 )
               : _buildBarChart(data, colorScheme),
         ),
@@ -196,8 +160,10 @@ class _IucnPieChartState extends State<IucnPieChart> {
     List<MapEntry<String, int>> data,
     ColorScheme colorScheme,
   ) {
-    final double maxY =
-        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final double maxY = data
+        .map((e) => e.value)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
 
     // In bar plot mode, all bars use a single theme-harmonious accessible color
     final barColor = colorScheme.primary;
@@ -234,8 +200,9 @@ class _IucnPieChartState extends State<IucnPieChart> {
                         return BarTooltipItem(
                           '${_getFullIucnName(item.key)} (${item.key})\n',
                           TextStyle(
-                            color: colorScheme.onInverseSurface
-                                .withValues(alpha: 0.8),
+                            color: colorScheme.onInverseSurface.withValues(
+                              alpha: 0.8,
+                            ),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -282,6 +249,7 @@ class _IucnPieChartState extends State<IucnPieChart> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 42,
+                        maxIncluded: false,
                         interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
                         getTitlesWidget: (value, meta) {
                           return SideTitleWidget(
@@ -299,6 +267,9 @@ class _IucnPieChartState extends State<IucnPieChart> {
                       ),
                     ),
                     topTitles: const AxisTitles(
+                      // Room for the top y-axis label.
+                      axisNameWidget: SizedBox.shrink(),
+                      axisNameSize: 10,
                       sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: const AxisTitles(
@@ -308,8 +279,9 @@ class _IucnPieChartState extends State<IucnPieChart> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval:
-                        maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                    horizontalInterval: maxY > 0
+                        ? (maxY / 4).ceilToDouble()
+                        : 1,
                     getDrawingHorizontalLine: (value) => FlLine(
                       color: colorScheme.outlineVariant.withValues(alpha: 0.35),
                       strokeWidth: 1,
@@ -353,12 +325,13 @@ class _IucnPieChartState extends State<IucnPieChart> {
     List<MapEntry<String, int>> data,
     BuildContext context,
     ColorScheme colorScheme,
+    double radiusScale,
   ) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
       final isTouched = i == _touchedIndex;
-      final radius = isTouched ? 66.0 : 58.0;
+      final radius = (isTouched ? 66.0 : 58.0) * radiusScale;
       final color = ChartPalette.getIucnColor(e.key, context);
 
       return PieChartSectionData(
@@ -366,10 +339,7 @@ class _IucnPieChartState extends State<IucnPieChart> {
         value: e.value.toDouble(),
         title: '',
         radius: radius,
-        borderSide: BorderSide(
-          color: colorScheme.surface,
-          width: 1.5,
-        ),
+        borderSide: BorderSide(color: colorScheme.surface, width: 1.5),
       );
     }).toList();
   }

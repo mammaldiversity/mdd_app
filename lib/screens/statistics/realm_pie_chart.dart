@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/indicator.dart';
+import 'package:mdd/screens/statistics/responsive_pie_chart_layout.dart';
 import 'package:mdd/services/statistics.dart';
 
 class RealmPieChart extends StatefulWidget {
@@ -40,8 +41,9 @@ class _RealmPieChartState extends State<RealmPieChart> {
                   _isDonut ? Icons.bar_chart : Icons.donut_large,
                   size: 20,
                 ),
-                tooltip:
-                    _isDonut ? 'Switch to bar chart' : 'Switch to donut chart',
+                tooltip: _isDonut
+                    ? 'Switch to bar chart'
+                    : 'Switch to donut chart',
                 onPressed: () {
                   setState(() {
                     _isDonut = !_isDonut;
@@ -53,90 +55,54 @@ class _RealmPieChartState extends State<RealmPieChart> {
         ),
         Expanded(
           child: _isDonut
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    final chartWidth = constraints.maxWidth < 380.0
-                        ? 380.0
-                        : constraints.maxWidth;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: chartWidth,
-                        height: constraints.maxHeight,
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: PieChart(
-                                  PieChartData(
-                                    pieTouchData: PieTouchData(
-                                      touchCallback: (FlTouchEvent event,
-                                          pieTouchResponse) {
-                                        setState(() {
-                                          if (!event
-                                                  .isInterestedForInteractions ||
-                                              pieTouchResponse == null ||
-                                              pieTouchResponse.touchedSection ==
-                                                  null) {
-                                            _touchedIndex = -1;
-                                            return;
-                                          }
-                                          _touchedIndex = pieTouchResponse
-                                              .touchedSection!
-                                              .touchedSectionIndex;
-                                        });
-                                      },
-                                    ),
-                                    borderData: FlBorderData(show: false),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 38,
-                                    sections: _showingSections(
-                                      data,
-                                      colors,
-                                      colorScheme,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: data.asMap().entries.map((e) {
-                                      final pct = total > 0
-                                          ? (e.value.value / total * 100)
-                                              .toStringAsFixed(1)
-                                          : '0';
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: Indicator(
-                                          color: colors[e.key % colors.length],
-                                          text:
-                                              '${e.value.key}: ${e.value.value} ($pct%)',
-                                          isSquare: true,
-                                          textColor: colorScheme.onSurface,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
+              ? ResponsivePieChartLayout(
+                  chartBuilder: (context, radiusScale) => PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              _touchedIndex = -1;
+                              return;
+                            }
+                            _touchedIndex = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
+                          });
+                        },
                       ),
-                    );
-                  },
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 38 * radiusScale,
+                      sections: _showingSections(
+                        data,
+                        colors,
+                        colorScheme,
+                        radiusScale,
+                      ),
+                    ),
+                  ),
+                  legend: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: data.asMap().entries.map((e) {
+                      final pct = total > 0
+                          ? (e.value.value / total * 100).toStringAsFixed(1)
+                          : '0';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Indicator(
+                          color: colors[e.key % colors.length],
+                          text: '${e.value.key}: ${e.value.value} ($pct%)',
+                          isSquare: true,
+                          textColor: colorScheme.onSurface,
+                          expandText: true,
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 )
               : _buildBarChart(data, colorScheme),
         ),
@@ -160,8 +126,10 @@ class _RealmPieChartState extends State<RealmPieChart> {
     List<MapEntry<String, int>> data,
     ColorScheme colorScheme,
   ) {
-    final double maxY =
-        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final double maxY = data
+        .map((e) => e.value)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
 
     // In bar plot mode, all bars use a single theme-harmonious accessible color
     final barColor = colorScheme.primary;
@@ -198,8 +166,9 @@ class _RealmPieChartState extends State<RealmPieChart> {
                         return BarTooltipItem(
                           '${item.key}\n',
                           TextStyle(
-                            color: colorScheme.onInverseSurface
-                                .withValues(alpha: 0.8),
+                            color: colorScheme.onInverseSurface.withValues(
+                              alpha: 0.8,
+                            ),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -253,6 +222,7 @@ class _RealmPieChartState extends State<RealmPieChart> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 42,
+                        maxIncluded: false,
                         interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
                         getTitlesWidget: (value, meta) {
                           return SideTitleWidget(
@@ -270,6 +240,9 @@ class _RealmPieChartState extends State<RealmPieChart> {
                       ),
                     ),
                     topTitles: const AxisTitles(
+                      // Room for the top y-axis label.
+                      axisNameWidget: SizedBox.shrink(),
+                      axisNameSize: 10,
                       sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: const AxisTitles(
@@ -279,8 +252,9 @@ class _RealmPieChartState extends State<RealmPieChart> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval:
-                        maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                    horizontalInterval: maxY > 0
+                        ? (maxY / 4).ceilToDouble()
+                        : 1,
                     getDrawingHorizontalLine: (value) => FlLine(
                       color: colorScheme.outlineVariant.withValues(alpha: 0.35),
                       strokeWidth: 1,
@@ -324,12 +298,13 @@ class _RealmPieChartState extends State<RealmPieChart> {
     List<MapEntry<String, int>> data,
     List<Color> colors,
     ColorScheme colorScheme,
+    double radiusScale,
   ) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
       final isTouched = i == _touchedIndex;
-      final radius = isTouched ? 66.0 : 58.0;
+      final radius = (isTouched ? 66.0 : 58.0) * radiusScale;
       final color = colors[i % colors.length];
 
       return PieChartSectionData(
@@ -337,10 +312,7 @@ class _RealmPieChartState extends State<RealmPieChart> {
         value: e.value.toDouble(),
         title: '',
         radius: radius,
-        borderSide: BorderSide(
-          color: colorScheme.surface,
-          width: 1.5,
-        ),
+        borderSide: BorderSide(color: colorScheme.surface, width: 1.5),
       );
     }).toList();
   }

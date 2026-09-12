@@ -173,6 +173,7 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 46,
+                              maxIncluded: false,
                               interval:
                                   maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
                               getTitlesWidget: (value, meta) {
@@ -190,6 +191,9 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                             ),
                           ),
                           topTitles: const AxisTitles(
+                            // Room for the top y-axis label.
+                            axisNameWidget: SizedBox.shrink(),
+                            axisNameSize: 10,
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           rightTitles: const AxisTitles(

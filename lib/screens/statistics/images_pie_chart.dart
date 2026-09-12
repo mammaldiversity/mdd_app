@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/indicator.dart';
+import 'package:mdd/screens/statistics/responsive_pie_chart_layout.dart';
 import 'package:mdd/services/statistics.dart';
 
 class ImagesPieChart extends StatefulWidget {
@@ -23,10 +24,12 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
     final withImages = widget.stats.speciesWithImagesCount;
     final total = widget.stats.totalSpeciesCount;
     final withoutImages = total - withImages;
-    final withPct =
-        total > 0 ? (withImages / total * 100).toStringAsFixed(1) : '0';
-    final withoutPct =
-        total > 0 ? (withoutImages / total * 100).toStringAsFixed(1) : '0';
+    final withPct = total > 0
+        ? (withImages / total * 100).toStringAsFixed(1)
+        : '0';
+    final withoutPct = total > 0
+        ? (withoutImages / total * 100).toStringAsFixed(1)
+        : '0';
     final colorScheme = Theme.of(context).colorScheme;
     final imgColors = ChartPalette.getImagesColors(context);
 
@@ -43,8 +46,9 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
                   _isDonut ? Icons.bar_chart : Icons.donut_large,
                   size: 20,
                 ),
-                tooltip:
-                    _isDonut ? 'Switch to bar chart' : 'Switch to donut chart',
+                tooltip: _isDonut
+                    ? 'Switch to bar chart'
+                    : 'Switch to donut chart',
                 onPressed: () {
                   setState(() {
                     _isDonut = !_isDonut;
@@ -56,111 +60,73 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
         ),
         Expanded(
           child: _isDonut
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    final chartWidth = constraints.maxWidth < 380.0
-                        ? 380.0
-                        : constraints.maxWidth;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: chartWidth,
-                        height: constraints.maxHeight,
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: PieChart(
-                                  PieChartData(
-                                    pieTouchData: PieTouchData(
-                                      touchCallback: (FlTouchEvent event,
-                                          pieTouchResponse) {
-                                        setState(() {
-                                          if (!event
-                                                  .isInterestedForInteractions ||
-                                              pieTouchResponse == null ||
-                                              pieTouchResponse.touchedSection ==
-                                                  null) {
-                                            _touchedIndex = -1;
-                                            return;
-                                          }
-                                          _touchedIndex = pieTouchResponse
-                                              .touchedSection!
-                                              .touchedSectionIndex;
-                                        });
-                                      },
-                                    ),
-                                    borderData: FlBorderData(show: false),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 38,
-                                    sections: [
-                                      _buildSection(
-                                        0,
-                                        withImages,
-                                        imgColors.withImages,
-                                        colorScheme,
-                                      ),
-                                      _buildSection(
-                                        1,
-                                        withoutImages,
-                                        imgColors.withoutImages,
-                                        colorScheme,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: Indicator(
-                                          color: imgColors.withImages,
-                                          text: 'With: $withImages ($withPct%)',
-                                          isSquare: true,
-                                          textColor: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: Indicator(
-                                          color: imgColors.withoutImages,
-                                          text:
-                                              'Without: $withoutImages ($withoutPct%)',
-                                          isSquare: true,
-                                          textColor: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
+              ? ResponsivePieChartLayout(
+                  chartBuilder: (context, radiusScale) => PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              _touchedIndex = -1;
+                              return;
+                            }
+                            _touchedIndex = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
+                          });
+                        },
+                      ),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 38 * radiusScale,
+                      sections: [
+                        _buildSection(
+                          0,
+                          withImages,
+                          imgColors.withImages,
+                          colorScheme,
+                          radiusScale,
+                        ),
+                        _buildSection(
+                          1,
+                          withoutImages,
+                          imgColors.withoutImages,
+                          colorScheme,
+                          radiusScale,
+                        ),
+                      ],
+                    ),
+                  ),
+                  legend: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Indicator(
+                          color: imgColors.withImages,
+                          text: 'With: $withImages ($withPct%)',
+                          isSquare: true,
+                          textColor: colorScheme.onSurface,
+                          expandText: true,
                         ),
                       ),
-                    );
-                  },
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Indicator(
+                          color: imgColors.withoutImages,
+                          text: 'Without: $withoutImages ($withoutPct%)',
+                          isSquare: true,
+                          textColor: colorScheme.onSurface,
+                          expandText: true,
+                        ),
+                      ),
+                    ],
+                  ),
                 )
-              : _buildBarChart(
-                  withImages,
-                  withoutImages,
-                  colorScheme,
-                ),
+              : _buildBarChart(withImages, withoutImages, colorScheme),
         ),
       ],
     );
@@ -247,6 +213,7 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 42,
+              maxIncluded: false,
               interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
               getTitlesWidget: (value, meta) {
                 return SideTitleWidget(
@@ -263,6 +230,9 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
             ),
           ),
           topTitles: const AxisTitles(
+            // Room for the top y-axis label.
+            axisNameWidget: SizedBox.shrink(),
+            axisNameSize: 10,
             sideTitles: SideTitles(showTitles: false),
           ),
           rightTitles: const AxisTitles(
@@ -288,10 +258,7 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
               BarChartRodData(
                 toY: item.count.toDouble(),
                 gradient: LinearGradient(
-                  colors: [
-                    barColor.withValues(alpha: 0.85),
-                    barColor,
-                  ],
+                  colors: [barColor.withValues(alpha: 0.85), barColor],
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),
@@ -312,19 +279,17 @@ class _ImagesPieChartState extends State<ImagesPieChart> {
     int count,
     Color color,
     ColorScheme colorScheme,
+    double radiusScale,
   ) {
     final isTouched = index == _touchedIndex;
-    final radius = isTouched ? 66.0 : 58.0;
+    final radius = (isTouched ? 66.0 : 58.0) * radiusScale;
 
     return PieChartSectionData(
       color: color,
       value: count.toDouble(),
       title: '',
       radius: radius,
-      borderSide: BorderSide(
-        color: colorScheme.surface,
-        width: 1.5,
-      ),
+      borderSide: BorderSide(color: colorScheme.surface, width: 1.5),
     );
   }
 }

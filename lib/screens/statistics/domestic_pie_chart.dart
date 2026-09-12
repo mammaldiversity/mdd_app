@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/indicator.dart';
+import 'package:mdd/screens/statistics/responsive_pie_chart_layout.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -40,8 +41,9 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
                   _isDonut ? Icons.bar_chart : Icons.donut_large,
                   size: 20,
                 ),
-                tooltip:
-                    _isDonut ? 'Switch to bar chart' : 'Switch to donut chart',
+                tooltip: _isDonut
+                    ? 'Switch to bar chart'
+                    : 'Switch to donut chart',
                 onPressed: () {
                   setState(() {
                     _isDonut = !_isDonut;
@@ -53,96 +55,60 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
         ),
         Expanded(
           child: _isDonut
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    final chartWidth = constraints.maxWidth < 380.0
-                        ? 380.0
-                        : constraints.maxWidth;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        width: chartWidth,
-                        height: constraints.maxHeight,
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: PieChart(
-                                  PieChartData(
-                                    pieTouchData: PieTouchData(
-                                      touchCallback: (FlTouchEvent event,
-                                          pieTouchResponse) {
-                                        setState(() {
-                                          if (!event
-                                                  .isInterestedForInteractions ||
-                                              pieTouchResponse == null ||
-                                              pieTouchResponse.touchedSection ==
-                                                  null) {
-                                            _touchedIndex = -1;
-                                            return;
-                                          }
-                                          _touchedIndex = pieTouchResponse
-                                              .touchedSection!
-                                              .touchedSectionIndex;
-                                        });
-                                      },
-                                    ),
-                                    borderData: FlBorderData(show: false),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 38,
-                                    sections: _showingSections(
-                                      data,
-                                      colorScheme,
-                                      domesticColors,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: data.map((e) {
-                                      final isDomestic = e.isDomestic == 1;
-                                      final pct = total > 0
-                                          ? (e.count / total * 100)
-                                              .toStringAsFixed(1)
-                                          : '0';
-                                      final label =
-                                          isDomestic ? 'Domestic' : 'Wild';
-                                      final color = isDomestic
-                                          ? domesticColors.domestic
-                                          : domesticColors.wild;
-
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 4.0),
-                                        child: Indicator(
-                                          color: color,
-                                          text: '$label: ${e.count} ($pct%)',
-                                          isSquare: true,
-                                          textColor: colorScheme.onSurface,
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
+              ? ResponsivePieChartLayout(
+                  chartBuilder: (context, radiusScale) => PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              _touchedIndex = -1;
+                              return;
+                            }
+                            _touchedIndex = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
+                          });
+                        },
                       ),
-                    );
-                  },
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 38 * radiusScale,
+                      sections: _showingSections(
+                        data,
+                        colorScheme,
+                        domesticColors,
+                        radiusScale,
+                      ),
+                    ),
+                  ),
+                  legend: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: data.map((e) {
+                      final isDomestic = e.isDomestic == 1;
+                      final pct = total > 0
+                          ? (e.count / total * 100).toStringAsFixed(1)
+                          : '0';
+                      final label = isDomestic ? 'Domestic' : 'Wild';
+                      final color = isDomestic
+                          ? domesticColors.domestic
+                          : domesticColors.wild;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Indicator(
+                          color: color,
+                          text: '$label: ${e.count} ($pct%)',
+                          isSquare: true,
+                          textColor: colorScheme.onSurface,
+                          expandText: true,
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 )
               : _buildBarChart(data, colorScheme),
         ),
@@ -230,6 +196,7 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 42,
+              maxIncluded: false,
               interval: maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
               getTitlesWidget: (value, meta) {
                 return SideTitleWidget(
@@ -246,6 +213,9 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
             ),
           ),
           topTitles: const AxisTitles(
+            // Room for the top y-axis label.
+            axisNameWidget: SizedBox.shrink(),
+            axisNameSize: 10,
             sideTitles: SideTitles(showTitles: false),
           ),
           rightTitles: const AxisTitles(
@@ -271,10 +241,7 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
               BarChartRodData(
                 toY: item.count.toDouble(),
                 gradient: LinearGradient(
-                  colors: [
-                    barColor.withValues(alpha: 0.85),
-                    barColor,
-                  ],
+                  colors: [barColor.withValues(alpha: 0.85), barColor],
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                 ),
@@ -294,12 +261,13 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
     List<StatDomesticSpeciesResult> data,
     ColorScheme colorScheme,
     ({Color domestic, Color wild}) domesticColors,
+    double radiusScale,
   ) {
     return data.asMap().entries.map((entry) {
       final i = entry.key;
       final e = entry.value;
       final isTouched = i == _touchedIndex;
-      final radius = isTouched ? 66.0 : 58.0;
+      final radius = (isTouched ? 66.0 : 58.0) * radiusScale;
 
       final isDomestic = e.isDomestic == 1;
       final count = e.count;
@@ -310,10 +278,7 @@ class _DomesticPieChartState extends State<DomesticPieChart> {
         value: count.toDouble(),
         title: '',
         radius: radius,
-        borderSide: BorderSide(
-          color: colorScheme.surface,
-          width: 1.5,
-        ),
+        borderSide: BorderSide(color: colorScheme.surface, width: 1.5),
       );
     }).toList();
   }
