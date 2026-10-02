@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
+import 'package:mdd/services/taxon_tree.dart';
 
 final searchDatabaseProvider =
     AsyncNotifierProvider<SearchDatabase, List<MainTaxonomyData>>(
@@ -171,3 +172,54 @@ final milJsonCarouselProvider = FutureProvider<List<Map<String, dynamic>>>((
   final jsonString = await rootBundle.loadString('assets/data/mil.json');
   return await compute(_parseMilJson, jsonString);
 });
+
+final treeSpeciesDataProvider = FutureProvider<Map<int, TreeSpeciesData>>((
+  ref,
+) async {
+  return MddQuery(ref.watch(databaseProvider)).retrieveTreeSpecies();
+});
+
+final taxonTreeProvider = FutureProvider<List<TaxonNode>>((ref) async {
+  final speciesList = await ref.watch(speciesListProvider.future);
+  final speciesData = await ref.watch(treeSpeciesDataProvider.future);
+  return buildTaxonTree(speciesList, speciesData);
+});
+
+final expandedTaxaProvider = NotifierProvider<ExpandedTaxa, ExpandedTaxaState>(
+  () => ExpandedTaxa(),
+);
+
+class ExpandedTaxaState {
+  const ExpandedTaxaState({this.keys = const {}, this.generation = 0});
+
+  final Set<String> keys;
+
+  /// Bumped on expand/collapse all so list-view tiles rebuild with the new
+  /// initial state.
+  final int generation;
+}
+
+/// Expanded nodes, shared by the list and tree views on the Explore page.
+class ExpandedTaxa extends Notifier<ExpandedTaxaState> {
+  @override
+  ExpandedTaxaState build() => const ExpandedTaxaState();
+
+  void setExpanded(String key, bool isExpanded) {
+    final keys = {...state.keys};
+    isExpanded ? keys.add(key) : keys.remove(key);
+    state = ExpandedTaxaState(keys: keys, generation: state.generation);
+  }
+
+  void toggle(String key) => setExpanded(key, !state.keys.contains(key));
+
+  void expandAll(List<TaxonNode> tree) {
+    state = ExpandedTaxaState(
+      keys: collectParentKeys(tree),
+      generation: state.generation + 1,
+    );
+  }
+
+  void collapseAll() {
+    state = ExpandedTaxaState(generation: state.generation + 1);
+  }
+}

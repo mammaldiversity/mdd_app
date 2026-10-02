@@ -125,3 +125,29 @@ class ShowInfoTextSetting extends AsyncNotifier<bool> {
     });
   }
 }
+
+enum ExploreViewMode { list, tree }
+
+final exploreViewModeProvider =
+    AsyncNotifierProvider<ExploreViewModeSetting, ExploreViewMode>(
+      () => ExploreViewModeSetting(),
+    );
+
+class ExploreViewModeSetting extends AsyncNotifier<ExploreViewMode> {
+  static const String _key = 'exploreViewMode';
+
+  @override
+  FutureOr<ExploreViewMode> build() async {
+    final prefs = ref.watch(settingProvider);
+    final saved = prefs.getString(_key);
+    return ExploreViewMode.values.firstWhere(
+      (mode) => mode.name == saved,
+      orElse: () => ExploreViewMode.list,
+    );
+  }
+
+  Future<void> setMode(ExploreViewMode mode) async {
+    state = AsyncValue.data(mode);
+    await ref.read(settingProvider).setString(_key, mode.name);
+  }
+}

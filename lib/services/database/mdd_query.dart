@@ -77,6 +77,24 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return mddGroupList().get();
   }
 
+  /// Leaf data for the Explore tree view, keyed by MDD ID.
+  Future<Map<int, TreeSpeciesData>> retrieveTreeSpecies() async {
+    const String query = '''
+      SELECT id, genus, specificEpithet, mainCommonName, extinct
+      FROM taxonomy
+    ''';
+    final rows = await customSelect(query, readsFrom: {taxonomy}).get();
+    return {
+      for (final QueryRow row in rows)
+        row.read<int>('id'): TreeSpeciesData(
+          id: row.read<int>('id'),
+          specificEpithet: row.readNullable<String>('specificEpithet') ?? '',
+          mainCommonName: row.readNullable<String>('mainCommonName') ?? '',
+          isExtinct: row.readNullable<int>('extinct') == 1,
+        ),
+    };
+  }
+
   Future<List<RandomMilImagesWithTaxonomyResult>> getRandomMilImages() async {
     return randomMilImagesWithTaxonomy().get();
   }
@@ -555,4 +573,18 @@ class MainTaxonomyData {
       mainCommonName: data.mainCommonName ?? '',
     );
   }
+}
+
+class TreeSpeciesData {
+  const TreeSpeciesData({
+    required this.id,
+    required this.specificEpithet,
+    required this.mainCommonName,
+    required this.isExtinct,
+  });
+
+  final int id;
+  final String specificEpithet;
+  final String mainCommonName;
+  final bool isExtinct;
 }
