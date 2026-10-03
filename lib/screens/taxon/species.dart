@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/taxon/mil_images.dart';
 import 'package:mdd/screens/taxon/distribution_map.dart';
+import 'package:mdd/screens/taxon/external_resources.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/screens/taxon/correction.dart';
@@ -136,6 +137,7 @@ class OtherDetailsResponsive extends StatelessWidget {
                       countryDistribution: taxonData.countryDistribution,
                     ),
                     const SynonymList(),
+                    ExternalResourcesPanel(taxonData: taxonData),
                   ],
                 ),
               ),
@@ -154,6 +156,7 @@ class OtherDetailsResponsive extends StatelessWidget {
               const SizedBox(height: 8),
               SpeciesInfoList(taxonData: taxonData),
               const SynonymList(),
+              ExternalResourcesPanel(taxonData: taxonData),
             ],
           );
         }

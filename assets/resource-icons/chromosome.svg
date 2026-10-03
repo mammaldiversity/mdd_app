@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- A karyotype: three chromosomes of falling size, centromeres pinched. -->
+  <g fill="#808080" fill-opacity="0.4">
+    <rect x="3" y="3" width="4.4" height="18" rx="2.2"/>
+    <rect x="9.8" y="5.5" width="4.4" height="15.5" rx="2.2"/>
+    <rect x="16.6" y="9" width="4.4" height="12" rx="2.2"/>
+  </g>
+  <g fill="#000000">
+    <rect x="3" y="6" width="4.4" height="1.8"/>
+    <rect x="3" y="14" width="4.4" height="2.6"/>
+    <rect x="9.8" y="9.6" width="4.4" height="2"/>
+    <rect x="9.8" y="16.4" width="4.4" height="1.6"/>
+    <rect x="16.6" y="13.6" width="4.4" height="2.2"/>
+  </g>
+</svg>
