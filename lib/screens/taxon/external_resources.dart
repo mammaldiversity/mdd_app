@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mdd/screens/home/stats.dart';
 import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/screens/shared/maps/map_controls.dart';
 import 'package:mdd/screens/taxon/gbif_map.dart';
+import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/external_resources.dart';
@@ -15,8 +17,9 @@ import 'package:mdd/services/system.dart';
 const String externalResourcesDescription =
     'Explore this species in public databases.';
 
-const String externalDataNote =
-    'Fetched automatically from the source and not curated by the MDD team. '
+/// The note above external data, naming where it comes from.
+String externalDataNote(String provider) =>
+    'Fetched automatically from $provider and not curated by the MDD team. '
     'Its taxonomy may differ from MDD.';
 
 /// Tiles switch from a row to a stacked column below this width.
@@ -28,6 +31,7 @@ enum ExternalResource {
     source: 'GBIF',
     description: 'Record count and density map',
     sheetTitle: 'Species occurrences · GBIF',
+    provider: 'GBIF',
     icon: ResourceIcon.occurrences,
   ),
   genetics(
@@ -35,6 +39,7 @@ enum ExternalResource {
     source: 'GenBank',
     description: 'Genomes, genes and sequences',
     sheetTitle: 'Genetic data · GenBank',
+    provider: 'NCBI (GenBank and Datasets)',
     icon: ResourceIcon.genetics,
   ),
   publications(
@@ -42,6 +47,7 @@ enum ExternalResource {
     source: 'Crossref',
     description: 'Papers naming this species',
     sheetTitle: 'Publications · Crossref',
+    provider: 'Crossref',
     icon: ResourceIcon.publications,
   );
 
@@ -50,6 +56,7 @@ enum ExternalResource {
     required this.source,
     required this.description,
     required this.sheetTitle,
+    required this.provider,
     required this.icon,
   });
 
@@ -57,6 +64,9 @@ enum ExternalResource {
   final String source;
   final String description;
   final String sheetTitle;
+
+  /// Every service the data is fetched from, for the data note.
+  final String provider;
   final ResourceIcon icon;
 }
 
@@ -366,34 +376,24 @@ class ExternalResourceSheet extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            ResourceIconBadge(icon: resource.icon, size: 48),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    speciesName,
-                    style: textTheme.titleLarge?.apply(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  Text(
-                    resource.sheetTitle,
-                    style: textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        Text(
+          speciesName,
+          style: textTheme.titleLarge?.apply(
+            fontFamily: 'Libre Baskerville',
+            fontStyle: FontStyle.italic,
+          ),
+          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        Text(
+          resource.sheetTitle,
+          style: textTheme.titleSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
         const Divider(),
-        const _ExternalDataNote(),
+        _ExternalDataNote(provider: resource.provider),
         const SizedBox(height: 8),
         Flexible(
           child: switch (resource) {
@@ -440,56 +440,54 @@ class GbifOccurrenceView extends ConsumerWidget {
             return ListView(
               shrinkWrap: true,
               children: [
-                _DataCard(
-                  title: 'Occurrence records',
+                _DetailStatCard(
                   icon: ResourceIcon.occurrences,
+                  title: 'Occurrence records',
                   value: formatCount(summary.occurrences),
-                  unit: summary.occurrences == 1 ? 'record' : 'records',
-                  notes: [
+                  pills: [
                     if (summary.matchedName != speciesName)
-                      'Matched on GBIF as ${summary.matchedName}',
+                      SpeciesSubStats(
+                        label: 'Matched on GBIF as',
+                        display: summary.matchedName,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                GbifMapLegend(
-                  hasDistribution:
-                      distribution.asData?.value?.polygons.isNotEmpty ?? false,
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 320,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    // The outlines are a local asset, so waiting for them
-                    // costs nothing and saves rebuilding the map style.
-                    child: distribution.when(
-                      data: (data) => GbifDensityMap(
-                        taxonKey: summary.taxonKey,
-                        extent: summary.extent,
-                        distribution: data,
-                      ),
-                      loading: () => const _ResourceLoading(),
-                      error: (_, _) => GbifDensityMap(
-                        taxonKey: summary.taxonKey,
-                        extent: summary.extent,
-                      ),
+                _MapPanel(
+                  legend: GbifMapLegend(
+                    hasDistribution:
+                        distribution.asData?.value?.polygons.isNotEmpty ??
+                        false,
+                  ),
+                  // The outlines are a local asset, so waiting for them
+                  // costs nothing and saves rebuilding the map style.
+                  map: distribution.when(
+                    data: (data) => GbifDensityMap(
+                      taxonKey: summary.taxonKey,
+                      extent: summary.extent,
+                      distribution: data,
+                    ),
+                    loading: () => const _ResourceLoading(),
+                    error: (_, _) => GbifDensityMap(
+                      taxonKey: summary.taxonKey,
+                      extent: summary.extent,
                     ),
                   ),
+                  notes: [
+                    Text(
+                      '© GBIF · OpenMapTiles · OpenStreetMap contributors',
+                      style: textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 2),
+                    const RecenterHint(subject: 'Records'),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '© GBIF · OpenMapTiles · OpenStreetMap contributors',
-                  style: textTheme.bodySmall,
-                ),
-                const SizedBox(height: 2),
-                const RecenterHint(subject: 'Records'),
                 const SizedBox(height: 8),
                 Center(
-                  child: FilledButton.tonalIcon(
+                  child: _SourceButton(
+                    label: 'Open on GBIF',
                     onPressed: () =>
                         launchURL(GbifClient.speciesPageUrl(summary.taxonKey)),
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Open on GBIF'),
                   ),
                 ),
               ],
@@ -500,6 +498,61 @@ class GbifOccurrenceView extends ConsumerWidget {
             onRetry: () => ref.invalidate(gbifSummaryProvider(speciesName)),
           ),
         );
+  }
+}
+
+/// Keeps the map with its legend, attribution and hint in one card, laid
+/// out like the distribution map: text inset, map edge to edge.
+class _MapPanel extends StatelessWidget {
+  const _MapPanel({
+    required this.legend,
+    required this.map,
+    this.notes = const [],
+  });
+
+  final Widget legend;
+  final Widget map;
+  final List<Widget> notes;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(130)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: legend,
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 300,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: map,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: notes,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -516,14 +569,14 @@ class GenBankView extends ConsumerWidget {
           data: (counts) => _CardGrid(
             children: [
               for (final item in counts)
-                _DataCard(
+                StatCard(
                   title: item.label,
-                  icon: ResourceIcon.forRecord(item.record),
-                  value: formatCount(item.count),
-                  unit: item.count == 1 ? 'record' : 'records',
-                  notes: [item.description],
-                  linkLabel: item.count > 0 ? 'View in NCBI' : null,
-                  onLink: item.count > 0 ? () => launchURL(item.url) : null,
+                  count: item.count,
+                  leading: ResourceGlyph(
+                    icon: ResourceIcon.forRecord(item.record),
+                  ),
+                  tooltip: 'Open in NCBI',
+                  onTap: item.count > 0 ? () => launchURL(item.url) : null,
                 ),
             ],
           ),
@@ -537,7 +590,7 @@ class GenBankView extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           GenomeSection(speciesName: speciesName),
-          const _SectionTitle('Records in NCBI'),
+          const _StatHeading('Records in NCBI'),
           records,
         ],
       ),
@@ -545,8 +598,8 @@ class GenBankView extends ConsumerWidget {
   }
 }
 
-/// Genome size and gene composition from NCBI Datasets, after the
-/// BioCosmos genetics page. Shows nothing for species without either.
+/// Genome size and gene composition from NCBI Datasets. Shows nothing for
+/// species without either.
 class GenomeSection extends ConsumerWidget {
   const GenomeSection({super.key, required this.speciesName});
 
@@ -563,18 +616,16 @@ class GenomeSection extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (assembly != null) ...[
-                  const _SectionTitle('Nuclear genome'),
+                if (assembly != null)
                   _GenomeCard(
                     assembly: assembly,
                     assemblyCount: summary.assemblyCount,
                     speciesName: speciesName,
                   ),
-                ],
-                if (summary.genes.total > 0) ...[
-                  const _SectionTitle('Annotated genes'),
+                if (assembly != null && summary.genes.total > 0)
+                  const SizedBox(height: 8),
+                if (summary.genes.total > 0)
                   GeneCompositionCard(genes: summary.genes),
-                ],
               ],
             );
           },
@@ -586,28 +637,143 @@ class GenomeSection extends ConsumerWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
+/// A plain bold heading, like "Mammal Diversity Statistics".
+class _StatHeading extends StatelessWidget {
+  const _StatHeading(this.title);
 
   final String title;
 
   @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
+    child: Text(
+      title,
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+    ),
+  );
+}
+
+/// A resource icon drawn on its own, above a stat card's value.
+class ResourceGlyph extends StatelessWidget {
+  const ResourceGlyph({super.key, required this.icon, this.size = 24});
+
+  final ResourceIcon icon;
+  final double size;
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(top: 12, bottom: 8),
-      padding: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
-      ),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return ExcludeSemantics(
+      child: SvgPicture.asset(
+        icon.asset,
+        width: size,
+        height: size,
+        colorMapper: _ResourceIconColors(
+          isDark ? colorScheme.onSurface : colorScheme.primary,
+          colorScheme.secondary,
+        ),
       ),
     );
   }
+}
+
+/// A headline figure with sub-stat pills, laid out like the home screen's
+/// species card: icon and title, a large value, then pills.
+class _DetailStatCard extends StatelessWidget {
+  const _DetailStatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    this.pills = const [],
+    this.chart,
+    this.footer = const [],
+  });
+
+  final ResourceIcon icon;
+  final String title;
+  final String value;
+  final List<Widget> pills;
+  final Widget? chart;
+  final List<Widget> footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(130)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            ResourceGlyph(icon: icon),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: statValueColor(context),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (chart != null) ...[const SizedBox(height: 12), chart!],
+            if (pills.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: pills,
+              ),
+            ],
+            if (footer.isNotEmpty) ...[const SizedBox(height: 8), ...footer],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A teal text action, as used across MDD.
+class _SourceButton extends StatelessWidget {
+  const _SourceButton({
+    required this.label,
+    required this.onPressed,
+    this.icon = Icons.open_in_new,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    style: TextButton.styleFrom(
+      foregroundColor: Theme.of(context).colorScheme.secondary,
+      visualDensity: VisualDensity.compact,
+    ),
+    onPressed: onPressed,
+    icon: Icon(icon, size: 16),
+    label: Text(label),
+  );
 }
 
 class _GenomeCard extends StatelessWidget {
@@ -627,55 +793,62 @@ class _GenomeCard extends StatelessWidget {
         ? formatBases(assembly.genomeSize!)
         : null;
     final int? chromosomes = assembly.chromosomeCount;
-    final String? level = assembly.assemblyLevel?.toLowerCase();
-    final String structure = [
-      if (level != null) '$level-level',
-      if (chromosomes != null && chromosomes > 0)
-        '$chromosomes chromosome${chromosomes == 1 ? '' : 's'}',
-      if (assembly.gcPercent != null) 'GC ${assembly.gcPercent}%',
-    ].join(' · ');
-    final String provenance = [
-      ?assembly.submitter,
-      ?assembly.releaseDate?.split('-').first,
-    ].join(', ');
+    final String? year = assembly.releaseDate?.split('-').first;
     final String? organism = assembly.organismName;
     final bool fromOther =
         organism != null && organism.toLowerCase() != speciesName.toLowerCase();
-    return _DataCard(
+    return _DetailStatCard(
+      icon: ResourceIcon.chromosome,
       title: assembly.isReference
           ? 'Reference genome'
           : 'Best available assembly',
-      icon: ResourceIcon.chromosome,
-      value: size?.value ?? '—',
-      unit: size?.unit ?? 'genome size unknown',
-      notes: [
-        if (structure.isNotEmpty) structure,
-        if (provenance.isNotEmpty) provenance,
-        [
-          assembly.accession,
-          if (fromOther) 'from $organism',
-          if (assemblyCount > 1) '· $assemblyCount assemblies in NCBI',
-        ].join(' '),
+      value: size == null ? 'Size unknown' : '${size.value} ${size.unit}',
+      pills: [
+        if (chromosomes != null && chromosomes > 0)
+          SpeciesSubStats(label: 'Chromosomes', value: chromosomes),
+        if (assembly.assemblyLevel != null)
+          SpeciesSubStats(label: 'Level', display: assembly.assemblyLevel!),
+        if (assembly.gcPercent != null)
+          SpeciesSubStats(label: 'GC', display: '${assembly.gcPercent}%'),
+        if (year != null) SpeciesSubStats(label: 'Released', display: year),
+        if (assemblyCount > 1)
+          SpeciesSubStats(label: 'Assemblies', value: assemblyCount),
       ],
-      linkLabel: 'View in NCBI Datasets',
-      onLink: () => launchURL(assembly.url),
+      footer: [
+        if (fromOther)
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(text: 'Assembled from '),
+                TextSpan(
+                  text: organism,
+                  style: const TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        _SourceButton(
+          label: assembly.accession,
+          onPressed: () => launchURL(assembly.url),
+        ),
+      ],
     );
   }
 }
 
-/// Category colours, fixed in order so a category keeps its colour whichever
-/// a species has. Taken from the BioCosmos palette, which was checked for
-/// contrast against light and dark surfaces.
-Color geneCategoryColor(GeneCategory category, {required bool isDark}) {
+/// Category colours from the MDD chart palette, which is checked for WCAG
+/// contrast against card surfaces in both themes. Fixed per category so a
+/// category keeps its colour whichever ones a species has.
+Color geneCategoryColor(BuildContext context, GeneCategory category) {
+  final palette = ChartPalette.getCategoricalColors(context);
   return switch (category) {
-    GeneCategory.proteinCoding =>
-      isDark ? const Color(0xFF00A3A3) : const Color(0xFF009999),
-    GeneCategory.rna =>
-      isDark ? const Color(0xFFBF4A22) : const Color(0xFFAD421F),
-    GeneCategory.pseudo =>
-      isDark ? const Color(0xFF8F75DA) : const Color(0xFF7A5BC9),
-    GeneCategory.other =>
-      isDark ? const Color(0xFFAA8A0C) : const Color(0xFFA8860A),
+    GeneCategory.proteinCoding => palette[0],
+    GeneCategory.rna => palette[1],
+    GeneCategory.pseudo => palette[2],
+    GeneCategory.other => palette[4],
   };
 }
 
@@ -685,8 +858,8 @@ String _formatShare(int count, int total) {
   return share > 0 && share < 1 ? '<1%' : '${share.round()}%';
 }
 
-/// The total, then how it divides between categories: one stacked bar with
-/// a legend that carries every count, so no share is told by colour alone.
+/// The total, a thin bar of how it divides, and a pill per category that
+/// carries its count and share, so no share is told by colour alone.
 class GeneCompositionCard extends StatelessWidget {
   const GeneCompositionCard({super.key, required this.genes});
 
@@ -694,120 +867,53 @@ class GeneCompositionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final int total = genes.total;
     final Map<GeneCategory, int> segments = genes.byCategory;
     final String description = segments.entries
         .map((e) => '${e.key.label}: ${formatCount(e.value)}')
         .join(', ');
-    return _CardFrame(
-      title: 'Gene composition',
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ResourceIconBadge(icon: ResourceIcon.gene, size: 48),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return _DetailStatCard(
+      icon: ResourceIcon.gene,
+      title: 'Annotated genes',
+      value: formatCount(total),
+      chart: Semantics(
+        label: description,
+        child: ExcludeSemantics(
+          child: SizedBox(
+            height: 8,
+            child: Row(
               children: [
-                _CountText(
-                  value: formatCount(total),
-                  unit: total == 1 ? 'gene' : 'genes',
-                ),
-                const SizedBox(height: 8),
-                Semantics(
-                  label: description,
-                  child: ExcludeSemantics(
-                    child: SizedBox(
-                      height: 14,
-                      child: Row(
-                        children: [
-                          for (final (index, entry)
-                              in segments.entries.indexed) ...[
-                            // 2px gaps keep neighbours apart where colour
-                            // alone would not.
-                            if (index > 0) const SizedBox(width: 2),
-                            Expanded(
-                              flex: entry.value,
-                              child: Tooltip(
-                                message:
-                                    '${entry.key.label} '
-                                    '${formatCount(entry.value)} '
-                                    '(${_formatShare(entry.value, total)})',
-                                child: Container(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: geneCategoryColor(
-                                      entry.key,
-                                      isDark: isDark,
-                                    ),
-                                    borderRadius: BorderRadius.horizontal(
-                                      left: Radius.circular(index == 0 ? 4 : 0),
-                                      right: Radius.circular(
-                                        index == segments.length - 1 ? 4 : 0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                for (final (index, entry) in segments.entries.indexed) ...[
+                  if (index > 0) const SizedBox(width: 2),
+                  Expanded(
+                    flex: entry.value,
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 3),
+                      decoration: BoxDecoration(
+                        color: geneCategoryColor(context, entry.key),
+                        borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(index == 0 ? 4 : 0),
+                          right: Radius.circular(
+                            index == segments.length - 1 ? 4 : 0,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                ExcludeSemantics(
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 4,
-                    children: [
-                      for (final entry in segments.entries)
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: Container(
-                                  width: 12,
-                                  height: 12,
-                                  margin: const EdgeInsets.only(right: 6),
-                                  decoration: BoxDecoration(
-                                    color: geneCategoryColor(
-                                      entry.key,
-                                      isDark: isDark,
-                                    ),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                              ),
-                              TextSpan(text: '${entry.key.label} '),
-                              TextSpan(
-                                text:
-                                    '${formatCount(entry.value)} · '
-                                    '${_formatShare(entry.value, total)}',
-                                style: TextStyle(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                          style: textTheme.bodySmall,
-                        ),
-                    ],
-                  ),
-                ),
+                ],
               ],
             ),
           ),
-        ],
+        ),
       ),
+      pills: [
+        for (final entry in segments.entries)
+          SpeciesSubStats(
+            label: '${entry.key.label} · ${_formatShare(entry.value, total)}',
+            value: entry.value,
+            swatch: geneCategoryColor(context, entry.key),
+          ),
+      ],
     );
   }
 }
@@ -822,140 +928,16 @@ class _CardGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double gap = 8;
         final bool isTwoColumn = constraints.maxWidth >= _kTileRowMinWidth;
         final double width = isTwoColumn
-            ? (constraints.maxWidth - gap) / 2
+            ? constraints.maxWidth / 2
             : constraints.maxWidth;
         return Wrap(
-          spacing: gap,
-          runSpacing: gap,
           children: [
             for (final child in children) SizedBox(width: width, child: child),
           ],
         );
       },
-    );
-  }
-}
-
-class _CardFrame extends StatelessWidget {
-  const _CardFrame({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outlineVariant.withAlpha(120)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-/// A bold value followed by its unit, e.g. "2.30 Gb".
-class _CountText extends StatelessWidget {
-  const _CountText({required this.value, required this.unit});
-
-  final String value;
-  final String unit;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: value,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          TextSpan(text: ' $unit'),
-        ],
-      ),
-      style: Theme.of(context).textTheme.titleMedium,
-    );
-  }
-}
-
-/// A titled card with an icon, a value and an optional source link, after
-/// the BioCosmos genetics cards.
-class _DataCard extends StatelessWidget {
-  const _DataCard({
-    required this.title,
-    required this.icon,
-    required this.value,
-    required this.unit,
-    this.notes = const [],
-    this.linkLabel,
-    this.onLink,
-  });
-
-  final String title;
-  final ResourceIcon icon;
-  final String value;
-  final String unit;
-  final List<String> notes;
-  final String? linkLabel;
-  final VoidCallback? onLink;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    return _CardFrame(
-      title: title,
-      child: Row(
-        children: [
-          ResourceIconBadge(icon: icon, size: 48),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _CountText(value: value, unit: unit),
-                for (final note in notes)
-                  Text(
-                    note,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                if (linkLabel != null && onLink != null)
-                  InkWell(
-                    onTap: onLink,
-                    child: Text(
-                      linkLabel!,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.secondary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -968,43 +950,71 @@ class CrossrefView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final Widget searchMore = Center(
-      child: TextButton.icon(
+      child: _SourceButton(
+        label: 'Search more on Crossref',
+        icon: Icons.search,
         onPressed: () => launchURL(CrossrefClient.searchUrl(speciesName)),
-        icon: const Icon(Icons.search),
-        label: const Text('Search more on Crossref'),
       ),
     );
     return ref
         .watch(crossrefWorksProvider(speciesName))
         .when(
-          data: (works) => ListView(
-            shrinkWrap: true,
-            children: [
-              if (works.isEmpty)
-                const _ResourceMessage(
-                  'No publications with this species in the title found.',
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    '${works.length} '
-                    '${works.length == 1 ? 'publication' : 'publications'}'
-                    ' with this species in the title',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+          data: (works) {
+            if (works.isEmpty) {
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  const _ResourceMessage(
+                    'No publications with this species in the title found.',
                   ),
+                  searchMore,
+                ],
+              );
+            }
+            final groups = CrossrefClient.groupByYear(works);
+            final List<CrossrefWork> sorted = [
+              for (final (_, items) in groups) ...items,
+            ];
+            final List<int> years = [for (final (year, _) in groups) ?year];
+            return ListView(
+              shrinkWrap: true,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        title: 'Publications',
+                        count: works.length,
+                        leading: const ResourceGlyph(
+                          icon: ResourceIcon.publications,
+                        ),
+                      ),
+                    ),
+                    if (years.isNotEmpty) ...[
+                      Expanded(
+                        child: StatCard(
+                          title: 'Latest',
+                          display: '${years.first}',
+                          leading: const _StatIcon(Icons.event_outlined),
+                        ),
+                      ),
+                      Expanded(
+                        child: StatCard(
+                          title: 'Earliest',
+                          display: '${years.last}',
+                          leading: const _StatIcon(Icons.history),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              for (final (year, items) in CrossrefClient.groupByYear(works))
-                _PublicationYear(
-                  year: year,
-                  works: items,
-                  speciesName: speciesName,
-                ),
-              searchMore,
-            ],
-          ),
+                const SizedBox(height: 8),
+                _PublicationList(works: sorted, speciesName: speciesName),
+                const SizedBox(height: 4),
+                searchMore,
+              ],
+            );
+          },
           loading: () => const _ResourceLoading(),
           error: (error, _) => _ResourceError(
             onRetry: () => ref.invalidate(crossrefWorksProvider(speciesName)),
@@ -1013,53 +1023,54 @@ class CrossrefView extends ConsumerWidget {
   }
 }
 
-/// A year heading over its publications, joined by a rule on the left.
-class _PublicationYear extends StatelessWidget {
-  const _PublicationYear({
-    required this.year,
-    required this.works,
-    required this.speciesName,
-  });
+/// A Material icon sized and coloured like a [ResourceGlyph].
+class _StatIcon extends StatelessWidget {
+  const _StatIcon(this.icon);
 
-  final int? year;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return Icon(
+      icon,
+      size: 24,
+      color: isDark ? colorScheme.onSurface : colorScheme.primary,
+    );
+  }
+}
+
+/// Publications newest first in one card, divided by rules.
+class _PublicationList extends StatelessWidget {
+  const _PublicationList({required this.works, required this.speciesName});
+
   final List<CrossrefWork> works;
   final String speciesName;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            year?.toString() ?? 'Unknown year',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: colorScheme.secondary,
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(left: 6, top: 4),
-            padding: const EdgeInsets.only(left: 14),
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(
-                  color: colorScheme.secondary.withAlpha(160),
-                  width: 2,
-                ),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final work in works)
-                  _Publication(work: work, speciesName: speciesName),
-              ],
-            ),
-          ),
-        ],
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(130)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (index, work) in works.indexed) ...[
+              if (index > 0)
+                Divider(color: colorScheme.outlineVariant.withAlpha(130)),
+              _Publication(work: work, speciesName: speciesName),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -1074,51 +1085,37 @@ class _Publication extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final Color muted = Theme.of(context).colorScheme.onSurfaceVariant;
-    final String byline = [
+    final String meta = [
       work.authors,
+      if (work.year != null) '${work.year}',
       work.source,
     ].where((e) => e.isNotEmpty).join(' · ');
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text.rich(
-            TextSpan(children: italicizeName(work.title, speciesName)),
-            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-          ),
-          if (byline.isNotEmpty)
-            Text(byline, style: textTheme.bodySmall?.copyWith(color: muted)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text.rich(
+          TextSpan(children: italicizeName(work.title, speciesName)),
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        if (meta.isNotEmpty) ...[
+          const SizedBox(height: 2),
           Text(
-            'doi:${work.doi}',
-            style: textTheme.bodySmall?.copyWith(color: muted),
-          ),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              FilledButton.tonalIcon(
-                style: _compactButton,
-                onPressed: () => launchURL(work.url),
-                icon: const Icon(Icons.open_in_new, size: 16),
-                label: const Text('View'),
-              ),
-              _CopyCitationButton(citation: work.citation),
-            ],
+            meta,
+            style: textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
-      ),
+        Wrap(
+          children: [
+            _SourceButton(label: 'View', onPressed: () => launchURL(work.url)),
+            _CopyCitationButton(citation: work.citation),
+          ],
+        ),
+      ],
     );
   }
 }
-
-final ButtonStyle _compactButton = ButtonStyle(
-  visualDensity: VisualDensity.compact,
-  padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
-  textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 13)),
-);
 
 /// Shows "Copied" in place, since a snackbar would sit under the sheet.
 class _CopyCitationButton extends StatefulWidget {
@@ -1143,8 +1140,11 @@ class _CopyCitationButtonState extends State<_CopyCitationButton> {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      style: _compactButton,
+    return TextButton.icon(
+      style: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.secondary,
+        visualDensity: VisualDensity.compact,
+      ),
       onPressed: _copy,
       icon: Icon(_copied ? Icons.check : Icons.content_copy, size: 16),
       label: Text(_copied ? 'Copied' : 'Copy citation'),
@@ -1176,7 +1176,9 @@ List<TextSpan> italicizeName(String text, String name) {
 }
 
 class _ExternalDataNote extends StatelessWidget {
-  const _ExternalDataNote();
+  const _ExternalDataNote({required this.provider});
+
+  final String provider;
 
   @override
   Widget build(BuildContext context) {
@@ -1188,7 +1190,7 @@ class _ExternalDataNote extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            externalDataNote,
+            externalDataNote(provider),
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: color),

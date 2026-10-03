@@ -2,11 +2,14 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mdd/screens/home/stats.dart';
 import 'package:mdd/screens/taxon/external_resources.dart';
+import 'package:mdd/styles/themes.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/external_resources.dart';
 import 'package:mdd/services/gbif_map_style.dart';
@@ -189,6 +192,31 @@ void main() {
             expect(contrast(line, basemap), greaterThanOrEqualTo(3));
           }
         }
+      });
+    }
+  });
+
+  group('statValueColor', () {
+    for (final theme in [MddTheme.lightTheme(), MddTheme.darkTheme()]) {
+      testWidgets('clears 4.5:1 on cards (WCAG 1.4.3), '
+          '${theme.brightness.name}', (tester) async {
+        late Color value;
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: theme,
+            home: Builder(
+              builder: (context) {
+                value = statValueColor(context);
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        final double a = value.computeLuminance();
+        final double b = theme.colorScheme.surfaceContainerLow
+            .computeLuminance();
+        final double ratio = (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
+        expect(ratio, greaterThanOrEqualTo(4.5));
       });
     }
   });
@@ -448,6 +476,24 @@ void main() {
                 ),
               ],
             ),
+            crossrefWorksProvider.overrideWith(
+              (ref, name) async => const [
+                CrossrefWork(
+                  title: 'Diet of Panthera leo in Kenya',
+                  authors: 'Smith et al.',
+                  year: 2024,
+                  journal: 'Journal of Mammalogy',
+                  doi: '10.1/a',
+                ),
+                CrossrefWork(
+                  title: 'Panthera leo genetics',
+                  authors: 'Doe',
+                  year: 1998,
+                  journal: 'Mammalia',
+                  doi: '10.1/b',
+                ),
+              ],
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -479,12 +525,18 @@ void main() {
       await tester.tap(find.text('Genetics'));
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsOneWidget);
-      expect(find.text('1,200 records', findRichText: true), findsOneWidget);
-      expect(find.text(externalDataNote), findsOneWidget);
+      expect(find.text('1,200'), findsOneWidget);
+      expect(
+        find.text(
+          'Fetched automatically from NCBI (GenBank and Datasets) and not '
+          'curated by the MDD team. Its taxonomy may differ from MDD.',
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Reference genome'), findsOneWidget);
-      expect(find.text('2.30 Gb', findRichText: true), findsOneWidget);
-      expect(find.text('Gene composition'), findsOneWidget);
-      expect(find.text('4 genes', findRichText: true), findsOneWidget);
+      expect(find.text('2.30 Gb'), findsOneWidget);
+      expect(find.text('Annotated genes'), findsOneWidget);
+      expect(find.text('Records in NCBI'), findsOneWidget);
     });
 
     testWidgets('opens a dialog on wide screens', (tester) async {
@@ -493,6 +545,30 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.text('Genetic data · GenBank'), findsOneWidget);
+      expect(find.text('2.30 Gb'), findsOneWidget);
     });
+
+    for (final size in const [Size(375, 812), Size(1000, 800)]) {
+      testWidgets('shows publication stats and copies a citation at '
+          '${size.width.toInt()} px', (tester) async {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async => null,
+        );
+        await pumpPanel(tester, size);
+        await tester.tap(find.text('Publications'));
+        await tester.pumpAndSettle();
+        expect(find.text('Latest'), findsOneWidget);
+        expect(find.text('2024'), findsOneWidget);
+        expect(find.text('Earliest'), findsOneWidget);
+        expect(find.text('1998'), findsOneWidget);
+        expect(find.text('Copy citation'), findsNWidgets(2));
+        await tester.tap(find.text('Copy citation').first);
+        await tester.pump();
+        expect(find.text('Copied'), findsOneWidget);
+        await tester.pump(const Duration(seconds: 3));
+        expect(find.text('Copied'), findsNothing);
+      });
+    }
   });
 }

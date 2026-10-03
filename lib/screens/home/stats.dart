@@ -4,6 +4,15 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/statistics.dart';
 
+/// The colour of a headline stat value: MDD brown in light mode. The dark
+/// theme keeps the same brown as `primary`, which is under 2:1 on dark cards,
+/// so there it is lifted towards white to about 7:1 (WCAG 1.4.3).
+Color statValueColor(BuildContext context) {
+  final Color primary = Theme.of(context).colorScheme.primary;
+  if (Theme.of(context).brightness == Brightness.light) return primary;
+  return Color.lerp(primary, Colors.white, 0.55)!;
+}
+
 class MddStatistics extends ConsumerWidget {
   const MddStatistics({super.key});
 
@@ -103,10 +112,28 @@ class MddStatistics extends ConsumerWidget {
 }
 
 class StatCard extends StatelessWidget {
-  const StatCard({super.key, required this.title, required this.count});
+  const StatCard({
+    super.key,
+    required this.title,
+    this.count = 0,
+    this.display,
+    this.leading,
+    this.onTap,
+    this.tooltip,
+  });
 
   final String title;
   final int count;
+
+  /// Shown in place of [count], for values such as "2.30 Gb".
+  final String? display;
+
+  /// An icon above the value.
+  final Widget? leading;
+
+  /// Makes the card a button, e.g. to open the records it counts.
+  final VoidCallback? onTap;
+  final String? tooltip;
 
   static String formatCount(int number) {
     return number.toString().replaceAllMapped(
@@ -119,9 +146,36 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final Widget content = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      child: Column(
+        children: [
+          if (leading != null) ...[leading!, const SizedBox(height: 6)],
+          Text(
+            display ?? formatCount(count),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: statValueColor(context),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+
     return Card(
       elevation: 0,
       color: colorScheme.surfaceContainerLow,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
@@ -129,29 +183,12 @@ class StatCard extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        child: Column(
-          children: [
-            Text(
-              formatCount(count),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
+      child: onTap == null
+          ? content
+          : Tooltip(
+              message: tooltip ?? '',
+              child: InkWell(onTap: onTap, child: content),
             ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -202,7 +239,7 @@ class SpeciesDetailedStatCard extends StatelessWidget {
               StatCard.formatCount(total),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
+                color: statValueColor(context),
               ),
             ),
             const SizedBox(height: 16),
@@ -228,10 +265,22 @@ class SpeciesDetailedStatCard extends StatelessWidget {
 }
 
 class SpeciesSubStats extends StatelessWidget {
-  const SpeciesSubStats({super.key, required this.label, required this.value});
+  const SpeciesSubStats({
+    super.key,
+    required this.label,
+    this.value = 0,
+    this.display,
+    this.swatch,
+  });
 
   final String label;
   final int value;
+
+  /// Shown in place of [value], for values such as "41.5%".
+  final String? display;
+
+  /// A colour key drawn before the label, e.g. for a chart category.
+  final Color? swatch;
 
   @override
   Widget build(BuildContext context) {
@@ -250,20 +299,36 @@ class SpeciesSubStats extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            StatCard.formatCount(value),
+            display ?? StatCard.formatCount(value),
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-              fontSize: 11,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (swatch != null) ...[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: swatch,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                ),
+              ),
+            ],
           ),
         ],
       ),
