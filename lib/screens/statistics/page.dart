@@ -30,10 +30,7 @@ class MddStats extends ConsumerStatefulWidget {
 
 class _MddStatsState extends ConsumerState<MddStats> {
   void _navigateTo(Widget page) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
   }
 
   StatTablePage _orderTablePage(MddStatistics stats) {
@@ -52,13 +49,11 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.speciesPerOrder.map((e) {
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final name = e.name ?? 'Unknown';
-        return StatTableRow(
-          values: [name, count, '$pct%'],
-          searchText: name,
-        );
+        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
       }).toList(),
     );
   }
@@ -79,13 +74,11 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.speciesPerFamily.map((e) {
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final name = e.name ?? 'Unknown';
-        return StatTableRow(
-          values: [name, count, '$pct%'],
-          searchText: name,
-        );
+        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
       }).toList(),
     );
   }
@@ -105,13 +98,11 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.speciesPerGenus.map((e) {
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final name = e.name ?? 'Unknown';
-        return StatTableRow(
-          values: [name, count, '$pct%'],
-          searchText: name,
-        );
+        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
       }).toList(),
     );
   }
@@ -132,8 +123,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.discoveryDecade.map((e) {
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final decade = e.decade != null ? '${e.decade}s' : 'Unknown';
         return StatTableRow(
           values: [decade, count, '$pct%'],
@@ -159,13 +151,11 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.discoveryYear.map((e) {
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final year = e.year?.toString() ?? 'Unknown';
-        return StatTableRow(
-          values: [year, count, '$pct%'],
-          searchText: year,
-        );
+        return StatTableRow(values: [year, count, '$pct%'], searchText: year);
       }).toList(),
     );
   }
@@ -186,8 +176,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.speciesWithMostImages.map((e) {
         final count = e.imageCount;
         final total = stats.totalImagesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
         return StatTableRow(
           values: [species, count, '$pct%'],
@@ -213,8 +204,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.speciesWithMostSynonyms.map((e) {
         final count = e.count;
         final total = stats.totalSynonymsCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
         return StatTableRow(
           values: [species, count, '$pct%'],
@@ -240,12 +232,10 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.typeKindProportion.map((e) {
         final count = e.value;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
-        return StatTableRow(
-          values: [e.key, count, '$pct%'],
-          searchText: e.key,
-        );
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
+        return StatTableRow(values: [e.key, count, '$pct%'], searchText: e.key);
       }).toList(),
     );
   }
@@ -266,12 +256,10 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.iucnStatus.map((e) {
         final count = e.value;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
-        return StatTableRow(
-          values: [e.key, count, '$pct%'],
-          searchText: e.key,
-        );
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
+        return StatTableRow(values: [e.key, count, '$pct%'], searchText: e.key);
       }).toList(),
     );
   }
@@ -292,12 +280,10 @@ class _MddStatsState extends ConsumerState<MddStats> {
       rows: stats.biogeographicRealm.map((e) {
         final count = e.value;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
-        return StatTableRow(
-          values: [e.key, count, '$pct%'],
-          searchText: e.key,
-        );
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
+        return StatTableRow(values: [e.key, count, '$pct%'], searchText: e.key);
       }).toList(),
     );
   }
@@ -320,8 +306,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
         final status = isExtinct ? 'Extinct' : 'Extant';
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         return StatTableRow(
           values: [status, count, '$pct%'],
           searchText: status,
@@ -348,8 +335,9 @@ class _MddStatsState extends ConsumerState<MddStats> {
         final category = isDomestic ? 'Domesticated' : 'Wild';
         final count = e.count;
         final total = stats.totalSpeciesCount;
-        final pct =
-            total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+        final pct = total > 0
+            ? (count / total * 100).toStringAsFixed(2)
+            : '0.00';
         return StatTableRow(
           values: [category, count, '$pct%'],
           searchText: category,
@@ -374,7 +362,8 @@ class _MddStatsState extends ConsumerState<MddStats> {
                   padding: const EdgeInsets.all(16.0),
                   children: [
                     const InfoCard(
-                      text: 'View visual summaries and metrics on mammalian '
+                      text:
+                          'View visual summaries and metrics on mammalian '
                           'diversity, geography, and conservation.',
                     ),
                     const SizedBox(height: 16),
@@ -538,12 +527,6 @@ class _ChartRow extends StatelessWidget {
         ],
       );
     }
-    return Column(
-      children: [
-        chart1,
-        const SizedBox(height: 16),
-        chart2,
-      ],
-    );
+    return Column(children: [chart1, const SizedBox(height: 16), chart2]);
   }
 }

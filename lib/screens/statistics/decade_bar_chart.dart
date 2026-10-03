@@ -13,8 +13,10 @@ class DecadeBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (stats.discoveryDecade.isEmpty) return const SizedBox.shrink();
     final List<StatSpeciesByDiscoveryDecadeResult> data = stats.discoveryDecade;
-    final double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
     final barColor = ChartPalette.getDecadeColor(context);
@@ -54,8 +56,9 @@ class DecadeBarChart extends StatelessWidget {
                         return BarTooltipItem(
                           '$xAxisLabel\n',
                           TextStyle(
-                            color: colorScheme.onInverseSurface
-                                .withValues(alpha: 0.8),
+                            color: colorScheme.onInverseSurface.withValues(
+                              alpha: 0.8,
+                            ),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -135,8 +138,9 @@ class DecadeBarChart extends StatelessWidget {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval:
-                        maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                    horizontalInterval: maxY > 0
+                        ? (maxY / 4).ceilToDouble()
+                        : 1,
                     getDrawingHorizontalLine: (value) => FlLine(
                       color: colorScheme.outlineVariant.withValues(alpha: 0.35),
                       strokeWidth: 1,

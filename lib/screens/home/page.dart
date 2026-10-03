@@ -94,9 +94,7 @@ class MddPagesState extends ConsumerState<MddPages> {
                   });
                 },
               ),
-            Expanded(
-              child: _pages.elementAt(_selectedPage),
-            ),
+            Expanded(child: _pages.elementAt(_selectedPage)),
           ],
         ),
       ),
@@ -160,7 +158,9 @@ class SearchInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(speciesListProvider).when(
+    return ref
+        .watch(speciesListProvider)
+        .when(
           data: (List<MddGroupListResult> speciesList) {
             return SearchResultInfo(
               foundRecords: speciesList.map((e) => e.id).toList(),

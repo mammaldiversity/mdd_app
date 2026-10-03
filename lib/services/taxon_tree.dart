@@ -71,11 +71,9 @@ List<TaxonNode> _buildFamilies(
   List<MddGroupListResult> taxonList,
   Map<int, TreeSpeciesData> speciesData,
 ) {
-  final families = TaxonGroupService(taxonList: taxonList)
-      .groupByFamily()
-      .entries
-      .toList()
-    ..sort((a, b) => a.key.compareTo(b.key));
+  final families = TaxonGroupService(
+    taxonList: taxonList,
+  ).groupByFamily().entries.toList()..sort((a, b) => a.key.compareTo(b.key));
   return [
     for (final family in families)
       TaxonNode(

@@ -35,8 +35,10 @@ class SynonymName {
       _formatCoordinate(data.typeLatitude, 'N', 'S'),
       _formatCoordinate(data.typeLongitude, 'E', 'W'),
     ];
-    final List<String> coordinateParts =
-        coordinateFields.where((part) => part != null).cast<String>().toList();
+    final List<String> coordinateParts = coordinateFields
+        .where((part) => part != null)
+        .cast<String>()
+        .toList();
 
     final List<String> parts = [
       ...localityParts,
@@ -90,8 +92,9 @@ class SynonymName {
       return null;
     }
 
-    final String direction =
-        numericCoordinate >= 0 ? positiveDirection : negativeDirection;
+    final String direction = numericCoordinate >= 0
+        ? positiveDirection
+        : negativeDirection;
     final int totalSeconds = (numericCoordinate.abs() * 3600).round();
     final int degrees = totalSeconds ~/ 3600;
     final int minutes = (totalSeconds % 3600) ~/ 60;

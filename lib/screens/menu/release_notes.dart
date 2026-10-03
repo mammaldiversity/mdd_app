@@ -12,9 +12,7 @@ class ReleaseNotesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Release Notes'),
-      ),
+      appBar: AppBar(title: const Text('Release Notes')),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: ReleaseNotesContent(),
@@ -36,9 +34,8 @@ class ReleaseNotesContent extends ConsumerWidget {
           data: (MddInfoData mddInfo) =>
               ReleaseNotesDetailsCard(mddInfo: mddInfo),
           loading: () => const Center(child: SimpleLoadingMessages()),
-          error: (Object error, StackTrace? stackTrace) => Center(
-            child: Text('Error loading release notes: $error'),
-          ),
+          error: (Object error, StackTrace? stackTrace) =>
+              Center(child: Text('Error loading release notes: $error')),
         ),
       ],
     );
@@ -46,10 +43,7 @@ class ReleaseNotesContent extends ConsumerWidget {
 }
 
 class ReleaseNotesDetailsCard extends StatelessWidget {
-  const ReleaseNotesDetailsCard({
-    super.key,
-    required this.mddInfo,
-  });
+  const ReleaseNotesDetailsCard({super.key, required this.mddInfo});
 
   final MddInfoData mddInfo;
 
@@ -80,23 +74,20 @@ class ReleaseNotesDetailsCard extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'Remarks',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text(
-                remarks,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(remarks, style: Theme.of(context).textTheme.bodyMedium),
             ],
             if (doi != null && doi.isNotEmpty) ...<Widget>[
               const SizedBox(height: 16),
               Text(
                 'DOI Citation',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               DoiLinkTile(doi: doi),
@@ -109,11 +100,7 @@ class ReleaseNotesDetailsCard extends StatelessWidget {
 }
 
 class InfoRow extends StatelessWidget {
-  const InfoRow({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const InfoRow({super.key, required this.label, required this.value});
 
   final String label;
   final String value;
@@ -124,16 +111,13 @@ class InfoRow extends StatelessWidget {
       children: <Widget>[
         Text(
           label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
         ),
       ],
     );
@@ -141,10 +125,7 @@ class InfoRow extends StatelessWidget {
 }
 
 class DoiLinkTile extends StatelessWidget {
-  const DoiLinkTile({
-    super.key,
-    required this.doi,
-  });
+  const DoiLinkTile({super.key, required this.doi});
 
   final String doi;
 
@@ -157,9 +138,9 @@ class DoiLinkTile extends StatelessWidget {
       title: Text(
         doi,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              decoration: TextDecoration.underline,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+          decoration: TextDecoration.underline,
+        ),
       ),
       trailing: const Icon(Icons.open_in_new, size: 18),
       onTap: () => launchURL(url),

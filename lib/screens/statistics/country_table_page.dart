@@ -146,34 +146,23 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
   Widget _buildHeaderLabel(String title, int columnIndex) {
     final isSelected = _sortColumnIndex == columnIndex;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final mutedColor =
-        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
+    final mutedColor = Theme.of(
+      context,
+    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
 
     if (isSelected) {
       return Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: primaryColor,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
       );
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(width: 4),
-        Icon(
-          Icons.swap_vert,
-          size: 14,
-          color: mutedColor,
-        ),
+        Icon(Icons.swap_vert, size: 14, color: mutedColor),
       ],
     );
   }
@@ -183,9 +172,7 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
     final countryStatsAsync = ref.watch(countryDiversityStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mammal Diversity by Country'),
-      ),
+      appBar: AppBar(title: const Text('Mammal Diversity by Country')),
       body: SafeArea(
         child: countryStatsAsync.when(
           data: (allCountries) {
@@ -212,10 +199,9 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                     decoration: InputDecoration(
                       hintText: 'Search country...',
                       hintStyle: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withAlpha(180),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withAlpha(180),
                         fontSize: 14,
                       ),
                       prefixIcon: Icon(
@@ -234,24 +220,23 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                             )
                           : null,
                       filled: true,
-                      fillColor:
-                          Theme.of(context).colorScheme.surfaceContainerLow,
+                      fillColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outlineVariant
-                              .withAlpha(140),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withAlpha(140),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outlineVariant
-                              .withAlpha(140),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withAlpha(140),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -298,10 +283,9 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outlineVariant
-                            .withAlpha(130),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withAlpha(130),
                         width: 1,
                       ),
                     ),
@@ -386,10 +370,7 @@ class _CountryTableSource extends DataTableSource {
   final BuildContext context;
   final List<CountryDiversityData> data;
 
-  _CountryTableSource({
-    required this.context,
-    required this.data,
-  });
+  _CountryTableSource({required this.context, required this.data});
 
   @override
   DataRow? getRow(int index) {

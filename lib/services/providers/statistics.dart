@@ -15,6 +15,6 @@ final statisticsProvider = FutureProvider<MddStatistics>((ref) {
 
 final countryDiversityStatsProvider =
     FutureProvider<List<CountryDiversityData>>((ref) {
-  final service = ref.watch(statisticsServiceProvider);
-  return service.getCountryDiversityStats();
-});
+      final service = ref.watch(statisticsServiceProvider);
+      return service.getCountryDiversityStats();
+    });

@@ -38,7 +38,8 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
                   const Padding(
                     padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
                     child: InfoCard(
-                      text: 'Browse the taxonomy of mammals, from order down to species. Switch between the list and tree views, and tap a species to view its details.',
+                      text:
+                          'Browse the taxonomy of mammals, from order down to species. Switch between the list and tree views, and tap a species to view its details.',
                     ),
                   ),
               ];
@@ -115,9 +116,8 @@ class ExploreToolbar extends ConsumerWidget {
             onPressed: hasExpanded
                 ? () => ref.read(expandedTaxaProvider.notifier).collapseAll()
                 : tree == null
-                    ? null
-                    : () =>
-                        ref.read(expandedTaxaProvider.notifier).expandAll(tree),
+                ? null
+                : () => ref.read(expandedTaxaProvider.notifier).expandAll(tree),
           ),
         ],
       ),
@@ -170,10 +170,9 @@ class _ListContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final entries = TaxonGroupService(taxonList: speciesList)
-        .groupByOrder()
-        .entries
-        .toList();
+    final entries = TaxonGroupService(
+      taxonList: speciesList,
+    ).groupByOrder().entries.toList();
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 24),
@@ -369,8 +368,9 @@ class FamilyGroups extends StatelessWidget {
               ),
               subtitle: Text(
                 _speciesCountLabel(entry.value.length),
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               children: <Widget>[
                 Padding(
@@ -448,8 +448,9 @@ class GenusGroup extends StatelessWidget {
               ),
               subtitle: Text(
                 _speciesCountLabel(entry.value.length),
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               children: <Widget>[
                 Padding(

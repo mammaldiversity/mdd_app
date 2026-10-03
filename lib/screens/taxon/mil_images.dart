@@ -15,7 +15,9 @@ class MilImagesWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(milDataProvider).when(
+    return ref
+        .watch(milDataProvider)
+        .when(
           data: (List<MilDataData> data) {
             if (data.isEmpty) return const SizedBox.shrink();
             return MilImagesViewer(data: data);
@@ -233,14 +235,8 @@ class _MilMetadataViewState extends State<MilMetadataView> {
         children: [
           MilMetadataRow(label: 'Location', value: widget.mil.location),
           MilMetadataRow(label: 'Date taken', value: widget.mil.dateTaken),
-          MilMetadataRow(
-            label: 'Description',
-            value: widget.mil.description,
-          ),
-          MilMetadataRow(
-            label: 'Distribution',
-            value: widget.mil.distribution,
-          ),
+          MilMetadataRow(label: 'Description', value: widget.mil.description),
+          MilMetadataRow(label: 'Distribution', value: widget.mil.distribution),
           const SizedBox(height: 12),
           RichText(
             text: TextSpan(

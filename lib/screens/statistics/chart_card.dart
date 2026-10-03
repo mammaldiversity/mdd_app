@@ -32,16 +32,11 @@ class ChartCard extends StatelessWidget {
       effectiveFooter = Center(
         child: OutlinedButton.icon(
           onPressed: onViewTable,
-          icon: const Icon(
-            Icons.table_chart_outlined,
-            size: 18,
-          ),
+          icon: const Icon(Icons.table_chart_outlined, size: 18),
           label: Text(viewTableLabel),
           style: OutlinedButton.styleFrom(
             elevation: 0,
-            side: BorderSide(
-              color: colorScheme.outlineVariant,
-            ),
+            side: BorderSide(color: colorScheme.outlineVariant),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),

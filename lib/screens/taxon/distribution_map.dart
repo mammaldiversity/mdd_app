@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import 'package:maplibre/maplibre.dart';
 import 'package:mdd/screens/shared/card.dart';
+import 'package:mdd/screens/shared/maps/map_controls.dart';
 import 'package:mdd/screens/shared/maps/maplibre_camera_readiness.dart';
 import 'package:mdd/screens/shared/maps/maplibre_gesture_surface.dart';
 import 'package:mdd/screens/shared/maps/maplibre_load_watchdog.dart';
@@ -96,7 +97,7 @@ class _DistributionMapState extends ConsumerState<DistributionMap> {
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: _RecenterHint(),
+            child: RecenterHint(),
           ),
         ],
       ),
@@ -270,7 +271,7 @@ class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
       Positioned(
         right: 8,
         bottom: 8,
-        child: _MapControls(
+        child: MapControls(
           onZoomIn: () => _changeZoom(1),
           onZoomOut: () => _changeZoom(-1),
           onReset: _resetCamera,
@@ -435,7 +436,7 @@ class _NaturalEarthDistributionMapState
           Positioned(
             right: 8,
             bottom: 8,
-            child: _MapControls(
+            child: MapControls(
               onZoomIn: () => _controller.move(
                 _controller.camera.center,
                 (_controller.camera.zoom + 1).clamp(1, 16).toDouble(),
@@ -483,47 +484,6 @@ class _NaturalEarthDistributionMapState
     DistributionStatus.predicted =>
       DistributionMapStyleService.predictedOutlineColor,
   };
-}
-
-class _MapControls extends StatelessWidget {
-  const _MapControls({
-    required this.onZoomIn,
-    required this.onZoomOut,
-    required this.onReset,
-  });
-
-  final VoidCallback onZoomIn;
-  final VoidCallback onZoomOut;
-  final VoidCallback onReset;
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
-    borderRadius: BorderRadius.circular(8),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          tooltip: 'Zoom in',
-          visualDensity: VisualDensity.compact,
-          onPressed: onZoomIn,
-          icon: const Icon(Icons.add),
-        ),
-        IconButton(
-          tooltip: 'Zoom out',
-          visualDensity: VisualDensity.compact,
-          onPressed: onZoomOut,
-          icon: const Icon(Icons.remove),
-        ),
-        IconButton(
-          tooltip: 'Recenter map',
-          visualDensity: VisualDensity.compact,
-          onPressed: onReset,
-          icon: const Icon(Icons.center_focus_strong_outlined),
-        ),
-      ],
-    ),
-  );
 }
 
 class _MapAttribution extends StatelessWidget {
@@ -587,33 +547,6 @@ class _OfflineMapNotice extends StatelessWidget {
       ],
     ),
   );
-}
-
-class _RecenterHint extends StatelessWidget {
-  const _RecenterHint();
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: color);
-    return Text.rich(
-      TextSpan(
-        style: style,
-        children: [
-          const TextSpan(text: 'Range not showing? Tap '),
-          WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: Icon(
-              Icons.center_focus_strong_outlined,
-              size: 16,
-              color: color,
-            ),
-          ),
-          const TextSpan(text: ' to recenter the map.'),
-        ],
-      ),
-    );
-  }
 }
 
 class _MapMessage extends StatelessWidget {

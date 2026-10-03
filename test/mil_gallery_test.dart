@@ -35,13 +35,12 @@ void main() {
     mainCommonName: 'Lion',
   );
 
-  testWidgets('MilFullScreenView displays metadata and attribution correctly',
-      (WidgetTester tester) async {
+  testWidgets('MilFullScreenView displays metadata and attribution correctly', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(
-          home: MilFullScreenView(milItem: sampleMilItem1),
-        ),
+        child: MaterialApp(home: MilFullScreenView(milItem: sampleMilItem1)),
       ),
     );
 

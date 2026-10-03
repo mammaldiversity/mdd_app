@@ -15,7 +15,9 @@ class SynonymList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(synonymDataProvider).when(
+    return ref
+        .watch(synonymDataProvider)
+        .when(
           data: (synonymData) {
             return synonymData.isNotEmpty
                 ? SynonymContainer(data: synonymData)
@@ -47,8 +49,9 @@ class _SynonymContainerState extends State<SynonymContainer> {
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
     final bool hasMore = widget.data.length > 10;
-    final List<db.SynonymData> displayData =
-        _showAll || !hasMore ? widget.data : widget.data.take(10).toList();
+    final List<db.SynonymData> displayData = _showAll || !hasMore
+        ? widget.data
+        : widget.data.take(10).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -88,9 +91,7 @@ class _SynonymContainerState extends State<SynonymContainer> {
                       _showAll = true;
                     });
                   },
-                  child: Text(
-                    'Show all (${widget.data.length}) synonyms',
-                  ),
+                  child: Text('Show all (${widget.data.length}) synonyms'),
                 ),
               ],
             ],
@@ -290,8 +291,9 @@ class OtherSynonymData extends StatelessWidget {
                 ),
                 ContentText(
                   title: "Type locality",
-                  content:
-                      SynonymName(data: data).createStructuredTypeLocality(),
+                  content: SynonymName(
+                    data: data,
+                  ).createStructuredTypeLocality(),
                 ),
                 ContentText(
                   title: "Type specimen URI",
@@ -299,7 +301,9 @@ class OtherSynonymData extends StatelessWidget {
                   isUrl: true,
                 ),
                 ContentText(
-                    title: "Authority page", content: data.authorityPage),
+                  title: "Authority page",
+                  content: data.authorityPage,
+                ),
                 ContentText(
                   title: "Authority page URI",
                   content: data.authorityPageLink,

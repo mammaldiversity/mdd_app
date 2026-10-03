@@ -23,16 +23,28 @@ String formatCount(int value) {
   );
 }
 
+/// A latitude/longitude box, in degrees.
+typedef OccurrenceExtent = ({
+  double south,
+  double west,
+  double north,
+  double east,
+});
+
 class GbifSummary {
   const GbifSummary({
     required this.taxonKey,
     required this.matchedName,
     required this.occurrences,
+    this.extent,
   });
 
   final int taxonKey;
   final String matchedName;
   final int occurrences;
+
+  /// The box holding every georeferenced record; null when there are none.
+  final OccurrenceExtent? extent;
 }
 
 class GbifClient {
@@ -40,9 +52,13 @@ class GbifClient {
 
   final http.Client client;
 
+  /// Density tiles of all occurrences, 512 px at @1x. Binned into
+  /// hexagons: single-pixel points vanish at the zoom a whole range needs.
   static String densityTileUrl(int taxonKey) =>
       'https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@1x.png'
-      '?taxonKey=$taxonKey&srs=EPSG:3857&style=purpleYellow.point';
+      '?taxonKey=$taxonKey'
+      '&srs=EPSG:3857&bin=hex&hexPerTile=60'
+      '&style=purpleYellow-noborder.poly';
 
   static String basemapTileUrl({required bool isDark}) =>
       'https://tile.gbif.org/3857/omt/{z}/{x}/{y}@1x.png'
@@ -80,13 +96,40 @@ class GbifClient {
     return (json['count'] as num?)?.toInt() ?? 0;
   }
 
+  /// The extent of the records drawn on the density map, from the map
+  /// API's capabilities; null when the taxon has no georeferenced records.
+  Future<OccurrenceExtent?> occurrenceExtent(int taxonKey) async {
+    final json = await _getJson(
+      client,
+      Uri.https(
+        'api.gbif.org',
+        '/v2/map/occurrence/density/capabilities.json',
+        {'taxonKey': '$taxonKey'},
+      ),
+    );
+    if ((_asInt(json['total']) ?? 0) == 0) return null;
+    final double? south = _asDouble(json['minLat']);
+    final double? west = _asDouble(json['minLng']);
+    final double? north = _asDouble(json['maxLat']);
+    final double? east = _asDouble(json['maxLng']);
+    if (south == null || west == null || north == null || east == null) {
+      return null;
+    }
+    return (south: south, west: west, north: north, east: east);
+  }
+
   Future<GbifSummary?> fetchSummary(String name) async {
     final match = await matchSpecies(name);
     if (match == null) return null;
+    final (occurrences, extent) = await (
+      occurrenceCount(match.key),
+      occurrenceExtent(match.key),
+    ).wait;
     return GbifSummary(
       taxonKey: match.key,
       matchedName: match.name,
-      occurrences: await occurrenceCount(match.key),
+      occurrences: occurrences,
+      extent: extent,
     );
   }
 }
@@ -203,6 +246,234 @@ class GenBankClient {
       );
     }
     return results;
+  }
+}
+
+/// A sequence length in the unit a genomicist would use, e.g. 2.30 Gb
+/// rather than 2,297,552,363 bp, to three significant figures.
+({String value, String unit}) formatBases(int length) {
+  const scales = [(1e9, 'Gb'), (1e6, 'Mb'), (1e3, 'kb')];
+  for (final (scale, unit) in scales) {
+    if (length >= scale) {
+      final double scaled = length / scale;
+      final int digits = scaled >= 100 ? 0 : (scaled >= 10 ? 1 : 2);
+      return (value: scaled.toStringAsFixed(digits), unit: unit);
+    }
+  }
+  return (value: '$length', unit: 'bp');
+}
+
+/// A nuclear genome assembly, as NCBI Datasets reports it.
+class GenomeAssembly {
+  const GenomeAssembly({
+    required this.accession,
+    this.assemblyName,
+    this.organismName,
+    this.isReference = false,
+    this.assemblyLevel,
+    this.releaseDate,
+    this.submitter,
+    this.genomeSize,
+    this.chromosomeCount,
+    this.contigN50,
+    this.gcPercent,
+  });
+
+  final String accession;
+  final String? assemblyName;
+
+  /// A subspecies when the species itself has no assembly.
+  final String? organismName;
+
+  /// NCBI's designated reference, rather than the best of the rest.
+  final bool isReference;
+  final String? assemblyLevel;
+  final String? releaseDate;
+  final String? submitter;
+  final int? genomeSize;
+  final int? chromosomeCount;
+  final int? contigN50;
+  final double? gcPercent;
+
+  String get url => 'https://www.ncbi.nlm.nih.gov/datasets/genome/$accession/';
+
+  static GenomeAssembly? fromReport(Map<String, dynamic> report) {
+    final String? accession =
+        (report['accession'] ?? report['current_accession']) as String?;
+    if (accession == null) return null;
+    final info = report['assembly_info'] as Map<String, dynamic>? ?? {};
+    final stats = report['assembly_stats'] as Map<String, dynamic>? ?? {};
+    final organism = report['organism'] as Map<String, dynamic>? ?? {};
+    return GenomeAssembly(
+      accession: accession,
+      assemblyName: info['assembly_name'] as String?,
+      organismName: organism['organism_name'] as String?,
+      isReference: info['refseq_category'] == 'reference genome',
+      assemblyLevel: info['assembly_level'] as String?,
+      releaseDate: info['release_date'] as String?,
+      submitter: info['submitter'] as String?,
+      genomeSize: _asInt(stats['total_sequence_length']),
+      chromosomeCount: _asInt(stats['total_number_of_chromosomes']),
+      contigN50: _asInt(stats['contig_n50']),
+      gcPercent: _asDouble(stats['gc_percent']),
+    );
+  }
+
+  /// The best of a species' assemblies: its own over a subspecies', then
+  /// the most complete level, then the longest contigs, then the newest.
+  static GenomeAssembly? best(
+    Iterable<GenomeAssembly> assemblies,
+    String name,
+  ) {
+    const levels = ['Contig', 'Scaffold', 'Chromosome', 'Complete Genome'];
+    int compare(GenomeAssembly a, GenomeAssembly b) {
+      int byOwn(GenomeAssembly x) => x.organismName == name ? 1 : 0;
+      final keys = [
+        byOwn(a).compareTo(byOwn(b)),
+        levels
+            .indexOf(a.assemblyLevel ?? '')
+            .compareTo(levels.indexOf(b.assemblyLevel ?? '')),
+        (a.contigN50 ?? 0).compareTo(b.contigN50 ?? 0),
+        (a.releaseDate ?? '').compareTo(b.releaseDate ?? ''),
+      ];
+      return keys.firstWhere((k) => k != 0, orElse: () => 0);
+    }
+
+    final list = assemblies.toList();
+    if (list.isEmpty) return null;
+    return list.reduce((a, b) => compare(a, b) >= 0 ? a : b);
+  }
+}
+
+int? _asInt(dynamic value) =>
+    value is num ? value.toInt() : int.tryParse('${value ?? ''}');
+
+double? _asDouble(dynamic value) =>
+    value is num ? value.toDouble() : double.tryParse('${value ?? ''}');
+
+enum GeneCategory {
+  proteinCoding('Protein-coding'),
+  rna('Non-coding RNA'),
+  pseudo('Pseudogene'),
+  other('Other');
+
+  const GeneCategory(this.label);
+
+  final String label;
+
+  static GeneCategory of(String geneType) {
+    final String type = geneType.toLowerCase();
+    if (type.contains('protein')) return proteinCoding;
+    if (type.contains('rna')) return rna;
+    if (type.contains('pseudo')) return pseudo;
+    return other;
+  }
+}
+
+/// Annotated genes split into [GeneCategory], in the category order.
+class GeneComposition {
+  const GeneComposition(this.counts);
+
+  /// Raw counts keyed by NCBI gene type, e.g. PROTEIN_CODING, tRNA.
+  final Map<String, int> counts;
+
+  int get total => counts.values.fold(0, (sum, count) => sum + count);
+
+  Map<GeneCategory, int> get byCategory {
+    final Map<GeneCategory, int> result = {};
+    for (final category in GeneCategory.values) {
+      final int count = counts.entries
+          .where((e) => GeneCategory.of(e.key) == category)
+          .fold(0, (sum, e) => sum + e.value);
+      if (count > 0) result[category] = count;
+    }
+    return result;
+  }
+}
+
+/// Genome size and gene composition from NCBI Datasets.
+class GenomeSummary {
+  const GenomeSummary({
+    required this.assembly,
+    required this.assemblyCount,
+    required this.genes,
+  });
+
+  final GenomeAssembly? assembly;
+  final int assemblyCount;
+  final GeneComposition genes;
+
+  bool get isEmpty => assembly == null && genes.total == 0;
+}
+
+class NcbiDatasetsClient {
+  const NcbiDatasetsClient(this.client);
+
+  final http.Client client;
+
+  /// Assemblies compared when the species has no designated reference.
+  static const int assemblyCandidates = 20;
+
+  static Uri _uri(String path, [Map<String, String>? query]) =>
+      Uri.https('api.ncbi.nlm.nih.gov', '/datasets/v2/$path', query);
+
+  /// Annotated genes of each NCBI gene type; empty when unannotated.
+  Future<Map<String, int>> geneTypeCounts(String name) async {
+    final json = await _getJson(client, _uri('gene/taxon/$name/counts'));
+    final List<dynamic> report = json['report'] as List<dynamic>? ?? [];
+    return {
+      for (final item in report.whereType<Map<String, dynamic>>())
+        if (item['gene_type'] is String && (_asInt(item['count']) ?? 0) > 0)
+          item['gene_type'] as String: _asInt(item['count'])!,
+    };
+  }
+
+  Future<({List<GenomeAssembly> assemblies, int total})> assemblies(
+    String name, {
+    bool referenceOnly = false,
+    int pageSize = 1,
+    bool accessionsOnly = false,
+  }) async {
+    final json = await _getJson(
+      client,
+      _uri('genome/taxon/$name/dataset_report', {
+        if (referenceOnly) 'filters.reference_only': 'true',
+        if (!referenceOnly) 'filters.assembly_source': 'genbank',
+        if (!referenceOnly) 'filters.assembly_version': 'current',
+        'page_size': '$pageSize',
+        if (accessionsOnly) 'returned_content': 'ASSM_ACC',
+      }),
+    );
+    final List<dynamic> reports = json['reports'] as List<dynamic>? ?? [];
+    final assemblies = [
+      for (final report in reports.whereType<Map<String, dynamic>>())
+        ?GenomeAssembly.fromReport(report),
+    ];
+    return (
+      assemblies: assemblies,
+      total: _asInt(json['total_count']) ?? assemblies.length,
+    );
+  }
+
+  /// Asks for the gene counts, the reference genome and the assembly count
+  /// together; only when there are assemblies but no reference does it fetch
+  /// candidates to choose the best one from.
+  Future<GenomeSummary> fetchSummary(String name) async {
+    final (genes, reference, count) = await (
+      geneTypeCounts(name),
+      assemblies(name, referenceOnly: true),
+      assemblies(name, accessionsOnly: true),
+    ).wait;
+    GenomeAssembly? assembly = reference.assemblies.firstOrNull;
+    if (assembly == null && count.total > 0) {
+      final candidates = await assemblies(name, pageSize: assemblyCandidates);
+      assembly = GenomeAssembly.best(candidates.assemblies, name);
+    }
+    return GenomeSummary(
+      assembly: assembly,
+      assemblyCount: count.total,
+      genes: GeneComposition(genes),
+    );
   }
 }
 

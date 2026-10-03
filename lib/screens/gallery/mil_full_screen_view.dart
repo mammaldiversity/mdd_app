@@ -81,8 +81,9 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
     try {
       final db = ref.read(databaseProvider);
       final query = MddQuery(db);
-      final speciesImages =
-          await query.getMilImagesForSpecies(widget.milItem.mddId);
+      final speciesImages = await query.getMilImagesForSpecies(
+        widget.milItem.mddId,
+      );
       if (mounted && speciesImages.isNotEmpty) {
         final newIndex = speciesImages.indexWhere(
           (item) => item.milId == widget.milItem.milId,
@@ -124,8 +125,8 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final scientificName =
-        '${item.genus ?? ''} ${item.specificEpithet ?? ''}'.trim();
+    final scientificName = '${item.genus ?? ''} ${item.specificEpithet ?? ''}'
+        .trim();
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -136,9 +137,7 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              _showMetadata ? Icons.info : Icons.info_outline,
-            ),
+            icon: Icon(_showMetadata ? Icons.info : Icons.info_outline),
             tooltip: _showMetadata ? 'Hide Details' : 'Show Details',
             onPressed: () {
               setState(() {
@@ -188,8 +187,9 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                               Icon(
                                 Icons.broken_image,
                                 size: 80,
-                                color:
-                                    colorScheme.onSurfaceVariant.withAlpha(128),
+                                color: colorScheme.onSurfaceVariant.withAlpha(
+                                  128,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -261,8 +261,9 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        colorScheme.surfaceContainerHigh.withValues(alpha: 0.9),
+                    color: colorScheme.surfaceContainerHigh.withValues(
+                      alpha: 0.9,
+                    ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: colorScheme.outlineVariant.withAlpha(140),
@@ -332,22 +333,23 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                           scientificName,
                                           style: theme.textTheme.titleLarge
                                               ?.copyWith(
-                                            color: colorScheme.onSurface,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                                color: colorScheme.onSurface,
+                                                fontStyle: FontStyle.italic,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                         if (item.mainCommonName != null &&
-                                            item.mainCommonName!
+                                            item
+                                                .mainCommonName!
                                                 .isNotEmpty) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             item.mainCommonName!,
                                             style: theme.textTheme.titleMedium
                                                 ?.copyWith(
-                                              color: colorScheme.secondary,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                                  color: colorScheme.secondary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                           ),
                                         ],
                                       ],
@@ -389,8 +391,9 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                 ],
                               ),
                               Divider(
-                                color:
-                                    colorScheme.outlineVariant.withAlpha(140),
+                                color: colorScheme.outlineVariant.withAlpha(
+                                  140,
+                                ),
                                 height: 24,
                               ),
                               _InfoRow(
@@ -431,15 +434,18 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                               ),
                               if (item.isUncertainIdentification == 1)
                                 Container(
-                                  margin:
-                                      const EdgeInsets.only(top: 8, bottom: 4),
+                                  margin: const EdgeInsets.only(
+                                    top: 8,
+                                    bottom: 4,
+                                  ),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: colorScheme.errorContainer
-                                        .withAlpha(120),
+                                    color: colorScheme.errorContainer.withAlpha(
+                                      120,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
                                       color: colorScheme.error.withAlpha(100),
@@ -485,9 +491,7 @@ class _MilFullScreenViewState extends ConsumerState<MilFullScreenView> {
                                       ),
                                       recognizer: _tapGestureRecognizer,
                                     ),
-                                    TextSpan(
-                                      text: ' · MIL ID: ${item.milId}',
-                                    ),
+                                    TextSpan(text: ' · MIL ID: ${item.milId}'),
                                   ],
                                 ),
                               ),
@@ -531,11 +535,7 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: colorScheme.primary,
-          ),
+          Icon(icon, size: 16, color: colorScheme.primary),
           const SizedBox(width: 8),
           SizedBox(
             width: 95,

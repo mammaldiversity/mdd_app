@@ -19,10 +19,13 @@ class _GenusBarChartState extends State<GenusBarChart> {
   @override
   Widget build(BuildContext context) {
     if (widget.stats.speciesPerGenus.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerGenusResult> data =
-        widget.stats.speciesPerGenus.take(_topN).toList();
-    final double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerGenusResult> data = widget.stats.speciesPerGenus
+        .take(_topN)
+        .toList();
+    final double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
     final barColor = ChartPalette.getGenusColor(context);
@@ -169,8 +172,9 @@ class _GenusBarChartState extends State<GenusBarChart> {
                               showTitles: true,
                               reservedSize: 46,
                               maxIncluded: false,
-                              interval:
-                                  maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                              interval: maxY > 0
+                                  ? (maxY / 4).ceilToDouble()
+                                  : 1,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   meta: meta,
@@ -198,11 +202,13 @@ class _GenusBarChartState extends State<GenusBarChart> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval:
-                              maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                          horizontalInterval: maxY > 0
+                              ? (maxY / 4).ceilToDouble()
+                              : 1,
                           getDrawingHorizontalLine: (value) => FlLine(
-                            color: colorScheme.outlineVariant
-                                .withValues(alpha: 0.35),
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.35,
+                            ),
                             strokeWidth: 1,
                             dashArray: [4, 4],
                           ),

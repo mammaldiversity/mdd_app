@@ -21,8 +21,11 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
     if (widget.stats.speciesWithMostImages.isEmpty) {
       return const SizedBox.shrink();
     }
-    final List<StatSpeciesWithMostImagesResult> data =
-        widget.stats.speciesWithMostImages.take(_topN).toList();
+    final List<StatSpeciesWithMostImagesResult> data = widget
+        .stats
+        .speciesWithMostImages
+        .take(_topN)
+        .toList();
     final double maxY = data
         .map((e) => e.imageCount)
         .reduce((a, b) => a > b ? a : b)
@@ -174,8 +177,9 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                               showTitles: true,
                               reservedSize: 46,
                               maxIncluded: false,
-                              interval:
-                                  maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                              interval: maxY > 0
+                                  ? (maxY / 4).ceilToDouble()
+                                  : 1,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   meta: meta,
@@ -203,11 +207,13 @@ class _ImagesBarChartState extends State<ImagesBarChart> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval:
-                              maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                          horizontalInterval: maxY > 0
+                              ? (maxY / 4).ceilToDouble()
+                              : 1,
                           getDrawingHorizontalLine: (value) => FlLine(
-                            color: colorScheme.outlineVariant
-                                .withValues(alpha: 0.35),
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.35,
+                            ),
                             strokeWidth: 1,
                             dashArray: [4, 4],
                           ),

@@ -105,7 +105,8 @@ class ChartPalette {
 
   /// Theme-aware binary colors for Extinct vs Extant.
   static ({Color extinct, Color extant}) getExtinctColors(
-      BuildContext context) {
+    BuildContext context,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDark) {
       return (
@@ -121,7 +122,8 @@ class ChartPalette {
 
   /// Theme-aware binary colors for Domestic vs Wild.
   static ({Color domestic, Color wild}) getDomesticColors(
-      BuildContext context) {
+    BuildContext context,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDark) {
       return (

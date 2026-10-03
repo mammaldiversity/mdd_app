@@ -15,8 +15,7 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<TaxonomyData> retrieveTaxonData(int mddID) async {
     return await (select(
       taxonomy,
-    )..where((tbl) => tbl.id.equals(mddID)))
-        .getSingle();
+    )..where((tbl) => tbl.id.equals(mddID))).getSingle();
   }
 
   Future<MddInfoData> retrieveMddInfo() async {
@@ -26,15 +25,13 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MilDataData>> retrieveMilData(int mddID) async {
     return await (select(
       milData,
-    )..where((tbl) => tbl.mddId.equals(mddID)))
-        .get();
+    )..where((tbl) => tbl.mddId.equals(mddID))).get();
   }
 
   Future<List<SynonymData>> retrieveSynonymData(int mddID) async {
     final data = await (select(
       synonym,
-    )..where((tbl) => tbl.speciesId.equals(mddID)))
-        .get();
+    )..where((tbl) => tbl.speciesId.equals(mddID))).get();
     if (kDebugMode) {
       print('Synonym data: $data');
     }
@@ -58,19 +55,18 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MainTaxonomyData>> retrieveSpeciesList(List<int> mddID) async {
     List<TaxonomyData> data = await (select(
       taxonomy,
-    )..where((tbl) => tbl.id.isIn(mddID)))
-        .get();
+    )..where((tbl) => tbl.id.isIn(mddID))).get();
     // Convert to MainTaxonomyData and order by specific epithet
-    final taxonData =
-        data.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList();
-    return taxonData
-      ..sort((a, b) {
-        int result = a.genus.compareTo(b.genus);
-        if (result == 0) {
-          result = a.specificEpithet.compareTo(b.specificEpithet);
-        }
-        return result;
-      });
+    final taxonData = data
+        .map((e) => MainTaxonomyData.fromTaxonomyData(e))
+        .toList();
+    return taxonData..sort((a, b) {
+      int result = a.genus.compareTo(b.genus);
+      if (result == 0) {
+        result = a.specificEpithet.compareTo(b.specificEpithet);
+      }
+      return result;
+    });
   }
 
   Future<List<MddGroupListResult>> retrieveGroupList() async {
@@ -111,25 +107,28 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     ''';
 
     return customSelect(
-      query,
-      variables: [Variable.withInt(mddId)],
-      readsFrom: {milData, taxonomy},
-    )
-        .map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
-              milId: row.read<String>('milId'),
-              mddId: row.read<int>('mddId'),
-              description: row.readNullable<String>('description'),
-              photographer: row.readNullable<String>('photographer'),
-              location: row.readNullable<String>('location'),
-              distribution: row.readNullable<String>('distribution'),
-              dateTaken: row.readNullable<String>('dateTaken'),
-              orientation: row.readNullable<String>('orientation'),
-              isUncertainIdentification:
-                  row.readNullable<int>('isUncertainIdentification'),
-              genus: row.readNullable<String>('genus'),
-              specificEpithet: row.readNullable<String>('specificEpithet'),
-              mainCommonName: row.readNullable<String>('mainCommonName'),
-            ))
+          query,
+          variables: [Variable.withInt(mddId)],
+          readsFrom: {milData, taxonomy},
+        )
+        .map(
+          (QueryRow row) => RandomMilImagesWithTaxonomyResult(
+            milId: row.read<String>('milId'),
+            mddId: row.read<int>('mddId'),
+            description: row.readNullable<String>('description'),
+            photographer: row.readNullable<String>('photographer'),
+            location: row.readNullable<String>('location'),
+            distribution: row.readNullable<String>('distribution'),
+            dateTaken: row.readNullable<String>('dateTaken'),
+            orientation: row.readNullable<String>('orientation'),
+            isUncertainIdentification: row.readNullable<int>(
+              'isUncertainIdentification',
+            ),
+            genus: row.readNullable<String>('genus'),
+            specificEpithet: row.readNullable<String>('specificEpithet'),
+            mainCommonName: row.readNullable<String>('mainCommonName'),
+          ),
+        )
         .get();
   }
 
@@ -176,25 +175,28 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     variables.add(Variable.withInt(offset));
 
     return customSelect(
-      query,
-      variables: variables,
-      readsFrom: {milData, taxonomy},
-    )
-        .map((QueryRow row) => RandomMilImagesWithTaxonomyResult(
-              milId: row.read<String>('milId'),
-              mddId: row.read<int>('mddId'),
-              description: row.readNullable<String>('description'),
-              photographer: row.readNullable<String>('photographer'),
-              location: row.readNullable<String>('location'),
-              distribution: row.readNullable<String>('distribution'),
-              dateTaken: row.readNullable<String>('dateTaken'),
-              orientation: row.readNullable<String>('orientation'),
-              isUncertainIdentification:
-                  row.readNullable<int>('isUncertainIdentification'),
-              genus: row.readNullable<String>('genus'),
-              specificEpithet: row.readNullable<String>('specificEpithet'),
-              mainCommonName: row.readNullable<String>('mainCommonName'),
-            ))
+          query,
+          variables: variables,
+          readsFrom: {milData, taxonomy},
+        )
+        .map(
+          (QueryRow row) => RandomMilImagesWithTaxonomyResult(
+            milId: row.read<String>('milId'),
+            mddId: row.read<int>('mddId'),
+            description: row.readNullable<String>('description'),
+            photographer: row.readNullable<String>('photographer'),
+            location: row.readNullable<String>('location'),
+            distribution: row.readNullable<String>('distribution'),
+            dateTaken: row.readNullable<String>('dateTaken'),
+            orientation: row.readNullable<String>('orientation'),
+            isUncertainIdentification: row.readNullable<int>(
+              'isUncertainIdentification',
+            ),
+            genus: row.readNullable<String>('genus'),
+            specificEpithet: row.readNullable<String>('specificEpithet'),
+            mainCommonName: row.readNullable<String>('mainCommonName'),
+          ),
+        )
         .get();
   }
 
@@ -240,12 +242,11 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   }
 
   Future<List<TaxonomyData>> getTaxonomyForCountryStats() async {
-    return (select(taxonomy)
-          ..where(
-            (tbl) =>
-                tbl.countryDistribution.isNotNull() &
-                tbl.countryDistribution.isNotValue(''),
-          ))
+    return (select(taxonomy)..where(
+          (tbl) =>
+              tbl.countryDistribution.isNotNull() &
+              tbl.countryDistribution.isNotValue(''),
+        ))
         .get();
   }
 }
@@ -392,8 +393,7 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
       case SearchFilter.order:
         return (select(
           taxonomy,
-        )..where((tbl) => tbl.taxonOrder.like('%$rawQuery%')))
-            .get();
+        )..where((tbl) => tbl.taxonOrder.like('%$rawQuery%'))).get();
       case SearchFilter.family:
         return _searchByFamily(rawQuery);
       case SearchFilter.genus:
@@ -401,12 +401,11 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
       case SearchFilter.species:
         return _searchBySpecies(rawQuery);
       case SearchFilter.commonName:
-        return (select(taxonomy)
-              ..where(
-                (tbl) =>
-                    tbl.mainCommonName.like('%$rawQuery%') |
-                    tbl.otherCommonNames.like('%$rawQuery%'),
-              ))
+        return (select(taxonomy)..where(
+              (tbl) =>
+                  tbl.mainCommonName.like('%$rawQuery%') |
+                  tbl.otherCommonNames.like('%$rawQuery%'),
+            ))
             .get();
       case SearchFilter.authority:
         return (select(taxonomy)
@@ -417,46 +416,41 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
       case SearchFilter.typeLocality:
         return (select(
           taxonomy,
-        )..where((tbl) => tbl.typeLocality.like('%$rawQuery%')))
-            .get();
+        )..where((tbl) => tbl.typeLocality.like('%$rawQuery%'))).get();
 
       // Synonym searches
       case SearchFilter.synonymRootName:
         return _queryTaxonomyFromSynonymIds(
           await (select(
             synonym,
-          )..where((tbl) => tbl.rootName.like('%$rawQuery%')))
-              .get(),
+          )..where((tbl) => tbl.rootName.like('%$rawQuery%'))).get(),
         );
       case SearchFilter.synonymOriginalCombination:
         final queryWithUnderscore = rawQuery.replaceAll(' ', '_');
         return _queryTaxonomyFromSynonymIds(
-          await (select(synonym)
-                ..where(
-                  (tbl) =>
-                      tbl.originalCombination.like('%$rawQuery%') |
-                      tbl.originalCombination.like('%$queryWithUnderscore%'),
-                ))
+          await (select(synonym)..where(
+                (tbl) =>
+                    tbl.originalCombination.like('%$rawQuery%') |
+                    tbl.originalCombination.like('%$queryWithUnderscore%'),
+              ))
               .get(),
         );
       case SearchFilter.synonymAuthorYear:
         return _queryTaxonomyFromSynonymIds(
-          await (select(synonym)
-                ..where(
-                  (tbl) =>
-                      tbl.author.like('%$rawQuery%') |
-                      tbl.year.like('%$rawQuery%'),
-                ))
+          await (select(synonym)..where(
+                (tbl) =>
+                    tbl.author.like('%$rawQuery%') |
+                    tbl.year.like('%$rawQuery%'),
+              ))
               .get(),
         );
       case SearchFilter.synonymTypeLocality:
         return _queryTaxonomyFromSynonymIds(
-          await (select(synonym)
-                ..where(
-                  (tbl) =>
-                      tbl.oldTypeLocality.like('%$rawQuery%') |
-                      tbl.originalTypeLocality.like('%$rawQuery%'),
-                ))
+          await (select(synonym)..where(
+                (tbl) =>
+                    tbl.oldTypeLocality.like('%$rawQuery%') |
+                    tbl.originalTypeLocality.like('%$rawQuery%'),
+              ))
               .get(),
         );
 
@@ -465,22 +459,19 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         return _queryTaxonomyFromMilDataIds(
           await (select(
             milData,
-          )..where((tbl) => tbl.description.like('%$rawQuery%')))
-              .get(),
+          )..where((tbl) => tbl.description.like('%$rawQuery%'))).get(),
         );
       case SearchFilter.milDataPhotographer:
         return _queryTaxonomyFromMilDataIds(
           await (select(
             milData,
-          )..where((tbl) => tbl.photographer.like('%$rawQuery%')))
-              .get(),
+          )..where((tbl) => tbl.photographer.like('%$rawQuery%'))).get(),
         );
       case SearchFilter.milDataLocation:
         return _queryTaxonomyFromMilDataIds(
           await (select(
             milData,
-          )..where((tbl) => tbl.location.like('%$rawQuery%')))
-              .get(),
+          )..where((tbl) => tbl.location.like('%$rawQuery%'))).get(),
         );
     }
   }
@@ -503,52 +494,47 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
 
   Future<List<TaxonomyData>> _searchAll(String query) {
     final queryWithUnderscore = query.replaceAll(' ', '_');
-    return (select(taxonomy)
-          ..where(
-            (tbl) =>
-                tbl.family.like('%$query%') |
-                tbl.taxonOrder.like('%$query%') |
-                tbl.genus.like('%$query%') |
-                tbl.specificEpithet.like('%$query%') |
-                tbl.sciName.like('%$queryWithUnderscore%') |
-                tbl.originalNameCombination.like('%$queryWithUnderscore%') |
-                tbl.mainCommonName.like('%$query%') |
-                tbl.otherCommonNames.like('%$query%') |
-                tbl.countryDistribution.like('%$query%') |
-                tbl.authoritySpeciesAuthor.like('%$query%') |
-                tbl.distributionNotes.like('%$query%') |
-                tbl.typeLocality.like('%$query%'),
-          ))
+    return (select(taxonomy)..where(
+          (tbl) =>
+              tbl.family.like('%$query%') |
+              tbl.taxonOrder.like('%$query%') |
+              tbl.genus.like('%$query%') |
+              tbl.specificEpithet.like('%$query%') |
+              tbl.sciName.like('%$queryWithUnderscore%') |
+              tbl.originalNameCombination.like('%$queryWithUnderscore%') |
+              tbl.mainCommonName.like('%$query%') |
+              tbl.otherCommonNames.like('%$query%') |
+              tbl.countryDistribution.like('%$query%') |
+              tbl.authoritySpeciesAuthor.like('%$query%') |
+              tbl.distributionNotes.like('%$query%') |
+              tbl.typeLocality.like('%$query%'),
+        ))
         .get();
   }
 
   Future<List<TaxonomyData>> _searchByFamily(String rawQuery) {
     return (select(
       taxonomy,
-    )..where((tbl) => tbl.family.like('%$rawQuery%')))
-        .get();
+    )..where((tbl) => tbl.family.like('%$rawQuery%'))).get();
   }
 
   Future<List<TaxonomyData>> _searchByGenus(String rawQuery) {
     return (select(
       taxonomy,
-    )..where((tbl) => tbl.genus.like('%$rawQuery%')))
-        .get();
+    )..where((tbl) => tbl.genus.like('%$rawQuery%'))).get();
   }
 
   Future<List<TaxonomyData>> _searchBySpecies(String rawQuery) {
     final query = rawQuery.replaceAll(' ', '_');
     return (select(
       taxonomy,
-    )..where((tbl) => tbl.sciName.like('%$query%')))
-        .get();
+    )..where((tbl) => tbl.sciName.like('%$query%'))).get();
   }
 
   Future<List<TaxonomyData>> _searchByCountry(String rawQuery) async {
     return (select(
       taxonomy,
-    )..where((tbl) => tbl.countryDistribution.like('%$rawQuery%')))
-        .get();
+    )..where((tbl) => tbl.countryDistribution.like('%$rawQuery%'))).get();
   }
 }
 

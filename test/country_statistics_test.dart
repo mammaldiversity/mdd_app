@@ -33,8 +33,55 @@ void main() {
 
   group('CountryTablePage Widget Tests', () {
     testWidgets(
-        'renders CountryTablePage with mock country diversity provider data',
-        (WidgetTester tester) async {
+      'renders CountryTablePage with mock country diversity provider data',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1600, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+
+        final mockData = [
+          CountryDiversityData(
+            countryName: 'Indonesia',
+            totalOrders: 10,
+            totalFamilies: 35,
+            totalGenera: 150,
+            totalLivingSpecies: 700,
+            totalExtinctSpecies: 5,
+            speciesIds: [1, 2],
+          ),
+          CountryDiversityData(
+            countryName: 'Brazil',
+            totalOrders: 12,
+            totalFamilies: 40,
+            totalGenera: 180,
+            totalLivingSpecies: 750,
+            totalExtinctSpecies: 2,
+            speciesIds: [3, 4],
+          ),
+        ];
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              countryDiversityStatsProvider.overrideWith((ref) => mockData),
+            ],
+            child: const MaterialApp(home: CountryTablePage()),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Mammal Diversity by Country'), findsOneWidget);
+        expect(find.text('Indonesia'), findsOneWidget);
+        expect(find.text('Brazil'), findsOneWidget);
+        expect(find.text('Living Species'), findsOneWidget);
+        expect(find.text('Extinct Species'), findsOneWidget);
+      },
+    );
+
+    testWidgets('filtering country search bar updates visible rows', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1600, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -65,56 +112,7 @@ void main() {
           overrides: [
             countryDiversityStatsProvider.overrideWith((ref) => mockData),
           ],
-          child: const MaterialApp(
-            home: CountryTablePage(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(find.text('Mammal Diversity by Country'), findsOneWidget);
-      expect(find.text('Indonesia'), findsOneWidget);
-      expect(find.text('Brazil'), findsOneWidget);
-      expect(find.text('Living Species'), findsOneWidget);
-      expect(find.text('Extinct Species'), findsOneWidget);
-    });
-
-    testWidgets('filtering country search bar updates visible rows',
-        (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1600, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      final mockData = [
-        CountryDiversityData(
-          countryName: 'Indonesia',
-          totalOrders: 10,
-          totalFamilies: 35,
-          totalGenera: 150,
-          totalLivingSpecies: 700,
-          totalExtinctSpecies: 5,
-          speciesIds: [1, 2],
-        ),
-        CountryDiversityData(
-          countryName: 'Brazil',
-          totalOrders: 12,
-          totalFamilies: 40,
-          totalGenera: 180,
-          totalLivingSpecies: 750,
-          totalExtinctSpecies: 2,
-          speciesIds: [3, 4],
-        ),
-      ];
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            countryDiversityStatsProvider.overrideWith((ref) => mockData),
-          ],
-          child: const MaterialApp(
-            home: CountryTablePage(),
-          ),
+          child: const MaterialApp(home: CountryTablePage()),
         ),
       );
 
@@ -127,8 +125,9 @@ void main() {
       expect(find.text('Indonesia'), findsNothing);
     });
 
-    testWidgets('tapping country navigates to CountrySpeciesPage',
-        (WidgetTester tester) async {
+    testWidgets('tapping country navigates to CountrySpeciesPage', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1600, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -151,9 +150,7 @@ void main() {
             countryDiversityStatsProvider.overrideWith((ref) => mockData),
             mainTaxonomyDataProvider([1]).overrideWith((ref) async => []),
           ],
-          child: const MaterialApp(
-            home: CountryTablePage(),
-          ),
+          child: const MaterialApp(home: CountryTablePage()),
         ),
       );
 
@@ -166,8 +163,9 @@ void main() {
       expect(find.text('Indonesia'), findsWidgets);
     });
 
-    testWidgets('sorting on all columns works properly',
-        (WidgetTester tester) async {
+    testWidgets('sorting on all columns works properly', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1600, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -198,9 +196,7 @@ void main() {
           overrides: [
             countryDiversityStatsProvider.overrideWith((ref) => mockData),
           ],
-          child: const MaterialApp(
-            home: CountryTablePage(),
-          ),
+          child: const MaterialApp(home: CountryTablePage()),
         ),
       );
 

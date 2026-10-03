@@ -20,10 +20,7 @@ class StatTableColumn {
 }
 
 class StatTableRow {
-  const StatTableRow({
-    required this.values,
-    required this.searchText,
-  });
+  const StatTableRow({required this.values, required this.searchText});
 
   final List<dynamic> values;
   final String searchText;
@@ -86,9 +83,7 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     if (_searchQuery.isNotEmpty) {
       final query = _searchQuery.toLowerCase();
       list = list
-          .where(
-            (row) => row.searchText.toLowerCase().contains(query),
-          )
+          .where((row) => row.searchText.toLowerCase().contains(query))
           .toList();
     }
 
@@ -119,9 +114,8 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   Future<void> _exportData(List<StatTableRow> dataToExport) async {
     final ExportSettings? settings = await showDialog<ExportSettings>(
       context: context,
-      builder: (context) => ChartExportDialog(
-        defaultFileName: widget.exportDefaultFileName,
-      ),
+      builder: (context) =>
+          ChartExportDialog(defaultFileName: widget.exportDefaultFileName),
     );
 
     if (settings != null && mounted) {
@@ -171,9 +165,7 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -187,10 +179,9 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                 decoration: InputDecoration(
                   hintText: 'Search table...',
                   hintStyle: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant
-                        .withAlpha(180),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withAlpha(180),
                     fontSize: 14,
                   ),
                   prefixIcon: Icon(
@@ -213,19 +204,17 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .outlineVariant
-                          .withAlpha(140),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withAlpha(140),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .outlineVariant
-                          .withAlpha(140),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withAlpha(140),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -255,10 +244,9 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outlineVariant
-                        .withAlpha(130),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withAlpha(130),
                     width: 1,
                   ),
                 ),
@@ -354,42 +342,30 @@ class StatTableHeaderLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSelected = selectedColumnIndex == columnIndex;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final mutedColor =
-        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
+    final mutedColor = Theme.of(
+      context,
+    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
 
     if (isSelected) {
       return Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: primaryColor,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
       );
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(width: 4),
-        Icon(
-          Icons.swap_vert,
-          size: 14,
-          color: mutedColor,
-        ),
+        Icon(Icons.swap_vert, size: 14, color: mutedColor),
       ],
     );
   }
 }
 
 class _StatDataTableSource extends DataTableSource {
-  _StatDataTableSource({
-    required this.columns,
-    required this.data,
-  });
+  _StatDataTableSource({required this.columns, required this.data});
 
   final List<StatTableColumn> columns;
   final List<StatTableRow> data;
@@ -397,9 +373,9 @@ class _StatDataTableSource extends DataTableSource {
   static String _formatNumber(dynamic val) {
     if (val is int) {
       return val.toString().replaceAllMapped(
-            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-            (Match m) => '${m[1]},',
-          );
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]},',
+      );
     }
     return val?.toString() ?? '';
   }

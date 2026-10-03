@@ -9,7 +9,9 @@ class InfoCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(showInfoTextProvider).when(
+    return ref
+        .watch(showInfoTextProvider)
+        .when(
           data: (showInfo) {
             if (!showInfo) return const SizedBox.shrink();
             return Material(

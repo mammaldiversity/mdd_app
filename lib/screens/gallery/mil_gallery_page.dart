@@ -135,8 +135,10 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final crossAxisCount =
-              (constraints.maxWidth / 165).floor().clamp(2, 6);
+          final crossAxisCount = (constraints.maxWidth / 165).floor().clamp(
+            2,
+            6,
+          );
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,8 +163,10 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                           color: colorScheme.onSurfaceVariant.withAlpha(180),
                           fontSize: 14,
                         ),
-                        prefixIcon:
-                            Icon(Icons.search, color: colorScheme.primary),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: colorScheme.primary,
+                        ),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -205,9 +209,9 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                           ? 'Found $_totalCount results'
                           : 'Showing $_totalCount MIL Images',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 ),
@@ -246,12 +250,8 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                                   _searchQuery.isNotEmpty
                                       ? 'No MIL images found matching "$_searchQuery"'
                                       : 'No MIL images available',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
                                   textAlign: TextAlign.center,
                                 ),
                               ],
@@ -265,18 +265,18 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                         sliver: SliverGrid(
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.76,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final item = _items[index];
-                              return _MilGalleryCard(item: item);
-                            },
-                            childCount: _items.length,
-                          ),
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.76,
+                              ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final item = _items[index];
+                            return _MilGalleryCard(item: item);
+                          }, childCount: _items.length),
                         ),
                       ),
                     if (_isLoading)
@@ -286,9 +286,7 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                           child: Center(child: CircularProgressIndicator()),
                         ),
                       ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 24),
-                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
                   ],
                 ),
               ),
@@ -422,10 +420,10 @@ class _MilGalleryCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                   if (item.mainCommonName != null &&
                       item.mainCommonName!.isNotEmpty) ...[
@@ -435,9 +433,9 @@ class _MilGalleryCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ],

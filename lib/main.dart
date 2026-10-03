@@ -34,7 +34,9 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: MddTheme.lightTheme(),
       darkTheme: MddTheme.darkTheme(),
-      themeMode: ref.watch(themeSettingProvider).when(
+      themeMode: ref
+          .watch(themeSettingProvider)
+          .when(
             data: (ThemeMode themeMode) => themeMode,
             loading: () => ThemeMode.system,
             error: (Object error, _) {
@@ -49,7 +51,9 @@ class MyApp extends ConsumerWidget {
               return ThemeMode.system;
             },
           ),
-      home: ref.watch(speciesListProvider).when(
+      home: ref
+          .watch(speciesListProvider)
+          .when(
             data: (_) => const MddPages(),
             loading: () => const SetupPage(),
             error: (Object error, StackTrace stackTrace) {
@@ -85,9 +89,7 @@ class MyApp extends ConsumerWidget {
                                 child: SingleChildScrollView(
                                   child: SelectableText(
                                     'Error: $error\n\nStack trace:\n$stackTrace',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           fontFamily: 'monospace',
                                           color: Theme.of(

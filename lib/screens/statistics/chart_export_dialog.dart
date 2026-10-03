@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mdd/services/export.dart';
 
 class ChartExportDialog extends StatefulWidget {
-  const ChartExportDialog({
-    super.key,
-    required this.defaultFileName,
-  });
+  const ChartExportDialog({super.key, required this.defaultFileName});
 
   final String defaultFileName;
 
@@ -76,9 +73,9 @@ class _ChartExportDialogState extends State<ChartExportDialog> {
           onPressed: () {
             final name = _filenameController.text.trim();
             if (name.isEmpty) return;
-            Navigator.of(context).pop(
-              ExportSettings(fileName: name, format: _format),
-            );
+            Navigator.of(
+              context,
+            ).pop(ExportSettings(fileName: name, format: _format));
           },
           child: const Text('Export'),
         ),

@@ -21,10 +21,15 @@ class _YearBarChartState extends State<YearBarChart> {
     if (widget.stats.discoveryYear.isEmpty) {
       return const SizedBox.shrink();
     }
-    final List<StatSpeciesByDiscoveryYearResult> data =
-        widget.stats.discoveryYear.take(_topN).toList();
-    final double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesByDiscoveryYearResult> data = widget
+        .stats
+        .discoveryYear
+        .take(_topN)
+        .toList();
+    final double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
     final barColor = ChartPalette.getYearColor(context);
@@ -163,8 +168,9 @@ class _YearBarChartState extends State<YearBarChart> {
                               showTitles: true,
                               reservedSize: 46,
                               maxIncluded: false,
-                              interval:
-                                  maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                              interval: maxY > 0
+                                  ? (maxY / 4).ceilToDouble()
+                                  : 1,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   meta: meta,
@@ -192,11 +198,13 @@ class _YearBarChartState extends State<YearBarChart> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval:
-                              maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                          horizontalInterval: maxY > 0
+                              ? (maxY / 4).ceilToDouble()
+                              : 1,
                           getDrawingHorizontalLine: (value) => FlLine(
-                            color: colorScheme.outlineVariant
-                                .withValues(alpha: 0.35),
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.35,
+                            ),
                             strokeWidth: 1,
                             dashArray: [4, 4],
                           ),
