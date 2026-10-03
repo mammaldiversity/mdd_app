@@ -32,18 +32,30 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
           .watch(speciesListProvider)
           .when(
             data: (List<MddGroupListResult> speciesList) {
+              final showInfo = ref.watch(showInfoTextProvider).value ?? false;
               final headers = <Widget>[
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: InfoCard(
-                    text: 'Browse the taxonomy of mammals, from order down to species. Switch between the list and tree views, and tap a species to view its details.',
+                if (showInfo)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+                    child: InfoCard(
+                      text: 'Browse the taxonomy of mammals, from order down to species. Switch between the list and tree views, and tap a species to view its details.',
+                    ),
                   ),
-                ),
-                ExploreToolbar(viewMode: viewMode),
               ];
-              return viewMode == ExploreViewMode.tree
-                  ? _TreeContent(headers: headers)
-                  : _ListContent(headers: headers, speciesList: speciesList);
+              // The toolbar stays pinned while the content scrolls.
+              return Column(
+                children: [
+                  ExploreToolbar(viewMode: viewMode),
+                  Expanded(
+                    child: viewMode == ExploreViewMode.tree
+                        ? _TreeContent(headers: headers)
+                        : _ListContent(
+                            headers: headers,
+                            speciesList: speciesList,
+                          ),
+                  ),
+                ],
+              );
             },
             loading: () => const DataLoadingMessages(isSimple: false),
             error: (Object error, StackTrace stackTrace) =>
@@ -66,7 +78,7 @@ class ExploreToolbar extends ConsumerWidget {
       expandedTaxaProvider.select((state) => state.keys.isNotEmpty),
     );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
       child: Row(
         children: [
           SegmentedButton<ExploreViewMode>(
@@ -553,7 +565,7 @@ class _SpeciesTileImageState extends ConsumerState<SpeciesTileImage> {
             color: colorScheme.surfaceContainerHighest.withAlpha(120),
             child: Center(
               child: Icon(
-                Icons.image_not_supported_outlined,
+                Icons.pets,
                 size: 20,
                 color: colorScheme.onSurfaceVariant.withAlpha(120),
               ),
