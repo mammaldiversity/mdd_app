@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Zoom in, zoom out and recenter buttons overlaid on a map.
 class MapControls extends StatelessWidget {

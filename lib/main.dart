@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -34,6 +34,12 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: MddTheme.lightTheme(),
       darkTheme: MddTheme.darkTheme(),
+      // Bridge theme/localizations to packages still on flutter/material.dart
+      // (fl_chart, flutter_map, maplibre).
+      builder: (BuildContext context, Widget? child) {
+        // ignore: deprecated_member_use
+        return MaterialUiCompatibilityBridge(child: child!);
+      },
       themeMode: ref
           .watch(themeSettingProvider)
           .when(

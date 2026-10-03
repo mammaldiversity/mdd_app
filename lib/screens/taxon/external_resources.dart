@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mdd/screens/home/stats.dart';
-import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/screens/shared/maps/map_controls.dart';
+import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/screens/taxon/gbif_map.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/app_services.dart';
@@ -21,6 +21,10 @@ const String externalResourcesDescription =
 String externalDataNote(String provider) =>
     'Fetched automatically from $provider and not curated by the MDD team. '
     'Its taxonomy may differ from MDD.';
+
+const String gbifUnnaturalRangeNote =
+    'Some records may come from outside the natural range, such as captive '
+    'animals in zoos.';
 
 /// Tiles switch from a row to a stacked column below this width.
 const double _kTileRowMinWidth = 480;
@@ -393,7 +397,12 @@ class ExternalResourceSheet extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Divider(),
-        _ExternalDataNote(provider: resource.provider),
+        _ExternalDataNote(
+          provider: resource.provider,
+          extra: resource == ExternalResource.occurrences
+              ? gbifUnnaturalRangeNote
+              : null,
+        ),
         const SizedBox(height: 8),
         Flexible(
           child: switch (resource) {
@@ -1176,9 +1185,12 @@ List<TextSpan> italicizeName(String text, String name) {
 }
 
 class _ExternalDataNote extends StatelessWidget {
-  const _ExternalDataNote({required this.provider});
+  const _ExternalDataNote({required this.provider, this.extra});
 
   final String provider;
+
+  /// A caveat specific to this source, added after the standard note.
+  final String? extra;
 
   @override
   Widget build(BuildContext context) {
@@ -1190,7 +1202,7 @@ class _ExternalDataNote extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            externalDataNote(provider),
+            [externalDataNote(provider), ?extra].join(' '),
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: color),

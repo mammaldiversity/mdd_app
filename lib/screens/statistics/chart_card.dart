@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mdd/screens/shared/card.dart';
 
 class ChartCard extends StatelessWidget {
