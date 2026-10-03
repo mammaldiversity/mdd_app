@@ -94,6 +94,10 @@ class _DistributionMapState extends ConsumerState<DistributionMap> {
               child: _buildViewport(),
             ),
           ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: _RecenterHint(),
+          ),
         ],
       ),
     );
@@ -583,6 +587,33 @@ class _OfflineMapNotice extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _RecenterHint extends StatelessWidget {
+  const _RecenterHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: color);
+    return Text.rich(
+      TextSpan(
+        style: style,
+        children: [
+          const TextSpan(text: 'Range not showing? Tap '),
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Icon(
+              Icons.center_focus_strong_outlined,
+              size: 16,
+              color: color,
+            ),
+          ),
+          const TextSpan(text: ' to recenter the map.'),
+        ],
+      ),
+    );
+  }
 }
 
 class _MapMessage extends StatelessWidget {

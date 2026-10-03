@@ -24,7 +24,7 @@ class DistributionMapStyleService {
   static const predictedOutlineColor = Color(0xFFB5A600);
 
   static String styleUrl({required bool isDark}) =>
-      'https://tiles.openfreemap.org/styles/${isDark ? 'dark' : 'liberty'}';
+      'https://tiles.openfreemap.org/styles/${isDark ? 'dark' : 'positron'}';
 
   static Future<DistributionMapStyle> build({
     required bool isDark,

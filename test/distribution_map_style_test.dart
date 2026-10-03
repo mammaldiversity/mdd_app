@@ -13,7 +13,7 @@ void main() {
   test('uses Liberty in light mode and Dark in dark mode', () {
     expect(
       DistributionMapStyleService.styleUrl(isDark: false),
-      'https://tiles.openfreemap.org/styles/liberty',
+      'https://tiles.openfreemap.org/styles/positron',
     );
     expect(
       DistributionMapStyleService.styleUrl(isDark: true),
