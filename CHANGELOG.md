@@ -8,10 +8,31 @@ All notable changes to this project will be documented in this file.
 - Species page includes richer information from external resources including GBIF occurrances, NCBI genbank, and Crossref.
 - Add September 2026 release of the Mammal Image Library (MIL).
 
-## [v1.4.2] - 2026-09-25
+## [v1.4.2] - 2026-09-12
+
+### Fixed
+- Fix pie chart sizing on small screens.
+
+## [v1.4.1] - 2026-09-10
+
+### Fixed
+- Fix map failing to render on Android.
+
+### Chores
+- Update Windows and Linux builds.
+- Update dependencies.
+
+## [v1.4.0] - 2026-09-10
 
 ### Added
-- Fix pie chart rendering issue on small screens.
+- Add August 2026 release of the Mammal Image Library (MIL).
+- Replace the distribution map with MapLibre and new map layers.
+- Add table views for all statistics with multi-format export support.
+- Make chart sizes consistent and improve chart colors for accessibility.
+
+### Chores
+- Migrate to native assets and upgrade Rust dependencies.
+- Update dependencies.
 
 ## [v1.3.0] - 2026-08-01
 
