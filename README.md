@@ -8,7 +8,8 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Fix pie chart rendering issue on small screens.
+- Species page includes richer information from external resources including GBIF occurrances, NCBI genbank, and Crossref.
+- Add September 2026 release of the Mammal Image Library (MIL).
 
 ## Installation
 
