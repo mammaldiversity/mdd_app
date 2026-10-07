@@ -20,7 +20,8 @@ const String externalResourcesDescription =
 /// The note above external data, naming where it comes from.
 String externalDataNote(String provider) =>
     'Fetched automatically from $provider and not curated by the MDD team. '
-    'Its taxonomy may differ from MDD.';
+    'Taxonomies WILL differ from MDD in inconsistent ways. '
+    'Use at your own risk.';
 
 const String gbifUnnaturalRangeNote =
     'Some records may come from outside the natural range, such as captive '
@@ -657,9 +658,8 @@ class _StatHeading extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
     child: Text(
       title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
     ),
   );
 }
@@ -1203,9 +1203,8 @@ class _ExternalDataNote extends StatelessWidget {
         Expanded(
           child: Text(
             [externalDataNote(provider), ?extra].join(' '),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: color),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: color),
           ),
         ),
       ],
