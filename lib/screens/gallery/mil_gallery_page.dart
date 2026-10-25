@@ -180,15 +180,11 @@ class _MilGalleryPageState extends ConsumerState<MilGalleryPage> {
                         fillColor: colorScheme.surfaceContainerLow,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: colorScheme.outlineVariant.withAlpha(140),
-                          ),
+                          borderSide: BorderSide(color: colorScheme.outline),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: colorScheme.outlineVariant.withAlpha(140),
-                          ),
+                          borderSide: BorderSide(color: colorScheme.outline),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),

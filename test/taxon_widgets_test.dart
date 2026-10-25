@@ -2,9 +2,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mdd/screens/taxon/distribution_map.dart';
+import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
+import 'package:mdd/screens/taxon/taxonomy.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/providers/map_renderer.dart';
+import 'package:mdd/services/providers/species.dart'
+    show higherTaxonImagesProvider, higherTaxonProvider;
+import 'package:mdd/services/taxon_tree.dart';
 
 class _TestMapRendererNotifier extends MapRendererNotifier {
   @override
@@ -17,6 +23,54 @@ Widget _mapTestApp(Widget child) => ProviderScope(
 );
 
 void main() {
+  group('ClassificationContainer links', () {
+    const rat = TaxonomyData(
+      id: 1,
+      taxonOrder: 'Rodentia',
+      family: 'Muridae',
+      subfamily: 'Murinae',
+      tribe: 'NA',
+      genus: 'Rattus',
+      specificEpithet: 'rattus',
+      extinct: 0,
+    );
+    const muridae = (rank: TaxonRank.family, name: 'Muridae');
+
+    testWidgets('hides NA ranks and opens the tapped taxon page', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            higherTaxonProvider(muridae).overrideWith(
+              (ref) async => HigherTaxonData(taxon: muridae, rows: [rat]),
+            ),
+            higherTaxonImagesProvider(muridae).overrideWith((ref) async => []),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: SelectionArea(
+                  child: ClassificationContainer(taxonData: rat),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Tribe', findRichText: true), findsNothing);
+      await tester.tapOnText(find.textRange.ofSubstring('Muridae'));
+      await tester.pumpAndSettle();
+
+      final page = tester.widget<HigherTaxonPage>(find.byType(HigherTaxonPage));
+      expect((page.rank, page.name), (TaxonRank.family, 'Muridae'));
+      await tester.scrollUntilVisible(find.text('Murinae'), 200);
+      expect(find.text('Full classification'), findsOneWidget);
+      expect(find.text('Rattus rattus'), findsNothing);
+    });
+  });
+
   group('DistributionMap widget tests', () {
     testWidgets('Renders empty when countryDistribution is null', (
       WidgetTester tester,

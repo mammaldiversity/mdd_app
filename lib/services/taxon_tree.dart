@@ -1,7 +1,29 @@
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/species_list.dart';
 
-enum TaxonRank { order, family, genus, species }
+/// Ranks in the MDD classification, from highest to lowest.
+enum TaxonRank {
+  subclass,
+  infraclass,
+  magnorder,
+  superorder,
+  order,
+  suborder,
+  infraorder,
+  parvorder,
+  superfamily,
+  family,
+  subfamily,
+  tribe,
+  genus,
+  subgenus,
+  species;
+
+  /// Capitalized rank name, e.g. `Subfamily`.
+  String get label => '${name[0].toUpperCase()}${name.substring(1)}';
+
+  bool get isItalic => this == genus || this == subgenus || this == species;
+}
 
 /// A node in the Order → Family → Genus → Species tree shown on the
 /// Explore page.
@@ -32,19 +54,13 @@ class TaxonNode {
 
   bool get hasChildren => children.isNotEmpty;
 
-  bool get isItalic => rank == TaxonRank.genus || rank == TaxonRank.species;
+  bool get isItalic => rank.isItalic;
 
   String get rankLabel {
-    switch (rank) {
-      case TaxonRank.order:
-        return 'Order';
-      case TaxonRank.family:
-        return 'Family';
-      case TaxonRank.genus:
-        return 'Genus';
-      case TaxonRank.species:
-        return isExtinct ? 'Extinct species' : 'Living species';
+    if (rank == TaxonRank.species) {
+      return isExtinct ? 'Extinct species' : 'Living species';
     }
+    return rank.label;
   }
 }
 

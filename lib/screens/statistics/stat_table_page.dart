@@ -208,17 +208,13 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withAlpha(140),
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withAlpha(140),
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(

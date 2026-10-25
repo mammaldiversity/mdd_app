@@ -15,7 +15,7 @@ class InfoCard extends ConsumerWidget {
           data: (showInfo) {
             if (!showInfo) return const SizedBox.shrink();
             return Material(
-              color: Theme.of(context).colorScheme.secondary.withAlpha(800),
+              color: Theme.of(context).colorScheme.secondary.withAlpha(32),
               borderRadius: BorderRadius.circular(16),
               clipBehavior: Clip.antiAlias,
               child: Padding(

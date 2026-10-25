@@ -143,16 +143,35 @@ class StatisticsService {
     );
   }
 
+  /// Drops the "(...)" qualifier, e.g. `LC (2024)` → `LC`.
+  static String normalizeIucnStatus(String? status) {
+    final value = status ?? '';
+    final parenIndex = value.indexOf('(');
+    return (parenIndex == -1 ? value : value.substring(0, parenIndex)).trim();
+  }
+
+  /// Splits a `|`-separated field such as realms or countries, dropping
+  /// uncertainty marks (`?`), blanks, and `NA`.
+  static List<String> splitDelimitedValues(String? value) {
+    return (value ?? '')
+        .split('|')
+        .map((part) {
+          var item = part.trim();
+          if (item.endsWith('?')) {
+            item = item.substring(0, item.length - 1).trim();
+          }
+          return item;
+        })
+        .where((item) => item.isNotEmpty && item != 'NA')
+        .toList();
+  }
+
   static List<MapEntry<String, int>> cleanIucnStatusData(
     List<StatSpeciesByIucnStatusResult> rawIucn,
   ) {
     final Map<String, int> iucnCounts = {};
     for (var row in rawIucn) {
-      String status = row.name ?? '';
-      int parenIndex = status.indexOf('(');
-      if (parenIndex != -1) {
-        status = status.substring(0, parenIndex).trim();
-      }
+      final status = normalizeIucnStatus(row.name);
       if (status.isNotEmpty) {
         iucnCounts[status] = (iucnCounts[status] ?? 0) + row.count;
       }
@@ -166,16 +185,8 @@ class StatisticsService {
   ) {
     final Map<String, int> realmCounts = {};
     for (var row in rawRealm) {
-      String realmStr = row.name ?? '';
-      final realms = realmStr.split('|');
-      for (var r in realms) {
-        r = r.trim();
-        if (r.endsWith('?')) {
-          r = r.substring(0, r.length - 1).trim();
-        }
-        if (r.isNotEmpty && r != 'NA') {
-          realmCounts[r] = (realmCounts[r] ?? 0) + row.count;
-        }
+      for (final r in splitDelimitedValues(row.name)) {
+        realmCounts[r] = (realmCounts[r] ?? 0) + row.count;
       }
     }
     return realmCounts.entries.toList()

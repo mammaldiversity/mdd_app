@@ -180,12 +180,13 @@ class EmptyData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 64, color: Colors.grey),
-          Text('No results found', style: TextStyle(color: Colors.grey)),
+          Icon(Icons.search, size: 64, color: color),
+          Text('No results found', style: TextStyle(color: color)),
         ],
       ),
     );

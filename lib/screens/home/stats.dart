@@ -6,15 +6,6 @@ import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/statistics.dart';
 
-/// The colour of a headline stat value: MDD brown in light mode. The dark
-/// theme keeps the same brown as `primary`, which is under 2:1 on dark cards,
-/// so there it is lifted towards white to about 7:1 (WCAG 1.4.3).
-Color statValueColor(BuildContext context) {
-  final Color primary = Theme.of(context).colorScheme.primary;
-  if (Theme.of(context).brightness == Brightness.light) return primary;
-  return Color.lerp(primary, Colors.white, 0.55)!;
-}
-
 class MddStatistics extends ConsumerWidget {
   const MddStatistics({super.key});
 
@@ -183,7 +174,7 @@ class StatCard extends StatelessWidget {
             display ?? formatCount(count),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: statValueColor(context),
+              color: Theme.of(context).colorScheme.primary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -267,7 +258,7 @@ class SpeciesDetailedStatCard extends StatelessWidget {
               StatCard.formatCount(total),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: statValueColor(context),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 16),

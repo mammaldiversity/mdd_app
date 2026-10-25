@@ -92,7 +92,7 @@ class ChartPalette {
         Color(0xFFC25E00), // Earth Amber / Orange (WCAG 4.2:1)
         Color(0xFF0072B2), // Deep Sky Blue (WCAG 5.3:1)
         Color(0xFF007A5A), // Pine Teal Green (WCAG 4.8:1)
-        Color(0xFFB28704), // Warm Mustard Gold (WCAG 3.5:1)
+        Color(0xFF946F00), // Warm Mustard Gold (WCAG 4.2:1)
         Color(0xFF65453B), // MDD Earth Brown (WCAG 6.5:1)
         Color(0xFF2C4243), // MDD Deep Slate (WCAG 8.2:1)
         Color(0xFF9C4274), // Plum / Berry (WCAG 5.1:1)

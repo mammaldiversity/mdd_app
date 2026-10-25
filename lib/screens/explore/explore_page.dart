@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/screens/taxon/species.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
@@ -220,6 +221,8 @@ class _ListContent extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             child: _SyncedExpansionTile(
               taxonKey: entry.key,
+              rank: TaxonRank.order,
+              name: entry.key,
               iconColor: colorScheme.primary,
               tilePadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -293,11 +296,17 @@ class _SyncedExpansionTile extends ConsumerWidget {
     required this.tilePadding,
     required this.title,
     required this.children,
+    required this.rank,
+    required this.name,
     this.leading,
     this.subtitle,
   });
 
   final String taxonKey;
+
+  /// The taxon this tile groups, for its "open page" button.
+  final TaxonRank rank;
+  final String name;
   final Color iconColor;
   final EdgeInsetsGeometry tilePadding;
   final Widget title;
@@ -326,6 +335,29 @@ class _SyncedExpansionTile extends ConsumerWidget {
       leading: leading,
       title: title,
       subtitle: subtitle,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Open ${rank.label.toLowerCase()} page',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+            icon: const Icon(Icons.arrow_forward, size: 20),
+            onPressed: () => openHigherTaxonPage(context, rank, name),
+          ),
+          AnimatedRotation(
+            turns: isExpanded ? 0.5 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.expand_more,
+              color: isExpanded
+                  ? iconColor
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
       children: children,
     );
   }
@@ -364,6 +396,8 @@ class FamilyGroups extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: _SyncedExpansionTile(
               taxonKey: '$parentKey/${entry.key}',
+              rank: TaxonRank.family,
+              name: entry.key,
               iconColor: colorScheme.secondary,
               tilePadding: const EdgeInsets.symmetric(
                 horizontal: 14,
@@ -451,7 +485,10 @@ class GenusGroup extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: _SyncedExpansionTile(
               taxonKey: '$parentKey/${entry.key}',
-              iconColor: colorScheme.tertiary,
+              rank: TaxonRank.genus,
+              name: entry.key,
+              // Tertiary is a pale teal, under 2:1 against the tile.
+              iconColor: colorScheme.secondary,
               tilePadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 2,

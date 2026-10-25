@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
@@ -63,14 +64,22 @@ class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
   }
 }
 
+/// The species shown by [SpeciesPage]. Each species page overrides it in a
+/// nested `ProviderScope` with its own ID, so pages lower in the navigation
+/// stack keep their species when another one is opened.
 final currentMddIDProvider = NotifierProvider<CurrentMddID, int>(
   () => CurrentMddID(),
+  dependencies: const [],
 );
 
 class CurrentMddID extends Notifier<int> {
+  CurrentMddID([this._initialID = 0]);
+
+  final int _initialID;
+
   @override
   int build() {
-    return 0;
+    return _initialID;
   }
 
   void setMddID(int mddID) {
@@ -80,6 +89,7 @@ class CurrentMddID extends Notifier<int> {
 
 final taxonDataProvider = AsyncNotifierProvider<TaxonData, db.TaxonomyData>(
   () => TaxonData(),
+  dependencies: [currentMddIDProvider],
 );
 
 class TaxonData extends AsyncNotifier<db.TaxonomyData> {
@@ -97,6 +107,7 @@ class TaxonData extends AsyncNotifier<db.TaxonomyData> {
 final synonymDataProvider =
     AsyncNotifierProvider<SynonymData, List<db.SynonymData>>(
       () => SynonymData(),
+      dependencies: [currentMddIDProvider],
     );
 
 class SynonymData extends AsyncNotifier<List<db.SynonymData>> {
@@ -143,6 +154,7 @@ final speciesMilImagesProvider =
 final milDataProvider =
     AsyncNotifierProvider<MilDataNotifier, List<db.MilDataData>>(
       () => MilDataNotifier(),
+      dependencies: [currentMddIDProvider],
     );
 
 class MilDataNotifier extends AsyncNotifier<List<db.MilDataData>> {
@@ -227,3 +239,27 @@ class ExpandedTaxa extends Notifier<ExpandedTaxaState> {
     state = ExpandedTaxaState(generation: state.generation + 1);
   }
 }
+
+/// Species, tree, and statistics for a higher taxon page.
+final higherTaxonProvider = FutureProvider.family<HigherTaxonData, TaxonKey>((
+  ref,
+  taxon,
+) async {
+  final rows = await MddQuery(
+    ref.watch(databaseProvider),
+  ).retrieveSpeciesInTaxon(taxon.rank, taxon.name);
+  return HigherTaxonData(taxon: taxon, rows: rows);
+});
+
+/// A sample of photos for a higher taxon page, at most one per species
+/// until every species with a photo is shown.
+final higherTaxonImagesProvider =
+    FutureProvider.family<List<RandomMilImagesWithTaxonomyResult>, TaxonKey>((
+      ref,
+      taxon,
+    ) async {
+      final data = await ref.watch(higherTaxonProvider(taxon).future);
+      return MddQuery(
+        ref.watch(databaseProvider),
+      ).getMilImagesForSpeciesIds([for (final row in data.rows) row.id]);
+    });

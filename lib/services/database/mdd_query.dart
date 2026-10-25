@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/taxon_tree.dart';
 
 part 'mdd_query.g.dart';
 
@@ -107,29 +108,104 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     ''';
 
     return customSelect(
-          query,
-          variables: [Variable.withInt(mddId)],
-          readsFrom: {milData, taxonomy},
-        )
-        .map(
-          (QueryRow row) => RandomMilImagesWithTaxonomyResult(
-            milId: row.read<String>('milId'),
-            mddId: row.read<int>('mddId'),
-            description: row.readNullable<String>('description'),
-            photographer: row.readNullable<String>('photographer'),
-            location: row.readNullable<String>('location'),
-            distribution: row.readNullable<String>('distribution'),
-            dateTaken: row.readNullable<String>('dateTaken'),
-            orientation: row.readNullable<String>('orientation'),
-            isUncertainIdentification: row.readNullable<int>(
-              'isUncertainIdentification',
-            ),
-            genus: row.readNullable<String>('genus'),
-            specificEpithet: row.readNullable<String>('specificEpithet'),
-            mainCommonName: row.readNullable<String>('mainCommonName'),
-          ),
-        )
+      query,
+      variables: [Variable.withInt(mddId)],
+      readsFrom: {milData, taxonomy},
+    ).map(_milImageFromRow).get();
+  }
+
+  /// Images of any of [mddIds], landscape first, then one image per species
+  /// before repeats so a large taxon shows a varied sample.
+  Future<List<RandomMilImagesWithTaxonomyResult>> getMilImagesForSpeciesIds(
+    List<int> mddIds, {
+    int limit = 24,
+  }) async {
+    if (mddIds.isEmpty) return [];
+    final placeholders = List.filled(mddIds.length, '?').join(',');
+    final String query =
+        '''
+      SELECT milData.*, taxonomy.genus, taxonomy.specificEpithet, taxonomy.mainCommonName,
+        ROW_NUMBER() OVER (PARTITION BY milData.mddId ORDER BY milData.milId) AS speciesRank
+      FROM milData
+      INNER JOIN taxonomy ON milData.mddId = taxonomy.id
+      WHERE milData.mddId IN ($placeholders)
+      ORDER BY speciesRank ASC,
+        CASE WHEN milData.orientation = 'landscape' THEN 0 ELSE 1 END ASC,
+        taxonomy.phylosort ASC
+      LIMIT ?
+    ''';
+
+    return customSelect(
+      query,
+      variables: [...mddIds.map(Variable.withInt), Variable.withInt(limit)],
+      readsFrom: {milData, taxonomy},
+    ).map(_milImageFromRow).get();
+  }
+
+  RandomMilImagesWithTaxonomyResult _milImageFromRow(QueryRow row) {
+    return RandomMilImagesWithTaxonomyResult(
+      milId: row.read<String>('milId'),
+      mddId: row.read<int>('mddId'),
+      description: row.readNullable<String>('description'),
+      photographer: row.readNullable<String>('photographer'),
+      location: row.readNullable<String>('location'),
+      distribution: row.readNullable<String>('distribution'),
+      dateTaken: row.readNullable<String>('dateTaken'),
+      orientation: row.readNullable<String>('orientation'),
+      isUncertainIdentification: row.readNullable<int>(
+        'isUncertainIdentification',
+      ),
+      genus: row.readNullable<String>('genus'),
+      specificEpithet: row.readNullable<String>('specificEpithet'),
+      mainCommonName: row.readNullable<String>('mainCommonName'),
+    );
+  }
+
+  /// Every species in the taxon [name] at [rank] (exact match), in
+  /// phylogenetic order.
+  Future<List<TaxonomyData>> retrieveSpeciesInTaxon(
+    TaxonRank rank,
+    String name,
+  ) async {
+    return (select(taxonomy)
+          ..where((tbl) => _rankColumn(tbl, rank).equals(name))
+          ..orderBy([(tbl) => OrderingTerm.asc(tbl.phylosort)]))
         .get();
+  }
+
+  GeneratedColumn<String> _rankColumn(Taxonomy tbl, TaxonRank rank) {
+    switch (rank) {
+      case TaxonRank.subclass:
+        return tbl.subclass;
+      case TaxonRank.infraclass:
+        return tbl.infraclass;
+      case TaxonRank.magnorder:
+        return tbl.magnorder;
+      case TaxonRank.superorder:
+        return tbl.superorder;
+      case TaxonRank.order:
+        return tbl.taxonOrder;
+      case TaxonRank.suborder:
+        return tbl.suborder;
+      case TaxonRank.infraorder:
+        return tbl.infraorder;
+      case TaxonRank.parvorder:
+        return tbl.parvorder;
+      case TaxonRank.superfamily:
+        return tbl.superfamily;
+      case TaxonRank.family:
+        return tbl.family;
+      case TaxonRank.subfamily:
+        return tbl.subfamily;
+      case TaxonRank.tribe:
+        return tbl.tribe;
+      case TaxonRank.genus:
+        return tbl.genus;
+      case TaxonRank.subgenus:
+        return tbl.subgenus;
+      case TaxonRank.species:
+        return tbl.sciName;
+    }
   }
 
   Future<List<RandomMilImagesWithTaxonomyResult>> getMilImagesPaginated({

@@ -141,7 +141,7 @@ class ResourceIconBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color primary = isDark ? colorScheme.onSurface : colorScheme.primary;
+    final Color primary = colorScheme.primary;
     return Container(
       width: size,
       height: size,
@@ -264,7 +264,9 @@ class _ResourceTile extends StatelessWidget {
       child: Text(
         resource.source,
         style: textTheme.labelSmall?.copyWith(
-          color: colorScheme.onSecondaryContainer,
+          // The tint is translucent, so onSecondaryContainer (meant for the
+          // solid container) can fall under 4.5:1; onSurface stays above 5:1.
+          color: colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -674,14 +676,13 @@ class ResourceGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return ExcludeSemantics(
       child: SvgPicture.asset(
         icon.asset,
         width: size,
         height: size,
         colorMapper: _ResourceIconColors(
-          isDark ? colorScheme.onSurface : colorScheme.primary,
+          colorScheme.primary,
           colorScheme.secondary,
         ),
       ),
@@ -739,7 +740,7 @@ class _DetailStatCard extends StatelessWidget {
               value,
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: statValueColor(context),
+                color: colorScheme.primary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -1040,13 +1041,7 @@ class _StatIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return Icon(
-      icon,
-      size: 24,
-      color: isDark ? colorScheme.onSurface : colorScheme.primary,
-    );
+    return Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary);
   }
 }
 

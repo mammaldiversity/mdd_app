@@ -209,7 +209,7 @@ class SimpleLoadingOnly extends StatelessWidget {
         height: 24,
         width: 24,
         child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.secondary.withAlpha(80),
+          color: Theme.of(context).colorScheme.secondary,
         ),
       ),
     );

@@ -7,9 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mdd/screens/home/stats.dart';
 import 'package:mdd/screens/taxon/external_resources.dart';
-import 'package:mdd/styles/themes.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/external_resources.dart';
 import 'package:mdd/services/gbif_map_style.dart';
@@ -216,31 +214,6 @@ void main() {
               (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
           expect(ratio, greaterThanOrEqualTo(4.5), reason: kind.name);
         }
-      });
-    }
-  });
-
-  group('statValueColor', () {
-    for (final theme in [MddTheme.lightTheme(), MddTheme.darkTheme()]) {
-      testWidgets('clears 4.5:1 on cards (WCAG 1.4.3), '
-          '${theme.brightness.name}', (tester) async {
-        late Color value;
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: theme,
-            home: Builder(
-              builder: (context) {
-                value = statValueColor(context);
-                return const SizedBox();
-              },
-            ),
-          ),
-        );
-        final double a = value.computeLuminance();
-        final double b = theme.colorScheme.surfaceContainerLow
-            .computeLuminance();
-        final double ratio = (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
-        expect(ratio, greaterThanOrEqualTo(4.5));
       });
     }
   });

@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/screens/taxon/species.dart';
+import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
@@ -30,14 +32,31 @@ class TreeRootHeading extends StatelessWidget {
 
 /// One visible node of the taxon tree: connector lines plus a pill.
 class TaxonTreeRow extends ConsumerWidget {
-  const TaxonTreeRow({super.key, required this.row, required this.isExpanded});
+  const TaxonTreeRow({
+    super.key,
+    required this.row,
+    required this.isExpanded,
+    this.onToggle,
+  });
 
   final VisibleTaxonRow row;
   final bool isExpanded;
 
+  /// Expands or collapses a node. Defaults to the Explore page's shared
+  /// expansion state.
+  final ValueChanged<String>? onToggle;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final node = row.node;
+    void toggle() {
+      if (onToggle != null) {
+        onToggle!(node.key);
+      } else {
+        ref.read(expandedTaxaProvider.notifier).toggle(node.key);
+      }
+    }
+
     return CustomPaint(
       painter: TreeConnectorPainter(
         depth: row.depth,
@@ -57,10 +76,9 @@ class TaxonTreeRow extends ConsumerWidget {
           child: TaxonPill(
             node: node,
             isExpanded: isExpanded,
+            onToggle: node.hasChildren ? toggle : null,
             onTap: () {
-              if (node.hasChildren) {
-                ref.read(expandedTaxaProvider.notifier).toggle(node.key);
-              } else if (node.mddId != null) {
+              if (node.mddId != null) {
                 ref.read(currentMddIDProvider.notifier).setMddID(node.mddId!);
                 Navigator.push(
                   context,
@@ -68,6 +86,11 @@ class TaxonTreeRow extends ConsumerWidget {
                     builder: (BuildContext context) => const SpeciesPage(),
                   ),
                 );
+              } else if (isPlaceholderTaxon(node.name)) {
+                // "incertae sedis" has no page; its name just toggles.
+                toggle();
+              } else {
+                openHigherTaxonPage(context, node.rank, node.name);
               }
             },
           ),
@@ -131,18 +154,25 @@ class TreeConnectorPainter extends CustomPainter {
   }
 }
 
-/// A rounded taxon label: toggle, rank, name, and child count.
+/// A rounded taxon label: toggle, rank, name, and child count. The +/–
+/// button expands or collapses the node; the name opens its page.
 class TaxonPill extends StatelessWidget {
   const TaxonPill({
     super.key,
     required this.node,
     required this.isExpanded,
     required this.onTap,
+    this.onToggle,
   });
 
   final TaxonNode node;
   final bool isExpanded;
+
+  /// Opens the node: its higher taxon page, or the species page.
   final VoidCallback onTap;
+
+  /// Expands or collapses a node with children.
+  final VoidCallback? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -155,102 +185,119 @@ class TaxonPill extends StatelessWidget {
     // Species photos sit flush with the pill's left, top, and bottom edges,
     // like the list view tiles.
     final isLeaf = !node.hasChildren;
+
+    final label = Padding(
+      padding: EdgeInsets.symmetric(vertical: 4, horizontal: isLeaf ? 0 : 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  node.rankLabel,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: node.isExtinct
+                        ? _extinctLabelColor(colorScheme)
+                        : onPill.withAlpha(180),
+                  ),
+                ),
+                Text(
+                  node.isExtinct ? '${node.name} †' : node.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: onPill,
+                    fontStyle: node.isItalic
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (node.hasChildren) ...[
+            const SizedBox(width: 8),
+            Text(
+              '· ${node.children.length}',
+              style: textTheme.bodySmall?.copyWith(color: colorScheme.primary),
+            ),
+          ],
+        ],
+      ),
+    );
+
     return Material(
       color: colorScheme.tertiary,
       borderRadius: BorderRadius.circular(12),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: isLeaf
-              ? const EdgeInsets.only(right: 12)
-              : const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: IntrinsicHeight(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (node.hasChildren)
-                  Container(
-                    width: 26,
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        right: BorderSide(color: onPill.withAlpha(120)),
-                      ),
-                    ),
-                    child: Text(
-                      isExpanded ? '–' : '+',
-                      textAlign: TextAlign.center,
-                      semanticsLabel: isExpanded ? 'Collapse' : 'Expand',
-                      style: textTheme.titleMedium?.copyWith(color: onPill),
-                    ),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: TreeSpeciesThumbnail(
-                      mddId: node.mddId,
-                      iconColor: onPill,
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (node.hasChildren)
+              InkWell(
+                onTap: onToggle,
+                child: Container(
+                  width: 38,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(color: onPill.withAlpha(120)),
                     ),
                   ),
-                Flexible(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: isLeaf ? 4 : 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          node.rankLabel,
-                          style: textTheme.labelSmall?.copyWith(
-                            color: node.isExtinct
-                                ? colorScheme.error
-                                : onPill.withAlpha(180),
-                          ),
-                        ),
-                        Text(
-                          node.isExtinct ? '${node.name} †' : node.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: onPill,
-                            fontStyle: node.isItalic
-                                ? FontStyle.italic
-                                : FontStyle.normal,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: Text(
+                    isExpanded ? '–' : '+',
+                    textAlign: TextAlign.center,
+                    semanticsLabel: isExpanded
+                        ? 'Collapse ${node.name}'
+                        : 'Expand ${node.name}',
+                    style: textTheme.titleMedium?.copyWith(color: onPill),
                   ),
                 ),
-                if (node.hasChildren) ...[
-                  const SizedBox(width: 8),
-                  Center(
-                    child: Text(
-                      '· ${node.children.length}',
-                      style: textTheme.bodySmall?.copyWith(
-                        // Primary is a dark brown in both themes; lighten it so
-                        // the count stays readable on the dark pill.
-                        color: colorScheme.brightness == Brightness.dark
-                            ? Color.lerp(colorScheme.primary, Colors.white, 0.6)
-                            : colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              ),
+            Flexible(
+              child: InkWell(
+                onTap: onTap,
+                child: isLeaf
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: TreeSpeciesThumbnail(
+                                mddId: node.mddId,
+                                iconColor: onPill,
+                              ),
+                            ),
+                            Flexible(child: label),
+                          ],
+                        ),
+                      )
+                    : label,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
+
+/// The theme's dark error red is under 3:1 on the dark teal pill, so dark
+/// mode uses a lighter red (6.3:1, WCAG 1.4.3).
+Color _extinctLabelColor(ColorScheme colorScheme) =>
+    colorScheme.brightness == Brightness.dark
+    ? const Color(0xFFFFB4AB)
+    : colorScheme.error;
 
 /// Small species photo for a leaf pill, falling back to a paw icon when the
 /// species has no image.

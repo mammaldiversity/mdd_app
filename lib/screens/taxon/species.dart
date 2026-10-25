@@ -12,8 +12,32 @@ import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
 
-class SpeciesPage extends ConsumerWidget {
+class SpeciesPage extends ConsumerStatefulWidget {
   const SpeciesPage({super.key});
+
+  @override
+  ConsumerState<SpeciesPage> createState() => _SpeciesPageState();
+}
+
+class _SpeciesPageState extends ConsumerState<SpeciesPage> {
+  /// The species this page was opened for. Opening another species from
+  /// here (e.g. through a higher taxon page) changes the global ID, so the
+  /// page keeps its own copy and scopes its providers to it.
+  late final int _mddID = ref.read(currentMddIDProvider);
+
+  @override
+  Widget build(BuildContext context) {
+    return ProviderScope(
+      overrides: [
+        currentMddIDProvider.overrideWith(() => CurrentMddID(_mddID)),
+      ],
+      child: const _SpeciesView(),
+    );
+  }
+}
+
+class _SpeciesView extends ConsumerWidget {
+  const _SpeciesView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -192,7 +216,12 @@ class SpeciesStatus extends StatelessWidget {
             if (isExtinct)
               _StatusChip(text: 'Extinct', color: Colors.blueGrey.shade700),
             if (isDomesticated)
-              _StatusChip(text: 'Domesticated', color: Colors.amber.shade700),
+              // White on amber is 2:1, so this chip uses black text.
+              _StatusChip(
+                text: 'Domesticated',
+                color: Colors.amber.shade700,
+                textColor: Colors.black,
+              ),
             if (isInTheWild)
               _StatusChip(
                 text: 'Found in the wild',
@@ -211,10 +240,15 @@ class SpeciesStatus extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.text, required this.color});
+  const _StatusChip({
+    required this.text,
+    required this.color,
+    this.textColor = Colors.white,
+  });
 
   final String text;
   final Color color;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -226,8 +260,8 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: textColor,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
