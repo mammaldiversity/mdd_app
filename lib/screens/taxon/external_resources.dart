@@ -1102,6 +1102,10 @@ class _Publication extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (work.typeLabel.isNotEmpty) ...[
+          _WorkTypeLabel(work),
+          const SizedBox(height: 4),
+        ],
         Text.rich(
           TextSpan(children: italicizeName(work.title, speciesName)),
           style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -1122,6 +1126,74 @@ class _Publication extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Broad kinds of Crossref work, each with its own label color.
+enum WorkKind {
+  article(Colors.green),
+  book(Colors.brown),
+  grayLiterature(Colors.blue),
+  data(Colors.purple),
+  other(Colors.blueGrey);
+
+  const WorkKind(this.hue);
+
+  final MaterialColor hue;
+
+  static WorkKind of(String type) => switch (type) {
+    'journal-article' => article,
+    'book' ||
+    'book-chapter' ||
+    'book-section' ||
+    'book-part' ||
+    'book-track' ||
+    'edited-book' ||
+    'monograph' ||
+    'reference-book' ||
+    'reference-entry' => book,
+    'posted-content' ||
+    'report' ||
+    'report-component' ||
+    'dissertation' ||
+    'proceedings-article' ||
+    'standard' => grayLiterature,
+    'dataset' || 'component' || 'database' => data,
+    _ => other,
+  };
+
+  /// Background and text colors; the text clears 4.5:1 (WCAG 1.4.3).
+  (Color, Color) colors({required bool isDark}) =>
+      isDark ? (hue.shade900, hue.shade100) : (hue.shade100, hue.shade900);
+}
+
+/// The kind of work, e.g. "Journal article" or "Dataset", so a dataset or
+/// peer review is not mistaken for a paper.
+class _WorkTypeLabel extends StatelessWidget {
+  const _WorkTypeLabel(this.work);
+
+  final CrossrefWork work;
+
+  @override
+  Widget build(BuildContext context) {
+    final (background, foreground) = WorkKind.of(
+      work.type,
+    ).colors(isDark: Theme.of(context).brightness == Brightness.dark);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        child: Text(
+          work.typeLabel,
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: foreground),
+        ),
+      ),
     );
   }
 }
@@ -1203,8 +1275,9 @@ class _ExternalDataNote extends StatelessWidget {
         Expanded(
           child: Text(
             [externalDataNote(provider), ?extra].join(' '),
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: color),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color),
           ),
         ),
       ],

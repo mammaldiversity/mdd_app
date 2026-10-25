@@ -196,6 +196,30 @@ void main() {
     }
   });
 
+  group('WorkKind', () {
+    test('groups Crossref types', () {
+      expect(WorkKind.of('journal-article'), WorkKind.article);
+      expect(WorkKind.of('book-chapter'), WorkKind.book);
+      expect(WorkKind.of('posted-content'), WorkKind.grayLiterature);
+      expect(WorkKind.of('dataset'), WorkKind.data);
+      expect(WorkKind.of('peer-review'), WorkKind.other);
+      expect(WorkKind.of(''), WorkKind.other);
+    });
+
+    for (final isDark in [false, true]) {
+      test('label text clears 4.5:1 (WCAG 1.4.3), dark: $isDark', () {
+        for (final kind in WorkKind.values) {
+          final (background, foreground) = kind.colors(isDark: isDark);
+          final double a = foreground.computeLuminance();
+          final double b = background.computeLuminance();
+          final double ratio =
+              (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
+          expect(ratio, greaterThanOrEqualTo(4.5), reason: kind.name);
+        }
+      });
+    }
+  });
+
   group('statValueColor', () {
     for (final theme in [MddTheme.lightTheme(), MddTheme.darkTheme()]) {
       testWidgets('clears 4.5:1 on cards (WCAG 1.4.3), '
@@ -369,6 +393,7 @@ void main() {
                 'volume': '101',
                 'issue': '2',
                 'page': '12-20',
+                'type': 'journal-article',
               },
               {
                 'DOI': '10.1/b',
@@ -386,6 +411,7 @@ void main() {
       expect(works.first.journal, 'Journal of Mammalogy');
       expect(works.first.url, 'https://doi.org/10.1/a');
       expect(works.first.source, 'Journal of Mammalogy, 101 (2), 12-20');
+      expect(works.first.typeLabel, 'Journal article');
       expect(
         works.first.citation,
         'Smith, J. A., Doe, Roe. (2020). Diet of Panthera leo in Kenya. '
@@ -421,6 +447,16 @@ void main() {
         ],
       });
       expect(work.title, 'Tool use in capuchins (Cebus capucinus) & kin');
+    });
+
+    test('labels the work type', () {
+      String label(String? type) =>
+          CrossrefWork.fromJson({'DOI': '10.1/x', 'type': ?type}).typeLabel;
+      expect(label('journal-article'), 'Journal article');
+      expect(label('posted-content'), 'Posted content');
+      expect(label('dataset'), 'Dataset');
+      expect(label('some-new-type'), 'Some new type');
+      expect(label(null), isEmpty);
     });
   });
 
@@ -484,6 +520,7 @@ void main() {
                   year: 2024,
                   journal: 'Journal of Mammalogy',
                   doi: '10.1/a',
+                  type: 'journal-article',
                 ),
                 CrossrefWork(
                   title: 'Panthera leo genetics',
@@ -491,6 +528,7 @@ void main() {
                   year: 1998,
                   journal: 'Mammalia',
                   doi: '10.1/b',
+                  type: 'dataset',
                 ),
               ],
             ),
@@ -527,10 +565,7 @@ void main() {
       expect(find.byType(BottomSheet), findsOneWidget);
       expect(find.text('1,200'), findsOneWidget);
       expect(
-        find.text(
-          'Fetched automatically from NCBI (GenBank and Datasets) and not '
-          'curated by the MDD team. Its taxonomy may differ from MDD.',
-        ),
+        find.text(externalDataNote('NCBI (GenBank and Datasets)')),
         findsOneWidget,
       );
       expect(find.text('Reference genome'), findsOneWidget);
@@ -562,6 +597,8 @@ void main() {
         expect(find.text('2024'), findsOneWidget);
         expect(find.text('Earliest'), findsOneWidget);
         expect(find.text('1998'), findsOneWidget);
+        expect(find.text('Journal article'), findsOneWidget);
+        expect(find.text('Dataset'), findsOneWidget);
         expect(find.text('Copy citation'), findsNWidgets(2));
         await tester.tap(find.text('Copy citation').first);
         await tester.pump();

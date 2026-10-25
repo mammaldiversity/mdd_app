@@ -488,6 +488,7 @@ class CrossrefWork {
     this.volume = '',
     this.issue = '',
     this.pages = '',
+    this.type = '',
   });
 
   final String title;
@@ -503,6 +504,34 @@ class CrossrefWork {
   final String volume;
   final String issue;
   final String pages;
+
+  /// Crossref's work type id, e.g. `journal-article` or `book-chapter`.
+  final String type;
+
+  /// Crossref's names for its work types, in sentence case.
+  static const Map<String, String> _typeLabels = {
+    'journal-article': 'Journal article',
+    'book-chapter': 'Book chapter',
+    'book-section': 'Book section',
+    'book-part': 'Book part',
+    'edited-book': 'Edited book',
+    'reference-book': 'Reference book',
+    'reference-entry': 'Reference entry',
+    'proceedings-article': 'Proceedings article',
+    'posted-content': 'Posted content',
+    'peer-review': 'Peer review',
+    'report-component': 'Report component',
+  };
+
+  /// A readable label for [type], e.g. "Journal article"; empty when
+  /// Crossref gave no type.
+  String get typeLabel {
+    if (type.isEmpty) return '';
+    final String? known = _typeLabels[type];
+    if (known != null) return known;
+    final String words = type.replaceAll('-', ' ');
+    return '${words[0].toUpperCase()}${words.substring(1)}';
+  }
 
   String get url => 'https://doi.org/$doi';
 
@@ -566,6 +595,7 @@ class CrossrefWork {
       issue: _firstString(json['issue']),
       pages: _firstString(json['page']),
       doi: (json['DOI'] ?? '') as String,
+      type: '${json['type'] ?? ''}'.trim(),
     );
   }
 
@@ -622,7 +652,8 @@ class CrossrefClient {
       Uri.https('api.crossref.org', '/works', {
         'query.bibliographic': '"$name"',
         'rows': '40',
-        'select': 'DOI,title,author,issued,container-title,volume,issue,page',
+        'select':
+            'DOI,title,author,issued,container-title,volume,issue,page,type',
       }),
     );
     final List<dynamic> items =
