@@ -117,18 +117,14 @@ flutter run
 
 - If the versions do not match, reinstall the `flutter_rust_bridge_codegen` binary and update the `pubspec.yaml` and `Cargo.toml` files.
 
+- The Rust library is compiled by the Native Assets build hook in `hook/build.dart` during `flutter build`/`flutter run`. There is no separate `rust_builder` plugin or CocoaPods step.
+
 #### Fix Xcode build issues
 
 - Clean flutter build cache:
 
 ```bash
 flutter clean
-```
-
-- Remove the `ios/Pods` or `macos/Pods` directory:
-
-```bash
-rm -rf ios/Pods
 ```
 
 - Run flutter build outside Xcode:

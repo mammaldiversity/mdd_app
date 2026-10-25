@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum MapRenderer { mapLibre, naturalEarth }
 
-bool get mapLibreIsExpected => !Platform.isLinux;
-
-bool get mapLibreRunsInWebView => Platform.isMacOS || Platform.isWindows;
-
-const mapLibreLoadTimeout = Duration(seconds: 8);
+/// Native MapLibre exists only on Android and iOS. Desktop draws with
+/// `flutter_map`, which keeps a web view and its CDN-hosted MapLibre GL JS
+/// bundle out of the app.
+bool get mapLibreIsExpected => Platform.isAndroid || Platform.isIOS;
 
 final mapRendererProvider = NotifierProvider<MapRendererNotifier, MapRenderer>(
   MapRendererNotifier.new,

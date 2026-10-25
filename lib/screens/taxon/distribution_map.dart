@@ -9,12 +9,13 @@ import 'package:maplibre/maplibre.dart';
 import 'package:mdd/screens/shared/card.dart';
 import 'package:mdd/screens/shared/maps/maplibre_camera_readiness.dart';
 import 'package:mdd/screens/shared/maps/maplibre_gesture_surface.dart';
-import 'package:mdd/screens/shared/maps/maplibre_load_watchdog.dart';
 import 'package:mdd/services/distribution_map_style.dart';
 import 'package:mdd/services/natural_earth.dart';
 import 'package:mdd/services/providers/map_renderer.dart';
 import 'package:mdd/services/topojson_parser.dart';
+import 'package:mdd/services/vector_basemap.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart' as vmt;
 
 final Future<List<NaturalEarthPolygon>> _naturalEarthPolygons =
     loadNaturalEarthPolygons();
@@ -108,7 +109,7 @@ class _DistributionMapState extends ConsumerState<DistributionMap> {
     if (data == null) return const SizedBox.shrink();
     return ref.watch(mapRendererProvider) == MapRenderer.mapLibre
         ? _MapLibreDistributionMap(data: data)
-        : _NaturalEarthDistributionMap(key: ObjectKey(data), data: data);
+        : _FlutterMapDistributionMap(key: ObjectKey(data), data: data);
   }
 
   Future<void> _loadDistribution() async {
@@ -187,20 +188,19 @@ class _MapLibreDistributionMap extends ConsumerWidget {
   }
 }
 
-class _MapLibreViewport extends ConsumerStatefulWidget {
+class _MapLibreViewport extends StatefulWidget {
   const _MapLibreViewport({super.key, required this.data, required this.style});
 
   final DistributionMapData data;
   final DistributionMapStyle style;
 
   @override
-  ConsumerState<_MapLibreViewport> createState() => _MapLibreViewportState();
+  State<_MapLibreViewport> createState() => _MapLibreViewportState();
 }
 
-class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
+class _MapLibreViewportState extends State<_MapLibreViewport> {
   MapController? _controller;
   final _readiness = MapLibreCameraReadiness();
-  late final _watchdog = MapLibreLoadWatchdog(onTimeout: _handleLoadTimeout);
   late final MapOptions _options = MapOptions(
     initStyle: widget.style.json,
     initCenter: const Geographic(lon: 0, lat: 18),
@@ -219,14 +219,7 @@ class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
   bool get _isReady => mounted && _readiness.isReady;
 
   @override
-  void initState() {
-    super.initState();
-    _watchdog.start();
-  }
-
-  @override
   void dispose() {
-    _watchdog.dispose();
     _controller = null;
     super.dispose();
   }
@@ -241,23 +234,14 @@ class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
           if (!mounted) return;
           _controller = controller;
           _readiness.markMapCreated();
-          _markRendered();
           _initializeCamera();
         },
         onStyleLoaded: (_) {
           _readiness.markStyleLoaded();
-          _markRendered();
           _initializeCamera();
         },
         children: const [Positioned.fill(child: MapLibreGestureSurface())],
       ),
-      if (_watchdog.isWaiting)
-        const Positioned.fill(
-          child: ColoredBox(
-            color: Color(0x44000000),
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        ),
       Positioned(
         left: 8,
         bottom: 8,
@@ -274,16 +258,6 @@ class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
       ),
     ],
   );
-
-  void _markRendered() {
-    if (!_readiness.isReady) return;
-    if (_watchdog.markReady() && mounted) setState(() {});
-  }
-
-  void _handleLoadTimeout() {
-    if (!mounted) return;
-    ref.read(mapRendererProvider.notifier).markMapLibreUnavailable();
-  }
 
   Future<void> _initializeCamera() async {
     if (!_readiness.claimInitialCamera()) return;
@@ -334,130 +308,163 @@ class _MapLibreViewportState extends ConsumerState<_MapLibreViewport> {
   }
 }
 
-class _NaturalEarthDistributionMap extends ConsumerStatefulWidget {
-  const _NaturalEarthDistributionMap({super.key, required this.data});
+/// The distribution drawn with `flutter_map`: the only renderer on desktop,
+/// and the stand-in for a MapLibre map that failed on mobile.
+///
+/// On desktop the basemap is OpenFreeMap vector tiles, with the bundled
+/// Natural Earth countries drawn while the style loads or when it fails.
+/// As a mobile fallback it draws only Natural Earth, because the failure is
+/// usually a missing network.
+class _FlutterMapDistributionMap extends ConsumerStatefulWidget {
+  const _FlutterMapDistributionMap({super.key, required this.data});
 
   final DistributionMapData data;
 
   @override
-  ConsumerState<_NaturalEarthDistributionMap> createState() =>
-      _NaturalEarthDistributionMapState();
+  ConsumerState<_FlutterMapDistributionMap> createState() =>
+      _FlutterMapDistributionMapState();
 }
 
-class _NaturalEarthDistributionMapState
-    extends ConsumerState<_NaturalEarthDistributionMap> {
+class _FlutterMapDistributionMapState
+    extends ConsumerState<_FlutterMapDistributionMap> {
   final _controller = flutter_map.MapController();
 
   @override
-  Widget build(
-    BuildContext context,
-  ) => FutureBuilder<List<NaturalEarthPolygon>>(
-    future: _naturalEarthPolygons,
-    builder: (context, snapshot) {
-      if (snapshot.hasError) {
-        return const _MapMessage('Unable to load the offline map.');
-      }
-      if (!snapshot.hasData) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      final colorScheme = Theme.of(context).colorScheme;
-      final bounds = _flutterBounds(widget.data.bounds);
-      return Stack(
-        children: [
-          flutter_map.FlutterMap(
-            mapController: _controller,
-            options: flutter_map.MapOptions(
-              initialCenter: const latlong.LatLng(18, 0),
-              initialZoom: 1,
-              minZoom: 1,
-              maxZoom: 16,
-              interactionOptions: const flutter_map.InteractionOptions(
-                flags:
-                    flutter_map.InteractiveFlag.all &
-                    ~flutter_map.InteractiveFlag.rotate,
-              ),
-              initialCameraFit: bounds == null
-                  ? null
-                  : flutter_map.CameraFit.bounds(
-                      bounds: bounds,
-                      padding: const EdgeInsets.all(24),
-                    ),
-            ),
+  Widget build(BuildContext context) =>
+      FutureBuilder<List<NaturalEarthPolygon>>(
+        future: _naturalEarthPolygons,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const _MapMessage('Unable to load the offline map.');
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final colorScheme = Theme.of(context).colorScheme;
+          final bounds = _flutterBounds(widget.data.bounds);
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final vectorStyle = mapLibreIsExpected
+              ? null
+              : ref.watch(vectorBasemapStyleProvider(isDark));
+          final loadedStyle = vectorStyle?.value;
+          return Stack(
             children: [
-              ColoredBox(color: colorScheme.surface),
-              flutter_map.PolygonLayer(
-                polygons: [
-                  for (final polygon in snapshot.data!)
-                    flutter_map.Polygon(
-                      points: polygon.points,
-                      holePointsList: polygon.holes,
-                      color: colorScheme.surfaceContainerHighest,
-                      borderColor: colorScheme.outlineVariant,
-                      borderStrokeWidth: 0.6,
-                    ),
-                  for (final polygon in widget.data.polygons)
-                    flutter_map.Polygon(
-                      points: [
-                        for (final point in polygon.rings.first)
-                          latlong.LatLng(point.latitude, point.longitude),
+              flutter_map.FlutterMap(
+                mapController: _controller,
+                options: flutter_map.MapOptions(
+                  initialCenter: const latlong.LatLng(18, 0),
+                  initialZoom: 1,
+                  minZoom: 1,
+                  maxZoom: 16,
+                  interactionOptions: const flutter_map.InteractionOptions(
+                    flags:
+                        flutter_map.InteractiveFlag.all &
+                        ~flutter_map.InteractiveFlag.rotate,
+                  ),
+                  initialCameraFit: bounds == null
+                      ? null
+                      : flutter_map.CameraFit.bounds(
+                          bounds: bounds,
+                          padding: const EdgeInsets.all(24),
+                        ),
+                ),
+                children: [
+                  ColoredBox(color: colorScheme.surface),
+                  if (loadedStyle != null)
+                    vmt.VectorTileLayer(
+                      theme: loadedStyle.theme,
+                      sprites: loadedStyle.sprites,
+                      tileProviders: loadedStyle.providers,
+                    )
+                  else
+                    flutter_map.PolygonLayer(
+                      polygons: [
+                        for (final polygon in snapshot.data!)
+                          flutter_map.Polygon(
+                            points: polygon.points,
+                            holePointsList: polygon.holes,
+                            color: colorScheme.surfaceContainerHighest,
+                            borderColor: colorScheme.outlineVariant,
+                            borderStrokeWidth: 0.6,
+                          ),
                       ],
-                      holePointsList: [
-                        for (final ring in polygon.rings.skip(1))
-                          [
-                            for (final point in ring)
+                    ),
+                  flutter_map.PolygonLayer(
+                    polygons: [
+                      for (final polygon in widget.data.polygons)
+                        flutter_map.Polygon(
+                          points: [
+                            for (final point in polygon.rings.first)
                               latlong.LatLng(point.latitude, point.longitude),
                           ],
-                      ],
-                      color: _fillColor(polygon.status),
-                      borderColor: _outlineColor(polygon.status),
-                      borderStrokeWidth: 1,
-                    ),
+                          holePointsList: [
+                            for (final ring in polygon.rings.skip(1))
+                              [
+                                for (final point in ring)
+                                  latlong.LatLng(
+                                    point.latitude,
+                                    point.longitude,
+                                  ),
+                              ],
+                          ],
+                          color: _fillColor(polygon.status),
+                          borderColor: _outlineColor(polygon.status),
+                          borderStrokeWidth: 1,
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-          Positioned(
-            left: 8,
-            bottom: 8,
-            child: mapLibreIsExpected
-                ? _OfflineMapNotice(
+              Positioned(
+                left: 8,
+                bottom: 8,
+                child: switch (vectorStyle) {
+                  null => _OfflineMapNotice(
                     onRetry: () =>
                         ref.read(mapRendererProvider.notifier).retryMapLibre(),
-                  )
-                : const _MapAttribution(
+                  ),
+                  AsyncValue(hasValue: true) => const _MapAttribution(
+                    basemap: DistributionBasemap.openFreeMap,
+                  ),
+                  AsyncValue(hasError: true) => _OfflineMapNotice(
+                    onRetry: () =>
+                        ref.invalidate(vectorBasemapStyleProvider(isDark)),
+                  ),
+                  _ => const _MapAttribution(
                     basemap: DistributionBasemap.naturalEarth,
                   ),
-          ),
-          Positioned(
-            right: 8,
-            bottom: 8,
-            child: _MapControls(
-              onZoomIn: () => _controller.move(
-                _controller.camera.center,
-                (_controller.camera.zoom + 1).clamp(1, 16).toDouble(),
+                },
               ),
-              onZoomOut: () => _controller.move(
-                _controller.camera.center,
-                (_controller.camera.zoom - 1).clamp(1, 16).toDouble(),
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: _MapControls(
+                  onZoomIn: () => _controller.move(
+                    _controller.camera.center,
+                    (_controller.camera.zoom + 1).clamp(1, 16).toDouble(),
+                  ),
+                  onZoomOut: () => _controller.move(
+                    _controller.camera.center,
+                    (_controller.camera.zoom - 1).clamp(1, 16).toDouble(),
+                  ),
+                  onReset: () {
+                    if (bounds == null) {
+                      _controller.move(const latlong.LatLng(18, 0), 1);
+                    } else {
+                      _controller.fitCamera(
+                        flutter_map.CameraFit.bounds(
+                          bounds: bounds,
+                          padding: const EdgeInsets.all(24),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
-              onReset: () {
-                if (bounds == null) {
-                  _controller.move(const latlong.LatLng(18, 0), 1);
-                } else {
-                  _controller.fitCamera(
-                    flutter_map.CameraFit.bounds(
-                      bounds: bounds,
-                      padding: const EdgeInsets.all(24),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       );
-    },
-  );
 
   flutter_map.LatLngBounds? _flutterBounds(DistributionBounds? bounds) {
     if (bounds == null) return null;
