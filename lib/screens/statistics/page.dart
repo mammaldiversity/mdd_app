@@ -19,8 +19,10 @@ import 'package:mdd/screens/statistics/stat_table_page.dart';
 import 'package:mdd/screens/statistics/synonyms_bar_chart.dart';
 import 'package:mdd/screens/statistics/type_kind_pie_chart.dart';
 import 'package:mdd/screens/statistics/year_bar_chart.dart';
+import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/statistics.dart';
+import 'package:mdd/services/taxon_tree.dart';
 
 /// Species per order, opened from Statistics and the home screen.
 StatTablePage orderTablePage(MddStatistics stats) {
@@ -41,7 +43,11 @@ StatTablePage orderTablePage(MddStatistics stats) {
       final total = stats.totalSpeciesCount;
       final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
       final name = e.name ?? 'Unknown';
-      return StatTableRow(values: [name, count, '$pct%'], searchText: name);
+      return StatTableRow(
+        values: [name, count, '$pct%'],
+        searchText: name,
+        onTap: _taxonLink(TaxonRank.order, e.name),
+      );
     }).toList(),
   );
 }
@@ -65,9 +71,101 @@ StatTablePage familyTablePage(MddStatistics stats) {
       final total = stats.totalSpeciesCount;
       final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
       final name = e.name ?? 'Unknown';
-      return StatTableRow(values: [name, count, '$pct%'], searchText: name);
+      return StatTableRow(
+        values: [name, count, '$pct%'],
+        searchText: name,
+        onTap: _taxonLink(TaxonRank.family, e.name),
+      );
     }).toList(),
   );
+}
+
+/// Species per genus, opened from Statistics and the home screen.
+StatTablePage genusTablePage(MddStatistics stats) {
+  return StatTablePage(
+    title: 'Species Diversity by Genus',
+    infoText: 'Complete summary of mammal species counts per genus.',
+    exportDefaultFileName: 'genus_diversity',
+    defaultSortColumnIndex: 1,
+    defaultSortAscending: false,
+    columns: const [
+      StatTableColumn(title: 'Genus', isItalic: true),
+      StatTableColumn(title: 'Species Count', numeric: true),
+      StatTableColumn(title: 'Percentage', numeric: true),
+    ],
+    rows: stats.speciesPerGenus.map((e) {
+      final count = e.count;
+      final total = stats.totalSpeciesCount;
+      final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+      final name = e.name ?? 'Unknown';
+      return StatTableRow(
+        values: [name, count, '$pct%'],
+        searchText: name,
+        onTap: _taxonLink(TaxonRank.genus, e.name),
+      );
+    }).toList(),
+  );
+}
+
+/// Species ranked by image count, opened from Statistics and the home screen.
+StatTablePage imagesTablePage(MddStatistics stats) {
+  return StatTablePage(
+    title: 'Species with Most Images',
+    infoText:
+        'Mammal species ranked by number of documented images in the database.',
+    exportDefaultFileName: 'species_with_most_images',
+    defaultSortColumnIndex: 1,
+    defaultSortAscending: false,
+    columns: const [
+      StatTableColumn(title: 'Species', isItalic: true),
+      StatTableColumn(title: 'Images Count', numeric: true),
+      StatTableColumn(title: 'Percentage of Images', numeric: true),
+    ],
+    rows: stats.speciesWithMostImages.map((e) {
+      final count = e.imageCount;
+      final total = stats.totalImagesCount;
+      final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+      final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
+      return StatTableRow(
+        values: [species, count, '$pct%'],
+        searchText: species,
+      );
+    }).toList(),
+  );
+}
+
+/// Species ranked by synonym count, opened from Statistics and the home
+/// screen.
+StatTablePage synonymsTablePage(MddStatistics stats) {
+  return StatTablePage(
+    title: 'Species with the Most Names and Synonyms',
+    infoText:
+        'Mammal species ranked by number of recorded synonyms and historical names.',
+    exportDefaultFileName: 'species_with_most_synonyms',
+    defaultSortColumnIndex: 1,
+    defaultSortAscending: false,
+    columns: const [
+      StatTableColumn(title: 'Species', isItalic: true),
+      StatTableColumn(title: 'Synonyms Count', numeric: true),
+      StatTableColumn(title: 'Percentage of Synonyms', numeric: true),
+    ],
+    rows: stats.speciesWithMostSynonyms.map((e) {
+      final count = e.count;
+      final total = stats.totalSynonymsCount;
+      final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+      final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
+      return StatTableRow(
+        values: [species, count, '$pct%'],
+        searchText: species,
+      );
+    }).toList(),
+  );
+}
+
+/// Opens the taxon page for a table row, or nothing for a blank name.
+void Function(BuildContext)? _taxonLink(TaxonRank rank, String? name) {
+  if (name == null || name.isEmpty || name == 'NA') return null;
+  return (context) => openHigherTaxonPage(context, rank, name);
 }
 
 class MddStats extends ConsumerStatefulWidget {
@@ -80,30 +178,6 @@ class MddStats extends ConsumerStatefulWidget {
 class _MddStatsState extends ConsumerState<MddStats> {
   void _navigateTo(Widget page) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-  }
-
-  StatTablePage _genusTablePage(MddStatistics stats) {
-    return StatTablePage(
-      title: 'Species Diversity by Genus',
-      infoText: 'Complete summary of mammal species counts per genus.',
-      exportDefaultFileName: 'genus_diversity',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Genus', isItalic: true),
-        StatTableColumn(title: 'Species Count', numeric: true),
-        StatTableColumn(title: 'Percentage', numeric: true),
-      ],
-      rows: stats.speciesPerGenus.map((e) {
-        final count = e.count;
-        final total = stats.totalSpeciesCount;
-        final pct = total > 0
-            ? (count / total * 100).toStringAsFixed(2)
-            : '0.00';
-        final name = e.name ?? 'Unknown';
-        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
-      }).toList(),
-    );
   }
 
   StatTablePage _decadeTablePage(MddStatistics stats) {
@@ -155,62 +229,6 @@ class _MddStatsState extends ConsumerState<MddStats> {
             : '0.00';
         final year = e.year?.toString() ?? 'Unknown';
         return StatTableRow(values: [year, count, '$pct%'], searchText: year);
-      }).toList(),
-    );
-  }
-
-  StatTablePage _imagesTablePage(MddStatistics stats) {
-    return StatTablePage(
-      title: 'Species with Most Images',
-      infoText:
-          'Mammal species ranked by number of documented images in the database.',
-      exportDefaultFileName: 'species_with_most_images',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Species', isItalic: true),
-        StatTableColumn(title: 'Images Count', numeric: true),
-        StatTableColumn(title: 'Percentage of Images', numeric: true),
-      ],
-      rows: stats.speciesWithMostImages.map((e) {
-        final count = e.imageCount;
-        final total = stats.totalImagesCount;
-        final pct = total > 0
-            ? (count / total * 100).toStringAsFixed(2)
-            : '0.00';
-        final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
-        return StatTableRow(
-          values: [species, count, '$pct%'],
-          searchText: species,
-        );
-      }).toList(),
-    );
-  }
-
-  StatTablePage _synonymsTablePage(MddStatistics stats) {
-    return StatTablePage(
-      title: 'Species with the Most Names and Synonyms',
-      infoText:
-          'Mammal species ranked by number of recorded synonyms and historical names.',
-      exportDefaultFileName: 'species_with_most_synonyms',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Species', isItalic: true),
-        StatTableColumn(title: 'Synonyms Count', numeric: true),
-        StatTableColumn(title: 'Percentage of Synonyms', numeric: true),
-      ],
-      rows: stats.speciesWithMostSynonyms.map((e) {
-        final count = e.count;
-        final total = stats.totalSynonymsCount;
-        final pct = total > 0
-            ? (count / total * 100).toStringAsFixed(2)
-            : '0.00';
-        final species = '${e.genus ?? ''} ${e.specificEpithet ?? ''}'.trim();
-        return StatTableRow(
-          values: [species, count, '$pct%'],
-          searchText: species,
-        );
       }).toList(),
     );
   }
@@ -390,7 +408,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
                         title: 'Species Diversity by Genus',
                         chart: GenusBarChart(stats: stats),
                         onViewTable: stats.speciesPerGenus.length >= 5
-                            ? () => _navigateTo(_genusTablePage(stats))
+                            ? () => _navigateTo(genusTablePage(stats))
                             : null,
                       ),
                       chart2: ChartCard(
@@ -426,7 +444,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
                         title: 'Species with Most Images',
                         chart: ImagesBarChart(stats: stats),
                         onViewTable: stats.speciesWithMostImages.length >= 5
-                            ? () => _navigateTo(_imagesTablePage(stats))
+                            ? () => _navigateTo(imagesTablePage(stats))
                             : null,
                       ),
                       chart2: ChartCard(
@@ -442,7 +460,7 @@ class _MddStatsState extends ConsumerState<MddStats> {
                         title: 'Species with the Most Names and Synonyms',
                         chart: SynonymsBarChart(stats: stats),
                         onViewTable: stats.speciesWithMostSynonyms.length >= 5
-                            ? () => _navigateTo(_synonymsTablePage(stats))
+                            ? () => _navigateTo(synonymsTablePage(stats))
                             : null,
                       ),
                       chart2: ChartCard(

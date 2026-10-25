@@ -97,20 +97,21 @@ class DatabaseInfo extends ConsumerWidget {
         .watch(mddInfoProvider)
         .when(
           data: (MddInfoData mddInfo) {
-            final milText =
-                (mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty)
-                ? '\nMIL release: ${mddInfo.milVersion}'
-                : '';
+            final hasMil =
+                mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  'Database version\n${mddInfo.version}, '
-                  'released ${mddInfo.releaseDate}.$milText',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  [
+                    'MDD ${mddInfo.version} · ${mddInfo.releaseDate}',
+                    if (hasMil) 'MIL ${mddInfo.milVersion}',
+                  ].join(' · '),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
                 TextButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(

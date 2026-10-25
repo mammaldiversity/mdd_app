@@ -20,10 +20,18 @@ class StatTableColumn {
 }
 
 class StatTableRow {
-  const StatTableRow({required this.values, required this.searchText});
+  const StatTableRow({
+    required this.values,
+    required this.searchText,
+    this.onTap,
+  });
 
   final List<dynamic> values;
   final String searchText;
+
+  /// Opens the row's subject, e.g. a taxon page. Rows with a handler show
+  /// their first cell as a link.
+  final void Function(BuildContext context)? onTap;
 }
 
 class StatTablePage extends ConsumerStatefulWidget {
@@ -164,6 +172,7 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   Widget build(BuildContext context) {
     final filteredList = _filterAndSort(widget.rows);
     final tableSource = _StatDataTableSource(
+      context: context,
       columns: widget.columns,
       data: filteredList,
     );
@@ -252,6 +261,8 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: PaginatedDataTable(
+                  // Rows navigate on tap; they are never selected.
+                  showCheckboxColumn: false,
                   header: Text(
                     'Records (${filteredList.length})',
                     style: Theme.of(context).textTheme.titleMedium,
@@ -365,7 +376,13 @@ class StatTableHeaderLabel extends StatelessWidget {
 }
 
 class _StatDataTableSource extends DataTableSource {
-  _StatDataTableSource({required this.columns, required this.data});
+  _StatDataTableSource({
+    required this.context,
+    required this.columns,
+    required this.data,
+  });
+
+  final BuildContext context;
 
   final List<StatTableColumn> columns;
   final List<StatTableRow> data;
@@ -385,23 +402,37 @@ class _StatDataTableSource extends DataTableSource {
     if (index < 0 || index >= data.length) return null;
     final item = data[index];
 
+    final onTap = item.onTap;
+    final linkColor = Theme.of(context).colorScheme.primary;
     return DataRow.byIndex(
       index: index,
+      onSelectChanged: onTap == null ? null : (_) => onTap(context),
       cells: List.generate(columns.length, (colIdx) {
         final val = colIdx < item.values.length ? item.values[colIdx] : '';
         final col = columns[colIdx];
         final displayText = col.numeric ? _formatNumber(val) : val.toString();
+        final isLink = onTap != null && colIdx == 0;
 
-        return DataCell(
-          Text(
-            displayText,
-            style: TextStyle(
-              fontStyle: col.isItalic ? FontStyle.italic : FontStyle.normal,
-              fontWeight: colIdx == 0 && !col.numeric
-                  ? FontWeight.w600
-                  : FontWeight.normal,
-            ),
+        final text = Text(
+          displayText,
+          style: TextStyle(
+            color: isLink ? linkColor : null,
+            fontStyle: col.isItalic ? FontStyle.italic : FontStyle.normal,
+            fontWeight: colIdx == 0 && !col.numeric
+                ? FontWeight.w600
+                : FontWeight.normal,
           ),
+        );
+        return DataCell(
+          isLink
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(child: text),
+                    Icon(Icons.chevron_right, size: 18, color: linkColor),
+                  ],
+                )
+              : text,
         );
       }),
     );

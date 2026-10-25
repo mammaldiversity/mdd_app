@@ -1,17 +1,21 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mdd/screens/home/stats.dart' as home_stats show MddStatistics;
+import 'package:mdd/screens/taxon/higher_taxon.dart';
+import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/statistics.dart';
+import 'package:mdd/services/taxon_tree.dart';
 
 void main() {
   final mockStats = MddStatistics(
-    speciesPerOrder: [],
+    speciesPerOrder: [StatSpeciesPerOrderResult(name: 'Rodentia', count: 2820)],
     speciesPerFamily: [],
     speciesPerGenus: [],
     iucnStatus: [],
@@ -39,7 +43,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [statisticsProvider.overrideWith((ref) => mockStats)],
+        overrides: _overrides(mockStats),
         child: const MaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(child: home_stats.MddStatistics()),
@@ -61,32 +65,32 @@ void main() {
     expect(find.text('1,350'), findsOneWidget);
 
     // Synonyms and Images
-    expect(find.text('Names & Synonyms'), findsOneWidget);
+    expect(find.text('Synonyms'), findsOneWidget);
     expect(find.text('54,120'), findsOneWidget);
     expect(find.text('Images'), findsOneWidget);
     expect(find.text('12,500'), findsOneWidget);
 
     // Links
-    expect(find.text('Orders table'), findsOneWidget);
-    expect(find.text('Families table'), findsOneWidget);
+    expect(find.text('Countries'), findsOneWidget);
+    expect(find.text('Browse by order'), findsOneWidget);
+    expect(find.text('2,820'), findsOneWidget);
     expect(find.text('Taxonomy tree'), findsOneWidget);
 
     // Species card
     expect(find.text('Species'), findsOneWidget);
     expect(find.text('6,540'), findsOneWidget);
   });
-  for (final (link, title) in const [
-    ('Orders', 'Species Diversity by Order'),
-    ('Families', 'Species Diversity by Family'),
-    ('Orders table', 'Species Diversity by Order'),
-    ('Families table', 'Species Diversity by Family'),
+  for (final (link, title, hasTreeLink) in const [
+    ('Orders', 'Species Diversity by Order', true),
+    ('Families', 'Species Diversity by Family', true),
+    ('Genera', 'Species Diversity by Genus', false),
+    ('Synonyms', 'Species with the Most Names and Synonyms', false),
+    ('Images', 'Species with Most Images', false),
   ]) {
-    testWidgets('$link opens its table with a link to the tree', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('$link opens its table', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [statisticsProvider.overrideWith((ref) => mockStats)],
+          overrides: _overrides(mockStats),
           child: const MaterialApp(
             home: Scaffold(
               body: SingleChildScrollView(child: home_stats.MddStatistics()),
@@ -100,9 +104,66 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(title), findsOneWidget);
-      expect(find.text('Taxonomy tree'), findsOneWidget);
+      expect(
+        find.text('Taxonomy tree'),
+        hasTreeLink ? findsOneWidget : findsNothing,
+      );
     });
   }
+
+  const rodentia = (rank: TaxonRank.order, name: 'Rodentia');
+  final taxonOverrides = [
+    higherTaxonProvider(
+      rodentia,
+    ).overrideWith((ref) async => HigherTaxonData(taxon: rodentia, rows: [])),
+    higherTaxonImagesProvider(rodentia).overrideWith((ref) async => []),
+  ];
+
+  testWidgets('an order in Browse by order opens its taxon page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [..._overrides(mockStats), ...taxonOverrides],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: home_stats.MddStatistics()),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('Order Rodentia, 2,820 species'));
+    await tester.pumpAndSettle();
+
+    final page = tester.widget<HigherTaxonPage>(find.byType(HigherTaxonPage));
+    expect((page.rank, page.name), (TaxonRank.order, 'Rodentia'));
+  });
+
+  testWidgets('a row in the Orders table opens its taxon page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [..._overrides(mockStats), ...taxonOverrides],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: home_stats.MddStatistics()),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Orders'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Rodentia'));
+    await tester.pumpAndSettle();
+
+    final page = tester.widget<HigherTaxonPage>(find.byType(HigherTaxonPage));
+    expect((page.rank, page.name), (TaxonRank.order, 'Rodentia'));
+  });
 
   testWidgets('Taxonomy tree opens the Explore tree view', (
     WidgetTester tester,
@@ -112,7 +173,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          statisticsProvider.overrideWith((ref) => mockStats),
+          ..._overrides(mockStats),
           settingProvider.overrideWithValue(prefs),
           speciesListProvider.overrideWith(_EmptySpeciesList.new),
           taxonTreeProvider.overrideWith((ref) async => []),
@@ -138,3 +199,8 @@ class _EmptySpeciesList extends SpeciesList {
   @override
   Future<List<MddGroupListResult>> build() async => [];
 }
+
+List<Override> _overrides(MddStatistics stats) => [
+  statisticsProvider.overrideWith((ref) => stats),
+  countryDiversityStatsProvider.overrideWith((ref) async => []),
+];
