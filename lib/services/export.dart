@@ -63,8 +63,9 @@ class FileWriter {
       final String csvPath = await writer.write();
       final csvFile = File(csvPath);
       final csvLines = await csvFile.readAsLines();
-      final tsvLines =
-          csvLines.map((line) => line.split(',').join('\t')).toList();
+      final tsvLines = csvLines
+          .map((line) => line.split(',').join('\t'))
+          .toList();
       final tsvPath = path.join(resolvedOutputDir, '$fileName.tsv');
       await File(tsvPath).writeAsString(tsvLines.join('\n'));
       if (await csvFile.exists()) {

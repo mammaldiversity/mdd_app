@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/providers/settings.dart';
 
@@ -9,7 +9,9 @@ class InfoCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(showInfoTextProvider).when(
+    return ref
+        .watch(showInfoTextProvider)
+        .when(
           data: (showInfo) {
             if (!showInfo) return const SizedBox.shrink();
             return Material(

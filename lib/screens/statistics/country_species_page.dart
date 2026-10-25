@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/info_card.dart';
@@ -10,15 +10,13 @@ import 'package:mdd/services/statistics.dart';
 class CountrySpeciesPage extends ConsumerWidget {
   final CountryDiversityData countryData;
 
-  const CountrySpeciesPage({
-    super.key,
-    required this.countryData,
-  });
+  const CountrySpeciesPage({super.key, required this.countryData});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final speciesAsync =
-        ref.watch(mainTaxonomyDataProvider(countryData.speciesIds));
+    final speciesAsync = ref.watch(
+      mainTaxonomyDataProvider(countryData.speciesIds),
+    );
 
     final String extinctText = countryData.totalExtinctSpecies > 0
         ? ' and ${countryData.totalExtinctSpecies} extinct'
@@ -31,9 +29,7 @@ class CountrySpeciesPage extends ConsumerWidget {
         'Excludes widespread and domesticated species.';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(countryData.countryName),
-      ),
+      appBar: AppBar(title: Text(countryData.countryName)),
       body: SafeArea(
         child: Column(
           children: [

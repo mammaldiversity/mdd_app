@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/home/mil_carousel.dart';
 import 'package:mdd/screens/home/stats.dart';
@@ -93,12 +93,14 @@ class DatabaseInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(mddInfoProvider).when(
+    return ref
+        .watch(mddInfoProvider)
+        .when(
           data: (MddInfoData mddInfo) {
             final milText =
                 (mddInfo.milVersion != null && mddInfo.milVersion!.isNotEmpty)
-                    ? '\nMIL release: ${mddInfo.milVersion}'
-                    : '';
+                ? '\nMIL release: ${mddInfo.milVersion}'
+                : '';
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[

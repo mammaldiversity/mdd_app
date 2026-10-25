@@ -1,5 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
@@ -19,10 +19,13 @@ class _GenusBarChartState extends State<GenusBarChart> {
   @override
   Widget build(BuildContext context) {
     if (widget.stats.speciesPerGenus.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerGenusResult> data =
-        widget.stats.speciesPerGenus.take(_topN).toList();
-    final double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerGenusResult> data = widget.stats.speciesPerGenus
+        .take(_topN)
+        .toList();
+    final double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
     final barColor = ChartPalette.getGenusColor(context);
@@ -168,8 +171,10 @@ class _GenusBarChartState extends State<GenusBarChart> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 46,
-                              interval:
-                                  maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                              maxIncluded: false,
+                              interval: maxY > 0
+                                  ? (maxY / 4).ceilToDouble()
+                                  : 1,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   meta: meta,
@@ -185,6 +190,9 @@ class _GenusBarChartState extends State<GenusBarChart> {
                             ),
                           ),
                           topTitles: const AxisTitles(
+                            // Room for the top y-axis label.
+                            axisNameWidget: SizedBox.shrink(),
+                            axisNameSize: 10,
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           rightTitles: const AxisTitles(
@@ -194,11 +202,13 @@ class _GenusBarChartState extends State<GenusBarChart> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval:
-                              maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                          horizontalInterval: maxY > 0
+                              ? (maxY / 4).ceilToDouble()
+                              : 1,
                           getDrawingHorizontalLine: (value) => FlLine(
-                            color: colorScheme.outlineVariant
-                                .withValues(alpha: 0.35),
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.35,
+                            ),
                             strokeWidth: 1,
                             dashArray: [4, 4],
                           ),

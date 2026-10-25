@@ -85,31 +85,37 @@ class StatisticsService {
       ..sort((a, b) => b.value.compareTo(a.value));
     final topCountries = sortedCountries.take(15).toList();
 
-    final speciesWithMostImages =
-        await mddQuery.statSpeciesWithMostImages().get();
+    final speciesWithMostImages = await mddQuery
+        .statSpeciesWithMostImages()
+        .get();
 
-    final speciesWithMostSynonyms =
-        await mddQuery.statSpeciesWithMostSynonyms().get();
+    final speciesWithMostSynonyms = await mddQuery
+        .statSpeciesWithMostSynonyms()
+        .get();
 
     final rawTypeKind = await mddQuery.statTypeKindProportion().get();
     final cleanedTypeKind = cleanTypeKindData(rawTypeKind);
 
     // count might be 0, so fallback to 0
-    final speciesWithImagesRow =
-        await mddQuery.statSpeciesWithImagesCount().getSingle();
+    final speciesWithImagesRow = await mddQuery
+        .statSpeciesWithImagesCount()
+        .getSingle();
     final speciesWithImagesCount = speciesWithImagesRow;
 
     final totalSpeciesRow = await mddQuery.statTotalSpeciesCount().getSingle();
     final totalSpeciesCount = totalSpeciesRow;
 
     final totalOrdersCount = await mddQuery.statTotalOrdersCount().getSingle();
-    final totalFamiliesCount =
-        await mddQuery.statTotalFamiliesCount().getSingle();
+    final totalFamiliesCount = await mddQuery
+        .statTotalFamiliesCount()
+        .getSingle();
     final totalGeneraCount = await mddQuery.statTotalGeneraCount().getSingle();
-    final livingWildSpeciesCount =
-        await mddQuery.statLivingWildSpeciesCount().getSingle();
-    final totalSynonymsCount =
-        await mddQuery.statTotalSynonymsCount().getSingle();
+    final livingWildSpeciesCount = await mddQuery
+        .statLivingWildSpeciesCount()
+        .getSingle();
+    final totalSynonymsCount = await mddQuery
+        .statTotalSynonymsCount()
+        .getSingle();
     final totalImagesCount = await mddQuery.statTotalImagesCount().getSingle();
 
     return MddStatistics(

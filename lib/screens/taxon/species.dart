@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/taxon/mil_images.dart';
 import 'package:mdd/screens/taxon/distribution_map.dart';
+import 'package:mdd/screens/taxon/external_resources.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/taxon/common.dart';
 import 'package:mdd/screens/taxon/correction.dart';
@@ -20,7 +21,9 @@ class SpeciesPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('Taxon Information')),
       body: SafeArea(
         child: Center(
-          child: ref.watch(taxonDataProvider).when(
+          child: ref
+              .watch(taxonDataProvider)
+              .when(
                 data: (TaxonomyData taxonData) {
                   return TaxonForm(taxonData: taxonData);
                 },
@@ -50,9 +53,7 @@ class TaxonForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SelectionArea(
-                child: SpeciesDetails(taxonData: taxonData),
-              ),
+              SelectionArea(child: SpeciesDetails(taxonData: taxonData)),
               Expanded(
                 child: SingleChildScrollView(
                   child: SelectionArea(
@@ -91,8 +92,8 @@ class SpeciesDetails extends StatelessWidget {
           Text(
             taxonData.mainCommonName ?? '',
             style: Theme.of(context).textTheme.titleMedium?.apply(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              color: Theme.of(context).colorScheme.primary,
+            ),
             textAlign: TextAlign.left,
           ),
           const SizedBox(height: 4),
@@ -136,6 +137,7 @@ class OtherDetailsResponsive extends StatelessWidget {
                       countryDistribution: taxonData.countryDistribution,
                     ),
                     const SynonymList(),
+                    ExternalResourcesPanel(taxonData: taxonData),
                   ],
                 ),
               ),
@@ -154,6 +156,7 @@ class OtherDetailsResponsive extends StatelessWidget {
               const SizedBox(height: 8),
               SpeciesInfoList(taxonData: taxonData),
               const SynonymList(),
+              ExternalResourcesPanel(taxonData: taxonData),
             ],
           );
         }
@@ -329,12 +332,12 @@ class SpeciesTextView extends StatelessWidget {
           TextSpan(
             text: speciesText.speciesName,
             style: Theme.of(context).textTheme.titleLarge?.apply(
-                  fontFamily: 'Libre Baskerville',
-                  fontStyle: FontStyle.italic,
-                  fontWeightDelta: 1,
-                  fontSizeDelta: 4,
-                  letterSpacingDelta: 0.8,
-                ),
+              fontFamily: 'Libre Baskerville',
+              fontStyle: FontStyle.italic,
+              fontWeightDelta: 1,
+              fontSizeDelta: 4,
+              letterSpacingDelta: 0.8,
+            ),
           ),
           const TextSpan(text: '\n'),
           TextSpan(

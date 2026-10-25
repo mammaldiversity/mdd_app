@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:http/http.dart' as http;
 import 'package:mdd/services/natural_earth.dart';
 import 'package:mdd/services/topojson_parser.dart';
@@ -24,7 +24,7 @@ class DistributionMapStyleService {
   static const predictedOutlineColor = Color(0xFFB5A600);
 
   static String styleUrl({required bool isDark}) =>
-      'https://tiles.openfreemap.org/styles/${isDark ? 'dark' : 'liberty'}';
+      'https://tiles.openfreemap.org/styles/${isDark ? 'dark' : 'positron'}';
 
   static Future<DistributionMapStyle> build({
     required bool isDark,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mdd/screens/home/stats.dart' as home_stats show MddStatistics;
@@ -31,18 +31,15 @@ void main() {
     totalImagesCount: 12500,
   );
 
-  testWidgets('renders home statistics cards including Synonyms and Images',
-      (WidgetTester tester) async {
+  testWidgets('renders home statistics cards including Synonyms and Images', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          statisticsProvider.overrideWith((ref) => mockStats),
-        ],
+        overrides: [statisticsProvider.overrideWith((ref) => mockStats)],
         child: const MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: home_stats.MddStatistics(),
-            ),
+            body: SingleChildScrollView(child: home_stats.MddStatistics()),
           ),
         ),
       ),

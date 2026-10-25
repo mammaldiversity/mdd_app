@@ -8,11 +8,8 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- 70+ new images from the ASM's Mammal Image Library
-- Brand new map layers
-- Table views for all stats with multi-tabular format export support.
-- Improve chart colors for better accessibility
-- Bug fixes and performance optimizations.
+- Species page includes richer information from external resources including GBIF occurrances, NCBI genbank, and Crossref.
+- Add September 2026 release of the Mammal Image Library (MIL).
 
 ## Installation
 
@@ -36,7 +33,7 @@ You can download the app on the [App Store](https://apple.co/4vlBaxa). Click the
 
 Download the portable tarball from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
 
-- **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly.
+- **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly. It is built on the latest Ubuntu LTS, so it requires a distribution with an equally recent glibc (Ubuntu 24.04 or newer at the time of writing).
 
 ### Windows
 
@@ -91,10 +88,18 @@ mkdir data
 
 - Generate the SQLite database and run a build:
 
-We provide a convenient bash script that builds the Rust parser, generates `assets/data/mdd.db`, and compiles Flutter for supported platforms.
+We provide convenient build scripts that build the Rust parser, generate `assets/data/mdd.db`, and compile Flutter release builds. Android is built as APKs only.
+
+On Linux or macOS, use the bash script. It builds Android, iOS, macOS, and Linux (Linux only on a Linux host):
 
 ```bash
 ./tools/build.sh
+```
+
+On Windows, use the PowerShell script. It builds Android and Windows:
+
+```powershell
+.\tools\build.ps1
 ```
 
 Alternatively, if you only want to generate the database manually without compiling Flutter release builds:
@@ -102,6 +107,12 @@ Alternatively, if you only want to generate the database manually without compil
 ```bash
 ./tools/generate_prefilled_db.sh
 ```
+
+```powershell
+.\tools\generate_prefilled_db.ps1
+```
+
+If PowerShell blocks the scripts because of the execution policy, run them with `powershell -ExecutionPolicy Bypass -File .\tools\build.ps1`.
 
 - Try to run the app:
 

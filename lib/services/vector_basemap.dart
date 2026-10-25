@@ -21,7 +21,7 @@ Future<Style> loadVectorBasemapStyle({required bool isDark}) async {
   return Style(
     name: loaded.name,
     theme: loaded.theme.copyWith(
-      id: 'openfreemap-${isDark ? 'dark' : 'liberty'}',
+      id: 'openfreemap-${isDark ? 'dark' : 'positron'}',
     ),
     providers: loaded.providers,
     sprites: loaded.sprites,

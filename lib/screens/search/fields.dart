@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/export.dart';
@@ -144,9 +144,9 @@ class FilterGroupWidget extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         ...options.map(
@@ -172,7 +172,9 @@ class SearchResultInfo extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final int foundRecordCount = foundRecords.length;
 
-    return ref.watch(totalRecordsProvider).when(
+    return ref
+        .watch(totalRecordsProvider)
+        .when(
           data: (int totalRecords) {
             return totalRecords == foundRecordCount || foundRecordCount == 0
                 ? const SizedBox.shrink()
@@ -187,8 +189,9 @@ class SearchResultInfo extends ConsumerWidget {
                         children: [
                           SearchInfoBox(
                             color: colorScheme.secondaryContainer,
-                            borderColor:
-                                colorScheme.outlineVariant.withAlpha(160),
+                            borderColor: colorScheme.outlineVariant.withAlpha(
+                              160,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -200,9 +203,7 @@ class SearchResultInfo extends ConsumerWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Found $foundRecordCount of $totalRecords records',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
+                                  style: Theme.of(context).textTheme.labelLarge
                                       ?.copyWith(
                                         color: colorScheme.onSecondaryContainer,
                                         fontWeight: FontWeight.bold,
@@ -216,8 +217,9 @@ class SearchResultInfo extends ConsumerWidget {
                           SearchInfoBox(
                             padding: 4,
                             color: colorScheme.primaryContainer,
-                            borderColor:
-                                colorScheme.outlineVariant.withAlpha(160),
+                            borderColor: colorScheme.outlineVariant.withAlpha(
+                              160,
+                            ),
                             child: SearchExportButton(mddIDs: foundRecords),
                           ),
                         ],

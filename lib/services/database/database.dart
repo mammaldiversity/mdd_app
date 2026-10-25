@@ -18,21 +18,21 @@ const int _kDatabaseVersion = 3;
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.forFile(File file)
-      : super(NativeDatabase.createInBackground(file, logStatements: true));
+    : super(NativeDatabase.createInBackground(file, logStatements: true));
 
   @override
   int get schemaVersion => _kDatabaseVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (Migrator m) async {
-          // Pre-generated database should already have all tables and data.
-          // This onCreate will only be called if the database file didn't exist.
-        },
-        onUpgrade: (Migrator m, int from, int to) async {
-          // Add upgrade logic here if needed
-        },
-      );
+    onCreate: (Migrator m) async {
+      // Pre-generated database should already have all tables and data.
+      // This onCreate will only be called if the database file didn't exist.
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      // Add upgrade logic here if needed
+    },
+  );
 
   // Removed createMddDefault and createMilData since they are now in generate_db.dart
 }
@@ -75,8 +75,9 @@ LazyDatabase _openConnection() {
           // Compare with asset DB milVersion
           try {
             loadedAssetData = await rootBundle.load('assets/data/mdd.db');
-            final tempDir =
-                await Directory.systemTemp.createTemp('mdd_ver_check');
+            final tempDir = await Directory.systemTemp.createTemp(
+              'mdd_ver_check',
+            );
             final tempAssetFile = File(path.join(tempDir.path, 'asset_mdd.db'));
             await tempAssetFile.writeAsBytes(
               loadedAssetData.buffer.asUint8List(
@@ -86,8 +87,9 @@ LazyDatabase _openConnection() {
             );
 
             final assetDb = sqlite3.sqlite3.open(tempAssetFile.path);
-            final assetInfoRes =
-                assetDb.select('SELECT milVersion FROM mddInfo');
+            final assetInfoRes = assetDb.select(
+              'SELECT milVersion FROM mddInfo',
+            );
             String? assetMilVer;
             if (assetInfoRes.isNotEmpty) {
               assetMilVer = assetInfoRes.first['milVersion'] as String?;
@@ -121,9 +123,7 @@ LazyDatabase _openConnection() {
 
     if (needsCopy) {
       if (kDebugMode) {
-        print(
-          'Replacing/initializing database from assets/data/mdd.db...',
-        );
+        print('Replacing/initializing database from assets/data/mdd.db...');
       }
       try {
         final byteData =

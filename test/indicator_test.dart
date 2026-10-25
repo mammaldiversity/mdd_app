@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mdd/screens/statistics/indicator.dart';
 
@@ -65,6 +65,32 @@ void main() {
       final container = tester.widget<Container>(find.byType(Container).first);
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.shape, BoxShape.rectangle);
+    });
+
+    testWidgets('wraps long text when expanded inside a narrow width', (
+      WidgetTester tester,
+    ) async {
+      const testText =
+          'CR - Critically Endangered: 1234 species (56.7 percent)';
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 180,
+              child: Indicator(
+                color: Colors.red,
+                text: testText,
+                isSquare: true,
+                expandText: true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.getSize(find.text(testText)).height, greaterThan(20));
+      expect(tester.takeException(), isNull);
     });
   });
 }

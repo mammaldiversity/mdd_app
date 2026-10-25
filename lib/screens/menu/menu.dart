@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mdd/screens/menu/release_notes.dart';
 import 'package:mdd/screens/menu/settings.dart';
 import 'package:mdd/screens/menu/version.dart';
@@ -176,16 +176,14 @@ class UrlTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: Icon(icon ?? Icons.public, color: colorScheme.primary),
         title: Text(
           title,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
         ),
         trailing: Icon(
           Icons.open_in_new_rounded,

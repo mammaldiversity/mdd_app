@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -13,7 +13,7 @@ void main() {
   test('uses Liberty in light mode and Dark in dark mode', () {
     expect(
       DistributionMapStyleService.styleUrl(isDark: false),
-      'https://tiles.openfreemap.org/styles/liberty',
+      'https://tiles.openfreemap.org/styles/positron',
     );
     expect(
       DistributionMapStyleService.styleUrl(isDark: true),

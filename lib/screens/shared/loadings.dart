@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
@@ -108,7 +108,9 @@ class DataLoadingMessages extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
-      child: ref.watch(isFirstRunProvider).when(
+      child: ref
+          .watch(isFirstRunProvider)
+          .when(
             data: (isFirstRun) {
               if (isFirstRun) {
                 return isSimple

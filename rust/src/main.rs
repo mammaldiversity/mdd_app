@@ -55,7 +55,10 @@ fn main() {
     println!("Parsing MDD from {}", mdd_zip_path);
     let mdd_helper = MddHelper::parse_mdd_zip(mdd_zip_path.clone());
 
-    let temp_dir = tempdir::TempDir::new("mil_main").expect("Failed to create temp dir");
+    let temp_dir = tempfile::Builder::new()
+        .prefix("mil_main")
+        .tempdir()
+        .expect("Failed to create temp dir");
 
     println!("Parsing MIL from {}", mil_tar_path);
     let mil_helper = if mil_tar_path.ends_with(".json") {

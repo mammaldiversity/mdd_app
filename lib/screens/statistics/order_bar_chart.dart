@@ -1,5 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/statistics.dart';
 
@@ -18,10 +18,13 @@ class _OrderBarChartState extends State<OrderBarChart> {
   @override
   Widget build(BuildContext context) {
     if (widget.stats.speciesPerOrder.isEmpty) return const SizedBox.shrink();
-    final List<StatSpeciesPerOrderResult> data =
-        widget.stats.speciesPerOrder.take(_topN).toList();
-    final double maxY =
-        data.map((e) => e.count).reduce((a, b) => a > b ? a : b).toDouble();
+    final List<StatSpeciesPerOrderResult> data = widget.stats.speciesPerOrder
+        .take(_topN)
+        .toList();
+    final double maxY = data
+        .map((e) => e.count)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final colorScheme = Theme.of(context).colorScheme;
     final textColor = colorScheme.onSurface;
 
@@ -162,8 +165,10 @@ class _OrderBarChartState extends State<OrderBarChart> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 46,
-                              interval:
-                                  maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                              maxIncluded: false,
+                              interval: maxY > 0
+                                  ? (maxY / 4).ceilToDouble()
+                                  : 1,
                               getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   meta: meta,
@@ -179,6 +184,9 @@ class _OrderBarChartState extends State<OrderBarChart> {
                             ),
                           ),
                           topTitles: const AxisTitles(
+                            // Room for the top y-axis label.
+                            axisNameWidget: SizedBox.shrink(),
+                            axisNameSize: 10,
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           rightTitles: const AxisTitles(
@@ -188,11 +196,13 @@ class _OrderBarChartState extends State<OrderBarChart> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval:
-                              maxY > 0 ? (maxY / 4).ceilToDouble() : 1,
+                          horizontalInterval: maxY > 0
+                              ? (maxY / 4).ceilToDouble()
+                              : 1,
                           getDrawingHorizontalLine: (value) => FlLine(
-                            color: colorScheme.outlineVariant
-                                .withValues(alpha: 0.35),
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.35,
+                            ),
                             strokeWidth: 1,
                             dashArray: [4, 4],
                           ),
