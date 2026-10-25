@@ -66,6 +66,29 @@ class ExploreSpeciesState extends ConsumerState<ExploreSpecies> {
   }
 }
 
+/// Opens the Explore page in tree view on its own route, e.g. from a
+/// statistics table. Switching to the tree also becomes the saved view mode.
+class OpenTaxonomyTreeButton extends ConsumerWidget {
+  const OpenTaxonomyTreeButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
+    icon: const Icon(Icons.account_tree_outlined),
+    label: const Text('Taxonomy tree'),
+    onPressed: () {
+      ref.read(exploreViewModeProvider.notifier).setMode(ExploreViewMode.tree);
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: const Text('Explore Taxonomy')),
+            body: const ExploreSpecies(),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 /// List/tree switch plus expand and collapse all.
 class ExploreToolbar extends ConsumerWidget {
   const ExploreToolbar({super.key, required this.viewMode});

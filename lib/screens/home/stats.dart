@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
+import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/statistics.dart';
 
@@ -57,6 +59,8 @@ class MddStatistics extends ConsumerWidget {
                         child: StatCard(
                           title: 'Orders',
                           count: stats.totalOrdersCount,
+                          tooltip: 'View species by order',
+                          onTap: () => _open(context, orderTablePage(stats)),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -64,6 +68,8 @@ class MddStatistics extends ConsumerWidget {
                         child: StatCard(
                           title: 'Families',
                           count: stats.totalFamiliesCount,
+                          tooltip: 'View species by family',
+                          onTap: () => _open(context, familyTablePage(stats)),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -73,6 +79,24 @@ class MddStatistics extends ConsumerWidget {
                           count: stats.totalGeneraCount,
                         ),
                       ),
+                    ],
+                  ),
+                  // Visible links, since a tappable stat card does not look
+                  // like a button.
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      TextButton.icon(
+                        icon: const Icon(Icons.table_chart_outlined),
+                        label: const Text('Orders table'),
+                        onPressed: () => _open(context, orderTablePage(stats)),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.table_chart_outlined),
+                        label: const Text('Families table'),
+                        onPressed: () => _open(context, familyTablePage(stats)),
+                      ),
+                      const OpenTaxonomyTreeButton(),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -109,6 +133,10 @@ class MddStatistics extends ConsumerWidget {
           error: (error, stack) => Text('Error: $error'),
         );
   }
+
+  void _open(BuildContext context, Widget page) => Navigator.of(
+    context,
+  ).push(MaterialPageRoute<void>(builder: (context) => page));
 }
 
 class StatCard extends StatelessWidget {

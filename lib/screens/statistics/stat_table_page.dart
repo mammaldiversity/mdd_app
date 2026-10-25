@@ -36,6 +36,7 @@ class StatTablePage extends ConsumerStatefulWidget {
     required this.rows,
     this.defaultSortColumnIndex = 0,
     this.defaultSortAscending = true,
+    this.appBarActions = const [],
   });
 
   final String title;
@@ -45,6 +46,9 @@ class StatTablePage extends ConsumerStatefulWidget {
   final List<StatTableRow> rows;
   final int defaultSortColumnIndex;
   final bool defaultSortAscending;
+
+  /// Extra buttons in the app bar, e.g. a link to the taxonomy tree.
+  final List<Widget> appBarActions;
 
   @override
   ConsumerState<StatTablePage> createState() => _StatTablePageState();
@@ -165,7 +169,7 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title), actions: widget.appBarActions),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

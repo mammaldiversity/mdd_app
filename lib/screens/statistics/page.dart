@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/screens/statistics/chart_card.dart';
 import 'package:mdd/screens/statistics/country_bar_chart.dart';
@@ -21,6 +22,54 @@ import 'package:mdd/screens/statistics/year_bar_chart.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/statistics.dart';
 
+/// Species per order, opened from Statistics and the home screen.
+StatTablePage orderTablePage(MddStatistics stats) {
+  return StatTablePage(
+    title: 'Species Diversity by Order',
+    infoText: 'Complete summary of mammal species counts per taxonomic order.',
+    exportDefaultFileName: 'order_diversity',
+    defaultSortColumnIndex: 1,
+    defaultSortAscending: false,
+    appBarActions: const [OpenTaxonomyTreeButton()],
+    columns: const [
+      StatTableColumn(title: 'Order'),
+      StatTableColumn(title: 'Species Count', numeric: true),
+      StatTableColumn(title: 'Percentage', numeric: true),
+    ],
+    rows: stats.speciesPerOrder.map((e) {
+      final count = e.count;
+      final total = stats.totalSpeciesCount;
+      final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+      final name = e.name ?? 'Unknown';
+      return StatTableRow(values: [name, count, '$pct%'], searchText: name);
+    }).toList(),
+  );
+}
+
+/// Species per family, opened from Statistics and the home screen.
+StatTablePage familyTablePage(MddStatistics stats) {
+  return StatTablePage(
+    title: 'Species Diversity by Family',
+    infoText: 'Complete summary of mammal species counts per taxonomic family.',
+    exportDefaultFileName: 'family_diversity',
+    defaultSortColumnIndex: 1,
+    defaultSortAscending: false,
+    appBarActions: const [OpenTaxonomyTreeButton()],
+    columns: const [
+      StatTableColumn(title: 'Family'),
+      StatTableColumn(title: 'Species Count', numeric: true),
+      StatTableColumn(title: 'Percentage', numeric: true),
+    ],
+    rows: stats.speciesPerFamily.map((e) {
+      final count = e.count;
+      final total = stats.totalSpeciesCount;
+      final pct = total > 0 ? (count / total * 100).toStringAsFixed(2) : '0.00';
+      final name = e.name ?? 'Unknown';
+      return StatTableRow(values: [name, count, '$pct%'], searchText: name);
+    }).toList(),
+  );
+}
+
 class MddStats extends ConsumerStatefulWidget {
   const MddStats({super.key});
 
@@ -31,56 +80,6 @@ class MddStats extends ConsumerStatefulWidget {
 class _MddStatsState extends ConsumerState<MddStats> {
   void _navigateTo(Widget page) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-  }
-
-  StatTablePage _orderTablePage(MddStatistics stats) {
-    return StatTablePage(
-      title: 'Species Diversity by Order',
-      infoText:
-          'Complete summary of mammal species counts per taxonomic order.',
-      exportDefaultFileName: 'order_diversity',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Order'),
-        StatTableColumn(title: 'Species Count', numeric: true),
-        StatTableColumn(title: 'Percentage', numeric: true),
-      ],
-      rows: stats.speciesPerOrder.map((e) {
-        final count = e.count;
-        final total = stats.totalSpeciesCount;
-        final pct = total > 0
-            ? (count / total * 100).toStringAsFixed(2)
-            : '0.00';
-        final name = e.name ?? 'Unknown';
-        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
-      }).toList(),
-    );
-  }
-
-  StatTablePage _familyTablePage(MddStatistics stats) {
-    return StatTablePage(
-      title: 'Species Diversity by Family',
-      infoText:
-          'Complete summary of mammal species counts per taxonomic family.',
-      exportDefaultFileName: 'family_diversity',
-      defaultSortColumnIndex: 1,
-      defaultSortAscending: false,
-      columns: const [
-        StatTableColumn(title: 'Family'),
-        StatTableColumn(title: 'Species Count', numeric: true),
-        StatTableColumn(title: 'Percentage', numeric: true),
-      ],
-      rows: stats.speciesPerFamily.map((e) {
-        final count = e.count;
-        final total = stats.totalSpeciesCount;
-        final pct = total > 0
-            ? (count / total * 100).toStringAsFixed(2)
-            : '0.00';
-        final name = e.name ?? 'Unknown';
-        return StatTableRow(values: [name, count, '$pct%'], searchText: name);
-      }).toList(),
-    );
   }
 
   StatTablePage _genusTablePage(MddStatistics stats) {
@@ -373,14 +372,14 @@ class _MddStatsState extends ConsumerState<MddStats> {
                         title: 'Species Diversity by Order',
                         chart: OrderBarChart(stats: stats),
                         onViewTable: stats.speciesPerOrder.length >= 5
-                            ? () => _navigateTo(_orderTablePage(stats))
+                            ? () => _navigateTo(orderTablePage(stats))
                             : null,
                       ),
                       chart2: ChartCard(
                         title: 'Species Diversity by Family',
                         chart: FamilyBarChart(stats: stats),
                         onViewTable: stats.speciesPerFamily.length >= 5
-                            ? () => _navigateTo(_familyTablePage(stats))
+                            ? () => _navigateTo(familyTablePage(stats))
                             : null,
                       ),
                     ),
