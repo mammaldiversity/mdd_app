@@ -80,4 +80,42 @@ void main() {
       expect(find.text('Clear all'), findsNothing);
     });
   }
+
+  testWidgets('reports typing after a pause', (tester) async {
+    final queries = <String>[];
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TableFilterBar(
+            controller: controller,
+            hintText: 'Search table...',
+            columns: columns,
+            searchColumn: null,
+            rules: const RuleFilter(),
+            onQueryChanged: queries.add,
+            onSearchColumnChanged: (_) {},
+            onRulesChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    final field = find.widgetWithText(TextField, 'Search table...');
+    await tester.enterText(field, 'm');
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(field, 'me');
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(field, 'mex');
+    expect(queries, isEmpty);
+    // The clear button shows right away, before the table updates.
+    await tester.pump();
+    expect(find.byIcon(Icons.clear), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(queries, ['mex']);
+
+    await tester.tap(find.byIcon(Icons.clear));
+    expect(queries, ['mex', '']);
+  });
 }

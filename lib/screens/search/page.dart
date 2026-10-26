@@ -6,6 +6,7 @@ import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/debouncer.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/rule_filter.dart';
 
@@ -23,6 +24,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   SearchFilter _selectedOption = SearchFilter.all;
   RuleFilter<SearchFilter> _rules = const RuleFilter();
   bool _showRules = false;
+  final Debouncer _searchDebouncer = Debouncer();
 
   static final List<RuleField<SearchFilter>> _ruleFields = [
     for (final field in SearchFilter.values)
@@ -44,6 +46,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
 
   @override
   void dispose() {
+    _searchDebouncer.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -61,7 +64,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
               child: CommonSearchField(
                 focusNode: _focusNode,
                 controller: widget.controller,
-                onChanged: _searchDatabase,
+                onChanged: (_) => _scheduleSearch(),
                 onClear: () {
                   widget.controller.clear();
                   _searchDatabase('');
@@ -79,6 +82,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
             child: TextButton(
               child: const Text('Done'),
               onPressed: () {
+                _searchDebouncer.cancel();
                 _focusNode.unfocus();
                 widget.controller.clear();
                 Navigator.pop(context);
@@ -115,8 +119,8 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                     fields: _ruleFields,
                     filter: _rules,
                     onChanged: (rules) {
-                      setState(() => _rules = rules);
-                      _searchDatabase(widget.controller.text);
+                      _rules = rules;
+                      _scheduleSearch();
                     },
                   ),
                 ),
@@ -129,16 +133,25 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
     );
   }
 
-  void _searchDatabase(String query) {
-    setState(() {
-      if (query.isNotEmpty || _rules.isActive) {
-        ref
-            .read(searchDatabaseProvider.notifier)
-            .search(query, filterBy: _selectedOption, rules: _rules);
-      } else {
-        ref.invalidate(searchDatabaseProvider);
-      }
+  /// Searches once typing pauses, so fast typing doesn't redraw the
+  /// results on every keystroke.
+  void _scheduleSearch() {
+    // Rebuild now for the clear button and the rules panel.
+    setState(() {});
+    _searchDebouncer(() {
+      if (mounted) _searchDatabase(widget.controller.text);
     });
+  }
+
+  void _searchDatabase(String query) {
+    _searchDebouncer.cancel();
+    final search = ref.read(searchDatabaseProvider.notifier);
+    if (query.isNotEmpty || _rules.isActive) {
+      search.search(query, filterBy: _selectedOption, rules: _rules);
+    } else {
+      search.clear();
+    }
+    setState(() {});
   }
 
   void _showFilteringOptions() {
@@ -165,6 +178,8 @@ class SpeciesListView extends ConsumerWidget {
     return ref
         .watch(searchDatabaseProvider)
         .when(
+          // Show the previous results while a new search runs.
+          skipLoadingOnReload: true,
           data: (List<MainTaxonomyData> speciesList) {
             return ListView.builder(
               itemCount: speciesList.length,
@@ -194,6 +209,7 @@ class SearchDatabaseInfo extends ConsumerWidget {
     return ref
         .watch(searchDatabaseProvider)
         .when(
+          skipLoadingOnReload: true,
           data: (List<MainTaxonomyData> speciesList) {
             return Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),

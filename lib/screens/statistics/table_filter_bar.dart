@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:mdd/screens/shared/rule_filter_panel.dart';
+import 'package:mdd/services/debouncer.dart';
 import 'package:mdd/services/rule_filter.dart';
 
 /// Whether a table row passes the simple search and the rules.
@@ -28,6 +29,10 @@ bool tableRowMatches({
 
 /// Simple search with a column picker, plus a rules panel for statistics
 /// tables. Rule fields are keyed by column index.
+///
+/// Typing in the search box or the rules reaches [onQueryChanged] and
+/// [onRulesChanged] after a short pause, so the table doesn't redraw on
+/// every keystroke.
 class TableFilterBar extends StatefulWidget {
   const TableFilterBar({
     super.key,
@@ -56,6 +61,23 @@ class TableFilterBar extends StatefulWidget {
 
 class _TableFilterBarState extends State<TableFilterBar> {
   bool _showRules = false;
+  final Debouncer _queryDebouncer = Debouncer();
+  final Debouncer _rulesDebouncer = Debouncer();
+
+  /// Shown in the panel right away; the parent gets it after the pause.
+  late RuleFilter<int> _rules = widget.rules;
+
+  @override
+  void dispose() {
+    _queryDebouncer.cancel();
+    _rulesDebouncer.cancel();
+    super.dispose();
+  }
+
+  void _onRulesChanged(RuleFilter<int> rules) {
+    setState(() => _rules = rules);
+    _rulesDebouncer(() => widget.onRulesChanged(rules));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +99,7 @@ class _TableFilterBarState extends State<TableFilterBar> {
                 icon: const Icon(Icons.clear),
                 onPressed: () {
                   widget.controller.clear();
+                  _queryDebouncer.cancel();
                   widget.onQueryChanged('');
                 },
               ),
@@ -107,7 +130,11 @@ class _TableFilterBarState extends State<TableFilterBar> {
           vertical: 14,
         ),
       ),
-      onChanged: (value) => widget.onQueryChanged(value.trim()),
+      onChanged: (value) {
+        // Rebuild now so the clear button tracks the text.
+        setState(() {});
+        _queryDebouncer(() => widget.onQueryChanged(value.trim()));
+      },
     );
 
     return Column(
@@ -118,7 +145,7 @@ class _TableFilterBarState extends State<TableFilterBar> {
             Expanded(child: searchField),
             const SizedBox(width: 8),
             RulesButton(
-              activeCount: widget.rules.activeRules.length,
+              activeCount: _rules.activeRules.length,
               isExpanded: _showRules,
               compact: MediaQuery.sizeOf(context).width < 600,
               onPressed: () => setState(() => _showRules = !_showRules),
@@ -129,8 +156,8 @@ class _TableFilterBarState extends State<TableFilterBar> {
           const SizedBox(height: 8),
           RuleFilterPanel<int>(
             fields: widget.columns,
-            filter: widget.rules,
-            onChanged: widget.onRulesChanged,
+            filter: _rules,
+            onChanged: _onRulesChanged,
           ),
         ],
       ],

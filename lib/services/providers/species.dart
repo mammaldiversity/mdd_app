@@ -18,6 +18,8 @@ final searchDatabaseProvider =
     );
 
 class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
+  int _latestSearch = 0;
+
   @override
   FutureOr<List<MainTaxonomyData>> build() async {
     ref.watch(databaseProvider);
@@ -29,13 +31,22 @@ class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
     required SearchFilter filterBy,
     RuleFilter<SearchFilter> rules = const RuleFilter(),
   }) async {
+    final searchId = ++_latestSearch;
+    // Keeps the previous results; the list shows them until this finishes.
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      if (state.value == null) return [];
-      return await MDDSearch(
+    final result = await AsyncValue.guard(
+      () => MDDSearch(
         ref.read(databaseProvider),
-      ).searchSpecies(query, filterBy: filterBy, rules: rules);
-    });
+      ).searchSpecies(query, filterBy: filterBy, rules: rules),
+    );
+    // A newer search started meanwhile; its results win.
+    if (searchId == _latestSearch) state = result;
+  }
+
+  /// Empties the results and drops any search still running.
+  void clear() {
+    _latestSearch++;
+    state = const AsyncValue.data([]);
   }
 }
 
