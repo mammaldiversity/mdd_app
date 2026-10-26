@@ -5,6 +5,7 @@
 
 import 'api/parser.dart';
 import 'api/writer.dart';
+import 'api/xlsx.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
@@ -67,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1830609923;
+  int get rustContentHash => -39759757;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -105,6 +106,13 @@ abstract class RustLibApi extends BaseApi {
   Future<MilHelper> crateApiParserMilHelperParseMilData({
     required String tarPath,
     required String dbPath,
+  });
+
+  Future<XlsxSheet> crateApiXlsxSpeciesXlsxSheet({required String jsonData});
+
+  Future<String> crateApiXlsxWriteXlsx({
+    required String outputPath,
+    required List<XlsxSheet> sheets,
   });
 }
 
@@ -344,6 +352,71 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         argNames: ["tarPath", "dbPath"],
       );
 
+  @override
+  Future<XlsxSheet> crateApiXlsxSpeciesXlsxSheet({required String jsonData}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(jsonData, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 8,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_xlsx_sheet,
+          decodeErrorData: sse_decode_String,
+        ),
+        constMeta: kCrateApiXlsxSpeciesXlsxSheetConstMeta,
+        argValues: [jsonData],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiXlsxSpeciesXlsxSheetConstMeta =>
+      const TaskConstMeta(
+        debugName: "species_xlsx_sheet",
+        argNames: ["jsonData"],
+      );
+
+  @override
+  Future<String> crateApiXlsxWriteXlsx({
+    required String outputPath,
+    required List<XlsxSheet> sheets,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(outputPath, serializer);
+          sse_encode_list_xlsx_sheet(sheets, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 9,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_String,
+        ),
+        constMeta: kCrateApiXlsxWriteXlsxConstMeta,
+        argValues: [outputPath, sheets],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiXlsxWriteXlsxConstMeta => const TaskConstMeta(
+    debugName: "write_xlsx",
+    argNames: ["outputPath", "sheets"],
+  );
+
   @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -395,6 +468,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<XlsxSheet> dco_decode_list_xlsx_sheet(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_xlsx_sheet).toList();
+  }
+
+  @protected
   MddHelper dco_decode_mdd_helper(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -438,6 +517,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void dco_decode_unit(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return;
+  }
+
+  @protected
+  XlsxSheet dco_decode_xlsx_sheet(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return XlsxSheet(
+      name: dco_decode_String(arr[0]),
+      headers: dco_decode_list_String(arr[1]),
+      jsonRows: dco_decode_String(arr[2]),
+    );
   }
 
   @protected
@@ -503,6 +595,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<XlsxSheet> sse_decode_list_xlsx_sheet(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <XlsxSheet>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_xlsx_sheet(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   MddHelper sse_decode_mdd_helper(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_version = sse_decode_String(deserializer);
@@ -549,6 +653,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_decode_unit(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  XlsxSheet sse_decode_xlsx_sheet(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_headers = sse_decode_list_String(deserializer);
+    var var_jsonRows = sse_decode_String(deserializer);
+    return XlsxSheet(
+      name: var_name,
+      headers: var_headers,
+      jsonRows: var_jsonRows,
+    );
   }
 
   @protected
@@ -622,6 +739,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_xlsx_sheet(
+    List<XlsxSheet> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_xlsx_sheet(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_mdd_helper(MddHelper self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.version, serializer);
@@ -658,6 +787,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  void sse_encode_xlsx_sheet(XlsxSheet self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_list_String(self.headers, serializer);
+    sse_encode_String(self.jsonRows, serializer);
   }
 
   @protected

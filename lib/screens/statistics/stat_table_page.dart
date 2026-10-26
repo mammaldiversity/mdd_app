@@ -1,8 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/info_card.dart';
+import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/screens/statistics/chart_export_dialog.dart';
+import 'package:mdd/screens/statistics/table_filter_bar.dart';
 import 'package:mdd/services/export.dart';
+import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/system.dart';
 
 class StatTableColumn {
@@ -65,6 +68,8 @@ class StatTablePage extends ConsumerStatefulWidget {
 class _StatTablePageState extends ConsumerState<StatTablePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  int? _searchColumn;
+  RuleFilter<int> _rules = const RuleFilter();
   late int _sortColumnIndex;
   late bool _sortAscending;
   int _rowsPerPage = 15;
@@ -92,12 +97,17 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   List<StatTableRow> _filterAndSort(List<StatTableRow> items) {
     var list = items.toList();
 
-    if (_searchQuery.isNotEmpty) {
-      final query = _searchQuery.toLowerCase();
-      list = list
-          .where((row) => row.searchText.toLowerCase().contains(query))
-          .toList();
-    }
+    list = list
+        .where(
+          (row) => tableRowMatches(
+            values: row.values,
+            searchText: row.searchText,
+            query: _searchQuery,
+            searchColumn: _searchColumn,
+            rules: _rules,
+          ),
+        )
+        .toList();
 
     list.sort((a, b) {
       if (_sortColumnIndex >= widget.columns.length) return 0;
@@ -187,62 +197,23 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
             children: [
               InfoCard(text: widget.infoText),
               const SizedBox(height: 16),
-              TextField(
+              TableFilterBar(
                 controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search table...',
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withAlpha(180),
-                    fontSize: 14,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                            });
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
+                hintText: 'Search table...',
+                columns: [
+                  for (var i = 0; i < widget.columns.length; i++)
+                    RuleField(
+                      key: i,
+                      label: widget.columns[i].title,
+                      numeric: widget.columns[i].numeric,
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1.5,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 14,
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.trim();
-                  });
-                },
+                ],
+                searchColumn: _searchColumn,
+                rules: _rules,
+                onQueryChanged: (value) => setState(() => _searchQuery = value),
+                onSearchColumnChanged: (value) =>
+                    setState(() => _searchColumn = value),
+                onRulesChanged: (value) => setState(() => _rules = value),
               ),
               const SizedBox(height: 12),
               const StatTableSortHint(),

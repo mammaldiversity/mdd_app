@@ -4,8 +4,10 @@ import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/screens/shared/info_card.dart';
+import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
+import 'package:mdd/services/rule_filter.dart';
 
 class SearchDatabasePage extends ConsumerStatefulWidget {
   const SearchDatabasePage({super.key, required this.controller});
@@ -19,6 +21,20 @@ class SearchDatabasePage extends ConsumerStatefulWidget {
 class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
   final FocusNode _focusNode = FocusNode();
   SearchFilter _selectedOption = SearchFilter.all;
+  RuleFilter<SearchFilter> _rules = const RuleFilter();
+  bool _showRules = false;
+
+  static final List<RuleField<SearchFilter>> _ruleFields = [
+    for (final field in SearchFilter.values)
+      RuleField(
+        key: field,
+        label: switch (field.group) {
+          FilterGroup.synonym => 'Synonym ${field.displayName}',
+          FilterGroup.milData => 'Image ${field.displayName}',
+          _ => field.displayName,
+        },
+      ),
+  ];
 
   @override
   void initState() {
@@ -48,12 +64,13 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                 onChanged: _searchDatabase,
                 onClear: () {
                   widget.controller.clear();
-                  ref.invalidate(searchDatabaseProvider);
-                  setState(() {});
+                  _searchDatabase('');
                 },
                 onFiltering: () {
                   _showFilteringOptions();
                 },
+                activeRuleCount: _rules.activeRules.length,
+                onRules: () => setState(() => _showRules = !_showRules),
               ),
             ),
           ),
@@ -70,15 +87,16 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
           ),
         ],
       ),
-      body: const SafeArea(
+      body: SafeArea(
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: InfoCard(
                 text:
                     'Search for a species using the search bar above. '
                     'You can also filter search results, '
+                    'add rules to filter by specific fields, '
                     'update your search settings, '
                     'and export your findings. '
                     'Please note that search results may not exactly match those on the website '
@@ -86,7 +104,24 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                     'The app provides more granular control over filtering your results.',
               ),
             ),
-            Expanded(child: SpeciesListView()),
+            if (_showRules)
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: RuleFilterPanel<SearchFilter>(
+                    fields: _ruleFields,
+                    filter: _rules,
+                    onChanged: (rules) {
+                      setState(() => _rules = rules);
+                      _searchDatabase(widget.controller.text);
+                    },
+                  ),
+                ),
+              ),
+            const Expanded(child: SpeciesListView()),
           ],
         ),
       ),
@@ -94,12 +129,12 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
     );
   }
 
-  void _searchDatabase(String? query) {
+  void _searchDatabase(String query) {
     setState(() {
-      if (query != null || query!.isNotEmpty) {
+      if (query.isNotEmpty || _rules.isActive) {
         ref
             .read(searchDatabaseProvider.notifier)
-            .search(query, filterBy: _selectedOption);
+            .search(query, filterBy: _selectedOption, rules: _rules);
       } else {
         ref.invalidate(searchDatabaseProvider);
       }
@@ -113,7 +148,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
         if (option != null) {
           _selectedOption = option;
         }
-        if (widget.controller.text.isNotEmpty) {
+        if (widget.controller.text.isNotEmpty || _rules.isActive) {
           _searchDatabase(widget.controller.text);
         }
         Navigator.pop(context);

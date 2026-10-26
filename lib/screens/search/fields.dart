@@ -13,6 +13,8 @@ class CommonSearchField extends StatefulWidget {
     required this.onChanged,
     required this.onClear,
     required this.onFiltering,
+    this.activeRuleCount = 0,
+    this.onRules,
   });
 
   final FocusNode focusNode;
@@ -20,6 +22,12 @@ class CommonSearchField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
   final VoidCallback onFiltering;
+
+  /// Shown as a badge on the rules button.
+  final int activeRuleCount;
+
+  /// Toggles the rules panel. The button is hidden when null.
+  final VoidCallback? onRules;
 
   @override
   State<CommonSearchField> createState() => _CommonSearchFieldState();
@@ -50,9 +58,23 @@ class _CommonSearchFieldState extends State<CommonSearchField> {
             ),
           IconButton(
             icon: const Icon(Icons.tune),
+            tooltip: 'Search in field',
             onPressed: widget.onFiltering,
             color: Theme.of(context).colorScheme.onSurface,
           ),
+          if (widget.onRules != null)
+            IconButton(
+              tooltip: 'Filter rules',
+              icon: Badge.count(
+                count: widget.activeRuleCount,
+                isLabelVisible: widget.activeRuleCount > 0,
+                child: const Icon(Icons.filter_list),
+              ),
+              onPressed: widget.onRules,
+              color: widget.activeRuleCount > 0
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
         ],
         onChanged: widget.onChanged,
       ),
@@ -318,10 +340,15 @@ class SearchExportButtonState extends ConsumerState<SearchExportButton> {
         mddIDs: widget.mddIDs,
         fileName: settings.fileName,
         format: settings.format,
+        includeSynonyms: settings.includeSynonyms,
       ).write(context);
       final platformType = getPlatformType();
       if (platformType == PlatformType.desktop && mounted && result != null) {
-        _showSnackBar('Done! File saved as $result');
+        _showSnackBar(
+          settings.includeSynonyms && settings.format != ExportFormat.xlsx
+              ? 'Done! Files saved as $result'
+              : 'Done! File saved as $result',
+        );
       }
     }
   }
@@ -405,6 +432,7 @@ class ExportDialog extends StatefulWidget {
 class _ExportDialogState extends State<ExportDialog> {
   late TextEditingController _filenameController;
   ExportFormat _format = ExportFormat.csv;
+  bool _includeSynonyms = false;
 
   @override
   void initState() {
@@ -431,6 +459,8 @@ class _ExportDialogState extends State<ExportDialog> {
               labelText: 'Filename',
               border: OutlineInputBorder(),
             ),
+            // Keeps the synonyms file name below in sync.
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
           SegmentedButton<ExportFormat>(
@@ -438,6 +468,7 @@ class _ExportDialogState extends State<ExportDialog> {
               ButtonSegment(value: ExportFormat.csv, label: Text('CSV')),
               ButtonSegment(value: ExportFormat.tsv, label: Text('TSV')),
               ButtonSegment(value: ExportFormat.json, label: Text('JSON')),
+              ButtonSegment(value: ExportFormat.xlsx, label: Text('Excel')),
             ],
             selected: {_format},
             onSelectionChanged: (Set<ExportFormat> newSelection) {
@@ -445,6 +476,20 @@ class _ExportDialogState extends State<ExportDialog> {
                 _format = newSelection.first;
               });
             },
+          ),
+          const SizedBox(height: 8),
+          CheckboxListTile(
+            value: _includeSynonyms,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Include synonyms'),
+            subtitle: Text(
+              _format == ExportFormat.xlsx
+                  ? 'Added as a Synonyms sheet'
+                  : 'Saved as ${synonymFileName(_filenameController.text.trim(), _format)}',
+            ),
+            onChanged: (value) =>
+                setState(() => _includeSynonyms = value ?? false),
           ),
         ],
       ),
@@ -460,6 +505,7 @@ class _ExportDialogState extends State<ExportDialog> {
               ExportSettings(
                 fileName: _filenameController.text.trim(),
                 format: _format,
+                includeSynonyms: _includeSynonyms,
               ),
             );
           },

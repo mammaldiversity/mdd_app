@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/services/database/database.dart' as db;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/higher_taxon.dart';
+import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
@@ -23,13 +24,17 @@ class SearchDatabase extends AsyncNotifier<List<MainTaxonomyData>> {
     return [];
   }
 
-  Future<void> search(String query, {required SearchFilter filterBy}) async {
+  Future<void> search(
+    String query, {
+    required SearchFilter filterBy,
+    RuleFilter<SearchFilter> rules = const RuleFilter(),
+  }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
       return await MDDSearch(
         ref.read(databaseProvider),
-      ).searchSpecies(query, filterBy: filterBy);
+      ).searchSpecies(query, filterBy: filterBy, rules: rules);
     });
   }
 }
@@ -53,13 +58,17 @@ class SpeciesList extends AsyncNotifier<List<MddGroupListResult>> {
     return await _fetchSpeciesList();
   }
 
-  Future<void> search(String query, {required SearchFilter filterBy}) async {
+  Future<void> search(
+    String query, {
+    required SearchFilter filterBy,
+    RuleFilter<SearchFilter> rules = const RuleFilter(),
+  }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       if (state.value == null) return [];
       return await MDDSearch(
         ref.read(databaseProvider),
-      ).searchTable(query, filterBy: filterBy);
+      ).searchTable(query, filterBy: filterBy, rules: rules);
     });
   }
 }

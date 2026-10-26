@@ -10,13 +10,19 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/system.dart';
 import 'package:mdd/src/rust/api/writer.dart';
+import 'package:mdd/src/rust/api/xlsx.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 
 enum ExportFormat {
   csv('CSV', 'csv', 'text/csv'),
   tsv('TSV', 'tsv', 'text/tab-separated-values'),
-  json('JSON', 'json', 'application/json');
+  json('JSON', 'json', 'application/json'),
+  xlsx(
+    'Excel',
+    'xlsx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  );
 
   const ExportFormat(this.label, this.extension, this.mimeType);
 
@@ -32,8 +38,73 @@ class ExportSettings {
   final String fileName;
   final ExportFormat format;
 
-  const ExportSettings({required this.fileName, required this.format});
+  /// Also exports the synonyms of the exported species: a second file, or a
+  /// second sheet for Excel.
+  final bool includeSynonyms;
+
+  const ExportSettings({
+    required this.fileName,
+    required this.format,
+    this.includeSynonyms = false,
+  });
 }
+
+/// Converts CSV text to TSV. Quoted fields keep their commas in one column;
+/// tabs and line breaks inside a field become spaces.
+String csvToTsv(String csv) {
+  final rows = parseCsv(csv);
+  if (rows.isEmpty) return '';
+  return TableDataExporter.toTsv(rows.first, rows.skip(1).toList());
+}
+
+/// Parses RFC 4180 CSV: fields may be quoted, with `""` for a literal quote
+/// and commas or line breaks inside the quotes.
+List<List<String>> parseCsv(String csv) {
+  final rows = <List<String>>[];
+  var row = <String>[];
+  final field = StringBuffer();
+  var inQuotes = false;
+
+  void endField() {
+    row.add(field.toString());
+    field.clear();
+  }
+
+  void endRow() {
+    endField();
+    rows.add(row);
+    row = <String>[];
+  }
+
+  for (var i = 0; i < csv.length; i++) {
+    final char = csv[i];
+    if (inQuotes) {
+      if (char != '"') {
+        field.write(char);
+      } else if (i + 1 < csv.length && csv[i + 1] == '"') {
+        field.write('"');
+        i++;
+      } else {
+        inQuotes = false;
+      }
+    } else if (char == '"') {
+      inQuotes = true;
+    } else if (char == ',') {
+      endField();
+    } else if (char == '\n') {
+      endRow();
+    } else if (char != '\r') {
+      field.write(char);
+    }
+  }
+  // No trailing line break after the last row.
+  if (field.isNotEmpty || row.isNotEmpty) endRow();
+  return rows;
+}
+
+/// Name of the synonyms file written next to the species file [fileName].
+String synonymFileName(String fileName, ExportFormat format) =>
+    '${path.basenameWithoutExtension(fileName)}_synonyms.${format.extension}';
 
 class FileWriter {
   const FileWriter({
@@ -41,6 +112,7 @@ class FileWriter {
     required this.fileName,
     required this.format,
     this.outputDir,
+    this.includeSynonyms = false,
   });
 
   final WidgetRef ref;
@@ -48,10 +120,30 @@ class FileWriter {
   final String fileName;
   final ExportFormat format;
 
+  /// Adds a synonyms sheet to Excel exports. Other formats write synonyms
+  /// separately with [synonymsToFile].
+  final bool includeSynonyms;
+
   Future<XFile> toFile(List<int> mddIDs) async {
     final bool toCsv = format == ExportFormat.csv || format == ExportFormat.tsv;
     final String data = await _getData(mddIDs);
     final resolvedOutputDir = await _getOutputDir();
+
+    if (format == ExportFormat.xlsx) {
+      await Directory(resolvedOutputDir).create(recursive: true);
+      final xlsxPath = path.join(
+        resolvedOutputDir,
+        '${path.basenameWithoutExtension(fileName)}.xlsx',
+      );
+      await writeXlsx(
+        outputPath: xlsxPath,
+        sheets: [
+          await speciesXlsxSheet(jsonData: data),
+          if (includeSynonyms) await _synonymSheet(mddIDs),
+        ],
+      );
+      return XFile(xlsxPath, mimeType: format.mimeType);
+    }
 
     if (format == ExportFormat.tsv) {
       final writer = DatabaseWriter(
@@ -62,12 +154,8 @@ class FileWriter {
       );
       final String csvPath = await writer.write();
       final csvFile = File(csvPath);
-      final csvLines = await csvFile.readAsLines();
-      final tsvLines = csvLines
-          .map((line) => line.split(',').join('\t'))
-          .toList();
       final tsvPath = path.join(resolvedOutputDir, '$fileName.tsv');
-      await File(tsvPath).writeAsString(tsvLines.join('\n'));
+      await File(tsvPath).writeAsString(csvToTsv(await csvFile.readAsString()));
       if (await csvFile.exists()) {
         await csvFile.delete();
       }
@@ -82,6 +170,53 @@ class FileWriter {
     );
     final String outputPath = await writer.write();
     return XFile(outputPath);
+  }
+
+  /// Writes the synonyms of [mddIDs] to their own file next to the species
+  /// file. Each row keeps its `speciesId` to link it back to a species.
+  Future<XFile> synonymsToFile(List<int> mddIDs) async {
+    final synonyms = await _synonymTable(mddIDs);
+    final resolvedOutputDir = await _getOutputDir();
+    await Directory(resolvedOutputDir).create(recursive: true);
+    final filePath = path.join(
+      resolvedOutputDir,
+      synonymFileName(fileName, format),
+    );
+    await TableDataExporter(
+      fileName: fileName,
+      format: format,
+      headers: synonyms.headers,
+      rows: synonyms.rows,
+    ).writeTo(filePath);
+    return XFile(filePath, mimeType: format.mimeType);
+  }
+
+  Future<XlsxSheet> _synonymSheet(List<int> mddIDs) async {
+    final synonyms = await _synonymTable(mddIDs);
+    return XlsxSheet(
+      name: 'Synonyms',
+      headers: synonyms.headers,
+      jsonRows: TableDataExporter.toJson(synonyms.headers, synonyms.rows),
+    );
+  }
+
+  /// Synonym rows for [mddIDs]. Each keeps its `speciesId` to link it back
+  /// to a species.
+  Future<({List<String> headers, List<List<dynamic>> rows})> _synonymTable(
+    List<int> mddIDs,
+  ) async {
+    final db = ref.read(databaseProvider);
+    final synonyms = await MddQuery(db).retrieveSynonymDataList(mddIDs);
+    final records = synonyms.map((s) => s.toJson()).toList();
+    final headers = records.isNotEmpty
+        ? records.first.keys.toList()
+        : db.synonym.$columns.map((c) => c.name).toList();
+    return (
+      headers: headers,
+      rows: [
+        for (final record in records) [for (final h in headers) record[h]],
+      ],
+    );
   }
 
   Future<String> _getData(List<int> mddIDs) async {
@@ -112,12 +247,17 @@ class FileExport {
     required this.mddIDs,
     required this.fileName,
     required this.format,
+    this.includeSynonyms = false,
   });
 
   final WidgetRef ref;
   final List<int> mddIDs;
   final String fileName;
   final ExportFormat format;
+  final bool includeSynonyms;
+
+  /// Excel keeps synonyms in a sheet of the same workbook.
+  bool get _separateSynonyms => includeSynonyms && format != ExportFormat.xlsx;
 
   Future<String?> write(BuildContext context) async {
     final platformType = getPlatformType();
@@ -130,15 +270,20 @@ class FileExport {
 
   Future<String?> _writeMobile(BuildContext context) async {
     final box = context.findRenderObject() as RenderBox?;
-    final file = await FileWriter(
+    final writer = FileWriter(
       ref: ref,
       outputDir: null,
       fileName: '$fileName.${format.extension}',
       format: format,
-    ).toFile(mddIDs);
+      includeSynonyms: includeSynonyms,
+    );
+    final file = await writer.toFile(mddIDs);
     await SharePlus.instance.share(
       ShareParams(
-        files: [file],
+        files: [
+          file,
+          if (_separateSynonyms) await writer.synonymsToFile(mddIDs),
+        ],
         sharePositionOrigin: box != null
             ? (box.localToGlobal(Offset.zero) & box.size)
             : Rect.zero,
@@ -164,10 +309,13 @@ class FileExport {
         outputDir: path.dirname(outputFile),
         fileName: path.basename(outputFile),
         format: format,
+        includeSynonyms: includeSynonyms,
       );
       try {
         final outputPath = await writer.toFile(mddIDs);
-        return outputPath.path;
+        if (!_separateSynonyms) return outputPath.path;
+        final synonymPath = await writer.synonymsToFile(mddIDs);
+        return '${outputPath.path} and ${synonymPath.path}';
       } catch (e) {
         throw Exception('Failed to write file: $e');
       }
@@ -189,6 +337,7 @@ class TableDataExporter {
   final List<String> headers;
   final List<List<dynamic>> rows;
 
+  /// Text formats only; Excel is binary and written by [writeTo].
   String serialize() {
     switch (format) {
       case ExportFormat.csv:
@@ -197,7 +346,26 @@ class TableDataExporter {
         return toTsv(headers, rows);
       case ExportFormat.json:
         return toJson(headers, rows);
+      case ExportFormat.xlsx:
+        throw UnsupportedError('Excel is binary; use writeTo instead.');
     }
+  }
+
+  Future<void> writeTo(String filePath) async {
+    if (format == ExportFormat.xlsx) {
+      await writeXlsx(
+        outputPath: filePath,
+        sheets: [
+          XlsxSheet(
+            name: 'Data',
+            headers: headers,
+            jsonRows: toJson(headers, rows),
+          ),
+        ],
+      );
+      return;
+    }
+    await File(filePath).writeAsString(serialize());
   }
 
   Future<String?> write(BuildContext context) async {
@@ -215,8 +383,7 @@ class TableDataExporter {
     final outputDir = path.join(appDir.path, _kOutputDir);
     await Directory(outputDir).create(recursive: true);
     final filePath = path.join(outputDir, '$fileName.${format.extension}');
-    final file = File(filePath);
-    await file.writeAsString(serialize());
+    await writeTo(filePath);
 
     final xFile = XFile(filePath, mimeType: format.mimeType);
     await SharePlus.instance.share(
@@ -227,7 +394,7 @@ class TableDataExporter {
             : Rect.zero,
       ),
     );
-    return file.path;
+    return filePath;
   }
 
   Future<String?> _saveDesktop() async {
@@ -241,8 +408,7 @@ class TableDataExporter {
     );
 
     if (saveLocation != null) {
-      final file = File(saveLocation.path);
-      await file.writeAsString(serialize());
+      await writeTo(saveLocation.path);
       return saveLocation.path;
     }
     return null;

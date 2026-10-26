@@ -97,6 +97,14 @@ void main() {
         rows: rows,
       );
       expect(exporterJson.serialize(), contains('"Order": "Rodentia"'));
+
+      final exporterXlsx = TableDataExporter(
+        fileName: 'test',
+        format: ExportFormat.xlsx,
+        headers: headers,
+        rows: rows,
+      );
+      expect(exporterXlsx.serialize, throwsUnsupportedError);
     });
   });
 

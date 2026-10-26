@@ -53,6 +53,7 @@ class _ChartExportDialogState extends State<ChartExportDialog> {
                 ButtonSegment(value: ExportFormat.csv, label: Text('CSV')),
                 ButtonSegment(value: ExportFormat.tsv, label: Text('TSV')),
                 ButtonSegment(value: ExportFormat.json, label: Text('JSON')),
+                ButtonSegment(value: ExportFormat.xlsx, label: Text('Excel')),
               ],
               selected: {_format},
               onSelectionChanged: (Set<ExportFormat> newSelection) {

@@ -17,10 +17,14 @@ flutter_rust_bridge = "=2.13.0"
 mdd_api = "0.10.1"
 tempfile = "3.27.0"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.150"
+serde_json = { version = "1.0.150", features = ["preserve_order"] }
 tar = "0.4.46"
 toml = "1.1.2"
 zip = { version = "8.6.0", features = ["deflate"] }
 rusqlite = { version = "0.32.1", features = ["bundled"] }
 regex = "1.11.0"
 clap = { version = "4.5.18", features = ["derive"] }
+rust_xlsxwriter = "0.95.0"
+
+[dev-dependencies]
+calamine = "0.37.0"

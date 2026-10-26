@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
 part 'mdd_query.g.dart';
@@ -46,6 +47,13 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
 
   Future<List<TaxonomyData>> retrieveTaxonDataList(List<int> mddID) async {
     return await (select(taxonomy)..where((tbl) => tbl.id.isIn(mddID))).get();
+  }
+
+  Future<List<SynonymData>> retrieveSynonymDataList(List<int> mddIDs) async {
+    return await (select(synonym)
+          ..where((tbl) => tbl.speciesId.isIn(mddIDs))
+          ..orderBy([(tbl) => OrderingTerm.asc(tbl.speciesId)]))
+        .get();
   }
 
   Future<int> totalRecords() async {
@@ -424,8 +432,9 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MainTaxonomyData>> searchSpecies(
     String rawQuery, {
     required SearchFilter filterBy,
+    RuleFilter<SearchFilter> rules = const RuleFilter(),
   }) async {
-    final results = await _search(rawQuery, filterBy);
+    final results = await _searchWithRules(rawQuery, filterBy, rules);
     final data =
         results.map((e) => MainTaxonomyData.fromTaxonomyData(e)).toList()
           ..sort((a, b) {
@@ -443,9 +452,10 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
   Future<List<MddGroupListResult>> searchTable(
     String rawQuery, {
     required SearchFilter filterBy,
+    RuleFilter<SearchFilter> rules = const RuleFilter(),
   }) async {
     // Search all columns for the query
-    final results = await _search(rawQuery, filterBy);
+    final results = await _searchWithRules(rawQuery, filterBy, rules);
     final data = results
         .map(
           (e) => MddGroupListResult(
@@ -457,6 +467,135 @@ class MDDSearch extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
         )
         .toList();
     return data;
+  }
+
+  /// Narrows the simple search to species that pass [rules]. With an empty
+  /// query, the rules alone decide the results.
+  Future<List<TaxonomyData>> _searchWithRules(
+    String rawQuery,
+    SearchFilter filterBy,
+    RuleFilter<SearchFilter> rules,
+  ) async {
+    if (!rules.isActive) return _search(rawQuery, filterBy);
+    final ids = await _ruleMatchIds(rules);
+    final results = rawQuery.isEmpty
+        ? await select(taxonomy).get()
+        : await _search(rawQuery, filterBy);
+    return results.where((e) => ids.contains(e.id)).toList();
+  }
+
+  Future<Set<int>> _ruleMatchIds(RuleFilter<SearchFilter> rules) async {
+    Set<int>? allIds;
+    Set<int>? combined;
+    for (final rule in rules.activeRules) {
+      var value = rule.value.trim();
+      if (_usesUnderscores(rule.field)) value = value.replaceAll(' ', '_');
+      var ids = await _fieldMatchIds(
+        rule.field,
+        likePattern(rule.operator, value),
+      );
+      // A species fails a negated rule when any of its records match, so
+      // synonyms and images count as one value per species.
+      if (rule.operator.isNegated) {
+        allIds ??= await _idsWhere(taxonomy, taxonomy.id, const Constant(true));
+        ids = allIds.difference(ids);
+      }
+      combined = combined == null
+          ? ids
+          : rules.match == RuleMatch.all
+          ? combined.intersection(ids)
+          : combined.union(ids);
+    }
+    return combined ?? {};
+  }
+
+  /// Scientific names and original combinations store spaces as
+  /// underscores.
+  bool _usesUnderscores(SearchFilter field) =>
+      field == SearchFilter.all ||
+      field == SearchFilter.species ||
+      field == SearchFilter.synonymOriginalCombination;
+
+  /// Species IDs with any of [field]'s columns matching the LIKE [pattern].
+  Future<Set<int>> _fieldMatchIds(SearchFilter field, String pattern) {
+    Expression<bool> anyLike(List<GeneratedColumn<String>> columns) =>
+        columns.map((c) => c.like(pattern)).reduce((a, b) => a | b);
+
+    switch (field.group) {
+      case FilterGroup.general:
+      case FilterGroup.taxonomy:
+        return _idsWhere(
+          taxonomy,
+          taxonomy.id,
+          anyLike(_taxonomyRuleColumns(field)),
+        );
+      case FilterGroup.synonym:
+        final columns = switch (field) {
+          SearchFilter.synonymRootName => [synonym.rootName],
+          SearchFilter.synonymOriginalCombination => [
+            synonym.originalCombination,
+          ],
+          SearchFilter.synonymAuthorYear => [synonym.author, synonym.year],
+          _ => [synonym.oldTypeLocality, synonym.originalTypeLocality],
+        };
+        return _idsWhere(synonym, synonym.speciesId, anyLike(columns));
+      case FilterGroup.milData:
+        final columns = switch (field) {
+          SearchFilter.milDataDescription => [milData.description],
+          SearchFilter.milDataPhotographer => [milData.photographer],
+          _ => [milData.location],
+        };
+        return _idsWhere(milData, milData.mddId, anyLike(columns));
+    }
+  }
+
+  List<GeneratedColumn<String>> _taxonomyRuleColumns(SearchFilter field) {
+    switch (field) {
+      case SearchFilter.order:
+        return [taxonomy.taxonOrder];
+      case SearchFilter.family:
+        return [taxonomy.family];
+      case SearchFilter.genus:
+        return [taxonomy.genus];
+      case SearchFilter.species:
+        return [taxonomy.sciName];
+      case SearchFilter.commonName:
+        return [taxonomy.mainCommonName, taxonomy.otherCommonNames];
+      case SearchFilter.authority:
+        return [taxonomy.authoritySpeciesAuthor];
+      case SearchFilter.countryDistribution:
+        return [taxonomy.countryDistribution];
+      case SearchFilter.typeLocality:
+        return [taxonomy.typeLocality];
+      default:
+        // Same columns as the simple "All Fields" search.
+        return [
+          taxonomy.family,
+          taxonomy.taxonOrder,
+          taxonomy.genus,
+          taxonomy.specificEpithet,
+          taxonomy.sciName,
+          taxonomy.originalNameCombination,
+          taxonomy.mainCommonName,
+          taxonomy.otherCommonNames,
+          taxonomy.countryDistribution,
+          taxonomy.authoritySpeciesAuthor,
+          taxonomy.distributionNotes,
+          taxonomy.typeLocality,
+        ];
+    }
+  }
+
+  Future<Set<int>> _idsWhere(
+    TableInfo table,
+    GeneratedColumn<int> idColumn,
+    Expression<bool> where,
+  ) async {
+    final query = selectOnly(table)
+      ..addColumns([idColumn])
+      ..where(where);
+    final ids = await query.map((row) => row.read(idColumn)).get();
+    return ids.whereType<int>().toSet();
   }
 
   Future<List<TaxonomyData>> _search(

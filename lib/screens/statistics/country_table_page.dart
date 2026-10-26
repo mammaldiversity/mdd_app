@@ -1,10 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/info_card.dart';
+import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/screens/statistics/chart_export_dialog.dart';
 import 'package:mdd/screens/statistics/country_species_page.dart';
+import 'package:mdd/screens/statistics/table_filter_bar.dart';
 import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/statistics.dart';
+import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/statistics.dart';
 import 'package:mdd/services/system.dart';
 
@@ -18,6 +21,8 @@ class CountryTablePage extends ConsumerStatefulWidget {
 class _CountryTablePageState extends ConsumerState<CountryTablePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  int? _searchColumn;
+  RuleFilter<int> _rules = const RuleFilter();
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
   int _rowsPerPage = 15;
@@ -101,17 +106,41 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
     }
   }
 
+  static const _filterColumns = [
+    RuleField(key: 0, label: 'Country'),
+    RuleField(key: 1, label: 'Orders', numeric: true),
+    RuleField(key: 2, label: 'Families', numeric: true),
+    RuleField(key: 3, label: 'Genera', numeric: true),
+    RuleField(key: 4, label: 'Living Species', numeric: true),
+    RuleField(key: 5, label: 'Extinct Species', numeric: true),
+  ];
+
+  /// Cell values in [_filterColumns] order.
+  static List<dynamic> _filterValues(CountryDiversityData c) => [
+    c.countryName,
+    c.totalOrders,
+    c.totalFamilies,
+    c.totalGenera,
+    c.totalLivingSpecies,
+    c.totalExtinctSpecies,
+  ];
+
   List<CountryDiversityData> _filterAndSort(
     List<CountryDiversityData> countries,
   ) {
     var list = countries.toList();
 
-    if (_searchQuery.isNotEmpty) {
-      final query = _searchQuery.toLowerCase();
-      list = list
-          .where((c) => c.countryName.toLowerCase().contains(query))
-          .toList();
-    }
+    list = list
+        .where(
+          (c) => tableRowMatches(
+            values: _filterValues(c),
+            searchText: c.countryName,
+            query: _searchQuery,
+            searchColumn: _searchColumn,
+            rules: _rules,
+          ),
+        )
+        .toList();
 
     list.sort((a, b) {
       int cmp = 0;
@@ -194,64 +223,17 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
                         'Click on a country to explore its mammal diversity.',
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  TableFilterBar(
                     controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search country...',
-                      hintStyle: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withAlpha(180),
-                        fontSize: 14,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                });
-                              },
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerLow,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 1.5,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 14,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.trim();
-                      });
-                    },
+                    hintText: 'Search country...',
+                    columns: _filterColumns,
+                    searchColumn: _searchColumn,
+                    rules: _rules,
+                    onQueryChanged: (value) =>
+                        setState(() => _searchQuery = value),
+                    onSearchColumnChanged: (value) =>
+                        setState(() => _searchColumn = value),
+                    onRulesChanged: (value) => setState(() => _rules = value),
                   ),
                   const SizedBox(height: 12),
                   Row(
