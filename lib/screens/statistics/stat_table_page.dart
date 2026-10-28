@@ -47,6 +47,7 @@ class StatTablePage extends ConsumerStatefulWidget {
     required this.rows,
     this.defaultSortColumnIndex = 0,
     this.defaultSortAscending = true,
+    this.rowsInDefaultOrder = false,
     this.appBarActions = const [],
   });
 
@@ -57,6 +58,10 @@ class StatTablePage extends ConsumerStatefulWidget {
   final List<StatTableRow> rows;
   final int defaultSortColumnIndex;
   final bool defaultSortAscending;
+
+  /// Whether [rows] already come sorted by the default sort, so the table
+  /// can skip sorting them until another sort is picked.
+  final bool rowsInDefaultOrder;
 
   /// Extra buttons in the app bar, e.g. a link to the taxonomy tree.
   final List<Widget> appBarActions;
@@ -73,6 +78,14 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   late int _sortColumnIndex;
   late bool _sortAscending;
   int _rowsPerPage = 15;
+
+  /// The last filtered and sorted rows, and the inputs that produced them.
+  List<StatTableRow>? _visibleRows;
+  Object? _visibleRowsKey;
+
+  /// Each row's search text in lowercase, made once per rows list.
+  List<String>? _lowerSearchText;
+  List<StatTableRow>? _lowerSearchTextRows;
 
   @override
   void initState() {
@@ -94,44 +107,83 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     });
   }
 
+  /// The rows to show: filtered and sorted, recomputed only when the rows,
+  /// search, rules, or sort change.
+  List<StatTableRow> _currentRows() {
+    final key = (
+      widget.rows,
+      _searchQuery,
+      _searchColumn,
+      _rules,
+      _sortColumnIndex,
+      _sortAscending,
+    );
+    final cached = _visibleRows;
+    if (cached != null && _visibleRowsKey == key) return cached;
+    _visibleRowsKey = key;
+    return _visibleRows = _filterAndSort(widget.rows);
+  }
+
+  List<String> _lowerSearchTextFor(List<StatTableRow> rows) {
+    if (!identical(_lowerSearchTextRows, rows)) {
+      _lowerSearchText = [for (final row in rows) row.searchText.toLowerCase()];
+      _lowerSearchTextRows = rows;
+    }
+    return _lowerSearchText!;
+  }
+
   List<StatTableRow> _filterAndSort(List<StatTableRow> items) {
+    // A search across all columns compares against the lowercase text made
+    // once, instead of lowercasing every row on each search.
+    final query = _searchQuery.toLowerCase();
+    final lowerText = query.isNotEmpty && _searchColumn == null
+        ? _lowerSearchTextFor(items)
+        : null;
+
     // Rows keep their position so ties stay in the order they came in,
     // e.g. synonyms of one species by year.
     final list = [
       for (final (index, row) in items.indexed)
-        if (tableRowMatches(
-          values: row.values,
-          searchText: row.searchText,
-          query: _searchQuery,
-          searchColumn: _searchColumn,
-          rules: _rules,
-        ))
+        if ((lowerText == null || lowerText[index].contains(query)) &&
+            tableRowMatches(
+              values: row.values,
+              searchText: row.searchText,
+              query: lowerText == null ? _searchQuery : '',
+              searchColumn: _searchColumn,
+              rules: _rules,
+            ))
           (index, row),
     ];
 
-    list.sort((left, right) {
-      if (_sortColumnIndex >= widget.columns.length) {
-        return left.$1.compareTo(right.$1);
-      }
-      final valA = left.$2.values[_sortColumnIndex];
-      final valB = right.$2.values[_sortColumnIndex];
+    final sortedAlready =
+        widget.rowsInDefaultOrder &&
+        _sortColumnIndex == widget.defaultSortColumnIndex &&
+        _sortAscending == widget.defaultSortAscending;
+    if (!sortedAlready) {
+      list.sort((left, right) {
+        if (_sortColumnIndex >= widget.columns.length) {
+          return left.$1.compareTo(right.$1);
+        }
+        final valA = left.$2.values[_sortColumnIndex];
+        final valB = right.$2.values[_sortColumnIndex];
 
-      int cmp = 0;
-      if (valA is num && valB is num) {
-        cmp = valA.compareTo(valB);
-      } else if (valA is String &&
-          valB is String &&
-          valA.endsWith('%') &&
-          valB.endsWith('%')) {
-        final numA = double.tryParse(valA.replaceAll('%', '').trim()) ?? 0.0;
-        final numB = double.tryParse(valB.replaceAll('%', '').trim()) ?? 0.0;
-        cmp = numA.compareTo(numB);
-      } else {
-        cmp = valA.toString().compareTo(valB.toString());
-      }
-      if (cmp == 0) return left.$1.compareTo(right.$1);
-      return _sortAscending ? cmp : -cmp;
-    });
+        int cmp = 0;
+        if (valA is num && valB is num) {
+          cmp = valA.compareTo(valB);
+        } else if (valA is String &&
+            valB is String &&
+            valA.endsWith('%') &&
+            valB.endsWith('%')) {
+          final numA = double.tryParse(valA.replaceAll('%', '').trim()) ?? 0.0;
+          final numB = double.tryParse(valB.replaceAll('%', '').trim()) ?? 0.0;
+          cmp = numA.compareTo(numB);
+        } else {
+          cmp = valA.toString().compareTo(valB.toString());
+        }
+        if (cmp == 0) return left.$1.compareTo(right.$1);
+        return _sortAscending ? cmp : -cmp;
+      });
+    }
 
     return [for (final (_, row) in list) row];
   }
@@ -183,7 +235,7 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredList = _filterAndSort(widget.rows);
+    final filteredList = _currentRows();
     final tableSource = _StatDataTableSource(
       context: context,
       columns: widget.columns,

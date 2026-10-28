@@ -120,3 +120,50 @@ class SynonymName {
     }
   }
 }
+
+/// One row of the synonym table, holding only the text it shows.
+/// `MddQuery.retrieveSynonymById` loads the full record.
+class SynonymTableEntry {
+  const SynonymTableEntry({
+    required this.synId,
+    required this.name,
+    required this.author,
+    required this.year,
+    required this.validSpecies,
+    required this.validity,
+    required this.nomenclatureStatus,
+    required this.originalRank,
+    required this.typeCountry,
+    required this.taxonOrder,
+    required this.family,
+  });
+
+  final int synId;
+  final String name;
+  final String author;
+  final String year;
+  final String validSpecies;
+  final String validity;
+  final String nomenclatureStatus;
+  final String originalRank;
+  final String typeCountry;
+  final String taxonOrder;
+  final String family;
+}
+
+/// Trimmed text, with the "NA" placeholder as empty.
+String cleanSynonymText(String? value) {
+  final text = value?.trim() ?? '';
+  return text == 'NA' ? '' : text;
+}
+
+/// A coded value such as "nomen_dubium|preoccupied" as "nomen dubium,
+/// preoccupied".
+String formatSynonymCode(String? value) {
+  final text = cleanSynonymText(value);
+  if (text.isEmpty) return '';
+  return text
+      .split('|')
+      .map((part) => part.trim().replaceAll('_', ' '))
+      .join(', ');
+}

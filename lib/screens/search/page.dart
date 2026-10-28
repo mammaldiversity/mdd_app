@@ -73,7 +73,7 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                   _showFilteringOptions();
                 },
                 activeRuleCount: _rules.activeRules.length,
-                onRules: () => setState(() => _showRules = !_showRules),
+                onRules: _toggleRules,
               ),
             ),
           ),
@@ -108,7 +108,8 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
                     'The app provides more granular control over filtering your results.',
               ),
             ),
-            if (_showRules)
+            // Small screens edit rules in a bottom sheet instead.
+            if (_showRules && !_useRuleSheet(context))
               ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.sizeOf(context).height * 0.45,
@@ -131,6 +132,27 @@ class SearchDatabasePageState extends ConsumerState<SearchDatabasePage> {
       ),
       bottomSheet: const SearchDatabaseInfo(),
     );
+  }
+
+  bool _useRuleSheet(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < ruleSheetMaxWidth;
+
+  /// Opens the rules: a bottom sheet on small screens, a panel under the
+  /// search field otherwise.
+  void _toggleRules() {
+    if (_useRuleSheet(context)) {
+      showRuleFilterSheet<SearchFilter>(
+        context: context,
+        fields: _ruleFields,
+        filter: _rules,
+        onChanged: (rules) {
+          _rules = rules;
+          _scheduleSearch();
+        },
+      );
+    } else {
+      setState(() => _showRules = !_showRules);
+    }
   }
 
   /// Searches once typing pauses, so fast typing doesn't redraw the

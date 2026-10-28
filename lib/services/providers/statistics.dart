@@ -1,10 +1,10 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/services/database/database.dart' show SynonymData;
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/release_changes.dart';
 import 'package:mdd/services/statistics.dart';
+import 'package:mdd/services/synonyms.dart';
 
 final statisticsServiceProvider = Provider<StatisticsService>((ref) {
   final db = ref.watch(databaseProvider);
@@ -32,7 +32,7 @@ final orderSequenceProvider = FutureProvider<List<String>>((ref) {
   return MddQuery(ref.watch(databaseProvider)).retrieveOrderSequence();
 });
 
-/// Every synonym, with the columns the synonym table shows.
-final synonymTableProvider = FutureProvider<List<SynonymData>>((ref) {
+/// Every synonym as the synonym table shows it.
+final synonymTableProvider = FutureProvider<List<SynonymTableEntry>>((ref) {
   return MddQuery(ref.watch(databaseProvider)).retrieveSynonymTable();
 });

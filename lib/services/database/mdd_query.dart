@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/rule_filter.dart';
+import 'package:mdd/services/synonyms.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
 part 'mdd_query.g.dart';
@@ -40,16 +41,44 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return data;
   }
 
-  /// Every synonym with only the columns the synonym table shows, sorted by
-  /// valid species. Other fields are null; [retrieveSynonymById] has them.
-  Future<List<SynonymData>> retrieveSynonymTable() {
+  /// Every synonym as the synonym table shows it, by valid species then
+  /// year. Skips the blank records (synId 0) that databases built from
+  /// mdd_api 0.10.1 and earlier contain.
+  ///
+  /// The names are joined in SQL and only the shown columns are read, which
+  /// keeps loading the ~66,000 rows fast.
+  Future<List<SynonymTableEntry>> retrieveSynonymTable() {
     return customSelect(
-      'SELECT synId, speciesId, species, rootName, originalCombination, '
-      'author, year, validity, nomenclatureStatus, originalRank, '
-      'typeCountry, taxonOrder, family, genus, specificEpithet '
-      'FROM synonym ORDER BY genus, specificEpithet, year',
+      "SELECT synId, "
+      "COALESCE(NULLIF(TRIM(originalCombination), ''), "
+      "TRIM(COALESCE(species, '') || ' ' || COALESCE(rootName, ''))) AS name, "
+      "author, year, "
+      "TRIM(COALESCE(genus, '') || ' ' || COALESCE(specificEpithet, '')) "
+      "AS validSpecies, "
+      "validity, nomenclatureStatus, originalRank, typeCountry, taxonOrder, "
+      "family "
+      "FROM synonym WHERE synId > 0 "
+      "ORDER BY genus, specificEpithet, year",
       readsFrom: {synonym},
-    ).map((row) => synonym.map(row.data)).get();
+    ).map((row) {
+      String text(String column) =>
+          cleanSynonymText(row.readNullable<String>(column));
+      String code(String column) =>
+          formatSynonymCode(row.readNullable<String>(column));
+      return SynonymTableEntry(
+        synId: row.read<int>('synId'),
+        name: text('name'),
+        author: text('author'),
+        year: text('year'),
+        validSpecies: text('validSpecies'),
+        validity: code('validity'),
+        nomenclatureStatus: code('nomenclatureStatus'),
+        originalRank: code('originalRank'),
+        typeCountry: text('typeCountry'),
+        taxonOrder: text('taxonOrder'),
+        family: text('family'),
+      );
+    }).get();
   }
 
   Future<SynonymData?> retrieveSynonymById(int synId) {

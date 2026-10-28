@@ -53,7 +53,11 @@ void main() {
       final pump = pumpBar(tester, width: width);
       await pump();
 
-      expect(find.text('All columns'), findsOneWidget);
+      expect(find.byTooltip('Search in column: All columns'), findsOneWidget);
+      expect(
+        find.text('All columns'),
+        width < 600 ? findsNothing : findsOneWidget,
+      );
       await tester.enterText(
         find.widgetWithText(TextField, 'Search table...'),
         'mexico',
@@ -65,6 +69,11 @@ void main() {
           : find.text('Rules');
       await tester.tap(rulesButton);
       await tester.pumpAndSettle();
+      // Small screens edit rules in a bottom sheet; wide ones inline.
+      expect(
+        find.byType(BottomSheet),
+        width < 600 ? findsOneWidget : findsNothing,
+      );
       await tester.tap(find.text('Add rule'));
       await tester.pumpAndSettle();
 
@@ -78,6 +87,34 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Add rule'), findsOneWidget);
       expect(find.text('Clear all'), findsNothing);
+    });
+  }
+
+  for (final width in [360.0, 1024.0]) {
+    testWidgets('picking a column at width $width names it in the hint', (
+      tester,
+    ) async {
+      final pump = pumpBar(tester, width: width);
+      await pump();
+
+      await tester.tap(find.byTooltip('Search in column: All columns'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Country').last);
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Search in column: Country'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Search Country…'), findsOneWidget);
+      // Wide screens name the column on the button; narrow ones show only
+      // the tinted icon.
+      final picker = find.byTooltip('Search in column: Country');
+      expect(
+        find.descendant(of: picker, matching: find.text('Country')),
+        width < 600 ? findsNothing : findsOneWidget,
+      );
+      expect(
+        find.descendant(of: picker, matching: find.byIcon(Icons.manage_search)),
+        findsOneWidget,
+      );
     });
   }
 

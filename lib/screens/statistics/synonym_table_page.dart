@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/statistics/stat_table_page.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
-import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/providers/statistics.dart';
@@ -28,6 +27,13 @@ const _columns = [
   StatTableColumn(title: 'Family'),
 ];
 
+/// The table rows, built once and kept so reopening the page is instant.
+final _synonymRowsProvider = FutureProvider<List<StatTableRow>>((ref) async {
+  final entries = await ref.watch(synonymTableProvider.future);
+  final query = MddQuery(ref.watch(databaseProvider));
+  return [for (final entry in entries) _synonymRow(entry, query)];
+});
+
 /// Every name and synonym in the database, searchable and filterable. A row
 /// opens the name's details.
 class SynonymTablePage extends ConsumerWidget {
@@ -35,11 +41,10 @@ class SynonymTablePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final query = MddQuery(ref.read(databaseProvider));
     return ref
-        .watch(synonymTableProvider)
+        .watch(_synonymRowsProvider)
         .when(
-          data: (synonyms) => StatTablePage(
+          data: (rows) => StatTablePage(
             title: _title,
             infoText:
                 'All names and synonyms recorded in the MDD, with the valid '
@@ -47,8 +52,10 @@ class SynonymTablePage extends ConsumerWidget {
                 'locality, citation, and other details.',
             exportDefaultFileName: 'mdd_synonyms',
             defaultSortColumnIndex: 3,
+            // The query already orders by valid species, then year.
+            rowsInDefaultOrder: true,
             columns: _columns,
-            rows: [for (final synonym in synonyms) _synonymRow(synonym, query)],
+            rows: rows,
           ),
           loading: () => Scaffold(
             appBar: AppBar(title: const Text(_title)),
@@ -62,42 +69,29 @@ class SynonymTablePage extends ConsumerWidget {
   }
 }
 
-StatTableRow _synonymRow(SynonymData synonym, MddQuery query) {
+StatTableRow _synonymRow(SynonymTableEntry entry, MddQuery query) {
   final values = [
-    SynonymName(data: synonym).getSynonym().name.trim(),
-    _text(synonym.author),
-    _text(synonym.year),
-    '${_text(synonym.genus)} ${_text(synonym.specificEpithet)}'.trim(),
-    _label(synonym.validity),
-    _label(synonym.nomenclatureStatus),
-    _label(synonym.originalRank),
-    _text(synonym.typeCountry),
-    _text(synonym.taxonOrder),
-    _text(synonym.family),
+    entry.name,
+    entry.author,
+    entry.year,
+    entry.validSpecies,
+    entry.validity,
+    entry.nomenclatureStatus,
+    entry.originalRank,
+    entry.typeCountry,
+    entry.taxonOrder,
+    entry.family,
   ];
-  final synId = synonym.synId;
+  final synId = entry.synId;
   return StatTableRow(
     values: values,
     searchText: values.join(' '),
-    onTap: synId == null
-        ? null
-        : (context) async {
-            // The table holds only the shown columns; fetch the rest.
-            final full = await query.retrieveSynonymById(synId);
-            if (full != null && context.mounted) {
-              showSynonymDetails(context, full);
-            }
-          },
+    onTap: (context) async {
+      // The table holds only the shown columns; fetch the rest.
+      final full = await query.retrieveSynonymById(synId);
+      if (full != null && context.mounted) {
+        showSynonymDetails(context, full);
+      }
+    },
   );
 }
-
-String _text(String? value) {
-  final text = value?.trim() ?? '';
-  return text == 'NA' ? '' : text;
-}
-
-/// A coded value such as "nomen_dubium|preoccupied" as "nomen dubium,
-/// preoccupied".
-String _label(String? value) => _text(
-  value,
-).split('|').map((part) => part.trim().replaceAll('_', ' ')).join(', ');

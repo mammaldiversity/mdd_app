@@ -82,35 +82,40 @@ class _TableFilterBarState extends State<TableFilterBar> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final compact = MediaQuery.sizeOf(context).width < ruleSheetMaxWidth;
+    final searchColumn = widget.searchColumn;
     final searchField = TextField(
       controller: widget.controller,
       decoration: InputDecoration(
-        hintText: widget.hintText,
+        hintText: searchColumn == null
+            ? widget.hintText
+            : 'Search ${_columnLabel(widget.columns, searchColumn)}…',
         hintStyle: TextStyle(
           color: colorScheme.onSurfaceVariant.withAlpha(180),
           fontSize: 14,
         ),
-        prefixIcon: Icon(Icons.search, color: colorScheme.primary),
-        suffixIcon: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (widget.controller.text.isNotEmpty)
-              IconButton(
+        prefixIcon: Padding(
+          padding: const EdgeInsets.only(left: 6, right: 4),
+          child: _ColumnPicker(
+            columns: widget.columns,
+            selected: searchColumn,
+            compact: compact,
+            onSelected: widget.onSearchColumnChanged,
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(minHeight: 40),
+        suffixIcon: widget.controller.text.isEmpty
+            ? null
+            : IconButton(
+                tooltip: 'Clear search',
                 icon: const Icon(Icons.clear),
                 onPressed: () {
                   widget.controller.clear();
                   _queryDebouncer.cancel();
+                  setState(() {});
                   widget.onQueryChanged('');
                 },
               ),
-            _ColumnPicker(
-              columns: widget.columns,
-              selected: widget.searchColumn,
-              onSelected: widget.onSearchColumnChanged,
-            ),
-            const SizedBox(width: 6),
-          ],
-        ),
         filled: true,
         fillColor: colorScheme.surfaceContainerLow,
         border: OutlineInputBorder(
@@ -126,7 +131,7 @@ class _TableFilterBarState extends State<TableFilterBar> {
           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
+          horizontal: 12,
           vertical: 14,
         ),
       ),
@@ -146,13 +151,21 @@ class _TableFilterBarState extends State<TableFilterBar> {
             const SizedBox(width: 8),
             RulesButton(
               activeCount: _rules.activeRules.length,
-              isExpanded: _showRules,
-              compact: MediaQuery.sizeOf(context).width < 600,
-              onPressed: () => setState(() => _showRules = !_showRules),
+              isExpanded: _showRules && !compact,
+              compact: compact,
+              onPressed: compact
+                  ? () => showRuleFilterSheet<int>(
+                      context: context,
+                      fields: widget.columns,
+                      filter: _rules,
+                      onChanged: _onRulesChanged,
+                    )
+                  : () => setState(() => _showRules = !_showRules),
             ),
           ],
         ),
-        if (_showRules) ...[
+        // Small screens edit rules in a bottom sheet instead.
+        if (_showRules && !compact) ...[
           const SizedBox(height: 8),
           RuleFilterPanel<int>(
             fields: widget.columns,
@@ -165,54 +178,90 @@ class _TableFilterBarState extends State<TableFilterBar> {
   }
 }
 
+String _columnLabel(List<RuleField<int>> columns, int key) =>
+    columns.firstWhere((c) => c.key == key).label;
+
+/// Picks the column the search box looks in, from the start of the search
+/// field: the search icon and the column name on wide screens, the icon
+/// alone on narrow ones. A picked column tints the button.
 class _ColumnPicker extends StatelessWidget {
   const _ColumnPicker({
     required this.columns,
     required this.selected,
+    required this.compact,
     required this.onSelected,
   });
 
   final List<RuleField<int>> columns;
   final int? selected;
+  final bool compact;
   final ValueChanged<int?> onSelected;
+
+  static const String _allColumns = 'All columns';
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final selected = this.selected;
     final label = selected == null
-        ? 'All columns'
-        : columns.firstWhere((c) => c.key == selected).label;
+        ? _allColumns
+        : _columnLabel(columns, selected);
+    final picked = selected != null;
+    final foreground = picked
+        ? colorScheme.onSecondaryContainer
+        : colorScheme.primary;
+    final icon = Icon(Icons.manage_search, size: 20, color: foreground);
+
     // -1 stands in for "all columns"; PopupMenuButton ignores null values.
     return PopupMenuButton<int>(
-      tooltip: 'Search in column',
+      tooltip: 'Search in column: $label',
       initialValue: selected ?? -1,
       onSelected: (value) => onSelected(value < 0 ? null : value),
       itemBuilder: (context) => [
-        const PopupMenuItem(value: -1, child: Text('All columns')),
+        CheckedPopupMenuItem(
+          value: -1,
+          checked: selected == null,
+          child: const Text(_allColumns),
+        ),
+        const PopupMenuDivider(),
         for (final column in columns)
-          PopupMenuItem(value: column.key, child: Text(column.label)),
+          CheckedPopupMenuItem(
+            value: column.key,
+            checked: column.key == selected,
+            child: Text(column.label),
+          ),
       ],
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 140),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        height: 36,
+        constraints: BoxConstraints(minWidth: 36, maxWidth: compact ? 36 : 180),
+        padding: EdgeInsets.symmetric(horizontal: compact ? 0 : 10),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colorScheme.outlineVariant),
+          color: picked
+              ? colorScheme.secondaryContainer
+              : compact
+              ? Colors.transparent
+              : colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(18),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelMedium,
+        child: compact
+            ? Center(child: icon)
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  icon,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelMedium?.copyWith(color: foreground),
+                    ),
+                  ),
+                  Icon(Icons.arrow_drop_down, size: 18, color: foreground),
+                ],
               ),
-            ),
-            const Icon(Icons.arrow_drop_down, size: 18),
-          ],
-        ),
       ),
     );
   }

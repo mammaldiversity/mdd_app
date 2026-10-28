@@ -20,6 +20,12 @@ void main() {
     await db.createMigrator().createAll();
     await db.batch((b) {
       b.insertAll(db.synonym, [
+        // A blank record as mdd_api 0.10.1 writes for unparsable CSV rows.
+        SynonymCompanion.insert(
+          synId: const Value(0),
+          hespId: const Value(0),
+          authorityParentheses: const Value(0),
+        ),
         SynonymCompanion.insert(
           synId: const Value(2),
           speciesId: const Value(20),
@@ -59,18 +65,21 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  test(
-    'retrieveSynonymTable loads the shown columns by valid species',
-    () async {
-      final rows = await MddQuery(db).retrieveSynonymTable();
+  test('retrieveSynonymTable loads the shown text by valid species, '
+      'without blank records', () async {
+    final rows = await MddQuery(db).retrieveSynonymTable();
 
-      expect(rows.map((r) => r.synId), [1, 2]);
-      expect(rows.first.originalCombination, 'Mus domesticus');
-      expect(rows.first.author, 'Schwarz');
-      expect(rows.first.speciesId, 10);
-      expect(rows.first.comments, isNull);
-    },
-  );
+    expect(rows.map((r) => r.synId), [1, 2]);
+    final mus = rows.first;
+    expect(mus.name, 'Mus domesticus');
+    expect(mus.author, 'Schwarz');
+    expect(mus.validSpecies, 'Mus musculus');
+    expect(mus.nomenclatureStatus, 'name combination, preoccupied');
+    // Without an original combination, the name falls back to species
+    // and root name; "NA" reads as empty.
+    expect(rows[1].name, 'Rattus norvegicus');
+    expect(rows[1].typeCountry, '');
+  });
 
   test('retrieveSynonymById loads every column', () async {
     final row = await MddQuery(db).retrieveSynonymById(1);

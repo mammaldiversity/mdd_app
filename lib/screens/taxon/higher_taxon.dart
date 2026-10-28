@@ -156,13 +156,42 @@ class _HigherTaxonPageState extends ConsumerState<HigherTaxonPage> {
               sliver: SliverToBoxAdapter(child: summary),
             ),
             SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: _SectionTabs(
+                  sections: _Section.values,
+                  current: _section,
+                  // Phones show the tabs as icons, filling the width.
+                  compact: constraints.maxWidth < 600,
+                  onChanged: (section) => setState(() => _section = section),
+                ),
+              ),
+            ),
+            SliverPadding(
               padding: const EdgeInsets.all(16),
-              sliver: treeSliver,
+              sliver: _sectionBody(treeSliver),
             ),
           ],
         );
       },
     );
+  }
+
+  /// The open tab's content: the classification tree, the distribution
+  /// map, or the publications.
+  Widget _sectionBody(Widget treeSliver, {double mapHeight = 300}) {
+    return switch (_section) {
+      _Section.classification => treeSliver,
+      _Section.distribution => SliverToBoxAdapter(
+        child: _SpeciesHeatmapCard(taxon: _taxon, mapHeight: mapHeight),
+      ),
+      _Section.publications => SliverToBoxAdapter(
+        child: CrossrefPublicationsCard(
+          name: widget.name,
+          isItalic: widget.rank.isItalic,
+        ),
+      ),
+    };
   }
 
   /// Desktop: the taxon's summary in a full-width band, then the
@@ -173,23 +202,7 @@ class _HigherTaxonPageState extends ConsumerState<HigherTaxonPage> {
     HigherTaxonData data,
     Widget treeSliver,
   ) {
-    final sections = [
-      _Section.classification,
-      _Section.distribution,
-      _Section.publications,
-    ];
-    final Widget body = switch (_section) {
-      _Section.classification => treeSliver,
-      _Section.distribution => SliverToBoxAdapter(
-        child: _SpeciesHeatmapCard(taxon: _taxon, mapHeight: 480),
-      ),
-      _Section.publications => SliverToBoxAdapter(
-        child: CrossrefPublicationsCard(
-          name: widget.name,
-          isItalic: widget.rank.isItalic,
-        ),
-      ),
-    };
+    final body = _sectionBody(treeSliver, mapHeight: 480);
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1600),
@@ -205,7 +218,7 @@ class _HigherTaxonPageState extends ConsumerState<HigherTaxonPage> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               sliver: SliverToBoxAdapter(
                 child: _SectionTabs(
-                  sections: sections,
+                  sections: _Section.values,
                   current: _section,
                   onChanged: (section) => setState(() => _section = section),
                 ),
@@ -345,13 +358,14 @@ class _LineageTrail extends StatelessWidget {
 }
 
 enum _Section {
-  classification('Classification'),
-  distribution('Distribution'),
-  publications('Publications');
+  classification('Classification', Icons.account_tree_outlined),
+  distribution('Distribution', Icons.map_outlined),
+  publications('Publications', Icons.menu_book_outlined);
 
-  const _Section(this.label);
+  const _Section(this.label, this.icon);
 
   final String label;
+  final IconData icon;
 }
 
 /// The section tabs under the header band.
@@ -360,11 +374,15 @@ class _SectionTabs extends StatelessWidget {
     required this.sections,
     required this.current,
     required this.onChanged,
+    this.compact = false,
   });
 
   final List<_Section> sections;
   final _Section current;
   final ValueChanged<_Section> onChanged;
+
+  /// Icons only, spread across the width, for small screens.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -375,10 +393,20 @@ class _SectionTabs extends StatelessWidget {
       length: sections.length,
       initialIndex: index,
       child: TabBar(
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
+        isScrollable: !compact,
+        tabAlignment: compact ? TabAlignment.fill : TabAlignment.start,
         onTap: (index) => onChanged(sections[index]),
-        tabs: [for (final section in sections) Tab(text: section.label)],
+        tabs: [
+          for (final section in sections)
+            compact
+                ? Tab(
+                    icon: Tooltip(
+                      message: section.label,
+                      child: Icon(section.icon, semanticLabel: section.label),
+                    ),
+                  )
+                : Tab(text: section.label),
+        ],
       ),
     );
   }
@@ -556,7 +584,8 @@ String _predictedNote(int predictedRecords) {
       'predicted range.';
 }
 
-/// Photos, name, lineage, statistics, and status for a taxon.
+/// Photos, name, lineage, statistics, and status for a taxon. The map and
+/// publications sit in the section tabs below it.
 class _TaxonSummary extends StatelessWidget {
   const _TaxonSummary({required this.taxon, required this.data});
 
@@ -579,13 +608,6 @@ class _TaxonSummary extends StatelessWidget {
         _StatusCard(stats: data.stats),
         const SizedBox(height: 12),
         _ExportDatasetButton(taxon: taxon, data: data),
-        const SizedBox(height: 12),
-        _SpeciesHeatmapCard(taxon: taxon),
-        const SizedBox(height: 12),
-        CrossrefPublicationsCard(
-          name: taxon.name,
-          isItalic: taxon.rank.isItalic,
-        ),
       ],
     );
   }

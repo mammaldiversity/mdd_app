@@ -163,6 +163,62 @@ void main() {
       await tester.pump();
       expect(find.text('Saved as Muridae_synonyms.csv'), findsOneWidget);
     });
+
+    testWidgets('phones switch sections with icon tabs', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            higherTaxonProvider(muridae).overrideWith(
+              (ref) async => HigherTaxonData(taxon: muridae, rows: [rat]),
+            ),
+            higherTaxonImagesProvider(muridae).overrideWith((ref) async => []),
+            higherTaxonHeatmapProvider(muridae).overrideWith(
+              (ref) async => CountryHeatmap(
+                counts: CountrySpeciesCounts.fromRows(const []),
+                topology: const {},
+              ),
+            ),
+            ...crossrefOverrides(
+              progress: seededProgress(const [
+                CrossrefWork(
+                  title: 'Skulls of Muridae',
+                  authors: 'Smith',
+                  year: 2024,
+                  journal: 'Mammalia',
+                  doi: '10.1/a',
+                ),
+              ]),
+            ),
+          ],
+          child: const MaterialApp(
+            home: HigherTaxonPage(rank: TaxonRank.family, name: 'Muridae'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Icons with tooltips, no tab text; the map and publications wait in
+      // their tabs.
+      expect(find.byTooltip('Distribution'), findsOneWidget);
+      expect(find.text('Publications'), findsNothing);
+      expect(find.text('Species by country'), findsNothing);
+      expect(find.text('Skulls of Muridae'), findsNothing);
+      expect(find.text('Full classification'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Publications'));
+      await tester.pumpAndSettle();
+      expect(find.text('Skulls of Muridae'), findsOneWidget);
+      expect(find.text('Full classification'), findsNothing);
+
+      await tester.tap(find.byTooltip('Distribution'));
+      await tester.pumpAndSettle();
+      expect(find.text('Species by country'), findsOneWidget);
+    });
   });
 
   testWidgets('shows publications for a genus, in italics', (

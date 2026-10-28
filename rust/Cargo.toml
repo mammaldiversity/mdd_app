@@ -14,7 +14,7 @@ crate-type = ["cdylib", "staticlib", "rlib"]
 [dependencies]
 flate2 = "1.1.9"
 flutter_rust_bridge = "=2.13.0"
-mdd_api = "0.10.1"
+mdd_api = "0.10.3"
 tempfile = "3.27.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.150", features = ["preserve_order"] }

@@ -356,3 +356,66 @@ class _OutlinedDropdown<V> extends StatelessWidget {
     );
   }
 }
+
+/// Below this width, rules open in a bottom sheet instead of a panel under
+/// the search field.
+const double ruleSheetMaxWidth = 600;
+
+/// Edits [filter] in a bottom sheet, for small screens. Each change reaches
+/// [onChanged] right away, as with the inline panel.
+Future<void> showRuleFilterSheet<T>({
+  required BuildContext context,
+  required List<RuleField<T>> fields,
+  required RuleFilter<T> filter,
+  required ValueChanged<RuleFilter<T>> onChanged,
+}) {
+  var current = filter;
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    useSafeArea: true,
+    // The app theme makes sheets transparent by default.
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) => Padding(
+        // Keeps the value fields above the keyboard.
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Filter rules',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Done'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              RuleFilterPanel<T>(
+                fields: fields,
+                filter: current,
+                onChanged: (rules) {
+                  setState(() => current = rules);
+                  onChanged(rules);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
