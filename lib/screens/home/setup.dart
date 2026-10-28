@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:mdd/screens/home/search.dart' show HeroTitle;
@@ -144,22 +145,47 @@ class _SetupImageState extends State<SetupImage> {
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return FadeTransition(opacity: animation, child: child);
                 },
-                child: Image.asset(
-                  _imagePaths[_currentIndex],
-                  key: ValueKey<String>(_imagePaths[_currentIndex]),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: widget.height,
-                  errorBuilder: (context, error, stackTrace) => Center(
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      size: 48,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
+                child: _buildPhoto(_imagePaths[_currentIndex], colorScheme),
               ),
       ),
+    );
+  }
+
+  /// Shows the whole photo, so credits burned into a corner stay visible.
+  /// A blurred, cropped copy fills the space the photo leaves.
+  Widget _buildPhoto(String path, ColorScheme colorScheme) {
+    return Stack(
+      key: ValueKey<String>(path),
+      fit: StackFit.expand,
+      children: [
+        ImageFiltered(
+          // Mirror keeps the blur solid to the frame edges instead of
+          // fading out to transparent.
+          imageFilter: ImageFilter.blur(
+            sigmaX: 24,
+            sigmaY: 24,
+            tileMode: TileMode.mirror,
+          ),
+          child: Image.asset(
+            path,
+            fit: BoxFit.cover,
+            excludeFromSemantics: true,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
+        ),
+        Image.asset(
+          path,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

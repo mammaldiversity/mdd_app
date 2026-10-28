@@ -144,7 +144,7 @@ void main() {
         if (find.text('${1700 + i}').evaluate().isNotEmpty)
           (i, tester.getTopLeft(find.text('${1700 + i}')).dy),
     ];
-    expect(shown.map((e) => e.$1), [for (var i = 0; i < 15; i++) i]);
+    expect(shown.map((e) => e.$1), [for (var i = 0; i < 25; i++) i]);
     for (var i = 1; i < shown.length; i++) {
       expect(shown[i - 1].$2, lessThan(shown[i].$2));
     }

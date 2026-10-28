@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/screens/statistics/chart_export_dialog.dart';
+import 'package:mdd/screens/statistics/paged_table.dart';
 import 'package:mdd/screens/statistics/table_filter_bar.dart';
 import 'package:mdd/services/export.dart';
 import 'package:mdd/services/rule_filter.dart';
@@ -77,7 +78,6 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   RuleFilter<int> _rules = const RuleFilter();
   late int _sortColumnIndex;
   late bool _sortAscending;
-  int _rowsPerPage = 15;
 
   /// The last filtered and sorted rows, and the inputs that produced them.
   List<StatTableRow>? _visibleRows;
@@ -245,92 +245,58 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title), actions: widget.appBarActions),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              InfoCard(text: widget.infoText),
-              const SizedBox(height: 16),
-              TableFilterBar(
-                controller: _searchController,
-                hintText: 'Search table...',
-                columns: [
-                  for (var i = 0; i < widget.columns.length; i++)
-                    RuleField(
-                      key: i,
-                      label: widget.columns[i].title,
-                      numeric: widget.columns[i].numeric,
-                    ),
-                ],
-                searchColumn: _searchColumn,
-                rules: _rules,
-                onQueryChanged: (value) => setState(() => _searchQuery = value),
-                onSearchColumnChanged: (value) =>
-                    setState(() => _searchColumn = value),
-                onRulesChanged: (value) => setState(() => _rules = value),
+        child: PagedTableView(
+          leading: [
+            InfoCard(text: widget.infoText),
+            const SizedBox(height: 16),
+            TableFilterBar(
+              controller: _searchController,
+              hintText: 'Search table...',
+              columns: [
+                for (var i = 0; i < widget.columns.length; i++)
+                  RuleField(
+                    key: i,
+                    label: widget.columns[i].title,
+                    numeric: widget.columns[i].numeric,
+                  ),
+              ],
+              searchColumn: _searchColumn,
+              rules: _rules,
+              onQueryChanged: (value) => setState(() => _searchQuery = value),
+              onSearchColumnChanged: (value) =>
+                  setState(() => _searchColumn = value),
+              onRulesChanged: (value) => setState(() => _rules = value),
+            ),
+            const SizedBox(height: 12),
+            const StatTableSortHint(),
+            const SizedBox(height: 8),
+          ],
+          title: 'Records (${filteredList.length})',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: 'Export Table Data',
+              onPressed: () => _exportData(filteredList),
+            ),
+          ],
+          sortColumnIndex: _sortColumnIndex,
+          sortAscending: _sortAscending,
+          columns: List.generate(
+            widget.columns.length,
+            (index) => DataColumn(
+              label: StatTableHeaderLabel(
+                title: widget.columns[index].title,
+                columnIndex: index,
+                selectedColumnIndex: _sortColumnIndex,
               ),
-              const SizedBox(height: 12),
-              const StatTableSortHint(),
-              const SizedBox(height: 8),
-              Card(
-                elevation: 0,
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outlineVariant.withAlpha(130),
-                    width: 1,
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: PaginatedDataTable(
-                  // Rows navigate on tap; they are never selected.
-                  showCheckboxColumn: false,
-                  header: Text(
-                    'Records (${filteredList.length})',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.file_download_outlined),
-                      tooltip: 'Export Table Data',
-                      onPressed: () => _exportData(filteredList),
-                    ),
-                  ],
-                  rowsPerPage: _rowsPerPage,
-                  availableRowsPerPage: const [10, 15, 25, 50, 100],
-                  onRowsPerPageChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _rowsPerPage = value;
-                      });
-                    }
-                  },
-                  sortColumnIndex: _sortColumnIndex,
-                  sortAscending: _sortAscending,
-                  columns: List.generate(
-                    widget.columns.length,
-                    (index) => DataColumn(
-                      label: StatTableHeaderLabel(
-                        title: widget.columns[index].title,
-                        columnIndex: index,
-                        selectedColumnIndex: _sortColumnIndex,
-                      ),
-                      tooltip: widget.columns[index].tooltip.isNotEmpty
-                          ? widget.columns[index].tooltip
-                          : 'Sort by ${widget.columns[index].title}',
-                      numeric: widget.columns[index].numeric,
-                      onSort: _onSort,
-                    ),
-                  ),
-                  source: tableSource,
-                ),
-              ),
-            ],
+              tooltip: widget.columns[index].tooltip.isNotEmpty
+                  ? widget.columns[index].tooltip
+                  : 'Sort by ${widget.columns[index].title}',
+              numeric: widget.columns[index].numeric,
+              onSort: _onSort,
+            ),
           ),
+          source: tableSource,
         ),
       ),
     );

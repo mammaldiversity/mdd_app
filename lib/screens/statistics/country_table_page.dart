@@ -4,6 +4,7 @@ import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/screens/shared/rule_filter_panel.dart';
 import 'package:mdd/screens/statistics/chart_export_dialog.dart';
 import 'package:mdd/screens/statistics/country_species_page.dart';
+import 'package:mdd/screens/statistics/paged_table.dart';
 import 'package:mdd/screens/statistics/table_filter_bar.dart';
 import 'package:mdd/services/export.dart';
 import 'package:mdd/services/providers/statistics.dart';
@@ -25,7 +26,6 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
   RuleFilter<int> _rules = const RuleFilter();
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
-  int _rowsPerPage = 15;
 
   @override
   void dispose() {
@@ -211,128 +211,96 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
               data: filteredList,
             );
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const InfoCard(
-                    text:
-                        'Explore statistics on mammal diversity for each country listed in MDD, '
-                        'including counts of orders, families, genera, extant species, and extinct species. '
-                        'Click on a country to explore its mammal diversity.',
-                  ),
-                  const SizedBox(height: 16),
-                  TableFilterBar(
-                    controller: _searchController,
-                    hintText: 'Search country...',
-                    columns: _filterColumns,
-                    searchColumn: _searchColumn,
-                    rules: _rules,
-                    onQueryChanged: (value) =>
-                        setState(() => _searchQuery = value),
-                    onSearchColumnChanged: (value) =>
-                        setState(() => _searchColumn = value),
-                    onRulesChanged: (value) => setState(() => _rules = value),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.swap_vert,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Tap any column header to sort ascending or descending',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Card(
-                    elevation: 0,
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outlineVariant.withAlpha(130),
-                        width: 1,
+            return PagedTableView(
+              leading: [
+                const InfoCard(
+                  text:
+                      'Explore statistics on mammal diversity for each country listed in MDD, '
+                      'including counts of orders, families, genera, extant species, and extinct species. '
+                      'Click on a country to explore its mammal diversity.',
+                ),
+                const SizedBox(height: 16),
+                TableFilterBar(
+                  controller: _searchController,
+                  hintText: 'Search country...',
+                  columns: _filterColumns,
+                  searchColumn: _searchColumn,
+                  rules: _rules,
+                  onQueryChanged: (value) =>
+                      setState(() => _searchQuery = value),
+                  onSearchColumnChanged: (value) =>
+                      setState(() => _searchColumn = value),
+                  onRulesChanged: (value) => setState(() => _rules = value),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.swap_vert,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Tap any column header to sort ascending or descending',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: PaginatedDataTable(
-                      header: Text(
-                        'Countries (${filteredList.length})',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      actions: [
-                        IconButton(
-                          icon: const Icon(Icons.file_download_outlined),
-                          tooltip: 'Export Table Data',
-                          onPressed: () => _exportData(filteredList),
-                        ),
-                      ],
-                      rowsPerPage: _rowsPerPage,
-                      availableRowsPerPage: const [10, 15, 25, 50, 100],
-                      onRowsPerPageChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _rowsPerPage = value;
-                          });
-                        }
-                      },
-                      sortColumnIndex: _sortColumnIndex,
-                      sortAscending: _sortAscending,
-                      columns: [
-                        DataColumn(
-                          label: _buildHeaderLabel('Country', 0),
-                          tooltip: 'Sort by Country Name',
-                          onSort: _onSort,
-                        ),
-                        DataColumn(
-                          label: _buildHeaderLabel('Orders', 1),
-                          tooltip: 'Sort by Total Orders',
-                          numeric: true,
-                          onSort: _onSort,
-                        ),
-                        DataColumn(
-                          label: _buildHeaderLabel('Families', 2),
-                          tooltip: 'Sort by Total Families',
-                          numeric: true,
-                          onSort: _onSort,
-                        ),
-                        DataColumn(
-                          label: _buildHeaderLabel('Genera', 3),
-                          tooltip: 'Sort by Total Genera',
-                          numeric: true,
-                          onSort: _onSort,
-                        ),
-                        DataColumn(
-                          label: _buildHeaderLabel('Living Species', 4),
-                          tooltip: 'Sort by Total Living Species',
-                          numeric: true,
-                          onSort: _onSort,
-                        ),
-                        DataColumn(
-                          label: _buildHeaderLabel('Extinct Species', 5),
-                          tooltip: 'Sort by Total Extinct Species',
-                          numeric: true,
-                          onSort: _onSort,
-                        ),
-                      ],
-                      source: tableSource,
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+              title: 'Countries (${filteredList.length})',
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.file_download_outlined),
+                  tooltip: 'Export Table Data',
+                  onPressed: () => _exportData(filteredList),
+                ),
+              ],
+              sortColumnIndex: _sortColumnIndex,
+              sortAscending: _sortAscending,
+              columns: [
+                DataColumn(
+                  label: _buildHeaderLabel('Country', 0),
+                  tooltip: 'Sort by Country Name',
+                  onSort: _onSort,
+                ),
+                DataColumn(
+                  label: _buildHeaderLabel('Orders', 1),
+                  tooltip: 'Sort by Total Orders',
+                  numeric: true,
+                  onSort: _onSort,
+                ),
+                DataColumn(
+                  label: _buildHeaderLabel('Families', 2),
+                  tooltip: 'Sort by Total Families',
+                  numeric: true,
+                  onSort: _onSort,
+                ),
+                DataColumn(
+                  label: _buildHeaderLabel('Genera', 3),
+                  tooltip: 'Sort by Total Genera',
+                  numeric: true,
+                  onSort: _onSort,
+                ),
+                DataColumn(
+                  label: _buildHeaderLabel('Living Species', 4),
+                  tooltip: 'Sort by Total Living Species',
+                  numeric: true,
+                  onSort: _onSort,
+                ),
+                DataColumn(
+                  label: _buildHeaderLabel('Extinct Species', 5),
+                  tooltip: 'Sort by Total Extinct Species',
+                  numeric: true,
+                  onSort: _onSort,
+                ),
+              ],
+              source: tableSource,
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
