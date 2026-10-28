@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/country_table_page.dart';
@@ -659,7 +658,6 @@ class _OrderBrowserState extends State<_OrderBrowser> {
                       _showAll ? 'Show fewer' : 'Show all ${named.length}',
                     ),
                   ),
-                const OpenTaxonomyTreeButton(),
               ],
             ),
             const SizedBox(height: 4),

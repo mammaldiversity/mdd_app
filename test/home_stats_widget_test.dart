@@ -75,7 +75,8 @@ void main() {
     expect(find.text('Browse by order'), findsOneWidget);
     expect(find.text('Rodentia'), findsOneWidget);
     expect(find.text('2,820'), findsNothing);
-    expect(find.text('Taxonomy tree'), findsOneWidget);
+    // The home screen keeps Browse by order simple: no tree button.
+    expect(find.text('Taxonomy tree'), findsNothing);
 
     // Species card
     expect(find.text('Species'), findsOneWidget);
@@ -222,7 +223,7 @@ void main() {
     expect((page.rank, page.name), (TaxonRank.order, 'Rodentia'));
   });
 
-  testWidgets('Taxonomy tree opens the Explore tree view', (
+  testWidgets('Taxonomy tree in the Orders table opens the Explore tree', (
     WidgetTester tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
@@ -244,6 +245,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('Orders'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Taxonomy tree'));
     await tester.pumpAndSettle();
 
