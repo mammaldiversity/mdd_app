@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.0] - 2026-10-27
+
+### Added
+- Add higher taxon pages.
+- Show species-level taxonomic changes of each MDD release on the home page.
+- Add a synonym table to the statistics.
+- Add rule-based filters to search and statistic tables.
+- Support Excel (`.xlsx`) exports.
+- Navigate from the home page statistics to the related pages.
+- Show Crossref work types (e.g., journal article, book chapter) in external resources.
+
+### Changed
+- Link release notes and taxonomic changes to the MDD website.
+- Replace MapLibre with flutter_map on desktop.
+- Improve color accessibility.
+- Clean UI.
+
+### Fixed
+- Fix the order rank.
+
+### Chores
+- Update dependencies.
+
 ## [v1.5.0] - 2026-10-04
 
 ### Added
