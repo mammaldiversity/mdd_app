@@ -95,24 +95,26 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
   }
 
   List<StatTableRow> _filterAndSort(List<StatTableRow> items) {
-    var list = items.toList();
+    // Rows keep their position so ties stay in the order they came in,
+    // e.g. synonyms of one species by year.
+    final list = [
+      for (final (index, row) in items.indexed)
+        if (tableRowMatches(
+          values: row.values,
+          searchText: row.searchText,
+          query: _searchQuery,
+          searchColumn: _searchColumn,
+          rules: _rules,
+        ))
+          (index, row),
+    ];
 
-    list = list
-        .where(
-          (row) => tableRowMatches(
-            values: row.values,
-            searchText: row.searchText,
-            query: _searchQuery,
-            searchColumn: _searchColumn,
-            rules: _rules,
-          ),
-        )
-        .toList();
-
-    list.sort((a, b) {
-      if (_sortColumnIndex >= widget.columns.length) return 0;
-      final valA = a.values[_sortColumnIndex];
-      final valB = b.values[_sortColumnIndex];
+    list.sort((left, right) {
+      if (_sortColumnIndex >= widget.columns.length) {
+        return left.$1.compareTo(right.$1);
+      }
+      final valA = left.$2.values[_sortColumnIndex];
+      final valB = right.$2.values[_sortColumnIndex];
 
       int cmp = 0;
       if (valA is num && valB is num) {
@@ -127,10 +129,11 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
       } else {
         cmp = valA.toString().compareTo(valB.toString());
       }
+      if (cmp == 0) return left.$1.compareTo(right.$1);
       return _sortAscending ? cmp : -cmp;
     });
 
-    return list;
+    return [for (final (_, row) in list) row];
   }
 
   Future<void> _exportData(List<StatTableRow> dataToExport) async {

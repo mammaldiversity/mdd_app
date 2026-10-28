@@ -85,7 +85,7 @@ void main() {
     ('Orders', 'Species Diversity by Order', true),
     ('Families', 'Species Diversity by Family', true),
     ('Genera', 'Species Diversity by Genus', false),
-    ('Synonyms', 'Species with the Most Names and Synonyms', false),
+    ('Synonyms', 'Names and Synonyms', false),
     ('Images', 'Species with Most Images', false),
   ]) {
     testWidgets('$link opens its table', (WidgetTester tester) async {
@@ -261,4 +261,5 @@ List<Override> _overrides(MddStatistics stats) => [
   statisticsProvider.overrideWith((ref) => stats),
   countryDiversityStatsProvider.overrideWith((ref) async => []),
   orderSequenceProvider.overrideWith((ref) async => ['Rodentia']),
+  synonymTableProvider.overrideWith((ref) async => []),
 ];
