@@ -8,8 +8,12 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Species page includes richer information from external resources including GBIF occurrances, NCBI genbank, and Crossref.
-- Add September 2026 release of the Mammal Image Library (MIL).
+- Add higher taxon pages.
+- Show species-level taxonomic changes of each MDD release on the home page.
+- Add a synonym table to the statistics.
+- Add rule-based filters to search and statistic tables, with Excel (`.xlsx`) export support.
+- Link release notes and taxonomic changes to the MDD website.
+- Improve color accessibility and clean UI.
 
 ## Installation
 
