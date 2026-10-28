@@ -8,6 +8,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
 import 'package:mdd/screens/statistics/country_table_page.dart';
 import 'package:mdd/screens/statistics/page.dart';
+import 'package:mdd/screens/statistics/synonym_table_page.dart';
 import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/statistics.dart';
@@ -73,7 +74,7 @@ class MddStatistics extends ConsumerWidget {
               _DashboardTile(
                 title: 'Synonyms',
                 value: StatCard.formatCount(stats.totalSynonymsCount),
-                onTap: () => _open(context, synonymsTablePage(stats)),
+                onTap: () => _open(context, const SynonymTablePage()),
               ),
               _DashboardTile(
                 title: 'Images',

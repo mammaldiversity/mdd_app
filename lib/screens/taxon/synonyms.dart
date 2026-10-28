@@ -123,9 +123,7 @@ class _SynonymCardState extends State<SynonymCard> {
           style: Theme.of(context).textTheme.bodySmall,
           textAlign: TextAlign.center,
         ),
-        onPressed: () {
-          _showDetails(getScreenType(context), taxonName);
-        },
+        onPressed: () => showSynonymDetails(context, widget.data),
       ),
     );
   }
@@ -136,30 +134,27 @@ class _SynonymCardState extends State<SynonymCard> {
     final String separator = synonymObj.getAuthoritySeparator();
     return '${synName.name}$separator${synName.authorYear}';
   }
+}
 
-  // Show modal sheet on mobile and alert dialog on desktop
-  void _showDetails(ScreenType screenType, String taxonName) {
-    if (screenType == ScreenType.small) {
-      showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        isScrollControlled: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.9,
-        ),
-        builder: (BuildContext context) {
-          return SynonymSheet(data: widget.data);
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SynonymDialogs(data: widget.data);
-        },
-      );
-    }
+/// Shows a synonym's details: a bottom sheet on phones and a dialog on
+/// wider screens.
+void showSynonymDetails(BuildContext context, db.SynonymData data) {
+  if (getScreenType(context) == ScreenType.small) {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+      ),
+      builder: (BuildContext context) => SynonymSheet(data: data),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => SynonymDialogs(data: data),
+    );
   }
 }
 
