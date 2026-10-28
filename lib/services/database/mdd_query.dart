@@ -100,6 +100,17 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     };
   }
 
+  /// Order names in phylogenetic sequence, by each order's lowest
+  /// phylosort.
+  Future<List<String>> retrieveOrderSequence() {
+    return customSelect(
+      'SELECT taxonOrder FROM taxonomy '
+      'WHERE taxonOrder IS NOT NULL '
+      'GROUP BY taxonOrder ORDER BY MIN(phylosort)',
+      readsFrom: {taxonomy},
+    ).map((row) => row.read<String>('taxonOrder')).get();
+  }
+
   Future<List<RandomMilImagesWithTaxonomyResult>> getRandomMilImages() async {
     return randomMilImagesWithTaxonomy().get();
   }

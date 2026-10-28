@@ -120,6 +120,62 @@ void main() {
     higherTaxonImagesProvider(rodentia).overrideWith((ref) async => []),
   ];
 
+  testWidgets('Browse by order follows the phylosort sequence', (
+    WidgetTester tester,
+  ) async {
+    final stats = MddStatistics(
+      speciesPerOrder: [
+        StatSpeciesPerOrderResult(name: 'Rodentia', count: 2820),
+        StatSpeciesPerOrderResult(name: 'Chiroptera', count: 1500),
+        StatSpeciesPerOrderResult(name: 'Monotremata', count: 5),
+      ],
+      speciesPerFamily: mockStats.speciesPerFamily,
+      speciesPerGenus: mockStats.speciesPerGenus,
+      iucnStatus: mockStats.iucnStatus,
+      discoveryDecade: mockStats.discoveryDecade,
+      discoveryYear: mockStats.discoveryYear,
+      extinctSpecies: mockStats.extinctSpecies,
+      domesticSpecies: mockStats.domesticSpecies,
+      biogeographicRealm: mockStats.biogeographicRealm,
+      topCountries: mockStats.topCountries,
+      speciesWithMostImages: mockStats.speciesWithMostImages,
+      speciesWithImagesCount: mockStats.speciesWithImagesCount,
+      totalOrdersCount: mockStats.totalOrdersCount,
+      totalFamiliesCount: mockStats.totalFamiliesCount,
+      totalGeneraCount: mockStats.totalGeneraCount,
+      livingWildSpeciesCount: mockStats.livingWildSpeciesCount,
+      totalSpeciesCount: mockStats.totalSpeciesCount,
+      speciesWithMostSynonyms: mockStats.speciesWithMostSynonyms,
+      typeKindProportion: mockStats.typeKindProportion,
+      totalSynonymsCount: mockStats.totalSynonymsCount,
+      totalImagesCount: mockStats.totalImagesCount,
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          statisticsProvider.overrideWith((ref) => stats),
+          countryDiversityStatsProvider.overrideWith((ref) async => []),
+          orderSequenceProvider.overrideWith(
+            (ref) async => ['Monotremata', 'Chiroptera', 'Rodentia'],
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: home_stats.MddStatistics()),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final x = [
+      for (final name in ['Monotremata', 'Chiroptera', 'Rodentia'])
+        tester.getTopLeft(find.text(name)).dx,
+    ];
+    expect(x[0], lessThan(x[1]));
+    expect(x[1], lessThan(x[2]));
+  });
+
   testWidgets('an order in Browse by order opens its taxon page', (
     WidgetTester tester,
   ) async {
@@ -204,4 +260,5 @@ class _EmptySpeciesList extends SpeciesList {
 List<Override> _overrides(MddStatistics stats) => [
   statisticsProvider.overrideWith((ref) => stats),
   countryDiversityStatsProvider.overrideWith((ref) async => []),
+  orderSequenceProvider.overrideWith((ref) async => ['Rodentia']),
 ];

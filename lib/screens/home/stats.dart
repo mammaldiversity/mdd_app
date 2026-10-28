@@ -42,6 +42,7 @@ class MddStatistics extends ConsumerWidget {
                       StatDomesticSpeciesResult(isDomestic: 1, count: 0),
                 )
                 .count;
+            final orderSequence = ref.watch(orderSequenceProvider).value;
             final countryCount = ref
                 .watch(countryDiversityStatsProvider)
                 .value
@@ -112,21 +113,30 @@ class MddStatistics extends ConsumerWidget {
                           ],
                         );
                       }
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 2, child: speciesCard),
-                          const SizedBox(width: _TileGrid.gap),
-                          Expanded(
-                            flex: 3,
-                            child: _TileGrid(tiles: tiles, columns: 3),
-                          ),
-                        ],
+                      // Both sides take the height of the taller one.
+                      return IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(flex: 2, child: speciesCard),
+                            const SizedBox(width: _TileGrid.gap),
+                            Expanded(
+                              flex: 3,
+                              child: _StretchedTileGrid(
+                                tiles: tiles,
+                                columns: 3,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),
                   const SizedBox(height: 20),
-                  _OrderBrowser(orders: stats.speciesPerOrder),
+                  _OrderBrowser(
+                    orders: stats.speciesPerOrder,
+                    sequence: orderSequence,
+                  ),
                 ],
               ),
             );
@@ -334,6 +344,7 @@ class _SpeciesSummaryCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -396,44 +407,94 @@ class _CompositionBar extends StatelessWidget {
 
   final List<(int, Color)> segments;
 
-  static const double _minWidth = 4;
-
   @override
   Widget build(BuildContext context) {
-    final total = segments.fold(0, (sum, s) => sum + s.$1);
-    if (total == 0) return const SizedBox(height: 10);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final widths = [
-          for (final (count, _) in segments)
-            count == 0 ? 0.0 : math.max(_minWidth, width * count / total),
-        ];
-        // Take the extra minimum width back from the largest segment.
-        final overflow = widths.fold(0.0, (a, b) => a + b) - width;
-        final largest = widths.indexOf(widths.reduce(math.max));
-        widths[largest] -= overflow;
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: Row(
-            children: [
-              for (final (index, (_, color)) in segments.indexed)
-                Container(width: widths[index], height: 10, color: color),
-            ],
-          ),
-        );
-      },
+    // Painted rather than laid out, so the bar can sit inside
+    // IntrinsicHeight on wide screens.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(5),
+      child: CustomPaint(
+        size: const Size.fromHeight(10),
+        painter: _CompositionBarPainter(segments),
+      ),
     );
   }
 }
 
-/// Lays tiles out three per row on phones and six on wider screens, unless
-/// [columns] is given.
-class _TileGrid extends StatelessWidget {
-  const _TileGrid({required this.tiles, this.columns});
+class _CompositionBarPainter extends CustomPainter {
+  _CompositionBarPainter(this.segments);
+
+  final List<(int, Color)> segments;
+
+  static const double _minWidth = 4;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final total = segments.fold(0, (sum, s) => sum + s.$1);
+    if (total == 0) return;
+    final widths = [
+      for (final (count, _) in segments)
+        count == 0 ? 0.0 : math.max(_minWidth, size.width * count / total),
+    ];
+    // Take the extra minimum width back from the largest segment.
+    final overflow = widths.fold(0.0, (a, b) => a + b) - size.width;
+    final largest = widths.indexOf(widths.reduce(math.max));
+    widths[largest] -= overflow;
+    var left = 0.0;
+    for (final (index, (_, color)) in segments.indexed) {
+      canvas.drawRect(
+        Rect.fromLTWH(left, 0, widths[index], size.height),
+        Paint()..color = color,
+      );
+      left += widths[index];
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CompositionBarPainter oldDelegate) =>
+      oldDelegate.segments != segments;
+}
+
+/// Tiles in fixed rows that stretch to fill the height they are given, for
+/// sitting beside the species card.
+class _StretchedTileGrid extends StatelessWidget {
+  const _StretchedTileGrid({required this.tiles, required this.columns});
 
   final List<Widget> tiles;
-  final int? columns;
+  final int columns;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = [
+      for (var i = 0; i < tiles.length; i += columns)
+        tiles.sublist(i, math.min(i + columns, tiles.length)),
+    ];
+    return Column(
+      children: [
+        for (final (index, row) in rows.indexed) ...[
+          if (index > 0) const SizedBox(height: _TileGrid.gap),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (column, tile) in row.indexed) ...[
+                  if (column > 0) const SizedBox(width: _TileGrid.gap),
+                  Expanded(child: tile),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Lays tiles out three per row on phones and six on wider screens.
+class _TileGrid extends StatelessWidget {
+  const _TileGrid({required this.tiles});
+
+  final List<Widget> tiles;
 
   static const double gap = 8;
 
@@ -441,7 +502,7 @@ class _TileGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = this.columns ?? (constraints.maxWidth > 600 ? 6 : 3);
+        final columns = constraints.maxWidth > 600 ? 6 : 3;
         final width = (constraints.maxWidth - (columns - 1) * gap) / columns;
         return Wrap(
           spacing: gap,
@@ -482,6 +543,7 @@ class _DashboardTile extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FittedBox(
                   fit: BoxFit.scaleDown,
@@ -524,12 +586,17 @@ class _DashboardTile extends StatelessWidget {
   }
 }
 
-/// Orders from largest to smallest, each opening its taxon page. Phones
-/// scroll them sideways; wider screens wrap them into rows, two at first.
+/// Orders in phylogenetic sequence, each opening its taxon page.
+/// Phones scroll them sideways; wider screens wrap them into rows, two at
+/// first.
 class _OrderBrowser extends StatefulWidget {
-  const _OrderBrowser({required this.orders});
+  const _OrderBrowser({required this.orders, this.sequence});
 
   final List<StatSpeciesPerOrderResult> orders;
+
+  /// Order names in display order. Until it loads, [orders] keep their
+  /// largest-first order.
+  final List<String>? sequence;
 
   @override
   State<_OrderBrowser> createState() => _OrderBrowserState();
@@ -549,6 +616,18 @@ class _OrderBrowserState extends State<_OrderBrowser> {
       for (final order in widget.orders)
         if (order.name != null && order.name!.isNotEmpty) order,
     ];
+    final sequence = widget.sequence;
+    if (sequence != null) {
+      final position = {
+        for (final (index, name) in sequence.indexed) name: index,
+      };
+      // Orders missing from the sequence go last; sort is stable.
+      named.sort(
+        (a, b) => (position[a.name] ?? sequence.length).compareTo(
+          position[b.name] ?? sequence.length,
+        ),
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         final wrap = constraints.maxWidth >= 600;

@@ -25,3 +25,8 @@ final releaseChangesProvider = FutureProvider<List<ReleaseChange>>((ref) async {
   final source = await rootBundle.loadString(releaseChangesAsset);
   return parseReleaseChanges(source);
 });
+
+/// Order names in phylogenetic (phylosort) sequence.
+final orderSequenceProvider = FutureProvider<List<String>>((ref) {
+  return MddQuery(ref.watch(databaseProvider)).retrieveOrderSequence();
+});

@@ -9,8 +9,6 @@ import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/release_changes.dart';
 
-const _taxonomyChangesUrl = '$mddWebsiteUrl/releases/taxonomy-changes';
-
 /// Net species change per MDD release: a ledger of losses and gains on
 /// wide screens, and swipeable release cards on phones.
 class TaxonomyChanges extends ConsumerWidget {
@@ -57,7 +55,7 @@ class _SectionHeader extends StatelessWidget {
         TextButton.icon(
           icon: const Icon(Icons.open_in_new, size: 16),
           label: const Text('All changes'),
-          onPressed: () => launchURL(_taxonomyChangesUrl),
+          onPressed: () => launchURL(taxonomyChangesUrl),
         ),
       ],
     );
