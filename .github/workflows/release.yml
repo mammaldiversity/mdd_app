@@ -165,6 +165,6 @@ jobs:
           body_path: release_notes.md
           files: |
             mdd-Linux-x86_64.tar.gz
-            mdd_*.snap
+            mammal-diversity_*.snap
             mdd-Windows-x86_64.zip
           fail_on_unmatched_files: false

@@ -1,5 +1,6 @@
-name: mdd
-adopt-info: mdd
+name: mammal-diversity
+title: MDD
+adopt-info: mammal-diversity
 summary: Mammal Diversity Database explorer
 description: |
   A cross-platform application to access the Mammal Diversity Database. It
@@ -10,16 +11,23 @@ license: MIT
 website: https://github.com/mammaldiversity/mdd_app
 source-code: https://github.com/mammaldiversity/mdd_app
 issues: https://github.com/mammaldiversity/mdd_app/issues
+contact: https://github.com/mammaldiversity/mdd_app/issues
 
 base: core24
 grade: stable
 confinement: strict
 
+lint:
+  ignore:
+    # Shipped by the jni plugin for Android; never loaded on Linux.
+    - library:
+        - app/lib/libdartjni.so
+
 platforms:
   amd64:
 
 apps:
-  mdd:
+  mammal-diversity:
     command: app/mdd
     extensions: [gnome]
     plugs:
@@ -27,7 +35,7 @@ apps:
       - home
 
 parts:
-  mdd:
+  mammal-diversity:
     # Packages the bundle produced by `flutter build linux --release`. Build it
     # first: the release needs the prefilled database and MIL images prepared
     # by the release workflow (or tools/generate_prefilled_db.sh locally).
