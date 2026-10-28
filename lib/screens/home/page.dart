@@ -2,7 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/explore/explore_page.dart';
 import 'package:mdd/screens/gallery/mil_gallery_page.dart';
+import 'package:mdd/screens/home/release_changes.dart';
 import 'package:mdd/screens/home/search.dart';
+import 'package:mdd/screens/home/stats.dart' show MddStatistics;
 import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
 import 'package:mdd/screens/search/page.dart';
@@ -117,38 +119,36 @@ class MddPagesState extends ConsumerState<MddPages> {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  /// Wider than this, the home screen centres its content.
+  static const double maxContentWidth = 1200;
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-            child: Image.asset(
-              'assets/icons/favicon512.png',
-              width: 120,
-              height: 120,
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  HomeHero(),
+                  SizedBox(height: 16),
+                  Welcome(),
+                  MddStatistics(),
+                  SizedBox(height: 24),
+                  TaxonomyChanges(),
+                  SizedBox(height: 24),
+                  DatabaseInfo(),
+                ],
+              ),
             ),
           ),
-          Text(
-            "The Mammal Diversity Database",
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "By the American Society of Mammalogists",
-            style: const TextStyle(fontSize: 12),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          const Welcome(),
-          const SizedBox(height: 16),
-          const DatabaseSearch(),
-          const SizedBox(height: 24),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

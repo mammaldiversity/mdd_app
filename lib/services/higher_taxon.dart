@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/statistics.dart';
 import 'package:mdd/services/taxon_tree.dart';
+import 'package:mdd/services/topojson_parser.dart';
 
 /// Identifies a higher taxon, e.g. `(rank: TaxonRank.family, name: 'Muridae')`.
 typedef TaxonKey = ({TaxonRank rank, String name});
@@ -223,6 +226,137 @@ class HigherTaxonStats {
   int get threatenedCount => iucnCounts
       .where((e) => const {'CR', 'EN', 'VU'}.contains(e.key))
       .fold(0, (sum, e) => sum + e.value);
+}
+
+/// Living species per country in a higher taxon, from MDD's country
+/// distributions. A country marked "?" for a species is a predicted record:
+/// the species is expected there but not confirmed.
+class CountrySpeciesCounts {
+  const CountrySpeciesCounts({
+    required this.byCountry,
+    required this.byIso,
+    required this.predictedRecords,
+  });
+
+  factory CountrySpeciesCounts.fromRows(Iterable<TaxonomyData> rows) {
+    final known = <String, int>{};
+    final predicted = <String, int>{};
+    final byIso = <String, int>{};
+    int predictedRecords = 0;
+    for (final row in rows) {
+      if (row.extinct == 1) continue;
+      final knownNames = <String>{};
+      final predictedNames = <String>{};
+      for (final value in (row.countryDistribution ?? '').split('|')) {
+        final String name = value.trim();
+        if (name.isEmpty || name == 'NA') continue;
+        if (name.endsWith('?')) {
+          predictedNames.add(name.substring(0, name.length - 1).trim());
+        } else {
+          knownNames.add(name);
+        }
+      }
+      predictedNames.removeAll(knownNames);
+      for (final name in knownNames) {
+        known[name] = (known[name] ?? 0) + 1;
+      }
+      for (final name in predictedNames) {
+        predicted[name] = (predicted[name] ?? 0) + 1;
+      }
+      predictedRecords += predictedNames.length;
+      // A species counts once in a country made of several MDD names, such
+      // as American Samoa in the United States.
+      final isoCodes = {
+        for (final name in {...knownNames, ...predictedNames})
+          ?TopoJsonParser.normalizeToIso(name),
+      };
+      for (final iso in isoCodes) {
+        byIso[iso] = (byIso[iso] ?? 0) + 1;
+      }
+    }
+    return CountrySpeciesCounts(
+      byCountry: {
+        for (final name in {...known.keys, ...predicted.keys})
+          name: (known: known[name] ?? 0, predicted: predicted[name] ?? 0),
+      },
+      byIso: byIso,
+      predictedRecords: predictedRecords,
+    );
+  }
+
+  /// Species per MDD country name, confirmed and predicted.
+  final Map<String, ({int known, int predicted})> byCountry;
+
+  /// Species per ISO 3166-1 alpha-2 code, confirmed and predicted, for the
+  /// map.
+  final Map<String, int> byIso;
+
+  /// Species and country pairs that are predicted only.
+  final int predictedRecords;
+
+  bool get isEmpty => byIso.isEmpty;
+
+  /// The [count] countries with the most species, most first.
+  List<MapEntry<String, int>> top(int count) {
+    final totals = [
+      for (final MapEntry(key: name, value: n) in byCountry.entries)
+        MapEntry(name, n.known + n.predicted),
+    ]..sort((a, b) => b.value.compareTo(a.value));
+    return totals.take(count).toList();
+  }
+}
+
+/// Classes for a species-count heatmap. Counts are heavily skewed (a few
+/// countries hold most species), so class bounds grow geometrically.
+class SpeciesCountScale {
+  const SpeciesCountScale._(this.lowerBounds, this.max);
+
+  factory SpeciesCountScale.forMax(int max, {int levels = 5}) {
+    if (max <= levels) {
+      return SpeciesCountScale._([for (int i = 1; i <= max; i++) i], max);
+    }
+    final bounds = [1];
+    for (int i = 1; i < levels; i++) {
+      final int bound = math.max(
+        bounds.last + 1,
+        math.pow(max, i / levels).round(),
+      );
+      if (bound > max) break;
+      bounds.add(bound);
+    }
+    return SpeciesCountScale._(bounds, max);
+  }
+
+  /// The smallest count in each class, ascending; the first is 1.
+  final List<int> lowerBounds;
+  final int max;
+
+  int get levels => lowerBounds.length;
+
+  int levelOf(int count) =>
+      math.max(0, lowerBounds.lastIndexWhere((bound) => bound <= count));
+
+  /// The counts a class covers, e.g. "6–15", or "6" for one count.
+  String label(int level) {
+    final int lower = lowerBounds[level];
+    final int upper = level + 1 < levels ? lowerBounds[level + 1] - 1 : max;
+    return lower == upper ? '$lower' : '$lower–$upper';
+  }
+}
+
+/// Country shapes for a higher taxon's heatmap, shaded by [scale].
+class CountryHeatmap {
+  CountryHeatmap({required this.counts, required Map<String, dynamic> topology})
+    : scale = SpeciesCountScale.forMax(counts.byIso.values.fold(0, math.max)) {
+    data = TopoJsonParser.parseLevels(topology, {
+      for (final MapEntry(key: iso, value: n) in counts.byIso.entries)
+        iso: scale.levelOf(n),
+    });
+  }
+
+  final CountrySpeciesCounts counts;
+  final SpeciesCountScale scale;
+  late final DistributionMapData data;
 }
 
 /// Everything the higher taxon page shows, loaded together.

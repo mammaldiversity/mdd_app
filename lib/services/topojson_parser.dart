@@ -10,10 +10,18 @@ class MapCoordinate {
 }
 
 class DistributionPolygon {
-  const DistributionPolygon({required this.rings, required this.status});
+  const DistributionPolygon({
+    required this.rings,
+    required this.status,
+    this.level,
+  });
 
   final List<List<MapCoordinate>> rings;
   final DistributionStatus status;
+
+  /// The heatmap class of a country, 0 for the fewest species; null on a
+  /// species map.
+  final int? level;
 }
 
 class DistributionBounds {
@@ -43,7 +51,10 @@ class DistributionMapData {
         {
           'type': 'Feature',
           'id': index,
-          'properties': {'distributionStatus': polygons[index].status.name},
+          'properties': {
+            'distributionStatus': polygons[index].status.name,
+            'level': ?polygons[index].level,
+          },
           'geometry': {
             'type': 'Polygon',
             'coordinates': [
@@ -326,21 +337,65 @@ class TopoJsonParser {
     }
     predictedCountries.removeAll(knownCountries);
 
-    if (json['type'] != 'Topology') {
-      return const DistributionMapData(polygons: [], bounds: null);
-    }
+    final loadedPolygons = <DistributionPolygon>[
+      for (final MapEntry(key: isoA2, value: shapes) in parseCountryShapes(
+        json,
+        {...knownCountries, ...predictedCountries},
+      ).entries)
+        for (final rings in shapes)
+          DistributionPolygon(
+            rings: rings,
+            status: knownCountries.contains(isoA2)
+                ? DistributionStatus.known
+                : DistributionStatus.predicted,
+          ),
+    ];
+    return DistributionMapData(
+      polygons: loadedPolygons,
+      bounds: _boundsFor(loadedPolygons),
+    );
+  }
+
+  /// Countries shaded by heatmap class, from ISO 3166-1 alpha-2 code to
+  /// class.
+  static DistributionMapData parseLevels(
+    Map<String, dynamic> json,
+    Map<String, int> levels,
+  ) {
+    final loadedPolygons = <DistributionPolygon>[
+      for (final MapEntry(key: isoA2, value: shapes) in parseCountryShapes(
+        json,
+        levels.keys.toSet(),
+      ).entries)
+        for (final rings in shapes)
+          DistributionPolygon(
+            rings: rings,
+            status: DistributionStatus.known,
+            level: levels[isoA2],
+          ),
+    ];
+    return DistributionMapData(
+      polygons: loadedPolygons,
+      bounds: _boundsFor(loadedPolygons),
+    );
+  }
+
+  /// The polygons, each a list of rings, of every country in [isoCodes]
+  /// that the topology has, keyed by ISO 3166-1 alpha-2 code.
+  static Map<String, List<List<List<MapCoordinate>>>> parseCountryShapes(
+    Map<String, dynamic> json,
+    Set<String> isoCodes,
+  ) {
+    final shapes = <String, List<List<List<MapCoordinate>>>>{};
+    if (json['type'] != 'Topology') return shapes;
 
     final objects = json['objects'];
-    if (objects is! Map || objects['countries_mdd'] is! Map) {
-      return const DistributionMapData(polygons: [], bounds: null);
-    }
+    if (objects is! Map || objects['countries_mdd'] is! Map) return shapes;
 
     final topologyObject = objects['countries_mdd'] as Map;
     final geometries = topologyObject['geometries'];
     final topoArcs = json['arcs'];
-    if (geometries is! List || topoArcs is! List) {
-      return const DistributionMapData(polygons: [], bounds: null);
-    }
+    if (geometries is! List || topoArcs is! List) return shapes;
     final transformValue = json['transform'];
     final transform = transformValue is Map
         ? Map<String, dynamic>.from(transformValue)
@@ -391,20 +446,14 @@ class TopoJsonParser {
       return ring;
     }
 
-    DistributionPolygon? decodePolygon(
-      Object? polygonArcs,
-      DistributionStatus status,
-    ) {
+    List<List<MapCoordinate>>? decodePolygon(Object? polygonArcs) {
       if (polygonArcs is! List) return null;
       final rings = polygonArcs
           .map(decodeRing)
           .where((ring) => ring.length >= 4)
           .toList(growable: false);
-      if (rings.isEmpty) return null;
-      return DistributionPolygon(rings: rings, status: status);
+      return rings.isEmpty ? null : rings;
     }
-
-    final loadedPolygons = <DistributionPolygon>[];
 
     for (var feature in geometries) {
       if (feature is! Map) continue;
@@ -412,30 +461,21 @@ class TopoJsonParser {
       final isoA2Value = properties['ISO_A2'];
       if (isoA2Value is! String) continue;
       final isoA2 = isoA2Value;
-
-      final status = knownCountries.contains(isoA2)
-          ? DistributionStatus.known
-          : predictedCountries.contains(isoA2)
-          ? DistributionStatus.predicted
-          : null;
-      if (status == null) continue;
+      if (!isoCodes.contains(isoA2)) continue;
 
       final arcs = feature['arcs'];
+      final countryShapes = shapes.putIfAbsent(isoA2, () => []);
       if (feature['type'] == 'Polygon') {
-        final polygon = decodePolygon(arcs, status);
-        if (polygon != null) loadedPolygons.add(polygon);
+        final polygon = decodePolygon(arcs);
+        if (polygon != null) countryShapes.add(polygon);
       } else if (feature['type'] == 'MultiPolygon' && arcs is List) {
         for (final polygonArcs in arcs) {
-          final polygon = decodePolygon(polygonArcs, status);
-          if (polygon != null) loadedPolygons.add(polygon);
+          final polygon = decodePolygon(polygonArcs);
+          if (polygon != null) countryShapes.add(polygon);
         }
       }
     }
-
-    return DistributionMapData(
-      polygons: loadedPolygons,
-      bounds: _boundsFor(loadedPolygons),
-    );
+    return shapes;
   }
 
   static MapCoordinate _applyTransform(

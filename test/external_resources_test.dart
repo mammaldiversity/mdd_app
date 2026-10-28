@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +14,9 @@ import 'package:mdd/services/external_resources.dart';
 import 'package:mdd/services/gbif_map_style.dart';
 import 'package:mdd/services/topojson_parser.dart';
 import 'package:mdd/services/providers/external_resources.dart';
+import 'package:mdd/services/crossref_cache.dart';
+
+import 'support/crossref_fakes.dart';
 
 http.Response _json(Object body) => http.Response(jsonEncode(body), 200);
 
@@ -376,7 +380,10 @@ void main() {
           },
         }),
       );
-      final works = await CrossrefClient(client).fetchWorks('Panthera leo');
+      final works = (await CrossrefClient(
+        client,
+        gate: CrossrefRequestGate(minInterval: Duration.zero),
+      ).fetchPage('Panthera leo')).works;
       expect(works, hasLength(1));
       expect(works.first.title, 'Diet of Panthera leo in Kenya');
       expect(works.first.authors, 'Smith et al.');
@@ -390,6 +397,38 @@ void main() {
         'Smith, J. A., Doe, Roe. (2020). Diet of Panthera leo in Kenya. '
         'Journal of Mammalogy, 101 (2), 12-20. https://doi.org/10.1/a',
       );
+    });
+
+    test('keeps works naming the taxon only in the abstract', () {
+      final works = CrossrefClient.filterWorks([
+        CrossrefWork.fromJson({
+          'DOI': '10.1/a',
+          'title': ['Rodent skulls'],
+          'abstract': '<jats:p>We sampled <jats:italic>Muridae</jats:italic>.',
+        }),
+        CrossrefWork.fromJson({
+          'DOI': '10.1/b',
+          'title': ['Rodent teeth'],
+        }),
+      ], 'Muridae');
+      expect(works.map((w) => w.doi), ['10.1/a']);
+      expect(works.first.abstract, 'We sampled Muridae.');
+    });
+
+    test('matches a genus as a whole word only', () {
+      CrossrefWork work(String doi, String title) => CrossrefWork(
+        title: title,
+        authors: '',
+        year: 2020,
+        journal: '',
+        doi: doi,
+      );
+      final works = CrossrefClient.filterWorks([
+        work('a', 'Diet of Mus musculus'),
+        work('b', 'A museum of rodents'),
+        work('c', 'MUS in the wild'),
+      ], 'Mus');
+      expect(works.map((w) => w.doi), ['a', 'c']);
     });
 
     test('groups works by year, newest first', () {
@@ -447,6 +486,11 @@ void main() {
       ]);
       expect(spans[1].style?.fontStyle, FontStyle.italic);
     });
+
+    test('leaves the name inside a longer word alone', () {
+      final spans = italicizeName('Mus in a museum', 'Mus');
+      expect(spans.map((s) => s.text), ['Mus', ' in a museum']);
+    });
   });
 
   group('ExternalResourcesPanel', () {
@@ -485,8 +529,8 @@ void main() {
                 ),
               ],
             ),
-            crossrefWorksProvider.overrideWith(
-              (ref, name) async => const [
+            ...crossrefOverrides(
+              progress: seededProgress(const [
                 CrossrefWork(
                   title: 'Diet of Panthera leo in Kenya',
                   authors: 'Smith et al.',
@@ -503,7 +547,7 @@ void main() {
                   doi: '10.1/b',
                   type: 'dataset',
                 ),
-              ],
+              ]),
             ),
           ],
           child: const MaterialApp(
@@ -580,5 +624,451 @@ void main() {
         expect(find.text('Copied'), findsNothing);
       });
     }
+  });
+
+  group('CrossrefPublicationsCard', () {
+    CrossrefWork work(int year, String type, [String title = 'On Muridae']) =>
+        CrossrefWork(
+          title: '$title $year',
+          authors: 'Smith',
+          year: year,
+          journal: 'Mammalia',
+          doi: '10.1/$year-$type',
+          type: type,
+        );
+
+    Future<void> pumpCard(
+      WidgetTester tester, {
+      CrossrefProgress? progress,
+      http.Client? client,
+    }) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          // Show a failure at once rather than after Riverpod's retries.
+          retry: (_, _) => null,
+          overrides: crossrefOverrides(progress: progress, client: client),
+          child: const MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: CrossrefPublicationsCard(name: 'Muridae'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> tapText(WidgetTester tester, String text) async {
+      await tester.ensureVisible(find.text(text));
+      await tester.tap(find.text(text));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('groups by year, filters by kind and shows more', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        progress: seededProgress([
+          for (int year = 2000; year < 2012; year++)
+            work(year, 'journal-article'),
+          work(1990, 'dataset'),
+        ]),
+      );
+      expect(find.text('Works'), findsOneWidget);
+      expect(find.text('13'), findsOneWidget);
+      expect(find.text('All 13'), findsOneWidget);
+      expect(find.text('Articles 12'), findsOneWidget);
+      expect(find.text('Datasets 1'), findsOneWidget);
+      // Ten shown, newest first; 2001 and the dataset wait for "Show more".
+      expect(find.text('On Muridae 2011'), findsOneWidget);
+      expect(find.text('On Muridae 2001'), findsNothing);
+      await tapText(tester, 'Show more');
+      expect(find.text('On Muridae 1990'), findsOneWidget);
+      // Everything is loaded and Crossref has no more.
+      expect(find.text('Show more'), findsNothing);
+      expect(
+        find.text('13 works name Muridae in all 100 Crossref results.'),
+        findsOneWidget,
+      );
+
+      await tapText(tester, 'Datasets 1');
+      expect(find.text('On Muridae 1990'), findsOneWidget);
+      expect(find.text('On Muridae 2011'), findsNothing);
+    });
+
+    testWidgets('fetches the next Crossref page once loaded works run out', (
+      tester,
+    ) async {
+      final requests = <Uri>[];
+      final client = MockClient((request) async {
+        requests.add(request.url);
+        return _json({
+          'message': {
+            'total-results': 300,
+            'next-cursor': 'c3',
+            'items': [
+              for (int year = 1980; year < 1985; year++)
+                {
+                  'DOI': '10.1/$year',
+                  'title': ['On Muridae $year'],
+                  'issued': {
+                    'date-parts': [
+                      [year],
+                    ],
+                  },
+                },
+              // Already listed: kept once.
+              {
+                'DOI': '10.1/2011-journal-article',
+                'title': ['On Muridae 2011'],
+              },
+              for (int i = 0; i < 94; i++)
+                {
+                  'DOI': '10.2/$i',
+                  'title': ['Unrelated'],
+                },
+            ],
+          },
+        });
+      });
+      await pumpCard(
+        tester,
+        client: client,
+        progress: seededProgress(
+          [
+            for (int year = 2000; year < 2012; year++)
+              work(year, 'journal-article'),
+          ],
+          nextCursor: 'c2',
+          totalResults: 300,
+        ),
+      );
+      expect(
+        find.text(
+          '12 works name Muridae in the first 100 of 300 Crossref results.',
+        ),
+        findsOneWidget,
+      );
+      await tapText(tester, 'Show more');
+      expect(requests, isEmpty);
+      await tapText(tester, 'Show more');
+      expect(requests, hasLength(1));
+      expect(requests.single.queryParameters['cursor'], 'c2');
+      expect(requests.single.queryParameters['rows'], '100');
+      expect(find.text('On Muridae 1984'), findsOneWidget);
+      expect(find.text('Works'), findsOneWidget);
+      expect(find.text('17'), findsOneWidget);
+      expect(
+        find.text(
+          '17 works name Muridae in the first 200 of 300 Crossref results.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('keeps the works when a page fails', (tester) async {
+      await pumpCard(
+        tester,
+        client: MockClient((_) async => http.Response('', 500)),
+        progress: seededProgress(
+          [work(2020, 'journal-article')],
+          nextCursor: 'c2',
+          totalResults: 300,
+        ),
+      );
+      await tapText(tester, 'Show more');
+      expect(find.text("Couldn't load more."), findsOneWidget);
+      expect(find.text('On Muridae 2020'), findsOneWidget);
+      expect(find.text('Try again'), findsOneWidget);
+    });
+
+    testWidgets('looks further when the first page names nothing', (
+      tester,
+    ) async {
+      await pumpCard(
+        tester,
+        progress: seededProgress(const [], nextCursor: 'c2', totalResults: 300),
+        client: MockClient(
+          (_) async => _json({
+            'message': {'items': []},
+          }),
+        ),
+      );
+      expect(
+        find.text(
+          'No publications with Muridae in the title or abstract found.',
+        ),
+        findsOneWidget,
+      );
+      await tapText(tester, 'Look further');
+      expect(find.text('Look further'), findsNothing);
+    });
+
+    testWidgets('offers a retry when Crossref fails', (tester) async {
+      await pumpCard(
+        tester,
+        client: MockClient((_) async => http.Response('', 500)),
+      );
+      expect(find.text("Couldn't reach Crossref."), findsOneWidget);
+      expect(find.text('Try again'), findsOneWidget);
+    });
+  });
+
+  for (final size in const [Size(375, 812), Size(1000, 800)]) {
+    testWidgets('species publications build lazily at '
+        '${size.width.toInt()} px', (tester) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: crossrefOverrides(
+            progress: seededProgress(
+              [
+                for (int i = 0; i < 120; i++)
+                  CrossrefWork(
+                    title: 'Panthera leo study $i',
+                    authors: 'Smith',
+                    year: 2000 + i % 20,
+                    journal: 'Mammalia',
+                    doi: '10.1/$i',
+                  ),
+              ],
+              nextCursor: 'c2',
+              totalResults: 900,
+            ),
+          ),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () => showExternalResource(
+                    context,
+                    speciesName: 'Panthera leo',
+                    resource: ExternalResource.publications,
+                  ),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final built = find.textContaining('Panthera leo study').evaluate().length;
+      expect(built, greaterThan(0));
+      expect(built, lessThan(30));
+      await tester.dragUntilVisible(
+        find.text('Show more'),
+        find.byType(CustomScrollView),
+        const Offset(0, -600),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('species sheet loads another Crossref page', (tester) async {
+    final client = MockClient(
+      (request) async => _json({
+        'message': {
+          'total-results': 150,
+          'items': [
+            {
+              'DOI': '10.1/new',
+              'title': ['Panthera leo in 1900'],
+            },
+          ],
+        },
+      }),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: crossrefOverrides(
+          client: client,
+          progress: seededProgress(
+            const [
+              CrossrefWork(
+                title: 'Panthera leo diet',
+                authors: 'Smith',
+                year: 2020,
+                journal: 'Mammalia',
+                doi: '10.1/a',
+              ),
+            ],
+            nextCursor: 'c2',
+            totalResults: 150,
+          ),
+        ),
+        child: const MaterialApp(
+          home: Scaffold(body: CrossrefView(speciesName: 'Panthera leo')),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show more'));
+    await tester.pumpAndSettle();
+    expect(find.text('Panthera leo in 1900'), findsOneWidget);
+    expect(find.text('Show more'), findsNothing);
+    expect(
+      find.text('2 works name Panthera leo in all 150 Crossref results.'),
+      findsNothing,
+    );
+    expect(
+      find.text(
+        '2 works name Panthera leo in the first 101 of 150 Crossref results.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  group('CrossrefRequestGate', () {
+    test('sends one request at a time', () async {
+      final gate = CrossrefRequestGate(minInterval: Duration.zero);
+      final order = <String>[];
+      Future<http.Response> request(String id) async {
+        order.add('start $id');
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        order.add('end $id');
+        return http.Response('', 200);
+      }
+
+      await Future.wait([
+        gate.send(() => request('a')),
+        gate.send(() => request('b')),
+      ]);
+      expect(order, ['start a', 'end a', 'start b', 'end b']);
+    });
+
+    test('spaces requests apart', () async {
+      final gate = CrossrefRequestGate(
+        minInterval: const Duration(milliseconds: 100),
+      );
+      final times = <DateTime>[];
+      for (int i = 0; i < 2; i++) {
+        await gate.send(() async {
+          times.add(DateTime.now());
+          return http.Response('', 200);
+        });
+      }
+      expect(
+        times[1].difference(times[0]),
+        greaterThanOrEqualTo(const Duration(milliseconds: 90)),
+      );
+    });
+
+    test('retries once after a rate-limit reply', () async {
+      final gate = CrossrefRequestGate(minInterval: Duration.zero);
+      int calls = 0;
+      final response = await gate.send(() async {
+        calls++;
+        return calls == 1
+            ? http.Response('', 429, headers: {'retry-after': '0'})
+            : http.Response('ok', 200);
+      });
+      expect(calls, 2);
+      expect(response.statusCode, 200);
+    });
+  });
+
+  group('CrossrefClient.fetchPage', () {
+    test('pages with a cursor and stops after a short page', () async {
+      final client = MockClient(
+        (request) async => _json({
+          'message': {
+            'total-results': 3,
+            'next-cursor': 'next',
+            'items': [
+              {
+                'DOI': '10.1/a',
+                'title': ['Muridae'],
+              },
+            ],
+          },
+        }),
+      );
+      final page = await CrossrefClient(
+        client,
+        gate: CrossrefRequestGate(minInterval: Duration.zero),
+      ).fetchPage('Muridae', cursor: 'c2');
+      expect(page.works, hasLength(1));
+      expect(page.totalResults, 3);
+      expect(page.scanned, 1);
+      expect(page.nextCursor, isNull);
+    });
+  });
+
+  group('CrossrefProgress', () {
+    CrossrefPage page(List<String> dois, {int scanned = 100}) => CrossrefPage(
+      works: [
+        for (final doi in dois)
+          CrossrefWork(title: 't', authors: '', year: 1, journal: '', doi: doi),
+      ],
+      nextCursor: 'n',
+      totalResults: 1000,
+      scanned: scanned,
+    );
+
+    test('drops repeated works and stops at the scan cap', () {
+      var progress = CrossrefProgress.empty.append(page(['a', 'b']));
+      progress = progress.append(page(['b', 'c']));
+      expect(progress.works.map((w) => w.doi), ['a', 'b', 'c']);
+      expect(progress.scanned, 200);
+      expect(progress.hasMore, isTrue);
+      for (int i = 0; i < 3; i++) {
+        progress = progress.append(page([]));
+      }
+      expect(progress.scanned, CrossrefClient.maxScanned);
+      expect(progress.hasMore, isFalse);
+    });
+  });
+
+  group('CrossrefCache', () {
+    late Directory dir;
+    late DateTime now;
+
+    setUp(() async {
+      dir = await Directory.systemTemp.createTemp('crossref_cache_test');
+      now = DateTime(2026, 1, 1);
+    });
+    tearDown(() => dir.delete(recursive: true));
+
+    CrossrefCache cache() =>
+        CrossrefCache(directory: () async => dir, now: () => now);
+
+    test('round-trips works and forgets them after 7 days', () async {
+      const work = CrossrefWork(
+        title: 'On Muridae',
+        authors: 'Smith et al.',
+        authorNames: ['Smith, J.'],
+        year: 2020,
+        journal: 'Mammalia',
+        volume: '1',
+        issue: '2',
+        pages: '3-4',
+        doi: '10.1/a',
+        type: 'journal-article',
+        abstract: 'About Muridae.',
+      );
+      await cache().write(
+        'Muridae',
+        seededProgress(const [work], nextCursor: 'c2', totalResults: 300),
+      );
+      final read = await cache().read('muridae');
+      expect(read!.works.single.citation, work.citation);
+      expect(read.works.single.abstract, 'About Muridae.');
+      expect(read.nextCursor, 'c2');
+      expect(read.hasMore, isTrue);
+
+      now = now.add(const Duration(days: 8));
+      expect(await cache().read('Muridae'), isNull);
+    });
+
+    test('ignores a corrupt file', () async {
+      await File('${dir.path}/muridae.json').writeAsString('{not json');
+      expect(await cache().read('Muridae'), isNull);
+    });
   });
 }

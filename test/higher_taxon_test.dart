@@ -158,4 +158,41 @@ void main() {
     ]);
     expect(StatisticsService.normalizeIucnStatus('VU (2020)'), 'VU');
   });
+
+  group('CountrySpeciesCounts', () {
+    test('counts living species, keeping predicted records apart', () {
+      final counts = CountrySpeciesCounts.fromRows([
+        _sp(1, 'Rattus', 'a', countries: 'Kenya|Egypt?'),
+        _sp(2, 'Rattus', 'b', countries: 'Kenya|Kenya?|NA'),
+        _sp(3, 'Rattus', 'c', countries: 'Egypt', extinct: 1),
+        // Two MDD names in one ISO country count the species once.
+        _sp(4, 'Rattus', 'd', countries: 'United States|American Samoa'),
+      ]);
+      expect(counts.byCountry['Kenya'], (known: 2, predicted: 0));
+      expect(counts.byCountry['Egypt'], (known: 0, predicted: 1));
+      expect(counts.predictedRecords, 1);
+      expect(counts.byIso, {'KE': 2, 'EG': 1, 'US': 1});
+      expect(counts.top(1).map((e) => (e.key, e.value)), [('Kenya', 2)]);
+    });
+  });
+
+  group('SpeciesCountScale', () {
+    test('uses one class per count for small maxima', () {
+      final scale = SpeciesCountScale.forMax(3);
+      expect(
+        [for (var i = 0; i < scale.levels; i++) scale.label(i)],
+        ['1', '2', '3'],
+      );
+    });
+
+    test('grows classes geometrically', () {
+      final scale = SpeciesCountScale.forMax(100);
+      expect(scale.lowerBounds, [1, 3, 6, 16, 40]);
+      expect(scale.label(0), '1–2');
+      expect(scale.label(4), '40–100');
+      expect(scale.levelOf(1), 0);
+      expect(scale.levelOf(15), 2);
+      expect(scale.levelOf(100), 4);
+    });
+  });
 }

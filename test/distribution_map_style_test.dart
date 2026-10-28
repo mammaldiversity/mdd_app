@@ -21,6 +21,34 @@ void main() {
     );
   });
 
+  test('colours a heatmap by level instead of status', () async {
+    final colors = DistributionMapStyleService.heatColors(isDark: false);
+    final result = await DistributionMapStyleService.build(
+      isDark: false,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+      data: _data,
+      levelColors: colors,
+      client: MockClient(
+        (_) async => http.Response(
+          jsonEncode({'version': 8, 'sources': {}, 'layers': []}),
+          200,
+        ),
+      ),
+    );
+    final layers = ((jsonDecode(result.json) as Map)['layers'] as List)
+        .cast<Map<String, dynamic>>();
+    expect(layers.map((layer) => layer['id']), [
+      'mdd-distribution-level-fill',
+      'mdd-distribution-level-outline',
+    ]);
+    final fill = layers.first['paint']['fill-color'] as List;
+    expect(fill.take(2), [
+      'match',
+      ['get', 'level'],
+    ]);
+    expect(fill, hasLength(3 + colors.length * 2));
+  });
+
   test('adds known and predicted layers to a remote style', () async {
     final client = MockClient(
       (_) async => http.Response(

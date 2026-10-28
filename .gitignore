@@ -69,6 +69,7 @@ test.json.gz
 test.json
 *.json.gz
 *.json
+!assets/data/release_changes.json
 *.zip
 *.csv
 __MACOSX

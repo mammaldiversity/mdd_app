@@ -1,16 +1,23 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/screens/taxon/distribution_map.dart';
 import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/screens/taxon/synonyms.dart';
 import 'package:mdd/screens/taxon/taxonomy.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/external_resources.dart';
 import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/providers/map_renderer.dart';
 import 'package:mdd/services/providers/species.dart'
-    show higherTaxonImagesProvider, higherTaxonProvider;
+    show
+        higherTaxonHeatmapProvider,
+        higherTaxonImagesProvider,
+        higherTaxonProvider;
 import 'package:mdd/services/taxon_tree.dart';
+
+import 'support/crossref_fakes.dart';
 
 class _TestMapRendererNotifier extends MapRendererNotifier {
   @override
@@ -46,6 +53,12 @@ void main() {
               (ref) async => HigherTaxonData(taxon: muridae, rows: [rat]),
             ),
             higherTaxonImagesProvider(muridae).overrideWith((ref) async => []),
+            higherTaxonHeatmapProvider(muridae).overrideWith(
+              (ref) async => CountryHeatmap(
+                counts: CountrySpeciesCounts.fromRows(const []),
+                topology: const {},
+              ),
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -69,6 +82,155 @@ void main() {
       expect(find.text('Full classification'), findsOneWidget);
       expect(find.text('Rattus rattus'), findsNothing);
     });
+  });
+
+  group('HigherTaxonPage on wide screens', () {
+    const rat = TaxonomyData(
+      id: 1,
+      taxonOrder: 'Rodentia',
+      family: 'Muridae',
+      subfamily: 'Murinae',
+      genus: 'Rattus',
+      specificEpithet: 'rattus',
+      extinct: 0,
+    );
+    const muridae = (rank: TaxonRank.family, name: 'Muridae');
+
+    testWidgets('puts the summary in a band and switches tabs', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            higherTaxonProvider(muridae).overrideWith(
+              (ref) async => HigherTaxonData(taxon: muridae, rows: [rat]),
+            ),
+            higherTaxonImagesProvider(muridae).overrideWith((ref) async => []),
+            higherTaxonHeatmapProvider(muridae).overrideWith(
+              (ref) async => CountryHeatmap(
+                counts: CountrySpeciesCounts.fromRows(const []),
+                topology: const {},
+              ),
+            ),
+            ...crossrefOverrides(
+              progress: seededProgress(const [
+                CrossrefWork(
+                  title: 'Skulls of Muridae',
+                  authors: 'Smith',
+                  year: 2024,
+                  journal: 'Mammalia',
+                  doi: '10.1/a',
+                ),
+              ]),
+            ),
+          ],
+          child: const MaterialApp(
+            home: HigherTaxonPage(rank: TaxonRank.family, name: 'Muridae'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rodentia'), findsOneWidget);
+      expect(find.text('Full classification'), findsOneWidget);
+      expect(find.text('Skulls of Muridae'), findsNothing);
+
+      await tester.tap(find.text('Publications'));
+      await tester.pumpAndSettle();
+      expect(find.text('Skulls of Muridae'), findsOneWidget);
+      expect(find.text('Full classification'), findsNothing);
+
+      await tester.tap(find.text('Distribution'));
+      await tester.pumpAndSettle();
+      expect(find.text('Species by country'), findsOneWidget);
+      expect(
+        find.text('No country records for living species.'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Classification'));
+      await tester.pumpAndSettle();
+      expect(find.text('Full classification'), findsOneWidget);
+
+      await tester.tap(find.text('Export dataset'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ExportDialog), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Muridae'), findsOneWidget);
+      await tester.tap(find.text('Include synonyms'));
+      await tester.pump();
+      expect(find.text('Saved as Muridae_synonyms.csv'), findsOneWidget);
+    });
+  });
+
+  testWidgets('shows publications for a genus, in italics', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const rattus = (rank: TaxonRank.genus, name: 'Rattus');
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          higherTaxonProvider(rattus).overrideWith(
+            (ref) async => HigherTaxonData(
+              taxon: rattus,
+              rows: const [
+                TaxonomyData(
+                  id: 1,
+                  taxonOrder: 'Rodentia',
+                  family: 'Muridae',
+                  genus: 'Rattus',
+                  specificEpithet: 'rattus',
+                  extinct: 0,
+                ),
+              ],
+            ),
+          ),
+          higherTaxonImagesProvider(rattus).overrideWith((ref) async => []),
+          higherTaxonHeatmapProvider(rattus).overrideWith(
+            (ref) async => CountryHeatmap(
+              counts: CountrySpeciesCounts.fromRows(const []),
+              topology: const {},
+            ),
+          ),
+          ...crossrefOverrides(
+            progress: seededProgress(const [
+              CrossrefWork(
+                title: 'Rattus in cities',
+                authors: 'Smith',
+                year: 2024,
+                journal: 'Mammalia',
+                doi: '10.1/a',
+              ),
+            ]),
+          ),
+        ],
+        child: const MaterialApp(
+          home: HigherTaxonPage(rank: TaxonRank.genus, name: 'Rattus'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Publications'));
+    await tester.pumpAndSettle();
+
+    final title = tester.widget<RichText>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is RichText &&
+            widget.text.toPlainText() == 'Rattus in cities',
+      ),
+    );
+    final spans = (title.text as TextSpan).children!.first as TextSpan;
+    expect(spans.children!.first.toPlainText(), 'Rattus');
+    expect(
+      (spans.children!.first as TextSpan).style?.fontStyle,
+      FontStyle.italic,
+    );
   });
 
   group('DistributionMap widget tests', () {

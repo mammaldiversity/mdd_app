@@ -112,9 +112,7 @@ class _DistributionMapState extends ConsumerState<DistributionMap> {
     }
     final data = _data;
     if (data == null) return const SizedBox.shrink();
-    return ref.watch(mapRendererProvider) == MapRenderer.mapLibre
-        ? _MapLibreDistributionMap(data: data)
-        : _FlutterMapDistributionMap(key: ObjectKey(data), data: data);
+    return DistributionMapView(data: data);
   }
 
   Future<void> _loadDistribution() async {
@@ -161,10 +159,33 @@ class _DistributionMapState extends ConsumerState<DistributionMap> {
   }
 }
 
-class _MapLibreDistributionMap extends ConsumerWidget {
-  const _MapLibreDistributionMap({required this.data});
+/// Countries drawn on whichever map renderer is in use: by known or
+/// predicted status, or as a heatmap when [levelColors] is given.
+class DistributionMapView extends ConsumerWidget {
+  const DistributionMapView({super.key, required this.data, this.levelColors});
 
   final DistributionMapData data;
+
+  /// A colour per [DistributionPolygon.level], fewest species first.
+  final List<Color>? levelColors;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(mapRendererProvider) == MapRenderer.mapLibre
+        ? _MapLibreDistributionMap(data: data, levelColors: levelColors)
+        : _FlutterMapDistributionMap(
+            key: ObjectKey(data),
+            data: data,
+            levelColors: levelColors,
+          );
+  }
+}
+
+class _MapLibreDistributionMap extends ConsumerWidget {
+  const _MapLibreDistributionMap({required this.data, this.levelColors});
+
+  final DistributionMapData data;
+  final List<Color>? levelColors;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -172,6 +193,7 @@ class _MapLibreDistributionMap extends ConsumerWidget {
       isDark: Theme.of(context).brightness == Brightness.dark,
       colorScheme: Theme.of(context).colorScheme,
       data: data,
+      levelColors: levelColors,
     );
     return FutureBuilder<DistributionMapStyle>(
       future: style,
@@ -321,9 +343,14 @@ class _MapLibreViewportState extends State<_MapLibreViewport> {
 /// As a mobile fallback it draws only Natural Earth, because the failure is
 /// usually a missing network.
 class _FlutterMapDistributionMap extends ConsumerStatefulWidget {
-  const _FlutterMapDistributionMap({super.key, required this.data});
+  const _FlutterMapDistributionMap({
+    super.key,
+    required this.data,
+    this.levelColors,
+  });
 
   final DistributionMapData data;
+  final List<Color>? levelColors;
 
   @override
   ConsumerState<_FlutterMapDistributionMap> createState() =>
@@ -335,141 +362,142 @@ class _FlutterMapDistributionMapState
   final _controller = flutter_map.MapController();
 
   @override
-  Widget build(BuildContext context) =>
-      FutureBuilder<List<NaturalEarthPolygon>>(
-        future: _naturalEarthPolygons,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const _MapMessage('Unable to load the offline map.');
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final colorScheme = Theme.of(context).colorScheme;
-          final bounds = _flutterBounds(widget.data.bounds);
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final vectorStyle = mapLibreIsExpected
-              ? null
-              : ref.watch(vectorBasemapStyleProvider(isDark));
-          final loadedStyle = vectorStyle?.value;
-          return Stack(
-            children: [
-              flutter_map.FlutterMap(
-                mapController: _controller,
-                options: flutter_map.MapOptions(
-                  initialCenter: const latlong.LatLng(18, 0),
-                  initialZoom: 1,
-                  minZoom: 1,
-                  maxZoom: 16,
-                  interactionOptions: const flutter_map.InteractionOptions(
-                    flags:
-                        flutter_map.InteractiveFlag.all &
-                        ~flutter_map.InteractiveFlag.rotate,
-                  ),
-                  initialCameraFit: bounds == null
-                      ? null
-                      : flutter_map.CameraFit.bounds(
-                          bounds: bounds,
-                          padding: const EdgeInsets.all(24),
-                        ),
-                ),
-                children: [
-                  ColoredBox(color: colorScheme.surface),
-                  if (loadedStyle != null)
-                    vmt.VectorTileLayer(
-                      theme: loadedStyle.theme,
-                      sprites: loadedStyle.sprites,
-                      tileProviders: loadedStyle.providers,
-                    )
-                  else
-                    flutter_map.PolygonLayer(
-                      polygons: [
-                        for (final polygon in snapshot.data!)
-                          flutter_map.Polygon(
-                            points: polygon.points,
-                            holePointsList: polygon.holes,
-                            color: colorScheme.surfaceContainerHighest,
-                            borderColor: colorScheme.outlineVariant,
-                            borderStrokeWidth: 0.6,
-                          ),
-                      ],
+  Widget build(
+    BuildContext context,
+  ) => FutureBuilder<List<NaturalEarthPolygon>>(
+    future: _naturalEarthPolygons,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return const _MapMessage('Unable to load the offline map.');
+      }
+      if (!snapshot.hasData) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      final colorScheme = Theme.of(context).colorScheme;
+      final bounds = _flutterBounds(widget.data.bounds);
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      final vectorStyle = mapLibreIsExpected
+          ? null
+          : ref.watch(vectorBasemapStyleProvider(isDark));
+      final loadedStyle = vectorStyle?.value;
+      return Stack(
+        children: [
+          flutter_map.FlutterMap(
+            mapController: _controller,
+            options: flutter_map.MapOptions(
+              initialCenter: const latlong.LatLng(18, 0),
+              initialZoom: 1,
+              // The default is a light grey, which shows as the sea on the
+              // dark offline map.
+              backgroundColor: colorScheme.surface,
+              minZoom: 1,
+              maxZoom: 16,
+              interactionOptions: const flutter_map.InteractionOptions(
+                flags:
+                    flutter_map.InteractiveFlag.all &
+                    ~flutter_map.InteractiveFlag.rotate,
+              ),
+              initialCameraFit: bounds == null
+                  ? null
+                  : flutter_map.CameraFit.bounds(
+                      bounds: bounds,
+                      padding: const EdgeInsets.all(24),
                     ),
-                  flutter_map.PolygonLayer(
-                    polygons: [
-                      for (final polygon in widget.data.polygons)
-                        flutter_map.Polygon(
-                          points: [
-                            for (final point in polygon.rings.first)
+            ),
+            children: [
+              ColoredBox(color: colorScheme.surface),
+              if (loadedStyle != null)
+                vmt.VectorTileLayer(
+                  theme: loadedStyle.theme,
+                  sprites: loadedStyle.sprites,
+                  tileProviders: loadedStyle.providers,
+                )
+              else
+                flutter_map.PolygonLayer(
+                  polygons: [
+                    for (final polygon in snapshot.data!)
+                      flutter_map.Polygon(
+                        points: polygon.points,
+                        holePointsList: polygon.holes,
+                        color: colorScheme.surfaceContainerHighest,
+                        borderColor: colorScheme.outlineVariant,
+                        borderStrokeWidth: 0.6,
+                      ),
+                  ],
+                ),
+              flutter_map.PolygonLayer(
+                polygons: [
+                  for (final polygon in widget.data.polygons)
+                    flutter_map.Polygon(
+                      points: [
+                        for (final point in polygon.rings.first)
+                          latlong.LatLng(point.latitude, point.longitude),
+                      ],
+                      holePointsList: [
+                        for (final ring in polygon.rings.skip(1))
+                          [
+                            for (final point in ring)
                               latlong.LatLng(point.latitude, point.longitude),
                           ],
-                          holePointsList: [
-                            for (final ring in polygon.rings.skip(1))
-                              [
-                                for (final point in ring)
-                                  latlong.LatLng(
-                                    point.latitude,
-                                    point.longitude,
-                                  ),
-                              ],
-                          ],
-                          color: _fillColor(polygon.status),
-                          borderColor: _outlineColor(polygon.status),
-                          borderStrokeWidth: 1,
-                        ),
-                    ],
-                  ),
+                      ],
+                      color: _fillColor(polygon),
+                      borderColor: _outlineColor(polygon.status),
+                      borderStrokeWidth: widget.levelColors == null ? 1 : 0.5,
+                    ),
                 ],
               ),
-              Positioned(
-                left: 8,
-                bottom: 8,
-                child: switch (vectorStyle) {
-                  null => _OfflineMapNotice(
-                    onRetry: () =>
-                        ref.read(mapRendererProvider.notifier).retryMapLibre(),
-                  ),
-                  AsyncValue(hasValue: true) => const _MapAttribution(
-                    basemap: DistributionBasemap.openFreeMap,
-                  ),
-                  AsyncValue(hasError: true) => _OfflineMapNotice(
-                    onRetry: () =>
-                        ref.invalidate(vectorBasemapStyleProvider(isDark)),
-                  ),
-                  _ => const _MapAttribution(
-                    basemap: DistributionBasemap.naturalEarth,
-                  ),
-                },
-              ),
-              Positioned(
-                right: 8,
-                bottom: 8,
-                child: MapControls(
-                  onZoomIn: () => _controller.move(
-                    _controller.camera.center,
-                    (_controller.camera.zoom + 1).clamp(1, 16).toDouble(),
-                  ),
-                  onZoomOut: () => _controller.move(
-                    _controller.camera.center,
-                    (_controller.camera.zoom - 1).clamp(1, 16).toDouble(),
-                  ),
-                  onReset: () {
-                    if (bounds == null) {
-                      _controller.move(const latlong.LatLng(18, 0), 1);
-                    } else {
-                      _controller.fitCamera(
-                        flutter_map.CameraFit.bounds(
-                          bounds: bounds,
-                          padding: const EdgeInsets.all(24),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
             ],
-          );
-        },
+          ),
+          Positioned(
+            left: 8,
+            bottom: 8,
+            child: switch (vectorStyle) {
+              null => _OfflineMapNotice(
+                onRetry: () =>
+                    ref.read(mapRendererProvider.notifier).retryMapLibre(),
+              ),
+              AsyncValue(hasValue: true) => const _MapAttribution(
+                basemap: DistributionBasemap.openFreeMap,
+              ),
+              AsyncValue(hasError: true) => _OfflineMapNotice(
+                onRetry: () =>
+                    ref.invalidate(vectorBasemapStyleProvider(isDark)),
+              ),
+              _ => const _MapAttribution(
+                basemap: DistributionBasemap.naturalEarth,
+              ),
+            },
+          ),
+          Positioned(
+            right: 8,
+            bottom: 8,
+            child: MapControls(
+              onZoomIn: () => _controller.move(
+                _controller.camera.center,
+                (_controller.camera.zoom + 1).clamp(1, 16).toDouble(),
+              ),
+              onZoomOut: () => _controller.move(
+                _controller.camera.center,
+                (_controller.camera.zoom - 1).clamp(1, 16).toDouble(),
+              ),
+              onReset: () {
+                if (bounds == null) {
+                  _controller.move(const latlong.LatLng(18, 0), 1);
+                } else {
+                  _controller.fitCamera(
+                    flutter_map.CameraFit.bounds(
+                      bounds: bounds,
+                      padding: const EdgeInsets.all(24),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       );
+    },
+  );
 
   flutter_map.LatLngBounds? _flutterBounds(DistributionBounds? bounds) {
     if (bounds == null) return null;
@@ -479,14 +507,27 @@ class _FlutterMapDistributionMapState
     );
   }
 
-  Color _fillColor(DistributionStatus status) => switch (status) {
-    DistributionStatus.known =>
-      DistributionMapStyleService.knownColor.withValues(alpha: 0.5),
-    DistributionStatus.predicted =>
-      DistributionMapStyleService.predictedColor.withValues(alpha: 0.5),
-  };
+  Color _fillColor(DistributionPolygon polygon) {
+    final levelColors = widget.levelColors;
+    if (levelColors != null) {
+      return levelColors[(polygon.level ?? 0).clamp(0, levelColors.length - 1)]
+          .withValues(alpha: DistributionMapStyleService.heatOpacity);
+    }
+    return switch (polygon.status) {
+      DistributionStatus.known =>
+        DistributionMapStyleService.knownColor.withValues(alpha: 0.5),
+      DistributionStatus.predicted =>
+        DistributionMapStyleService.predictedColor.withValues(alpha: 0.5),
+    };
+  }
 
-  Color _outlineColor(DistributionStatus status) => switch (status) {
+  Color _outlineColor(DistributionStatus status) {
+    final levelColors = widget.levelColors;
+    if (levelColors != null) return levelColors.last;
+    return _statusOutlineColor(status);
+  }
+
+  Color _statusOutlineColor(DistributionStatus status) => switch (status) {
     DistributionStatus.known => DistributionMapStyleService.knownColor,
     DistributionStatus.predicted =>
       DistributionMapStyleService.predictedOutlineColor,

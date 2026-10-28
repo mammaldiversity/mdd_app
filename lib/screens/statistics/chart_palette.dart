@@ -191,4 +191,13 @@ class ChartPalette {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? const Color(0xFF4DD0E1) : const Color(0xFF00838F);
   }
+
+  /// Gain and loss colors for taxonomy change bars, e.g. splits against
+  /// lumps.
+  static ({Color gain, Color loss}) getChangeColors(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark
+        ? (gain: const Color(0xFF81C784), loss: const Color(0xFFEF9A9A))
+        : (gain: const Color(0xFF2E7D32), loss: const Color(0xFFC62828));
+  }
 }

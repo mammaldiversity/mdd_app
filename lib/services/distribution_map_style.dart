@@ -23,6 +23,24 @@ class DistributionMapStyleService {
   static const predictedColor = Color(0xFFFFEB00);
   static const predictedOutlineColor = Color(0xFFB5A600);
 
+  /// Heatmap classes from fewest to most species. Dark mode runs dark to
+  /// bright, so the richest countries stand out on either basemap.
+  static List<Color> heatColors({required bool isDark}) => isDark
+      ? const [
+          Color(0xFF16422E),
+          Color(0xFF1E6646),
+          Color(0xFF2B8F62),
+          Color(0xFF55BC88),
+          Color(0xFFA6E6BF),
+        ]
+      : const [
+          Color(0xFFCDEBD3),
+          Color(0xFF8ACFA2),
+          Color(0xFF45A877),
+          Color(0xFF16774F),
+          Color(0xFF07432C),
+        ];
+
   static String styleUrl({required bool isDark}) =>
       'https://tiles.openfreemap.org/styles/${isDark ? 'dark' : 'positron'}';
 
@@ -30,6 +48,7 @@ class DistributionMapStyleService {
     required bool isDark,
     required ColorScheme colorScheme,
     required DistributionMapData data,
+    List<Color>? levelColors,
     http.Client? client,
   }) async {
     final ownedClient = client == null ? http.Client() : null;
@@ -42,7 +61,7 @@ class DistributionMapStyleService {
         final style = Map<String, dynamic>.from(
           jsonDecode(response.body) as Map,
         );
-        _addDistribution(style, data);
+        _addDistribution(style, data, levelColors);
         return DistributionMapStyle(
           json: jsonEncode(style),
           basemap: DistributionBasemap.openFreeMap,
@@ -56,7 +75,7 @@ class DistributionMapStyleService {
 
     final style = _blankStyle(colorScheme);
     await _addNaturalEarth(style, colorScheme);
-    _addDistribution(style, data);
+    _addDistribution(style, data, levelColors);
     return DistributionMapStyle(
       json: jsonEncode(style),
       basemap: DistributionBasemap.naturalEarth,
@@ -114,11 +133,17 @@ class DistributionMapStyleService {
   static void _addDistribution(
     Map<String, dynamic> style,
     DistributionMapData data,
+    List<Color>? levelColors,
   ) {
     final sources = Map<String, dynamic>.from(style['sources'] as Map? ?? {});
     sources[sourceId] = {'type': 'geojson', 'data': data.featureCollection};
     style['sources'] = sources;
     final layers = _layers(style);
+    if (levelColors != null) {
+      layers.addAll(_levelLayers(levelColors));
+      style['layers'] = layers;
+      return;
+    }
     layers.addAll([
       _fillLayer(DistributionStatus.known, knownColor),
       _lineLayer(DistributionStatus.known, knownColor),
@@ -127,6 +152,34 @@ class DistributionMapStyleService {
     ]);
     style['layers'] = layers;
   }
+
+  /// A heatmap: each country filled with its class colour.
+  static List<Map<String, dynamic>> _levelLayers(List<Color> colors) => [
+    {
+      'id': 'mdd-distribution-level-fill',
+      'type': 'fill',
+      'source': sourceId,
+      'paint': {
+        'fill-color': [
+          'match',
+          ['get', 'level'],
+          for (final (level, color) in colors.indexed) ...[level, _hex(color)],
+          _hex(colors.first),
+        ],
+        'fill-opacity': heatOpacity,
+      },
+    },
+    {
+      'id': 'mdd-distribution-level-outline',
+      'type': 'line',
+      'source': sourceId,
+      'paint': {'line-color': _hex(colors.last), 'line-width': 0.5},
+    },
+  ];
+
+  /// Strong enough to tell classes apart, light enough to keep the
+  /// basemap's borders and labels.
+  static const double heatOpacity = 0.85;
 
   static Map<String, dynamic> _fillLayer(
     DistributionStatus status,

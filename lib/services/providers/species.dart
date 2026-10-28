@@ -283,3 +283,16 @@ final higherTaxonImagesProvider =
         ref.watch(databaseProvider),
       ).getMilImagesForSpeciesIds([for (final row in data.rows) row.id]);
     });
+
+/// Living species per country for a higher taxon, as map shapes.
+final higherTaxonHeatmapProvider = FutureProvider.autoDispose
+    .family<CountryHeatmap, TaxonKey>((ref, taxon) async {
+      final data = await ref.watch(higherTaxonProvider(taxon).future);
+      final source = await rootBundle.loadString(
+        'assets/data/countries.geojson',
+      );
+      return CountryHeatmap(
+        counts: CountrySpeciesCounts.fromRows(data.rows),
+        topology: Map<String, dynamic>.from(jsonDecode(source) as Map),
+      );
+    });

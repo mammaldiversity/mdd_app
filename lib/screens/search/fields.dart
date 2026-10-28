@@ -242,7 +242,11 @@ class SearchResultInfo extends ConsumerWidget {
                             borderColor: colorScheme.outlineVariant.withAlpha(
                               160,
                             ),
-                            child: SearchExportButton(mddIDs: foundRecords),
+                            child: SpeciesExportButton(
+                              mddIDs: foundRecords,
+                              tooltip: 'Export search results',
+                              iconColor: colorScheme.onPrimaryContainer,
+                            ),
                           ),
                         ],
                       ),
@@ -291,43 +295,72 @@ class SearchInfoBox extends StatelessWidget {
   }
 }
 
-class SearchExportButton extends ConsumerStatefulWidget {
-  const SearchExportButton({super.key, required this.mddIDs});
+/// Exports the species [mddIDs], and optionally their synonyms, after
+/// asking for a file name and format.
+class SpeciesExportButton extends ConsumerStatefulWidget {
+  const SpeciesExportButton({
+    super.key,
+    required this.mddIDs,
+    required this.tooltip,
+    this.fileName = kDefaultFileName,
+    this.iconColor,
+    this.label,
+  });
 
   final List<int> mddIDs;
+  final String tooltip;
+
+  /// Shows a labelled button instead of an icon alone.
+  final String? label;
+
+  /// The file name the export dialog starts with.
+  final String fileName;
+  final Color? iconColor;
 
   @override
-  SearchExportButtonState createState() => SearchExportButtonState();
+  SpeciesExportButtonState createState() => SpeciesExportButtonState();
 }
 
-class SearchExportButtonState extends ConsumerState<SearchExportButton> {
+class SpeciesExportButtonState extends ConsumerState<SpeciesExportButton> {
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return IconButton(
-      icon: Icon(
-        Icons.adaptive.share,
-        size: 20,
-        color: colorScheme.onPrimaryContainer,
-      ),
-      tooltip: 'Export search results',
-      onPressed: () async {
-        try {
-          await _exportRecords();
-        } catch (e) {
-          if (mounted) {
-            _showSnackBar(e.toString());
-          }
-        }
-      },
+    final Widget icon = Icon(
+      Icons.adaptive.share,
+      size: 20,
+      color: widget.iconColor,
     );
+    final String? label = widget.label;
+    if (label != null) {
+      return Tooltip(
+        message: widget.tooltip,
+        child: OutlinedButton.icon(
+          onPressed: _onPressed,
+          icon: icon,
+          label: Text(label),
+        ),
+      );
+    }
+    return IconButton(
+      icon: icon,
+      tooltip: widget.tooltip,
+      onPressed: _onPressed,
+    );
+  }
+
+  Future<void> _onPressed() async {
+    try {
+      await _exportRecords();
+    } catch (e) {
+      if (mounted) {
+        _showSnackBar(e.toString());
+      }
+    }
   }
 
   Future<void> _exportRecords() async {
     final ExportSettings? settings = await showDialog<ExportSettings>(
       context: context,
-      builder: (context) => const ExportDialog(),
+      builder: (context) => ExportDialog(initialFileName: widget.fileName),
     );
 
     if (settings != null && mounted) {
@@ -423,7 +456,9 @@ class SearchFilterView {
 }
 
 class ExportDialog extends StatefulWidget {
-  const ExportDialog({super.key});
+  const ExportDialog({super.key, this.initialFileName = kDefaultFileName});
+
+  final String initialFileName;
 
   @override
   State<ExportDialog> createState() => _ExportDialogState();
@@ -437,7 +472,7 @@ class _ExportDialogState extends State<ExportDialog> {
   @override
   void initState() {
     super.initState();
-    _filenameController = TextEditingController(text: kDefaultFileName);
+    _filenameController = TextEditingController(text: widget.initialFileName);
   }
 
   @override

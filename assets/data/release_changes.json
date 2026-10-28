@@ -1,0 +1,52 @@
+[
+  {
+    "version": "2.1",
+    "prevVersion": "2.0",
+    "releaseDate": "2025-04-06",
+    "deNovo": 26,
+    "split": 31,
+    "lump": 14,
+    "added": 1,
+    "removed": 1
+  },
+  {
+    "version": "2.2",
+    "prevVersion": "2.1",
+    "releaseDate": "2025-06-13",
+    "deNovo": 13,
+    "split": 4,
+    "lump": 3,
+    "added": 0,
+    "removed": 0
+  },
+  {
+    "version": "2.3",
+    "prevVersion": "2.2",
+    "releaseDate": "2025-09-01",
+    "deNovo": 16,
+    "split": 11,
+    "lump": 7,
+    "added": 1,
+    "removed": 0
+  },
+  {
+    "version": "2.4",
+    "prevVersion": "2.3",
+    "releaseDate": "2026-01-02",
+    "deNovo": 22,
+    "split": 23,
+    "lump": 9,
+    "added": 0,
+    "removed": 1
+  },
+  {
+    "version": "2.5",
+    "prevVersion": "2.4",
+    "releaseDate": "2026-07-28",
+    "deNovo": 27,
+    "split": 11,
+    "lump": 6,
+    "added": 1,
+    "removed": 0
+  }
+]

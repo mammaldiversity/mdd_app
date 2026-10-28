@@ -489,6 +489,7 @@ class CrossrefWork {
     this.issue = '',
     this.pages = '',
     this.type = '',
+    this.abstract = '',
   });
 
   final String title;
@@ -507,6 +508,9 @@ class CrossrefWork {
 
   /// Crossref's work type id, e.g. `journal-article` or `book-chapter`.
   final String type;
+
+  /// Plain-text abstract; empty when Crossref has none, as for most works.
+  final String abstract;
 
   /// Crossref's names for its work types, in sentence case.
   static const Map<String, String> _typeLabels = {
@@ -558,6 +562,36 @@ class CrossrefWork {
     ].join(' ');
   }
 
+  /// The parsed fields, for the on-device cache; see [fromCacheJson].
+  Map<String, dynamic> toCacheJson() => {
+    'title': title,
+    'authors': authors,
+    'authorNames': authorNames,
+    'year': year,
+    'journal': journal,
+    'volume': volume,
+    'issue': issue,
+    'pages': pages,
+    'doi': doi,
+    'type': type,
+    'abstract': abstract,
+  };
+
+  factory CrossrefWork.fromCacheJson(Map<String, dynamic> json) => CrossrefWork(
+    title: json['title'] as String,
+    authors: json['authors'] as String,
+    authorNames: [...(json['authorNames'] as List<dynamic>).cast<String>()],
+    year: json['year'] as int?,
+    journal: json['journal'] as String,
+    volume: json['volume'] as String,
+    issue: json['issue'] as String,
+    pages: json['pages'] as String,
+    doi: json['doi'] as String,
+    type: json['type'] as String,
+    abstract: json['abstract'] as String,
+  );
+
+  /// Parses a work from Crossref's API.
   factory CrossrefWork.fromJson(Map<String, dynamic> json) {
     final List<Map<String, dynamic>> authorList =
         (json['author'] as List<dynamic>? ?? [])
@@ -586,7 +620,7 @@ class CrossrefWork {
         ? (dateParts.first as List<dynamic>?)?.firstOrNull
         : null;
     return CrossrefWork(
-      title: _cleanTitle(_firstString(json['title'])),
+      title: _cleanMarkup(_firstString(json['title'])),
       authors: authors,
       authorNames: authorNames,
       year: yearValue is num ? yearValue.toInt() : null,
@@ -596,6 +630,10 @@ class CrossrefWork {
       pages: _firstString(json['page']),
       doi: (json['DOI'] ?? '') as String,
       type: '${json['type'] ?? ''}'.trim(),
+      // Abstracts arrive as JATS XML, e.g. `<jats:p>…</jats:p>`.
+      abstract: _cleanMarkup(
+        json['abstract'] is String ? json['abstract'] as String : '',
+      ),
     );
   }
 
@@ -609,7 +647,7 @@ class CrossrefWork {
   }
 
   /// Drops publisher markup, which some deposits escape (`&lt;i&gt;`).
-  static String _cleanTitle(String raw) {
+  static String _cleanMarkup(String raw) {
     const Map<String, String> entities = {
       '&lt;': '<',
       '&gt;': '>',
@@ -636,51 +674,164 @@ class CrossrefWork {
   }
 }
 
+/// A contact address for Crossref's polite pool, which serves requests that
+/// carry one faster and more reliably. Null keeps the app in the public
+/// pool.
+const String? crossrefContactEmail = null;
+
+/// One page of Crossref results, already filtered to works naming the
+/// taxon.
+class CrossrefPage {
+  const CrossrefPage({
+    required this.works,
+    required this.nextCursor,
+    required this.totalResults,
+    required this.scanned,
+  });
+
+  final List<CrossrefWork> works;
+
+  /// Where the next page starts; null at the end of the results.
+  final String? nextCursor;
+
+  /// Everything Crossref matched, before filtering.
+  final int totalResults;
+
+  /// Records on this page, before filtering.
+  final int scanned;
+}
+
+/// Sends Crossref requests one at a time and at least [minInterval] apart,
+/// retrying once after a rate-limit reply, so paging stays inside
+/// Crossref's limits however fast the user taps.
+class CrossrefRequestGate {
+  CrossrefRequestGate({
+    this.minInterval = const Duration(seconds: 1),
+    this.defaultRetryAfter = const Duration(seconds: 2),
+  });
+
+  final Duration minInterval;
+
+  /// The wait after a rate-limit reply without a Retry-After header.
+  final Duration defaultRetryAfter;
+
+  Future<void> _queue = Future.value();
+  DateTime? _lastSent;
+
+  Future<http.Response> send(Future<http.Response> Function() request) {
+    final result = _queue.then((_) => _run(request));
+    _queue = result.then((_) {}, onError: (_) {});
+    return result;
+  }
+
+  Future<http.Response> _run(Future<http.Response> Function() request) async {
+    http.Response response = await _sendSpaced(request);
+    if (response.statusCode == 429 || response.statusCode == 503) {
+      await Future<void>.delayed(_retryAfter(response));
+      response = await _sendSpaced(request);
+    }
+    return response;
+  }
+
+  Future<http.Response> _sendSpaced(
+    Future<http.Response> Function() request,
+  ) async {
+    final DateTime? last = _lastSent;
+    if (last != null) {
+      final Duration wait = minInterval - DateTime.now().difference(last);
+      if (wait > Duration.zero) await Future<void>.delayed(wait);
+    }
+    _lastSent = DateTime.now();
+    return request();
+  }
+
+  Duration _retryAfter(http.Response response) {
+    final int? seconds = int.tryParse(response.headers['retry-after'] ?? '');
+    return seconds == null ? defaultRetryAfter : Duration(seconds: seconds);
+  }
+}
+
 class CrossrefClient {
-  const CrossrefClient(this.client);
+  CrossrefClient(this.client, {CrossrefRequestGate? gate})
+    : gate = gate ?? sharedGate;
 
   final http.Client client;
+  final CrossrefRequestGate gate;
 
-  static const int maxWorks = 20;
+  /// One gate for the whole app, so every page shares the pace.
+  static final CrossrefRequestGate sharedGate = CrossrefRequestGate();
+
+  /// Records fetched per request. Fields are trimmed by `select`, so a page
+  /// stays small.
+  static const int pageSize = 100;
+
+  /// Records scanned per taxon at most; past this, "Search more on
+  /// Crossref" takes over.
+  static const int maxScanned = 500;
 
   static String searchUrl(String name) =>
       Uri.https('search.crossref.org', '/', {'q': name}).toString();
 
-  Future<List<CrossrefWork>> fetchWorks(String name) async {
-    final json = await _getJson(
-      client,
-      Uri.https('api.crossref.org', '/works', {
-        'query.bibliographic': '"$name"',
-        'rows': '40',
-        'select':
-            'DOI,title,author,issued,container-title,volume,issue,page,type',
-      }),
+  Future<CrossrefPage> fetchPage(String name, {String cursor = '*'}) async {
+    final Uri uri = Uri.https('api.crossref.org', '/works', {
+      'query.bibliographic': '"$name"',
+      'rows': '$pageSize',
+      'cursor': cursor,
+      'select':
+          'DOI,title,author,issued,container-title,volume,issue,page,type,'
+          'abstract',
+      'mailto': ?crossrefContactEmail,
+    });
+    final response = await gate.send(
+      () => client.get(uri, headers: _crossrefHeaders),
     );
-    final List<dynamic> items =
-        (json['message'] as Map<String, dynamic>?)?['items']
-            as List<dynamic>? ??
-        [];
-    return filterWorks(
-      items.map((e) => CrossrefWork.fromJson(e as Map<String, dynamic>)),
-      name,
+    if (response.statusCode != 200) {
+      throw http.ClientException('HTTP ${response.statusCode}', uri);
+    }
+    final json =
+        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    final message = json['message'] as Map<String, dynamic>? ?? const {};
+    final List<dynamic> items = message['items'] as List<dynamic>? ?? [];
+    final String? next = message['next-cursor'] as String?;
+    return CrossrefPage(
+      works: filterWorks(
+        items.map((e) => CrossrefWork.fromJson(e as Map<String, dynamic>)),
+        name,
+      ),
+      // Crossref returns a cursor even with the last page; a short page
+      // is the end.
+      nextCursor: items.length < pageSize ? null : next,
+      totalResults: (message['total-results'] as num?)?.toInt() ?? 0,
+      scanned: items.length,
     );
   }
 
-  /// Crossref relevance matching is fuzzy; keep works whose title
-  /// mentions the species binomial.
+  static Map<String, String> get _crossrefHeaders => {
+    ...externalRequestHeaders,
+    if (crossrefContactEmail case final email?)
+      'User-Agent': '${externalRequestHeaders['User-Agent']} (mailto:$email)',
+  };
+
+  /// Crossref relevance matching is fuzzy; keep works whose title or
+  /// abstract mentions [name], e.g. a binomial, a genus, or a family.
   static List<CrossrefWork> filterWorks(
     Iterable<CrossrefWork> works,
     String name,
   ) {
-    final String needle = name.toLowerCase();
+    final RegExp pattern = namePattern(name);
     return works
         .where(
           (work) =>
-              work.doi.isNotEmpty && work.title.toLowerCase().contains(needle),
+              work.doi.isNotEmpty &&
+              (pattern.hasMatch(work.title) || pattern.hasMatch(work.abstract)),
         )
-        .take(maxWorks)
         .toList();
   }
+
+  /// [name] as a whole word in any case, so the genus *Mus* matches
+  /// "Mus musculus" but not "museum".
+  static RegExp namePattern(String name) =>
+      RegExp('\\b${RegExp.escape(name)}\\b', caseSensitive: false);
 
   /// Groups works by year, newest first; works without a year come last.
   static List<(int?, List<CrossrefWork>)> groupByYear(

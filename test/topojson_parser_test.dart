@@ -32,6 +32,13 @@ void main() {
       });
     });
 
+    test('shades countries by heatmap level', () {
+      final data = TopoJsonParser.parseLevels(_topology(), {'US': 3, 'MX': 0});
+      expect(data.polygons.map((p) => p.level), [3, 0]);
+      final features = data.featureCollection['features'] as List<dynamic>;
+      expect(((features.first as Map)['properties'] as Map)['level'], 3);
+    });
+
     test('preserves holes and closes rings', () {
       final topology = _topology(
         geometries: [

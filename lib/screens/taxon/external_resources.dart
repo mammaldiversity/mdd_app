@@ -660,8 +660,9 @@ class _StatHeading extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
     child: Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium
-          ?.copyWith(fontWeight: FontWeight.bold),
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     ),
   );
 }
@@ -966,18 +967,31 @@ class CrossrefView extends ConsumerWidget {
         onPressed: () => launchURL(CrossrefClient.searchUrl(speciesName)),
       ),
     );
+    final provider = crossrefWorksProvider(speciesName);
     return ref
-        .watch(crossrefWorksProvider(speciesName))
+        .watch(provider)
         .when(
-          data: (works) {
+          data: (state) {
+            final works = state.works;
+            final Widget more = Column(
+              children: [
+                _LoadMoreButton(
+                  state: state,
+                  onLoadMore: () => ref.read(provider.notifier).loadMore(),
+                ),
+                _CrossrefReach(state: state, name: speciesName),
+                searchMore,
+              ],
+            );
             if (works.isEmpty) {
               return ListView(
                 shrinkWrap: true,
                 children: [
                   const _ResourceMessage(
-                    'No publications with this species in the title found.',
+                    'No publications with this species in the title or '
+                    'abstract found.',
                   ),
-                  searchMore,
+                  more,
                 ],
               );
             }
@@ -986,50 +1000,145 @@ class CrossrefView extends ConsumerWidget {
               for (final (_, items) in groups) ...items,
             ];
             final List<int> years = [for (final (year, _) in groups) ?year];
-            return ListView(
-              shrinkWrap: true,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatCard(
-                        title: 'Publications',
-                        count: works.length,
-                        leading: const ResourceGlyph(
-                          icon: ResourceIcon.publications,
-                        ),
-                      ),
-                    ),
-                    if (years.isNotEmpty) ...[
+            // A long list fills the sheet and builds only the works in
+            // view, so it scrolls smoothly; a short one keeps the sheet
+            // short.
+            return CustomScrollView(
+              shrinkWrap: works.length <= _kInitialPublicationCount,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Row(
+                    children: [
                       Expanded(
                         child: StatCard(
-                          title: 'Latest',
-                          display: '${years.first}',
-                          leading: const _StatIcon(Icons.event_outlined),
+                          title: 'Publications',
+                          count: works.length,
+                          leading: const ResourceGlyph(
+                            icon: ResourceIcon.publications,
+                          ),
                         ),
                       ),
-                      Expanded(
-                        child: StatCard(
-                          title: 'Earliest',
-                          display: '${years.last}',
-                          leading: const _StatIcon(Icons.history),
+                      if (years.isNotEmpty) ...[
+                        Expanded(
+                          child: StatCard(
+                            title: 'Latest',
+                            display: '${years.first}',
+                            leading: const _StatIcon(Icons.event_outlined),
+                          ),
                         ),
-                      ),
+                        Expanded(
+                          child: StatCard(
+                            title: 'Earliest',
+                            display: '${years.last}',
+                            leading: const _StatIcon(Icons.history),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 _PublicationList(works: sorted, speciesName: speciesName),
-                const SizedBox(height: 4),
-                searchMore,
+                const SliverToBoxAdapter(child: SizedBox(height: 4)),
+                SliverToBoxAdapter(child: more),
               ],
             );
           },
           loading: () => const _ResourceLoading(),
-          error: (error, _) => _ResourceError(
-            onRetry: () => ref.invalidate(crossrefWorksProvider(speciesName)),
-          ),
+          error: (error, _) =>
+              _ResourceError(onRetry: () => ref.invalidate(provider)),
         );
+  }
+}
+
+/// Fetches the next page of Crossref results, or says why it can't.
+class _LoadMoreButton extends StatelessWidget {
+  const _LoadMoreButton({
+    required this.state,
+    required this.onLoadMore,
+    this.label = 'Show more',
+  });
+
+  final CrossrefWorksState state;
+  final VoidCallback onLoadMore;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final TextStyle? muted = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant);
+    if (state.isLoadingMore) {
+      return Semantics(
+        liveRegion: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 8),
+              Text('Searching Crossref…', style: muted),
+            ],
+          ),
+        ),
+      );
+    }
+    if (!state.hasMore) return const SizedBox.shrink();
+    final Widget button = TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor: colorScheme.secondary,
+        visualDensity: VisualDensity.compact,
+      ),
+      onPressed: onLoadMore,
+      child: Text(state.loadMoreFailed ? 'Try again' : label),
+    );
+    if (!state.loadMoreFailed) return button;
+    return Semantics(
+      liveRegion: true,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text("Couldn't load more.", style: muted),
+          button,
+        ],
+      ),
+    );
+  }
+}
+
+/// How much of Crossref's results the list covers, e.g. "18 works name
+/// Muridae in the first 200 of 2,345 Crossref results."
+class _CrossrefReach extends StatelessWidget {
+  const _CrossrefReach({required this.state, required this.name});
+
+  final CrossrefWorksState state;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = state.progress;
+    if (progress.totalResults == 0) return const SizedBox.shrink();
+    final int count = state.works.length;
+    final String works = count == 1 ? '1 work names' : '$count works name';
+    final String checked = progress.scanned >= progress.totalResults
+        ? 'all ${formatCount(progress.totalResults)}'
+        : 'the first ${formatCount(progress.scanned)} of '
+              '${formatCount(progress.totalResults)}';
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Text(
+        '$works $name in $checked Crossref results.',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 }
 
@@ -1045,7 +1154,8 @@ class _StatIcon extends StatelessWidget {
   }
 }
 
-/// Publications newest first in one card, divided by rules.
+/// Publications newest first in one card, divided by rules: a sliver, so
+/// only the works in view are built, each painted on its own.
 class _PublicationList extends StatelessWidget {
   const _PublicationList({required this.works, required this.speciesName});
 
@@ -1055,25 +1165,23 @@ class _PublicationList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(130)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final (index, work) in works.indexed) ...[
-              if (index > 0)
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      sliver: DecoratedSliver(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colorScheme.outlineVariant.withAlpha(130)),
+        ),
+        sliver: SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          sliver: SliverList.separated(
+            itemCount: works.length,
+            itemBuilder: (context, index) =>
+                _Publication(work: works[index], speciesName: speciesName),
+            separatorBuilder: (context, index) =>
                 Divider(color: colorScheme.outlineVariant.withAlpha(130)),
-              _Publication(work: work, speciesName: speciesName),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -1125,17 +1233,21 @@ class _Publication extends StatelessWidget {
   }
 }
 
-/// Broad kinds of Crossref work, each with its own label color.
+/// Broad kinds of Crossref work, each with its own label color. In filter
+/// chip order.
 enum WorkKind {
-  article(Colors.green),
-  book(Colors.brown),
-  grayLiterature(Colors.blue),
-  data(Colors.purple),
-  other(Colors.blueGrey);
+  article(Colors.green, 'Articles'),
+  book(Colors.brown, 'Books'),
+  grayLiterature(Colors.blue, 'Preprints and reports'),
+  data(Colors.purple, 'Datasets'),
+  other(Colors.blueGrey, 'Other');
 
-  const WorkKind(this.hue);
+  const WorkKind(this.hue, this.label);
 
   final MaterialColor hue;
+
+  /// Filter chip name, e.g. "Articles".
+  final String label;
 
   static WorkKind of(String type) => switch (type) {
     'journal-article' => article,
@@ -1193,6 +1305,386 @@ class _WorkTypeLabel extends StatelessWidget {
   }
 }
 
+/// Timeline entries shown before "Show all".
+const int _kInitialPublicationCount = 10;
+
+/// Publications naming a higher taxon, e.g. a family or order, laid out like
+/// the website's Publications section: summary figures, filters by kind,
+/// and a timeline grouped by year.
+class CrossrefPublicationsCard extends ConsumerWidget {
+  const CrossrefPublicationsCard({
+    super.key,
+    required this.name,
+    this.isItalic = false,
+  });
+
+  final String name;
+
+  /// Sets [name] in italics, as for a genus or subgenus.
+  final bool isItalic;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final TextStyle? messageStyle = Theme.of(
+      context,
+    ).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant);
+    final TextStyle nameStyle = TextStyle(
+      fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+    );
+    return CommonCard(
+      title: 'Publications',
+      action: _SourceButton(
+        label: 'Search Crossref',
+        icon: Icons.search,
+        onPressed: () => launchURL(CrossrefClient.searchUrl(name)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(
+                    text:
+                        'Fetched automatically from Crossref and not curated '
+                        'by the MDD team. Only works with ',
+                  ),
+                  TextSpan(text: name, style: nameStyle),
+                  const TextSpan(text: ' in the title or abstract are shown.'),
+                ],
+              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ref
+                .watch(crossrefWorksProvider(name))
+                .when(
+                  data: (state) => state.works.isEmpty
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(text: 'No publications with '),
+                                  TextSpan(text: name, style: nameStyle),
+                                  const TextSpan(
+                                    text: ' in the title or abstract found.',
+                                  ),
+                                ],
+                              ),
+                              style: messageStyle,
+                            ),
+                            _LoadMoreButton(
+                              state: state,
+                              label: 'Look further',
+                              onLoadMore: () => ref
+                                  .read(crossrefWorksProvider(name).notifier)
+                                  .loadMore(),
+                            ),
+                            _CrossrefReach(state: state, name: name),
+                          ],
+                        )
+                      : _PublicationTimeline(
+                          state: state,
+                          name: name,
+                          italicName: isItalic ? name : '',
+                          onLoadMore: () => ref
+                              .read(crossrefWorksProvider(name).notifier)
+                              .loadMore(),
+                        ),
+                  loading: () => Semantics(
+                    liveRegion: true,
+                    child: Text('Searching Crossref…', style: messageStyle),
+                  ),
+                  error: (_, _) => Semantics(
+                    liveRegion: true,
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text("Couldn't reach Crossref.", style: messageStyle),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: colorScheme.secondary,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          onPressed: () =>
+                              ref.invalidate(crossrefWorksProvider(name)),
+                          child: const Text('Try again'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Summary figures, kind filters, and works grouped by year, newest first.
+class _PublicationTimeline extends StatefulWidget {
+  const _PublicationTimeline({
+    required this.state,
+    required this.name,
+    required this.italicName,
+    required this.onLoadMore,
+  });
+
+  final CrossrefWorksState state;
+  final String name;
+
+  /// Fetches the next page from Crossref.
+  final VoidCallback onLoadMore;
+
+  /// Set in italics wherever it appears in a title; empty for none.
+  final String italicName;
+
+  @override
+  State<_PublicationTimeline> createState() => _PublicationTimelineState();
+}
+
+class _PublicationTimelineState extends State<_PublicationTimeline> {
+  WorkKind? _filter;
+
+  /// Works shown so far; "Show more" adds [_kInitialPublicationCount].
+  int _shown = _kInitialPublicationCount;
+
+  void _setFilter(WorkKind? kind) => setState(() {
+    _filter = kind;
+    _shown = _kInitialPublicationCount;
+  });
+
+  void _showMore() => setState(() => _shown += _kInitialPublicationCount);
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final List<CrossrefWork> works = widget.state.works;
+    final List<int> years = [for (final work in works) ?work.year]..sort();
+    final Map<WorkKind, int> counts = {};
+    for (final work in works) {
+      final WorkKind kind = WorkKind.of(work.type);
+      counts[kind] = (counts[kind] ?? 0) + 1;
+    }
+    final List<WorkKind> kinds = [
+      for (final kind in WorkKind.values)
+        if (counts.containsKey(kind)) kind,
+    ];
+    // Newest first before cutting to the first page, so "Show more" adds
+    // older works, until a new Crossref page brings in more years.
+    final List<CrossrefWork> filtered = [
+      for (final (_, group) in CrossrefClient.groupByYear(works))
+        for (final work in group)
+          if (_filter == null || WorkKind.of(work.type) == _filter) work,
+    ];
+    final List<CrossrefWork> visible = filtered.take(_shown).toList();
+    final Color rule = colorScheme.outlineVariant.withAlpha(130);
+
+    Widget chip(WorkKind? kind, String label) => ChoiceChip(
+      label: Text(label),
+      selected: _filter == kind,
+      showCheckmark: false,
+      visualDensity: VisualDensity.compact,
+      onSelected: (_) => _setFilter(kind),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Row(
+            children: [
+              Expanded(
+                child: _MiniStat(label: 'Works', value: '${works.length}'),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _MiniStat(
+                  label: 'Latest',
+                  value: years.isEmpty ? '—' : '${years.last}',
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _MiniStat(
+                  label: 'Earliest',
+                  value: years.isEmpty ? '—' : '${years.first}',
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (kinds.length > 1) ...[
+          Semantics(
+            label: 'Filter by type',
+            container: true,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                chip(null, 'All ${works.length}'),
+                for (final kind in kinds)
+                  chip(kind, '${kind.label} ${counts[kind]}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        for (final (year, group) in CrossrefClient.groupByYear(visible)) ...[
+          Divider(height: 1, color: rule),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 48,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    year == null ? 'n.d.' : '$year',
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (index, work) in group.indexed) ...[
+                      if (index > 0) Divider(height: 1, color: rule),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 4),
+                        child: _TimelineWork(
+                          work: work,
+                          italicName: widget.italicName,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+        // Shows what is loaded first, then asks Crossref for more.
+        if (filtered.length > _shown)
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.secondary,
+              visualDensity: VisualDensity.compact,
+            ),
+            onPressed: _showMore,
+            child: const Text('Show more'),
+          )
+        else
+          _LoadMoreButton(
+            state: widget.state,
+            onLoadMore: () {
+              _showMore();
+              widget.onLoadMore();
+            },
+          ),
+        _CrossrefReach(state: widget.state, name: widget.name),
+      ],
+    );
+  }
+}
+
+/// A small outlined figure with its label above, e.g. "Latest 2024".
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One timeline entry; the year is in the column beside it, so the meta
+/// line leaves it out.
+class _TimelineWork extends StatelessWidget {
+  const _TimelineWork({required this.work, required this.italicName});
+
+  final CrossrefWork work;
+  final String italicName;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final String meta = [
+      work.authors,
+      work.source,
+    ].where((e) => e.isNotEmpty).join(' · ');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (work.typeLabel.isNotEmpty) ...[
+          _WorkTypeLabel(work),
+          const SizedBox(height: 4),
+        ],
+        Text.rich(
+          TextSpan(children: italicizeName(work.title, italicName)),
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        if (meta.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            meta,
+            style: textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+        Wrap(
+          children: [
+            _SourceButton(label: 'View', onPressed: () => launchURL(work.url)),
+            _CopyCitationButton(citation: work.citation),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 /// Shows "Copied" in place, since a snackbar would sit under the sheet.
 class _CopyCitationButton extends StatefulWidget {
   const _CopyCitationButton({required this.citation});
@@ -1228,24 +1720,23 @@ class _CopyCitationButtonState extends State<_CopyCitationButton> {
   }
 }
 
-/// Splits [text] into spans with every occurrence of [name] in italics.
+/// Splits [text] into spans with every whole-word occurrence of [name] in
+/// italics.
 List<TextSpan> italicizeName(String text, String name) {
   if (name.isEmpty) return [TextSpan(text: text)];
   final List<TextSpan> spans = [];
-  final String lower = text.toLowerCase();
-  final String needle = name.toLowerCase();
   int start = 0;
-  while (true) {
-    final int index = lower.indexOf(needle, start);
-    if (index < 0) break;
-    if (index > start) spans.add(TextSpan(text: text.substring(start, index)));
+  for (final match in CrossrefClient.namePattern(name).allMatches(text)) {
+    if (match.start > start) {
+      spans.add(TextSpan(text: text.substring(start, match.start)));
+    }
     spans.add(
       TextSpan(
-        text: text.substring(index, index + name.length),
+        text: match[0],
         style: const TextStyle(fontStyle: FontStyle.italic),
       ),
     );
-    start = index + name.length;
+    start = match.end;
   }
   if (start < text.length) spans.add(TextSpan(text: text.substring(start)));
   return spans;

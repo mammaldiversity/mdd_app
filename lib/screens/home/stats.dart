@@ -13,6 +13,9 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
+/// Content width from which the home screen sets sections side by side.
+const double wideLayoutMinWidth = 840;
+
 /// The home screen dashboard below the search bar: species composition,
 /// tiles that open the statistics tables, and a row of orders that open
 /// their taxon pages.
@@ -44,9 +47,49 @@ class MddStatistics extends ConsumerWidget {
                 .value
                 ?.length;
 
-            return Container(
-              constraints: const BoxConstraints(maxWidth: 800),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            final speciesCard = _SpeciesSummaryCard(
+              total: stats.totalSpeciesCount,
+              livingWild: stats.livingWildSpeciesCount,
+              domestic: domesticCount,
+              recentlyExtinct: recentlyExtinctCount,
+            );
+            final tiles = [
+              _DashboardTile(
+                title: 'Orders',
+                value: StatCard.formatCount(stats.totalOrdersCount),
+                onTap: () => _open(context, orderTablePage(stats)),
+              ),
+              _DashboardTile(
+                title: 'Families',
+                value: StatCard.formatCount(stats.totalFamiliesCount),
+                onTap: () => _open(context, familyTablePage(stats)),
+              ),
+              _DashboardTile(
+                title: 'Genera',
+                value: StatCard.formatCount(stats.totalGeneraCount),
+                onTap: () => _open(context, genusTablePage(stats)),
+              ),
+              _DashboardTile(
+                title: 'Synonyms',
+                value: StatCard.formatCount(stats.totalSynonymsCount),
+                onTap: () => _open(context, synonymsTablePage(stats)),
+              ),
+              _DashboardTile(
+                title: 'Images',
+                value: StatCard.formatCount(stats.totalImagesCount),
+                onTap: () => _open(context, imagesTablePage(stats)),
+              ),
+              _DashboardTile(
+                title: 'Countries',
+                value: countryCount == null
+                    ? '…'
+                    : StatCard.formatCount(countryCount),
+                onTap: () => _open(context, const CountryTablePage()),
+              ),
+            ];
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -56,48 +99,31 @@ class MddStatistics extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
-                  _SpeciesSummaryCard(
-                    total: stats.totalSpeciesCount,
-                    livingWild: stats.livingWildSpeciesCount,
-                    domestic: domesticCount,
-                    recentlyExtinct: recentlyExtinctCount,
-                  ),
-                  const SizedBox(height: 8),
-                  _TileGrid(
-                    tiles: [
-                      _DashboardTile(
-                        title: 'Orders',
-                        value: StatCard.formatCount(stats.totalOrdersCount),
-                        onTap: () => _open(context, orderTablePage(stats)),
-                      ),
-                      _DashboardTile(
-                        title: 'Families',
-                        value: StatCard.formatCount(stats.totalFamiliesCount),
-                        onTap: () => _open(context, familyTablePage(stats)),
-                      ),
-                      _DashboardTile(
-                        title: 'Genera',
-                        value: StatCard.formatCount(stats.totalGeneraCount),
-                        onTap: () => _open(context, genusTablePage(stats)),
-                      ),
-                      _DashboardTile(
-                        title: 'Synonyms',
-                        value: StatCard.formatCount(stats.totalSynonymsCount),
-                        onTap: () => _open(context, synonymsTablePage(stats)),
-                      ),
-                      _DashboardTile(
-                        title: 'Images',
-                        value: StatCard.formatCount(stats.totalImagesCount),
-                        onTap: () => _open(context, imagesTablePage(stats)),
-                      ),
-                      _DashboardTile(
-                        title: 'Countries',
-                        value: countryCount == null
-                            ? '…'
-                            : StatCard.formatCount(countryCount),
-                        onTap: () => _open(context, const CountryTablePage()),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Wide screens put the species card beside the tiles.
+                      if (constraints.maxWidth < wideLayoutMinWidth) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            speciesCard,
+                            const SizedBox(height: 8),
+                            _TileGrid(tiles: tiles),
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 2, child: speciesCard),
+                          const SizedBox(width: _TileGrid.gap),
+                          Expanded(
+                            flex: 3,
+                            child: _TileGrid(tiles: tiles, columns: 3),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                   _OrderBrowser(orders: stats.speciesPerOrder),
@@ -304,7 +330,7 @@ class _SpeciesSummaryCard extends StatelessWidget {
         color: ChartPalette.getExtinctColors(context).extinct,
       ),
     ];
-    return _DashboardCard(
+    return DashboardCard(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -401,23 +427,25 @@ class _CompositionBar extends StatelessWidget {
   }
 }
 
-/// Lays tiles out three per row on phones and six on wider screens.
+/// Lays tiles out three per row on phones and six on wider screens, unless
+/// [columns] is given.
 class _TileGrid extends StatelessWidget {
-  const _TileGrid({required this.tiles});
+  const _TileGrid({required this.tiles, this.columns});
 
   final List<Widget> tiles;
+  final int? columns;
 
-  static const double _gap = 8;
+  static const double gap = 8;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth > 600 ? 6 : 3;
-        final width = (constraints.maxWidth - (columns - 1) * _gap) / columns;
+        final columns = this.columns ?? (constraints.maxWidth > 600 ? 6 : 3);
+        final width = (constraints.maxWidth - (columns - 1) * gap) / columns;
         return Wrap(
-          spacing: _gap,
-          runSpacing: _gap,
+          spacing: gap,
+          runSpacing: gap,
           children: [
             for (final tile in tiles) SizedBox(width: width, child: tile),
           ],
@@ -444,7 +472,7 @@ class _DashboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    return _DashboardCard(
+    return DashboardCard(
       child: Semantics(
         button: true,
         label: '$title, $value. Open table',
@@ -496,111 +524,160 @@ class _DashboardTile extends StatelessWidget {
   }
 }
 
-/// Orders from largest to smallest, each opening its taxon page.
-class _OrderBrowser extends StatelessWidget {
+/// Orders from largest to smallest, each opening its taxon page. Phones
+/// scroll them sideways; wider screens wrap them into rows, two at first.
+class _OrderBrowser extends StatefulWidget {
   const _OrderBrowser({required this.orders});
 
   final List<StatSpeciesPerOrderResult> orders;
 
   @override
+  State<_OrderBrowser> createState() => _OrderBrowserState();
+}
+
+class _OrderBrowserState extends State<_OrderBrowser> {
+  static const double _tileWidth = 92;
+  static const double _gap = 4;
+  static const int _collapsedRows = 2;
+
+  bool _showAll = false;
+
+  @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final named = [
-      for (final order in orders)
+      for (final order in widget.orders)
         if (order.name != null && order.name!.isNotEmpty) order,
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wrap = constraints.maxWidth >= 600;
+        final perRow = ((constraints.maxWidth + _gap) / (_tileWidth + _gap))
+            .floor();
+        final collapsedCount = perRow * _collapsedRows;
+        final canCollapse = wrap && named.length > collapsedCount;
+        final visible = canCollapse && !_showAll
+            ? named.take(collapsedCount).toList()
+            : named;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Text(
-                'Browse by order',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const OpenTaxonomyTreeButton(),
-          ],
-        ),
-        const SizedBox(height: 4),
-        SizedBox(
-          height: 112,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: named.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 4),
-            itemBuilder: (context, index) {
-              final order = named[index];
-              final name = order.name!;
-              final count = StatCard.formatCount(order.count);
-              return Semantics(
-                button: true,
-                label: 'Order $name, $count species',
-                excludeSemantics: true,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () =>
-                      openHigherTaxonPage(context, TaxonRank.order, name),
-                  child: SizedBox(
-                    width: 92,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer.withAlpha(
-                                120,
-                              ),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/order-icons/${name.toLowerCase()}.svg',
-                              colorFilter: ColorFilter.mode(
-                                colorScheme.primary,
-                                BlendMode.srcIn,
-                              ),
-                              placeholderBuilder: (context) =>
-                                  Icon(Icons.pets, color: colorScheme.primary),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.labelMedium,
-                          ),
-                          Text(
-                            count,
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Browse by order',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              );
-            },
+                if (canCollapse)
+                  TextButton(
+                    onPressed: () => setState(() => _showAll = !_showAll),
+                    child: Text(
+                      _showAll ? 'Show fewer' : 'Show all ${named.length}',
+                    ),
+                  ),
+                const OpenTaxonomyTreeButton(),
+              ],
+            ),
+            const SizedBox(height: 4),
+            if (wrap)
+              Wrap(
+                spacing: _gap,
+                runSpacing: _gap,
+                children: [
+                  for (final order in visible) _OrderTile(order: order),
+                ],
+              )
+            else
+              SizedBox(
+                height: 112,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: named.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: _gap),
+                  itemBuilder: (context, index) =>
+                      _OrderTile(order: named[index]),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// An order's icon, name, and species count, opening its taxon page.
+class _OrderTile extends StatelessWidget {
+  const _OrderTile({required this.order});
+
+  final StatSpeciesPerOrderResult order;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final name = order.name!;
+    final count = StatCard.formatCount(order.count);
+    return Semantics(
+      button: true,
+      label: 'Order $name, $count species',
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => openHigherTaxonPage(context, TaxonRank.order, name),
+        child: SizedBox(
+          width: _OrderBrowserState._tileWidth,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer.withAlpha(120),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/order-icons/${name.toLowerCase()}.svg',
+                    colorFilter: ColorFilter.mode(
+                      colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                    placeholderBuilder: (context) =>
+                        Icon(Icons.pets, color: colorScheme.primary),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.labelMedium,
+                ),
+                Text(
+                  count,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
 
 /// The card surface shared by the dashboard pieces.
-class _DashboardCard extends StatelessWidget {
-  const _DashboardCard({required this.child});
+class DashboardCard extends StatelessWidget {
+  const DashboardCard({super.key, required this.child});
 
   final Widget child;
 
