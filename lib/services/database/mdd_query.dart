@@ -40,6 +40,24 @@ class MddQuery extends DatabaseAccessor<AppDatabase> with _$MddQueryMixin {
     return data;
   }
 
+  /// Every synonym with only the columns the synonym table shows, sorted by
+  /// valid species. Other fields are null; [retrieveSynonymById] has them.
+  Future<List<SynonymData>> retrieveSynonymTable() {
+    return customSelect(
+      'SELECT synId, speciesId, species, rootName, originalCombination, '
+      'author, year, validity, nomenclatureStatus, originalRank, '
+      'typeCountry, taxonOrder, family, genus, specificEpithet '
+      'FROM synonym ORDER BY genus, specificEpithet, year',
+      readsFrom: {synonym},
+    ).map((row) => synonym.map(row.data)).get();
+  }
+
+  Future<SynonymData?> retrieveSynonymById(int synId) {
+    return (select(
+      synonym,
+    )..where((tbl) => tbl.synId.equals(synId))).getSingleOrNull();
+  }
+
   // Count total synonyms
   Future<int> totalSynonyms() async {
     return await (select(synonym)).get().then((value) => value.length);
