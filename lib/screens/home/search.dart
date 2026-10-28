@@ -40,7 +40,7 @@ class HomeHero extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _HeroTitle(logoSize: 72),
+                          HeroTitle(logoSize: 72),
                           HeroWelcomeText(),
                           SizedBox(height: 24),
                           HomeSearchBar(),
@@ -64,7 +64,7 @@ class HomeHero extends StatelessWidget {
               : const Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _HeroTitle(logoSize: 52),
+                    HeroTitle(logoSize: 52),
                     HeroWelcomeText(topSpacing: 12),
                     SizedBox(height: 16),
                     HomeSearchBar(),
@@ -85,8 +85,9 @@ class HomeHero extends StatelessWidget {
   }
 }
 
-class _HeroTitle extends StatelessWidget {
-  const _HeroTitle({required this.logoSize});
+/// MDD logo, name and byline, shared by the home hero and the setup screen.
+class HeroTitle extends StatelessWidget {
+  const HeroTitle({super.key, required this.logoSize});
 
   final double logoSize;
 

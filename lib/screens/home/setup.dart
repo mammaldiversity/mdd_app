@@ -1,40 +1,64 @@
 import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:mdd/screens/shared/loadings.dart';
+import 'package:mdd/screens/home/search.dart' show HeroTitle;
 
+/// First-run screen shown while the local database is populated. Styled
+/// like the home hero so the hand-off to the home screen feels continuous.
 class SetupPage extends StatelessWidget {
   const SetupPage({super.key});
 
+  /// Wider than this, the photo sits beside the text instead of above it.
+  static const double _splitMinWidth = 720;
+
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width > 600;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(16),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1000),
-              child: isDesktop
-                  ? const Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: SetupImage()),
-                        SizedBox(width: 48),
-                        Expanded(child: SetupContent()),
-                      ],
-                    )
-                  : const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SetupImage(),
-                        SizedBox(height: 32),
-                        SetupContent(),
-                      ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final wide = constraints.maxWidth >= _splitMinWidth;
+                  return Container(
+                    padding: EdgeInsets.all(wide ? 28 : 20),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withAlpha(110),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withAlpha(90),
+                        width: 1,
+                      ),
                     ),
+                    child: wide
+                        ? const Row(
+                            children: [
+                              Expanded(
+                                flex: 10,
+                                child: SetupImage(height: 420),
+                              ),
+                              SizedBox(width: 28),
+                              Expanded(flex: 11, child: SetupContent()),
+                            ],
+                          )
+                        : const Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              HeroTitle(logoSize: 52),
+                              SizedBox(height: 16),
+                              SetupImage(height: 220),
+                              SizedBox(height: 16),
+                              SetupContent(showTitle: false),
+                            ],
+                          ),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -43,8 +67,11 @@ class SetupPage extends StatelessWidget {
   }
 }
 
+/// Cross-fades through a random selection of bundled MIL photos.
 class SetupImage extends StatefulWidget {
-  const SetupImage({super.key});
+  const SetupImage({super.key, required this.height});
+
+  final double height;
 
   @override
   State<SetupImage> createState() => _SetupImageState();
@@ -102,22 +129,16 @@ class _SetupImageState extends State<SetupImage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withAlpha(120),
-          width: 1,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+    final colorScheme = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: widget.height,
+        color: colorScheme.surface.withAlpha(160),
+        // The status card already shows progress, so an empty frame is
+        // enough while the asset manifest loads.
         child: _imagePaths.isEmpty
-            ? const SizedBox(
-                height: 300,
-                child: Center(child: CircularProgressIndicator()),
-              )
+            ? null
             : AnimatedSwitcher(
                 duration: const Duration(seconds: 1),
                 transitionBuilder: (Widget child, Animation<double> animation) {
@@ -127,9 +148,14 @@ class _SetupImageState extends State<SetupImage> {
                   _imagePaths[_currentIndex],
                   key: ValueKey<String>(_imagePaths[_currentIndex]),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const SizedBox(
-                    height: 300,
-                    child: Center(child: Icon(Icons.broken_image, size: 64)),
+                  width: double.infinity,
+                  height: widget.height,
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      size: 48,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -139,82 +165,142 @@ class _SetupImageState extends State<SetupImage> {
 }
 
 class SetupContent extends StatelessWidget {
-  const SetupContent({super.key});
+  const SetupContent({super.key, this.showTitle = true});
+
+  /// The narrow layout places the title above the photo instead.
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SetupHeadline(),
+        if (showTitle) ...[
+          const HeroTitle(logoSize: 72),
+          const SizedBox(height: 16),
+        ],
+        Text(
+          'Promoting rigorous study of mammal diversity worldwide.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+            height: 1.5,
+          ),
+        ),
         const SizedBox(height: 16),
-        const OtherFeatures(),
-        const SizedBox(height: 40),
-        const SimpleLoadingOnly(),
-        const SizedBox(height: 24),
-        Text(
-          '⏳ Setting up MDD...',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            'We are populating the local database so that you can access all the mammal data completely offline. '
-            'This may take a several minutes.\n\nKeep this app open until setup is complete.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
+        const SetupFeatures(),
+        const SizedBox(height: 16),
+        const SetupStatus(),
       ],
     );
   }
 }
 
-class SetupHeadline extends StatelessWidget {
-  const SetupHeadline({super.key});
+class SetupFeatures extends StatelessWidget {
+  const SetupFeatures({super.key});
+
+  static const List<(IconData, String)> _features = [
+    (Icons.cloud_off_outlined, 'Works offline'),
+    (Icons.manage_search_rounded, 'Advanced search'),
+    (Icons.file_download_outlined, 'Data export'),
+    (Icons.analytics_outlined, 'Diversity statistics'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'MDD is aimed to promote rigorous study of mammal diversity worldwide.',
-      style: Theme.of(context).textTheme.titleLarge,
-      textAlign: TextAlign.center,
+    const double spacing = 8;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tileWidth = (constraints.maxWidth - spacing) / 2;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final (icon, label) in _features)
+              SizedBox(
+                width: tileWidth,
+                child: _FeatureTile(icon: icon, label: label),
+              ),
+          ],
+        );
+      },
     );
   }
 }
 
-class OtherFeatures extends StatelessWidget {
-  const OtherFeatures({super.key});
+class _FeatureTile extends StatelessWidget {
+  const _FeatureTile({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          'App Features:',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Offline access • Advanced search • Partial data export • Mammal diversity statistics',
-          style: Theme.of(context).textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-      ],
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorScheme.surface.withAlpha(160),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Setup has no measurable progress, so the bar runs indeterminately.
+class SetupStatus extends StatelessWidget {
+  const SetupStatus({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface.withAlpha(200),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Setting up the offline database',
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+            color: colorScheme.primary,
+            backgroundColor: colorScheme.primaryContainer,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Loading the mammal data so you can use it without a connection. '
+            'This can take a few minutes. Keep the app open until it '
+            'finishes.',
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
