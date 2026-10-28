@@ -1,84 +1,89 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/providers/settings.dart';
 
 const String _welcomeText =
-    'The Mammal Diversity Database (MDD) '
-    'is a comprehensive, constantly updated resource for '
+    'A comprehensive, constantly updated resource for '
     'the classification and nomenclature of living and recently extinct '
     '(i.e., since ~1500 CE) species and higher taxa of mammals.';
 
-class Welcome extends ConsumerWidget {
-  const Welcome({super.key});
+/// The welcome blurb shown under the hero title, with an inline "Hide"
+/// link. Follows the "Show Welcome Text" setting, which can bring it back.
+class HeroWelcomeText extends ConsumerWidget {
+  const HeroWelcomeText({super.key, this.topSpacing = 16});
+
+  /// Gap between the hero title and the text, only applied when shown.
+  final double topSpacing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(showWelcomeTextProvider)
-        .when(
-          data: (showWelcome) {
-            if (showWelcome) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: const WelcomeText(),
-                  ),
+    // Stay hidden while the setting loads so the hero doesn't flash a
+    // spinner; the text slides in once the preference is known.
+    final bool showWelcome = ref.watch(showWelcomeTextProvider).value ?? false;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      alignment: Alignment.topCenter,
+      child: !showWelcome
+          ? const SizedBox(width: double.infinity)
+          : Padding(
+              padding: EdgeInsets.only(top: topSpacing),
+              child: Text.rich(
+                TextSpan(
+                  text: '$_welcomeText ',
+                  children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: _HideLink(
+                        onTap: () => ref
+                            .read(showWelcomeTextProvider.notifier)
+                            .toggle(false),
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-          loading: () => const SimpleLoadingOnly(),
-          error: (Object error, StackTrace stackTrace) {
-            return Text('Error: $error');
-          },
-        );
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  height: 1.5,
+                ),
+              ),
+            ),
+    );
   }
 }
 
-class WelcomeText extends ConsumerWidget {
-  const WelcomeText({super.key});
+class _HideLink extends StatelessWidget {
+  const _HideLink({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Material(
-      color: Theme.of(context).colorScheme.onSurface.withAlpha(16),
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Welcome",
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: 'Hide welcome text. Turn it back on in Settings.',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Hide',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w600,
                 ),
-                Positioned(
-                  right: 0,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () {
-                      ref.read(showWelcomeTextProvider.notifier).toggle(false);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(_welcomeText, textAlign: TextAlign.center),
-          ],
+              ),
+              const SizedBox(width: 2),
+              Icon(Icons.close, size: 14, color: colorScheme.primary),
+            ],
+          ),
         ),
       ),
     );

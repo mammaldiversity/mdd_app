@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/home/mil_carousel.dart';
 import 'package:mdd/screens/home/stats.dart' show wideLayoutMinWidth;
+import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/app_services.dart';
@@ -9,8 +10,9 @@ import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/providers/database.dart';
 
-/// The banner at the top of the home screen: title and search, with the
-/// MIL carousel beside them on wide screens and below them on phones.
+/// The banner at the top of the home screen: title, welcome text and
+/// search, with the MIL carousel beside them on wide screens and below
+/// them on phones.
 class HomeHero extends StatelessWidget {
   const HomeHero({super.key});
 
@@ -39,6 +41,7 @@ class HomeHero extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _HeroTitle(logoSize: 72),
+                          HeroWelcomeText(),
                           SizedBox(height: 24),
                           HomeSearchBar(),
                         ],
@@ -62,6 +65,7 @@ class HomeHero extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _HeroTitle(logoSize: 52),
+                    HeroWelcomeText(topSpacing: 12),
                     SizedBox(height: 16),
                     HomeSearchBar(),
                   ],

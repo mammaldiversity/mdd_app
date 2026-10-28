@@ -5,7 +5,6 @@ import 'package:mdd/screens/gallery/mil_gallery_page.dart';
 import 'package:mdd/screens/home/release_changes.dart';
 import 'package:mdd/screens/home/search.dart';
 import 'package:mdd/screens/home/stats.dart' show MddStatistics;
-import 'package:mdd/screens/home/welcome.dart';
 import 'package:mdd/screens/menu/menu.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/navigation.dart';
@@ -137,7 +136,6 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   HomeHero(),
                   SizedBox(height: 16),
-                  Welcome(),
                   MddStatistics(),
                   SizedBox(height: 24),
                   TaxonomyChanges(),
