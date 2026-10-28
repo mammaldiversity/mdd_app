@@ -31,8 +31,9 @@ You can download the app on the [App Store](https://apple.co/4vlBaxa). Click the
 
 ### Linux
 
-Download the portable tarball from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
+Download from the [releases page](https://github.com/mammaldiversity/mdd_app/releases):
 
+- **Snap (`.snap`)**: Install the downloaded `mdd_<version>_amd64.snap` with `sudo snap install --dangerous ./mdd_<version>_amd64.snap`. The snap bundles its own GTK runtime, so it runs on any distribution with snapd.
 - **Portable Tarball (`.tar.gz`)**: Extract `mdd-Linux-x86_64.tar.gz` and run the `mdd` executable directly. It is built on the latest Ubuntu LTS, so it requires a distribution with an equally recent glibc (Ubuntu 24.04 or newer at the time of writing).
 
 ### Windows

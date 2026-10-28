@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MDD
+GenericName=Mammal Diversity Database
+Comment=Explore the Mammal Diversity Database offline
+Exec=mdd
+Icon=${SNAP}/meta/gui/icon.png
+Terminal=false
+Categories=Education;Science;Biology;
+Keywords=mammal;taxonomy;species;biodiversity;
+StartupWMClass=com.hhandika.mdd

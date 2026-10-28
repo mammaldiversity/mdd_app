@@ -84,3 +84,9 @@ mil-images/
 .kotlin
 
 temp_flutter_create/
+
+# Snapcraft
+*.snap
+/parts/
+/stage/
+/prime/

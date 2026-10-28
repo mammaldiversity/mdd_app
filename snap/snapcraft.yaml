@@ -1,0 +1,40 @@
+name: mdd
+adopt-info: mdd
+summary: Mammal Diversity Database explorer
+description: |
+  A cross-platform application to access the Mammal Diversity Database. It
+  features offline access, advanced search with data filtering, and support to
+  export a subset of the data to a Comma-Separated Values (CSV) or JSON file.
+icon: assets/icons/favicon512.png
+license: MIT
+website: https://github.com/mammaldiversity/mdd_app
+source-code: https://github.com/mammaldiversity/mdd_app
+issues: https://github.com/mammaldiversity/mdd_app/issues
+
+base: core24
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+
+apps:
+  mdd:
+    command: app/mdd
+    extensions: [gnome]
+    plugs:
+      - network
+      - home
+
+parts:
+  mdd:
+    # Packages the bundle produced by `flutter build linux --release`. Build it
+    # first: the release needs the prefilled database and MIL images prepared
+    # by the release workflow (or tools/generate_prefilled_db.sh locally).
+    plugin: dump
+    source: build/linux/x64/release/bundle
+    organize:
+      "*": app/
+    override-pull: |
+      craftctl default
+      craftctl set version="$(sed -n 's/^version: *\([^+]*\).*/\1/p' "$CRAFT_PROJECT_DIR/pubspec.yaml")"

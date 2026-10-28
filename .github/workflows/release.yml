@@ -131,6 +131,13 @@ jobs:
         run: |
           flutter build windows --release
 
+      # Packages the release bundle above, so it must run before the bundle
+      # is moved into the tarball.
+      - name: Build Snap
+        if: ${{ runner.os == 'Linux' }}
+        id: snap
+        uses: snapcore/action-build@v1
+
       - name: Compress Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
@@ -158,5 +165,6 @@ jobs:
           body_path: release_notes.md
           files: |
             mdd-Linux-x86_64.tar.gz
+            mdd_*.snap
             mdd-Windows-x86_64.zip
           fail_on_unmatched_files: false
