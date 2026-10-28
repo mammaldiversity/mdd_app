@@ -2,10 +2,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/home/mil_carousel.dart';
 import 'package:mdd/screens/home/stats.dart' show wideLayoutMinWidth;
-import 'package:mdd/screens/menu/release_notes.dart';
 import 'package:mdd/screens/search/page.dart';
 import 'package:mdd/screens/shared/loadings.dart';
+import 'package:mdd/services/app_services.dart';
 import 'package:mdd/services/database/database.dart';
+import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/providers/database.dart';
 
 /// The banner at the top of the home screen: title and search, with the
@@ -206,17 +207,21 @@ class DatabaseInfo extends ConsumerWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
-                            const ReleaseNotesPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.notes, size: 16),
-                  label: const Text('Release Notes'),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => launchURL(releasesUrl),
+                      icon: const Icon(Icons.open_in_new, size: 16),
+                      label: const Text('Release Notes'),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => launchURL(taxonomyChangesUrl),
+                      icon: const Icon(Icons.open_in_new, size: 16),
+                      label: const Text('All changes'),
+                    ),
+                  ],
                 ),
               ],
             );

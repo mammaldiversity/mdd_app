@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mdd/screens/menu/release_notes.dart';
 import 'package:mdd/screens/menu/settings.dart';
 import 'package:mdd/screens/menu/version.dart';
 import 'package:mdd/screens/shared/card.dart';
@@ -62,15 +61,9 @@ class ReleaseNotesTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.notes),
       title: const Text('Release Notes'),
-      subtitle: const Text('View database version remarks and DOI'),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const ReleaseNotesPage(),
-          ),
-        );
-      },
+      subtitle: const Text('MDD releases on mammaldiversity.org'),
+      trailing: const Icon(Icons.open_in_new_rounded, size: 18),
+      onTap: () => launchURL(releasesUrl),
     );
   }
 }
@@ -165,34 +158,41 @@ class UrlTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
+    // A Material, not a decorated Container, so the tile's ink splashes
+    // draw on top of the background.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Material(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withAlpha(100),
-          width: 1,
-        ),
-      ),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        leading: Icon(icon ?? Icons.public, color: colorScheme.primary),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: colorScheme.outlineVariant.withAlpha(100),
+            width: 1,
           ),
         ),
-        trailing: Icon(
-          Icons.open_in_new_rounded,
-          size: 18,
-          color: colorScheme.onSurfaceVariant.withAlpha(160),
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          leading: Icon(icon ?? Icons.public, color: colorScheme.primary),
+          title: Text(
+            title,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          trailing: Icon(
+            Icons.open_in_new_rounded,
+            size: 18,
+            color: colorScheme.onSurfaceVariant.withAlpha(160),
+          ),
+          onTap: () {
+            launchURL(url);
+          },
         ),
-        onTap: () {
-          launchURL(url);
-        },
       ),
     );
   }

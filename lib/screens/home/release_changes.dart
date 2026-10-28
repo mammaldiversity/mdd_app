@@ -4,8 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mdd/screens/home/stats.dart';
 import 'package:mdd/screens/statistics/chart_palette.dart';
-import 'package:mdd/services/app_services.dart';
-import 'package:mdd/services/essential_url.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/release_changes.dart';
 
@@ -42,22 +40,11 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            'Change in MDD taxonomy',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        TextButton.icon(
-          icon: const Icon(Icons.open_in_new, size: 16),
-          label: const Text('All changes'),
-          onPressed: () => launchURL(taxonomyChangesUrl),
-        ),
-      ],
+    return Text(
+      'Change in MDD taxonomy',
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }

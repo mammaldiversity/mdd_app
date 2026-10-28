@@ -1,4 +1,5 @@
 const mddWebsiteUrl = 'https://mammaldiversity.org';
+const releasesUrl = 'https://www.mammaldiversity.org/releases/';
 const taxonomyChangesUrl =
     'https://www.mammaldiversity.org/releases/taxonomy-changes/';
 const milUrl = 'https://www.mammalsociety.org/image-library';
