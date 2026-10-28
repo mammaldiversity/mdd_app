@@ -593,7 +593,7 @@ class _OrderBrowserState extends State<_OrderBrowser> {
               )
             else
               SizedBox(
-                height: 112,
+                height: 96,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: named.length,
@@ -621,10 +621,9 @@ class _OrderTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final name = order.name!;
-    final count = StatCard.formatCount(order.count);
     return Semantics(
       button: true,
-      label: 'Order $name, $count species',
+      label: 'Order $name',
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -659,12 +658,6 @@ class _OrderTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.labelMedium,
-                ),
-                Text(
-                  count,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
                 ),
               ],
             ),

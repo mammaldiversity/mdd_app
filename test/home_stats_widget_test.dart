@@ -73,7 +73,8 @@ void main() {
     // Links
     expect(find.text('Countries'), findsOneWidget);
     expect(find.text('Browse by order'), findsOneWidget);
-    expect(find.text('2,820'), findsOneWidget);
+    expect(find.text('Rodentia'), findsOneWidget);
+    expect(find.text('2,820'), findsNothing);
     expect(find.text('Taxonomy tree'), findsOneWidget);
 
     // Species card
@@ -134,7 +135,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.bySemanticsLabel('Order Rodentia, 2,820 species'));
+    await tester.tap(find.bySemanticsLabel('Order Rodentia'));
     await tester.pumpAndSettle();
 
     final page = tester.widget<HigherTaxonPage>(find.byType(HigherTaxonPage));
