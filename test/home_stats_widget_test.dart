@@ -7,6 +7,7 @@ import 'package:mdd/screens/home/stats.dart' as home_stats show MddStatistics;
 import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/providers/navigation.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/providers/statistics.dart';
@@ -87,7 +88,6 @@ void main() {
     ('Families', 'Species Diversity by Family', true),
     ('Genera', 'Species Diversity by Genus', false),
     ('Synonyms', 'Names and Synonyms', false),
-    ('Images', 'Species with Most Images', false),
   ]) {
     testWidgets('$link opens its table', (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -112,6 +112,31 @@ void main() {
       );
     });
   }
+
+  testWidgets('Images switches to the image gallery', (
+    WidgetTester tester,
+  ) async {
+    final container = ProviderContainer(overrides: _overrides(mockStats));
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: home_stats.MddStatistics()),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Images'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(selectedPageProvider), galleryPageIndex);
+    // The gallery is a main screen destination, not a pushed page.
+    expect(find.text('Species with Most Images'), findsNothing);
+  });
 
   const rodentia = (rank: TaxonRank.order, name: 'Rodentia');
   final taxonOverrides = [

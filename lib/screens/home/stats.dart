@@ -10,6 +10,7 @@ import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/screens/statistics/synonym_table_page.dart';
 import 'package:mdd/screens/taxon/higher_taxon.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/providers/navigation.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/taxon_tree.dart';
 
@@ -78,7 +79,10 @@ class MddStatistics extends ConsumerWidget {
               _DashboardTile(
                 title: 'Images',
                 value: StatCard.formatCount(stats.totalImagesCount),
-                onTap: () => _open(context, imagesTablePage(stats)),
+                actionLabel: 'Open image gallery',
+                onTap: () => ref
+                    .read(selectedPageProvider.notifier)
+                    .select(galleryPageIndex),
               ),
               _DashboardTile(
                 title: 'Countries',
@@ -523,11 +527,15 @@ class _DashboardTile extends StatelessWidget {
     required this.title,
     required this.value,
     required this.onTap,
+    this.actionLabel = 'Open table',
   });
 
   final String title;
   final String value;
   final VoidCallback onTap;
+
+  /// What tapping does, read out by screen readers.
+  final String actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -536,7 +544,7 @@ class _DashboardTile extends StatelessWidget {
     return DashboardCard(
       child: Semantics(
         button: true,
-        label: '$title, $value. Open table',
+        label: '$title, $value. $actionLabel',
         excludeSemantics: true,
         child: InkWell(
           onTap: onTap,

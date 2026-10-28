@@ -11,6 +11,7 @@ import 'package:mdd/screens/shared/navigation.dart';
 import 'package:mdd/screens/search/fields.dart';
 import 'package:mdd/screens/statistics/page.dart';
 import 'package:mdd/services/database/mdd_query.dart';
+import 'package:mdd/services/providers/navigation.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/system.dart';
 
@@ -38,7 +39,6 @@ class MddPages extends ConsumerStatefulWidget {
 }
 
 class MddPagesState extends ConsumerState<MddPages> {
-  int _selectedPage = 0;
   final _searchController = TextEditingController();
 
   late FocusNode _focusNode;
@@ -59,10 +59,16 @@ class MddPagesState extends ConsumerState<MddPages> {
   @override
   Widget build(BuildContext context) {
     final ScreenType screenType = getScreenType(context);
+    final int selectedPage = ref.watch(selectedPageProvider);
+    ref.listen(selectedPageProvider, (int? previous, int next) {
+      if (previous != next) ref.invalidate(speciesListProvider);
+    });
+    void select(int index) =>
+        ref.read(selectedPageProvider.notifier).select(index);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_pageTitles.elementAt(_selectedPage)),
-        actions: _selectedPage == 1
+        title: Text(_pageTitles.elementAt(selectedPage)),
+        actions: selectedPage == 1
             ? [
                 IconButton(
                   icon: const Icon(Icons.search),
@@ -87,28 +93,18 @@ class MddPagesState extends ConsumerState<MddPages> {
           children: [
             if (screenType != ScreenType.small)
               NavRail(
-                selectedIndex: _selectedPage,
-                onNavigationSelected: (int index) {
-                  ref.invalidate(speciesListProvider);
-                  setState(() {
-                    _selectedPage = index;
-                  });
-                },
+                selectedIndex: selectedPage,
+                onNavigationSelected: select,
               ),
-            Expanded(child: _pages.elementAt(_selectedPage)),
+            Expanded(child: _pages.elementAt(selectedPage)),
           ],
         ),
       ),
       bottomNavigationBar: screenType == ScreenType.small
           ? NavBar(
-              selectedIndex: _selectedPage,
+              selectedIndex: selectedPage,
               screenType: screenType,
-              onNavigationSelected: (int index) {
-                ref.invalidate(speciesListProvider);
-                setState(() {
-                  _selectedPage = index;
-                });
-              },
+              onNavigationSelected: select,
             )
           : null,
     );
