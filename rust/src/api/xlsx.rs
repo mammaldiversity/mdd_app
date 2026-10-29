@@ -115,7 +115,7 @@ fn truncate(text: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use calamine::{open_workbook, Data, Reader, Xlsx};
+    use calamine::{Data, Reader, Xlsx, open_workbook};
 
     fn read(path: &std::path::Path, sheet: &str) -> Vec<Vec<Data>> {
         let mut workbook: Xlsx<_> = open_workbook(path).expect("open workbook");

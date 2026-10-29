@@ -1,6 +1,6 @@
 use crate::api::parser::{MddHelper, MilHelper};
 use regex::Regex;
-use rusqlite::{params_from_iter, Connection, Result};
+use rusqlite::{Connection, Result, params_from_iter};
 use serde_json::Value;
 use std::fs;
 use std::path::Path;

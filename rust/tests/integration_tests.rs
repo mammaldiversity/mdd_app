@@ -2,8 +2,8 @@ use rust_lib_mdd::api::parser::{MddHelper, MilHelper};
 use rust_lib_mdd::db_generator::generate_db;
 use std::fs::File;
 use std::io::Write;
-use zip::write::SimpleFileOptions;
 use zip::ZipWriter;
+use zip::write::SimpleFileOptions;
 
 fn get_mock_mdd_csv() -> &'static str {
     "id,sciName,mainCommonName,otherCommonNames,phylosort,subclass,infraclass,magnorder,superorder,order,suborder,infraorder,parvorder,superfamily,family,subfamily,tribe,genus,subgenus,specificEpithet,authoritySpeciesAuthor,authoritySpeciesYear,authorityParentheses,originalNameCombination,authoritySpeciesCitation,authoritySpeciesLink,typeVoucher,typeKind,typeVoucherURIs,typeLocality,typeLocalityLatitude,typeLocalityLongitude,nominalNames,taxonomyNotes,taxonomyNotesCitation,distributionNotes,distributionNotesCitation,subregionDistribution,countryDistribution,continentDistribution,biogeographicRealm,iucnStatus,extinct,domestic,flagged,CMW_sciName,diffSinceCMW,MSW3_matchtype,MSW3_sciName,diffSinceMSW3\n\

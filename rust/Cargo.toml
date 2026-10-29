@@ -1,7 +1,7 @@
 [package]
 name = "rust_lib_mdd"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
 # Named explicitly so the Native Assets build hook resolves `lib.name`

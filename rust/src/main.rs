@@ -1,6 +1,6 @@
 use clap::Parser;
 use mdd_api::mil::prep::MilParser;
-use rust_lib_mdd::api::parser::{copy_mil_images, MddHelper, MilHelper};
+use rust_lib_mdd::api::parser::{MddHelper, MilHelper, copy_mil_images};
 use rust_lib_mdd::db_generator;
 use std::path::Path;
 use std::process::exit;

@@ -1,6 +1,6 @@
 #![allow(unexpected_cfgs)]
-use mdd_api::mdd::metadata::ReleaseToml;
 use mdd_api::mdd::ReleasedMddData;
+use mdd_api::mdd::metadata::ReleaseToml;
 use mdd_api::mdd::{species::SpeciesData, synonyms::SynonymData};
 use mdd_api::mil::prep::MilParser;
 use serde::Serialize;
@@ -358,8 +358,8 @@ mod tests {
     use super::*;
     use std::fs::File;
     use std::io::Write;
-    use zip::write::SimpleFileOptions;
     use zip::ZipWriter;
+    use zip::write::SimpleFileOptions;
 
     fn get_mock_mdd_csv() -> &'static str {
         "id,sciName,mainCommonName,otherCommonNames,phylosort,subclass,infraclass,magnorder,superorder,order,suborder,infraorder,parvorder,superfamily,family,subfamily,tribe,genus,subgenus,specificEpithet,authoritySpeciesAuthor,authoritySpeciesYear,authorityParentheses,originalNameCombination,authoritySpeciesCitation,authoritySpeciesLink,typeVoucher,typeKind,typeVoucherURIs,typeLocality,typeLocalityLatitude,typeLocalityLongitude,nominalNames,taxonomyNotes,taxonomyNotesCitation,distributionNotes,distributionNotesCitation,subregionDistribution,countryDistribution,continentDistribution,biogeographicRealm,iucnStatus,extinct,domestic,flagged,CMW_sciName,diffSinceCMW,MSW3_matchtype,MSW3_sciName,diffSinceMSW3\n\
