@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:file_selector/file_selector.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/database/model.dart';
 import 'package:mdd/src/rust/api/parser.dart';
@@ -362,30 +361,19 @@ class DataUpdateNotifier extends Notifier<UpdateStatus> {
       // 1. Close current connection
       await db.close();
 
-      // 2. Delete active mdd.db file
-      final file = await dBPath;
-      if (await file.exists()) {
-        await file.delete();
-      }
-
-      // 3. Copy default database from assets/rootBundle
+      // 2. Replace active mdd.db with the bundled default database
       state = UpdateStatus(
         state: UpdateState.updating,
         message: 'Copying default database...',
         progress: 0.5,
         isReset: true,
       );
-      final byteData = await rootBundle.load('assets/data/mdd.db');
-      final bytes = byteData.buffer.asUint8List(
-        byteData.offsetInBytes,
-        byteData.lengthInBytes,
-      );
-      await file.writeAsBytes(bytes, flush: true);
+      await installBundledDatabase(await dBPath);
 
-      // 4. Update the state of databaseProvider
+      // 3. Update the state of databaseProvider
       ref.read(databaseProvider.notifier).setDatabase(AppDatabase());
 
-      // 5. Invalidate dependent providers
+      // 4. Invalidate dependent providers
       ref.invalidate(mddInfoProvider);
 
       state = UpdateStatus(

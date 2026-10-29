@@ -6,13 +6,15 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' as path;
 import 'package:mdd/services/app_services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite3;
 
 part 'database.g.dart';
 
-const int _kDatabaseVersion = 3;
+const int _kDatabaseVersion = 4;
 
 @DriftDatabase(include: {'tables.drift'})
 class AppDatabase extends _$AppDatabase {
@@ -30,7 +32,9 @@ class AppDatabase extends _$AppDatabase {
       // This onCreate will only be called if the database file didn't exist.
     },
     onUpgrade: (Migrator m, int from, int to) async {
-      // Add upgrade logic here if needed
+      // Schema changes ship as a new bundled database, which replaces the
+      // local copy whenever the app updates (see _openConnection), so there
+      // is nothing to migrate in place.
     },
   );
 
@@ -44,98 +48,28 @@ LazyDatabase _openConnection() {
       print('App database path: ${file.path}');
     }
 
-    bool needsCopy = false;
-    ByteData? loadedAssetData;
+    final String appVersion = await _currentAppVersion();
+    final prefs = await SharedPreferences.getInstance();
+    final String? installedFor = prefs.getString(_kInstalledForAppVersionKey);
 
+    String? reason;
     if (!await file.exists() || await file.length() < 1000000) {
-      needsCopy = true;
-    } else {
-      try {
-        final db = sqlite3.sqlite3.open(file.path);
-        final milCountRes = db.select('SELECT count(*) as c FROM milData');
-        final milCount = milCountRes.first['c'] as int;
-
-        String? localMilVer;
-        try {
-          final infoRes = db.select('SELECT milVersion FROM mddInfo');
-          if (infoRes.isNotEmpty) {
-            localMilVer = infoRes.first['milVersion'] as String?;
-          }
-        } catch (_) {
-          // milVersion column missing in older schemas
-        }
-        db.close();
-
-        if (milCount == 0 || localMilVer == null || localMilVer.isEmpty) {
-          if (kDebugMode) {
-            print('MIL data or version missing from local database.');
-          }
-          needsCopy = true;
-        } else {
-          // Compare with asset DB milVersion
-          try {
-            loadedAssetData = await rootBundle.load('assets/data/mdd.db');
-            final tempDir = await Directory.systemTemp.createTemp(
-              'mdd_ver_check',
-            );
-            final tempAssetFile = File(path.join(tempDir.path, 'asset_mdd.db'));
-            await tempAssetFile.writeAsBytes(
-              loadedAssetData.buffer.asUint8List(
-                loadedAssetData.offsetInBytes,
-                loadedAssetData.lengthInBytes,
-              ),
-            );
-
-            final assetDb = sqlite3.sqlite3.open(tempAssetFile.path);
-            final assetInfoRes = assetDb.select(
-              'SELECT milVersion FROM mddInfo',
-            );
-            String? assetMilVer;
-            if (assetInfoRes.isNotEmpty) {
-              assetMilVer = assetInfoRes.first['milVersion'] as String?;
-            }
-            assetDb.close();
-            await tempDir.delete(recursive: true);
-
-            if (assetMilVer != null &&
-                assetMilVer.isNotEmpty &&
-                assetMilVer != localMilVer) {
-              if (kDebugMode) {
-                print(
-                  'New MIL release detected in assets ($assetMilVer vs local $localMilVer). Replacing database.',
-                );
-              }
-              needsCopy = true;
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('Could not verify asset milVersion: $e');
-            }
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Failed to verify local database: $e');
-        }
-        needsCopy = true;
-      }
+      reason = 'missing or incomplete';
+    } else if (installedFor != appVersion) {
+      // Every app update ships a new bundled database (MDD, MIL, schema
+      // fixes), so always replace it rather than trying to merge.
+      reason = 'app updated (${installedFor ?? 'unknown'} -> $appVersion)';
+    } else if (!_isReadable(file)) {
+      reason = 'unreadable';
     }
 
-    if (needsCopy) {
+    if (reason != null) {
       if (kDebugMode) {
-        print('Replacing/initializing database from assets/data/mdd.db...');
+        print('Replacing database from assets: $reason');
       }
       try {
-        final byteData =
-            loadedAssetData ?? await rootBundle.load('assets/data/mdd.db');
-        final bytes = byteData.buffer.asUint8List(
-          byteData.offsetInBytes,
-          byteData.lengthInBytes,
-        );
-        await file.writeAsBytes(bytes, flush: true);
-        if (kDebugMode) {
-          print('Database copied successfully.');
-        }
+        await installBundledDatabase(file);
+        await prefs.setString(_kInstalledForAppVersionKey, appVersion);
       } catch (e) {
         if (kDebugMode) {
           print('Failed to copy database from assets: $e');
@@ -145,6 +79,50 @@ LazyDatabase _openConnection() {
 
     return NativeDatabase.createInBackground(file, logStatements: true);
   });
+}
+
+/// Preference key holding the app version that installed the local database.
+const String _kInstalledForAppVersionKey = 'databaseInstalledForAppVersion';
+
+Future<String> _currentAppVersion() async {
+  final PackageInfo info = await PackageInfo.fromPlatform();
+  return '${info.version}+${info.buildNumber}';
+}
+
+bool _isReadable(File file) {
+  try {
+    final db = sqlite3.sqlite3.open(file.path);
+    try {
+      db.select('SELECT count(*) FROM milData');
+      db.select('SELECT version FROM mddInfo');
+      return true;
+    } finally {
+      db.close();
+    }
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Replaces [file] with the database bundled in the app assets.
+///
+/// Writes to a temporary file first and renames it, so an interrupted copy
+/// never leaves a half-written database behind. The connection to [file]
+/// must be closed before calling this.
+Future<void> installBundledDatabase(File file) async {
+  final ByteData byteData = await rootBundle.load('assets/data/mdd.db');
+  final File tempFile = File('${file.path}.tmp');
+  await tempFile.writeAsBytes(
+    byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+    flush: true,
+  );
+  for (final String suffix in ['-wal', '-shm', '-journal']) {
+    final File sidecar = File('${file.path}$suffix');
+    if (await sidecar.exists()) {
+      await sidecar.delete();
+    }
+  }
+  await tempFile.rename(file.path);
 }
 
 Future<File> get dBPath async {
