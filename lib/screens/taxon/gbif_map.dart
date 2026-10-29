@@ -12,6 +12,9 @@ import 'package:mdd/services/external_resources.dart';
 import 'package:mdd/services/gbif_map_style.dart';
 import 'package:mdd/services/providers/map_renderer.dart';
 import 'package:mdd/services/topojson_parser.dart';
+import 'package:mdd/services/vector_basemap.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart' as vmt;
 
 /// GBIF's occurrence density map, fitted to where the records are.
 ///
@@ -182,6 +185,11 @@ class _GbifMapLibreViewportState extends State<_GbifMapLibreViewport> {
         children: const [Positioned.fill(child: MapLibreGestureSurface())],
       ),
       Positioned(
+        left: 8,
+        bottom: 8,
+        child: _BasemapAttribution(basemap: widget.style.basemap),
+      ),
+      Positioned(
         right: 8,
         bottom: 8,
         child: MapControls(
@@ -238,7 +246,14 @@ class _GbifMapLibreViewportState extends State<_GbifMapLibreViewport> {
   }
 }
 
-class _GbifFlutterMap extends StatefulWidget {
+/// The occurrence map drawn with `flutter_map`: the only renderer on
+/// desktop, and the stand-in for a MapLibre map that failed on mobile.
+///
+/// On desktop the basemap is the OpenFreeMap vector style the distribution
+/// map uses, so both maps match. GBIF's raster basemap stands in when that
+/// style fails and on the mobile fallback, since the density tiles need the
+/// network anyway.
+class _GbifFlutterMap extends ConsumerStatefulWidget {
   const _GbifFlutterMap({
     required this.taxonKey,
     this.extent,
@@ -252,10 +267,10 @@ class _GbifFlutterMap extends StatefulWidget {
   final DistributionMapData? distribution;
 
   @override
-  State<_GbifFlutterMap> createState() => _GbifFlutterMapState();
+  ConsumerState<_GbifFlutterMap> createState() => _GbifFlutterMapState();
 }
 
-class _GbifFlutterMapState extends State<_GbifFlutterMap> {
+class _GbifFlutterMapState extends ConsumerState<_GbifFlutterMap> {
   static const latlong.LatLng _worldCenter = latlong.LatLng(18, 0);
 
   final _controller = flutter_map.MapController();
@@ -263,10 +278,13 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
   flutter_map.CameraFit? get _fit {
     final extent = widget.extent;
     if (extent == null) return null;
+    // GBIF unwraps an extent across the antimeridian (e.g. 136 to 462), which
+    // flutter_map bounds reject, so such records fit the whole width.
+    final bool crossesAntimeridian = extent.west < -180 || extent.east > 180;
     return flutter_map.CameraFit.bounds(
       bounds: flutter_map.LatLngBounds(
-        latlong.LatLng(extent.south, extent.west),
-        latlong.LatLng(extent.north, extent.east),
+        latlong.LatLng(extent.south, crossesAntimeridian ? -180 : extent.west),
+        latlong.LatLng(extent.north, crossesAntimeridian ? 180 : extent.east),
       ),
       padding: _fitPadding,
       maxZoom: _fitMaxZoom,
@@ -290,6 +308,11 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final vectorStyle = mapLibreIsExpected
+        ? null
+        : ref.watch(vectorBasemapStyleProvider(isDark));
+    final loadedStyle = vectorStyle?.value;
+    final bool useGbifBasemap = vectorStyle == null || vectorStyle.hasError;
     return Stack(
       children: [
         flutter_map.FlutterMap(
@@ -298,6 +321,7 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
             initialCenter: _worldCenter,
             initialZoom: 1,
             initialCameraFit: _fit,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             minZoom: _minZoom,
             maxZoom: _maxZoom,
             interactionOptions: flutter_map.InteractionOptions(
@@ -307,10 +331,17 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
             ),
           ),
           children: [
-            flutter_map.TileLayer(
-              urlTemplate: GbifClient.basemapTileUrl(isDark: isDark),
-              userAgentPackageName: 'com.hhandika.mdd',
-            ),
+            if (loadedStyle != null)
+              vmt.VectorTileLayer(
+                theme: loadedStyle.theme,
+                sprites: loadedStyle.sprites,
+                tileProviders: loadedStyle.providers,
+              )
+            else if (useGbifBasemap)
+              flutter_map.TileLayer(
+                urlTemplate: GbifClient.basemapTileUrl(isDark: isDark),
+                userAgentPackageName: 'com.hhandika.mdd',
+              ),
             flutter_map.TileLayer(
               urlTemplate: GbifClient.densityTileUrl(widget.taxonKey),
               userAgentPackageName: 'com.hhandika.mdd',
@@ -319,6 +350,16 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
               _distributionLayer(widget.distribution!, isDark: isDark),
           ],
         ),
+        if (loadedStyle != null || useGbifBasemap)
+          Positioned(
+            left: 8,
+            bottom: 8,
+            child: _BasemapAttribution(
+              basemap: loadedStyle != null
+                  ? GbifBasemap.openFreeMap
+                  : GbifBasemap.gbif,
+            ),
+          ),
         Positioned(
           right: 8,
           bottom: 8,
@@ -382,6 +423,39 @@ class _GbifFlutterMapState extends State<_GbifFlutterMap> {
                   dashed: true,
                 ),
       ],
+    );
+  }
+}
+
+class _BasemapAttribution extends StatelessWidget {
+  const _BasemapAttribution({required this.basemap});
+
+  final GbifBasemap basemap;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isOpenFreeMap = basemap == GbifBasemap.openFreeMap;
+    return Material(
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+      borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        onTap: () => launchUrl(
+          Uri.parse(
+            isOpenFreeMap
+                ? 'https://openfreemap.org/'
+                : 'https://www.gbif.org/',
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Text(
+            isOpenFreeMap
+                ? '© OpenStreetMap contributors · OpenFreeMap'
+                : '© GBIF · OpenMapTiles · OpenStreetMap contributors',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ),
     );
   }
 }

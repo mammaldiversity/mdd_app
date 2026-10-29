@@ -487,7 +487,9 @@ class GbifOccurrenceView extends ConsumerWidget {
                   ),
                   notes: [
                     Text(
-                      '© GBIF · OpenMapTiles · OpenStreetMap contributors',
+                      // The basemap is credited on the map itself, since it
+                      // is OpenFreeMap or GBIF's own depending on what loads.
+                      'Occurrence data © GBIF',
                       style: textTheme.bodySmall,
                     ),
                     const SizedBox(height: 2),
