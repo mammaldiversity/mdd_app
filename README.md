@@ -8,12 +8,9 @@ A cross-platform application to access the Mammal Diversity Database. It feature
 
 ## What's new
 
-- Add higher taxon pages.
-- Show species-level taxonomic changes of each MDD release on the home page.
-- Add a synonym table to the statistics.
-- Add rule-based filters to search and statistic tables, with Excel (`.xlsx`) export support.
-- Link release notes and taxonomic changes to the MDD website.
-- Improve color accessibility and clean UI.
+- Fix a blank screen on launch on iOS 27.
+- Refresh the offline database after each app update.
+- Page statistic tables and clean the layouts.
 
 ## Installation
 
