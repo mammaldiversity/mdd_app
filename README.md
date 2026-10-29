@@ -4,7 +4,7 @@
 
 ![Screenshot](/static/android-feature.png)
 
-A cross-platform application to access the Mammal Diversity Database. It features offline access, advance search with data filtering, and support to export a subset of the data to a Comma-Separated Values (CSV) or JSON file.
+A cross-platform application to compliment the Mammal Diversity Database. It features offline access, advance search with data filtering, and support to export a subset of the data to a Comma-Separated Values (CSV) or JSON file.
 
 ## What's new
 
