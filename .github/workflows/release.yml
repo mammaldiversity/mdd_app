@@ -109,7 +109,7 @@ jobs:
 
       - name: Extract Release Notes
         run: |
-          awk '/^## What'\''s new/{flag=1} /^## Technologies/{flag=0} flag' README.md > release_notes.md
+          awk '/^## /{flag=0} /^## What'\''s new/{flag=1} flag' README.md > release_notes.md
 
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@v3
