@@ -8,9 +8,8 @@ A cross-platform application to compliment the Mammal Diversity Database. It fea
 
 ## What's new
 
-- Fix a blank screen on launch on iOS 27.
-- Refresh the offline database after each app update.
-- Page statistic tables and clean the layouts.
+- Add the October 2026 release of the Mammal Image Library (MIL v2026-10-31.2).
+- Improve the GBIF occurrence map.
 
 ## Installation
 

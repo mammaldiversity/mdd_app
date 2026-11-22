@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.2] - 2026-11-22
+
+### Added
+
+- Add the October 2026 release of the Mammal Image Library (MIL v2026-10-31.2).
+
+### Changed
+
+- Improve the GBIF occurrence map.
+
+### Chores
+
+- Fetch the latest MDD and MIL data automatically when generating the bundled database.
+- Update Gradle.
+
 ## [v1.6.1] - 2026-10-28
 
 ### Changed
