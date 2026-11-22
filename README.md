@@ -118,6 +118,10 @@ Alternatively, if you only want to generate the database manually without compil
 .\tools\generate_prefilled_db.ps1
 ```
 
+The bash script downloads the latest MDD.zip and MIL release before generating. Pass `--offline` to use the newest MIL tarball already in `data/`.
+
+To build the snap with the latest data, run `./tools/build_snap.sh`. The snap build refuses to pack a bundle whose MDD or MIL data is older than the latest upstream release.
+
 If PowerShell blocks the scripts because of the execution policy, run them with `powershell -ExecutionPolicy Bypass -File .\tools\build.ps1`.
 
 - Try to run the app:

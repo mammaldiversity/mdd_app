@@ -129,7 +129,7 @@ impl MilHelper {
             .unwrap_or(path);
 
         let re =
-            regex::Regex::new(r"(?i)(mil-v\d{4}-\d{2}-\d{2}|v\d{4}-\d{2}-\d{2}|v\d+\.\d+\.\d+)")
+            regex::Regex::new(r"(?i)(mil-v\d{4}-\d{2}-\d{2}(?:\.\d+)?|v\d{4}-\d{2}-\d{2}(?:\.\d+)?|v\d+\.\d+\.\d+)")
                 .unwrap();
         if let Some(mat) = re.find(filename) {
             mat.as_str().to_string()

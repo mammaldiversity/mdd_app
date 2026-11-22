@@ -119,14 +119,36 @@ fn main() {
         exit(1);
     }
 
-    println!("Copying MIL images to assets/mil-images...");
-    let target_img_dir = Path::new("assets/mil-images");
-    match copy_mil_images(Path::new(&mil_tar_path), target_img_dir) {
-        Ok(count) => println!(
-            "Successfully copied {} MIL images to assets/mil-images",
-            count
-        ),
-        Err(e) => eprintln!("Warning: Failed to copy MIL images: {}", e),
+    // The home carousel reads MIL metadata straight from this asset.
+    let mil_json_path = Path::new(&db_path)
+        .parent()
+        .unwrap_or_else(|| Path::new("."))
+        .join("mil.json");
+    if let Err(e) = std::fs::write(&mil_json_path, &mil_helper.mil_data) {
+        eprintln!("Failed to write {}: {}", mil_json_path.display(), e);
+        exit(1);
+    }
+    println!("Wrote MIL metadata to {}", mil_json_path.display());
+
+    if mil_tar_path.ends_with(".json") {
+        println!("MIL input is JSON; skipping image copy.");
+    } else {
+        println!("Copying MIL images to assets/mil-images...");
+        let target_img_dir = Path::new("assets/mil-images");
+        match copy_mil_images(Path::new(&mil_tar_path), target_img_dir) {
+            Ok(0) => {
+                eprintln!("No MIL images found in {}", mil_tar_path);
+                exit(1);
+            }
+            Ok(count) => println!(
+                "Successfully copied {} MIL images to assets/mil-images",
+                count
+            ),
+            Err(e) => {
+                eprintln!("Failed to copy MIL images: {}", e);
+                exit(1);
+            }
+        }
     }
 
     println!("Database and MIL image update complete!");

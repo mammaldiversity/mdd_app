@@ -1,5 +1,6 @@
 //! Main database module
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -48,17 +49,17 @@ LazyDatabase _openConnection() {
       print('App database path: ${file.path}');
     }
 
-    final String appVersion = await _currentAppVersion();
+    final String bundledId = await _bundledDataId();
     final prefs = await SharedPreferences.getInstance();
     final String? installedFor = prefs.getString(_kInstalledForAppVersionKey);
 
     String? reason;
     if (!await file.exists() || await file.length() < 1000000) {
       reason = 'missing or incomplete';
-    } else if (installedFor != appVersion) {
+    } else if (installedFor != bundledId) {
       // Every app update ships a new bundled database (MDD, MIL, schema
       // fixes), so always replace it rather than trying to merge.
-      reason = 'app updated (${installedFor ?? 'unknown'} -> $appVersion)';
+      reason = 'app updated (${installedFor ?? 'unknown'} -> $bundledId)';
     } else if (!_isReadable(file)) {
       reason = 'unreadable';
     }
@@ -69,7 +70,7 @@ LazyDatabase _openConnection() {
       }
       try {
         await installBundledDatabase(file);
-        await prefs.setString(_kInstalledForAppVersionKey, appVersion);
+        await prefs.setString(_kInstalledForAppVersionKey, bundledId);
       } catch (e) {
         if (kDebugMode) {
           print('Failed to copy database from assets: $e');
@@ -87,6 +88,22 @@ const String _kInstalledForAppVersionKey = 'databaseInstalledForAppVersion';
 Future<String> _currentAppVersion() async {
   final PackageInfo info = await PackageInfo.fromPlatform();
   return '${info.version}+${info.buildNumber}';
+}
+
+/// Identifies the bundled database: the app version plus the data stamp
+/// written by tools/generate_prefilled_db.sh, so a rebuild with newer MDD or
+/// MIL data replaces the installed database even if the version is unchanged.
+Future<String> _bundledDataId() async {
+  final String appVersion = await _currentAppVersion();
+  try {
+    final String stamp = await rootBundle.loadString(
+      'assets/data/data_version.json',
+    );
+    final Map<String, dynamic> data = jsonDecode(stamp);
+    return '$appVersion|${data['mil_release']}|${data['mdd_sha256']}';
+  } catch (_) {
+    return appVersion;
+  }
 }
 
 bool _isReadable(File file) {

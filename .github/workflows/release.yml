@@ -36,44 +36,6 @@ jobs:
         working-directory: rust
         run: rustup show active-toolchain
 
-      - name: Install MDD CLI
-        run: cargo install mdd_api
-
-      - name: Prepare MDD and MIL data
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p tmp_data
-          cd tmp_data
-          
-          # Download MDD.zip
-          curl -L -o MDD.zip https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip
-          
-          # Download latest MIL tar.gz from github releases
-          echo "Downloading latest .tar.gz from asm-mil release"
-          gh release download -R mammaldiversity/asm-mil -p "*.tar.gz" --clobber
-          
-          MIL_FILENAME=$(ls *.tar.gz | head -n 1)
-          MIL_DIRNAME="${MIL_FILENAME%.tar.gz}"
-          echo "MIL_DIRNAME=$MIL_DIRNAME" >> $GITHUB_ENV
-          
-          # Run the new prepare subcommand to unpack MDD and merge with MIL data
-          mdd prepare -z MDD.zip -m "$MIL_FILENAME" -o .
-          
-          # Extract images so they can be moved/verified downstream
-          tar -xzf "$MIL_FILENAME"
-      
-      - name: Move MIL images and verify
-        working-directory: tmp_data
-        run: |
-          mkdir -p ../assets/mil-images
-          find "$MIL_DIRNAME/images-540px-webp" -name "*.webp" -exec mv {} ../assets/mil-images/ \;
-          if [ ! -d ../assets/mil-images ]; then
-            echo "Error: assets/mil-images not found"
-            exit 1
-          fi
-          echo "Images moved successfully"
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -96,24 +58,14 @@ jobs:
             throw 'Microsoft Edge WebView2 Runtime is not installed.'
           }
 
-      - run: |
-          flutter pub get
-          flutter analyze
-
+      # Fetches the latest MDD.zip and MIL release, then generates mdd.db,
+      # mil.json, MIL images and the data stamp checked by the snap build.
       - name: Generate SQLite Database
-        run: |
-          # Copy to expected 'data/' folder for the script
-          mkdir -p data
-          cp tmp_data/MDD.zip data/MDD.zip
-          cp tmp_data/mil.json data/mil.json || true
-          mkdir -p assets/data
-          cp tmp_data/mil.json assets/data/mil.json || true
-          ./tools/generate_prefilled_db.sh
+        run: ./tools/generate_prefilled_db.sh
 
       - name: Cleanup temporary data
         run: |
           echo "Removing unneeded source files to reduce app size"
-          rm -rf tmp_data
           rm -rf data
           
       - run: |

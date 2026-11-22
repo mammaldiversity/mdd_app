@@ -37,12 +37,55 @@ apps:
 parts:
   mammal-diversity:
     # Packages the bundle produced by `flutter build linux --release`. Build it
-    # first: the release needs the prefilled database and MIL images prepared
-    # by the release workflow (or tools/generate_prefilled_db.sh locally).
+    # with tools/build_snap.sh, which fetches the latest MDD and MIL data,
+    # regenerates the database and images, and then runs snapcraft.
     plugin: dump
     source: build/linux/x64/release/bundle
+    build-packages:
+      - curl
     organize:
       "*": app/
     override-pull: |
       craftctl default
       craftctl set version="$(sed -n 's/^version: *\([^+]*\).*/\1/p' "$CRAFT_PROJECT_DIR/pubspec.yaml")"
+
+      # Refuse to pack a bundle built from outdated MDD or MIL data.
+      # Set MDD_SKIP_DATA_CHECK=1 (destructive/host builds only) to bypass.
+      if [ "${MDD_SKIP_DATA_CHECK:-0}" = "1" ]; then
+        echo "WARNING: skipping MDD/MIL freshness check."
+        exit 0
+      fi
+      ASSETS="$CRAFT_PART_SRC/data/flutter_assets/assets"
+      STAMP="$ASSETS/data/data_version.json"
+      for f in "$ASSETS/data/mdd.db" "$ASSETS/data/mil.json" "$STAMP"; do
+        if [ ! -s "$f" ]; then
+          echo "ERROR: $f missing from the bundle. Run tools/build_snap.sh." >&2
+          exit 1
+        fi
+      done
+      json_field() { sed -n "s/.*\"$1\": *\"\{0,1\}\([^\",]*\).*/\1/p" "$STAMP"; }
+      BUNDLED_MIL=$(json_field mil_release)
+      BUNDLED_MDD=$(json_field mdd_sha256)
+      BUNDLED_IMAGES=$(json_field mil_image_count)
+      ACTUAL_IMAGES=$(find "$ASSETS/mil-images" -maxdepth 1 -name '*.webp' | wc -l)
+
+      LATEST_MIL=$(curl -fsSI https://github.com/mammaldiversity/asm-mil/releases/latest \
+        | tr -d '\r' | sed -n 's|^[Ll]ocation: .*/releases/tag/\(.*\)$|\1|p')
+      LATEST_MDD=$(curl -fsSL https://github.com/mammaldiversity/mammaldiversity.github.io/raw/master/assets/data/MDD.zip \
+        | sha256sum | cut -d' ' -f1)
+      if [ -z "$LATEST_MIL" ]; then
+        echo "ERROR: could not resolve the latest MIL release." >&2
+        exit 1
+      fi
+
+      echo "MIL bundled: $BUNDLED_MIL ($ACTUAL_IMAGES images), latest: $LATEST_MIL"
+      echo "MDD bundled: $BUNDLED_MDD"
+      echo "MDD latest:  $LATEST_MDD"
+      STALE=0
+      [ "$BUNDLED_MIL" = "$LATEST_MIL" ] || { echo "ERROR: bundled MIL is not the latest release." >&2; STALE=1; }
+      [ "$BUNDLED_MDD" = "$LATEST_MDD" ] || { echo "ERROR: bundled MDD.zip is not the latest." >&2; STALE=1; }
+      [ "$ACTUAL_IMAGES" = "$BUNDLED_IMAGES" ] || { echo "ERROR: bundle has $ACTUAL_IMAGES MIL images, expected $BUNDLED_IMAGES." >&2; STALE=1; }
+      if [ "$STALE" -ne 0 ]; then
+        echo "Rebuild the bundle with tools/build_snap.sh." >&2
+        exit 1
+      fi
