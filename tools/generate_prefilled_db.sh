@@ -72,9 +72,8 @@ if [ "$IMAGE_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-# Stamp the data the bundle was built from. The snap build checks it against
-# the latest upstream release, and the app uses it to decide whether to
-# replace an installed database.
+# Stamp the data the bundle was built from. The app uses it to decide
+# whether to replace an installed database.
 if command -v sha256sum >/dev/null 2>&1; then
     MDD_SHA=$(sha256sum data/MDD.zip | cut -d' ' -f1)
 else

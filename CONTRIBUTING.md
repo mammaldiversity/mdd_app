@@ -123,16 +123,9 @@ If PowerShell blocks the scripts because of the execution policy, run them with 
 ./tools/build_snap.sh
 ```
 
-This fetches the latest data, regenerates it, does a clean `flutter build linux --release`, and runs `snapcraft pack`. Extra arguments are passed to snapcraft.
+This runs `snapcraft pack`; extra arguments are passed to snapcraft. Running `snapcraft` directly is equivalent.
 
-`snap/snapcraft.yaml` packages the existing bundle in `build/linux/x64/release/bundle`. Before packing, it checks the bundle against the latest upstream data and fails if:
-
-- `mdd.db`, `mil.json`, or `data_version.json` is missing,
-- the bundled MIL release is not the latest asm-mil release,
-- the bundled `MDD.zip` checksum differs from the current upstream file, or
-- the number of MIL images differs from the stamp.
-
-Running `snapcraft` directly on an old bundle therefore fails; rebuild with `tools/build_snap.sh`. For host or destructive-mode builds only, `MDD_SKIP_DATA_CHECK=1` bypasses the check.
+`snap/snapcraft.yaml` builds everything from a clean checkout, so the same recipe works on Launchpad / snapcraft.io remote builds: the `flutter` plugin clones the stable Flutter SDK, the part installs rustup (the toolchain comes from `rust/rust-toolchain.toml`), runs `tools/generate_prefilled_db.sh` to fetch the latest MDD and MIL data and regenerate `mdd.db`, `mil.json`, and the MIL images, then runs `flutter build linux --release`. A local `build/` directory is not used.
 
 ## Testing
 

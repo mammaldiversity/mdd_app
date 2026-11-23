@@ -59,7 +59,7 @@ jobs:
           }
 
       # Fetches the latest MDD.zip and MIL release, then generates mdd.db,
-      # mil.json, MIL images and the data stamp checked by the snap build.
+      # mil.json, MIL images and the data stamp.
       - name: Generate SQLite Database
         run: ./tools/generate_prefilled_db.sh
 
@@ -83,8 +83,8 @@ jobs:
         run: |
           flutter build windows --release
 
-      # Packages the release bundle above, so it must run before the bundle
-      # is moved into the tarball.
+      # Builds the snap from source in its own environment (fetching the
+      # latest data itself); it does not use the bundle built above.
       - name: Build Snap
         if: ${{ runner.os == 'Linux' }}
         id: snap
