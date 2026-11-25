@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Show "Mammal Diversity" as the app name on macOS.
 - Fix a crash on launch on Android.
+- Fix layout errors on the setup screen on Android.
 
 ### Chores
 

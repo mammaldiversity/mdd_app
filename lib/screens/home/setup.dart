@@ -233,15 +233,26 @@ class SetupFeatures extends StatelessWidget {
     (Icons.analytics_outlined, 'Diversity statistics'),
   ];
 
+  static const double _spacing = 8;
+
+  /// Narrowest a tile can be and still fit its padding, icon, and some text.
+  static const double _minTileWidth = 120;
+
   @override
   Widget build(BuildContext context) {
-    const double spacing = 8;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final tileWidth = (constraints.maxWidth - spacing) / 2;
+        final available = constraints.maxWidth;
+        // Android lays out the first frame at zero width before the window
+        // has its size; a negative tile width would break the layout.
+        if (!available.isFinite || available < _minTileWidth) {
+          return const SizedBox.shrink();
+        }
+        final twoUp = (available - _spacing) / 2;
+        final tileWidth = twoUp >= _minTileWidth ? twoUp : available;
         return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
+          spacing: _spacing,
+          runSpacing: _spacing,
           children: [
             for (final (icon, label) in _features)
               SizedBox(
