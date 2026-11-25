@@ -1,0 +1,5 @@
+package com.hhandika.mdd
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Add a home button to higher taxon, species, statistic table, and country pages to return to the home screen from deep links.
+
+### Fixed
+
+- Show "Mammal Diversity" as the app name on macOS.
+- Fix a crash on launch on Android.
+
+### Chores
+
+- Update Gradle to 9.9.2.
+- Build the snap from source in its own environment.
+- Update dependencies.
+
 ## [v1.6.2] - 2026-11-22
 
 ### Added
