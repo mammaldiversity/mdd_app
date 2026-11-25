@@ -7,6 +7,7 @@ import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/database.dart';
 import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/synonyms.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 const _title = 'Names and Synonyms';
 
@@ -58,11 +59,17 @@ class SynonymTablePage extends ConsumerWidget {
             rows: rows,
           ),
           loading: () => Scaffold(
-            appBar: AppBar(title: const Text(_title)),
+            appBar: AppBar(
+              title: const Text(_title),
+              actions: const [HomeButton()],
+            ),
             body: const Center(child: SimpleLoadingMessages()),
           ),
           error: (error, stack) => Scaffold(
-            appBar: AppBar(title: const Text(_title)),
+            appBar: AppBar(
+              title: const Text(_title),
+              actions: const [HomeButton()],
+            ),
             body: Center(child: Text('Error: $error')),
           ),
         );

@@ -18,6 +18,7 @@ import 'package:mdd/services/higher_taxon.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
 import 'package:mdd/services/taxon_tree.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 /// Opens the page for the taxon [name] at [rank], e.g. family Muridae.
 void openHigherTaxonPage(BuildContext context, TaxonRank rank, String name) {
@@ -94,6 +95,7 @@ class _HigherTaxonPageState extends ConsumerState<HigherTaxonPage> {
                 : FontStyle.normal,
           ),
         ),
+        actions: const [HomeButton()],
       ),
       body: SafeArea(
         child: ref

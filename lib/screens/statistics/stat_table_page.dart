@@ -8,6 +8,7 @@ import 'package:mdd/screens/statistics/table_filter_bar.dart';
 import 'package:mdd/services/export.dart';
 import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/system.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 class StatTableColumn {
   const StatTableColumn({
@@ -243,7 +244,10 @@ class _StatTablePageState extends ConsumerState<StatTablePage> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title), actions: widget.appBarActions),
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [...widget.appBarActions, const HomeButton()],
+      ),
       body: SafeArea(
         child: PagedTableView(
           leading: [

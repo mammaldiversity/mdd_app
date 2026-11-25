@@ -14,6 +14,7 @@ import 'package:mdd/screens/shared/info_card.dart';
 import 'package:mdd/screens/explore/tree_view.dart';
 import 'package:mdd/services/providers/settings.dart';
 import 'package:mdd/services/taxon_tree.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 class ExploreSpecies extends ConsumerStatefulWidget {
   const ExploreSpecies({super.key});
@@ -81,7 +82,10 @@ class OpenTaxonomyTreeButton extends ConsumerWidget {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (context) => Scaffold(
-            appBar: AppBar(title: const Text('Explore Taxonomy')),
+            appBar: AppBar(
+              title: const Text('Explore Taxonomy'),
+              actions: const [HomeButton()],
+            ),
             body: const ExploreSpecies(),
           ),
         ),

@@ -11,6 +11,7 @@ import 'package:mdd/services/providers/statistics.dart';
 import 'package:mdd/services/rule_filter.dart';
 import 'package:mdd/services/statistics.dart';
 import 'package:mdd/services/system.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 class CountryTablePage extends ConsumerStatefulWidget {
   const CountryTablePage({super.key});
@@ -201,7 +202,10 @@ class _CountryTablePageState extends ConsumerState<CountryTablePage> {
     final countryStatsAsync = ref.watch(countryDiversityStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mammal Diversity by Country')),
+      appBar: AppBar(
+        title: const Text('Mammal Diversity by Country'),
+        actions: const [HomeButton()],
+      ),
       body: SafeArea(
         child: countryStatsAsync.when(
           data: (allCountries) {

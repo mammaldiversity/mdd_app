@@ -11,6 +11,7 @@ import 'package:mdd/screens/taxon/taxonomy.dart';
 import 'package:mdd/services/database/database.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/species_list.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 class SpeciesPage extends ConsumerStatefulWidget {
   const SpeciesPage({super.key});
@@ -42,7 +43,10 @@ class _SpeciesView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Taxon Information')),
+      appBar: AppBar(
+        title: const Text('Taxon Information'),
+        actions: const [HomeButton()],
+      ),
       body: SafeArea(
         child: Center(
           child: ref

@@ -6,6 +6,7 @@ import 'package:mdd/screens/shared/loadings.dart';
 import 'package:mdd/services/database/mdd_query.dart';
 import 'package:mdd/services/providers/species.dart';
 import 'package:mdd/services/statistics.dart';
+import 'package:mdd/screens/shared/home_button.dart';
 
 class CountrySpeciesPage extends ConsumerWidget {
   final CountryDiversityData countryData;
@@ -29,7 +30,10 @@ class CountrySpeciesPage extends ConsumerWidget {
         'Excludes widespread and domesticated species.';
 
     return Scaffold(
-      appBar: AppBar(title: Text(countryData.countryName)),
+      appBar: AppBar(
+        title: Text(countryData.countryName),
+        actions: const [HomeButton()],
+      ),
       body: SafeArea(
         child: Column(
           children: [
